@@ -6,7 +6,7 @@ The main tool is **agenttrace** and its web app, **Swarm Tracer**. It works on a
 
 ![Swarm Tracer walkthrough: the overview, the Inspector, who talked to whom, the early-flag replay stepping through the incident, swimlanes, the Agents tab, the Forensics tab (tracing a token, the stage ladder, credential lifecycles) and a record explained](docs/assets/walkthrough.gif)
 
-▶ **[Watch the walkthrough video (MP4, 32 s)](https://itsfingerlickinggood.github.io/swarm-tracer/assets/walkthrough.mp4)** · [Read the report (PDF)](docs/assets/Swarm_Tracer_report.pdf)
+▶ **[Watch the walkthrough video (MP4, 32 s)](https://itsfingerlickinggood.github.io/swarm-tracer/assets/walkthrough.mp4)** · [Read the report (PDF)](docs/assets/Swarm_Tracer_report.pdf) · [Slides (PDF)](docs/assets/Swarm_Tracer_slides.pdf)
 
 **Website and documentation:** <https://itsfingerlickinggood.github.io/swarm-tracer/>
 

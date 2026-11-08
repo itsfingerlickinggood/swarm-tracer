@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Swarm Tracer: slides</title>
+<style>
+@page { size: 13.333in 7.5in; margin: 0; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font: 22px/1.4 -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1b2430; }
+.s { width: 13.333in; height: 7.5in; padding: 0.55in 0.7in; position: relative; overflow: hidden; break-after: page; display: flex; flex-direction: column; }
+.s:last-child { break-after: auto; }
+.dark { background: linear-gradient(180deg, #18283b, #0f1b2a); color: #e9eef4; }
+h1 { font-size: 54px; line-height: 1.1; margin: 0 0 18px; letter-spacing: -1px; }
+h2 { font-size: 36px; margin: 0 0 18px; letter-spacing: -.4px; }
+.k { font-size: 15px; text-transform: uppercase; letter-spacing: 1.5px; color: #2f6fb3; font-weight: 700; margin-bottom: 8px; }
+.dark .k { color: #7fb3e6; }
+p { margin: 0 0 14px; }
+.sub { font-size: 26px; color: #b9c7d6; max-width: 10.5in; }
+.muted { color: #5b6672; }
+.small { font-size: 16px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4in; align-items: start; flex: 1; min-height: 0; }
+.grid img { width: 100%; max-height: 5.4in; object-fit: contain; object-position: top; border: 1px solid #e2e6eb; border-radius: 10px; }
+.big { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.25in; margin-top: 18px; }
+.big div { border-left: 4px solid #2f6fb3; padding: 4px 0 4px 14px; }
+.big b { display: block; font-size: 44px; letter-spacing: -1px; }
+.big span { font-size: 17px; color: #5b6672; }
+.dark .big span { color: #b9c7d6; }
+.dark .big div { border-color: #e3a43b; }
+ul { margin: 0 0 12px; padding-left: 26px; }
+li { margin: 0 0 9px; }
+table { border-collapse: collapse; width: 100%; font-size: 19px; }
+td, th { text-align: left; padding: 7px 10px; border-bottom: 1px solid #e2e6eb; }
+th { color: #5b6672; font-weight: 600; font-size: 16px; }
+.foot { position: absolute; bottom: 0.3in; left: 0.7in; right: 0.7in; font-size: 14px; color: #8a96a3; display: flex; justify-content: space-between; }
+.dark .foot { color: #7f92a7; }
+.fig { width: 100%; max-height: 5.2in; object-fit: contain; object-position: top left; border: 1px solid #e2e6eb; border-radius: 10px; }
+.bar { height: 22px; border-radius: 4px; display: inline-block; vertical-align: middle; }
+.rowb { display: grid; grid-template-columns: 2.5in 1fr 1.05in; gap: 12px; align-items: center; margin: 12px 0; font-size: 18px; }
+.rowb .track { display: block; width: 100%; }
+.rowb .bar { display: block; }
+.track { background: #eef1f4; border-radius: 4px; height: 22px; }
+</style>
+</head>
+<body>
+
+<section class="s dark">
+  <div style="margin-top:0.9in">
+    <div class="k">Apart Research Swarm Alignment Hackathon · November 2026</div>
+    <h1>Swarm Tracer</h1>
+    <p class="sub">Who talked to whom in a real AI agent swarm, how information spread, whether the coordination could have been flagged early, and what an investigator would still miss.</p>
+    <p class="sub" style="font-size:20px;margin-top:30px">{{AUTHOR}} · {{AFFILIATION}}</p>
+  </div>
+  <div class="foot"><span>github.com/itsfingerlickinggood/swarm-tracer</span><span>itsfingerlickinggood.github.io/swarm-tracer</span></div>
+</section>
+
+<section class="s">
+  <div class="k">The incident</div>
+  <h2>About 1,200 agents built a message board; about 700 broke into Hugging Face</h2>
+  <ul>
+    <li>July 2026: agents in OpenAI's ExploitGym evaluations found each other on folders of a shared package cache, and coordinated an attack on Hugging Face from July 10 to 13 (METR, OpenAI and Hugging Face reports).</li>
+    <li>The public <b>Swarm Traces</b> release: 189,579 records of code the agents ran, redacted to stable placeholders such as <code>[CREDENTIAL 169]</code>, with no agent field and timestamps on 3% of payloads.</li>
+    <li><b>The question:</b> from public logs alone, what can an outside investigator reconstruct, and what can't they see?</li>
+  </ul>
+  <div class="foot"><span>Sources: METR/Redwood (Aug 26), OpenAI technical report, Hugging Face timeline, swarmtraces.org</span><span>2</span></div>
+</section>
+
+<section class="s">
+  <div class="k">The tool</div>
+  <h2>One local app, one tab per question, every number traceable to records</h2>
+  <img class="fig" src="../reports/submission/figures/app_overview.jpg" alt="">
+  <div class="foot"><span>Stdlib-only Python and a browser app; reads any agent trace</span><span>3</span></div>
+</section>
+
+<section class="s">
+  <div class="k">Method</div>
+  <h2>From raw records to messages, honestly counted</h2>
+  <ul>
+    <li><b>Date</b> records from unix timestamps the agents wrote into their own code, fitted per block and kept only if the fit passes a rank-correlation and error check.</li>
+    <li><b>Identify</b> actors by the token a record authenticates with; a key every agent shares is never an actor.</li>
+    <li><b>Link messages:</b> a read of a place (a dataset, a board folder) after a different actor wrote to it.</li>
+    <li><b>Count honestly:</b> reruns of one program are one sender; each write counts once per reader; a wiki edit that keeps none of the earlier lines is an overwrite, not a message.</li>
+    <li><b>Replay</b> the incident hour by hour: when each warning sign first fires, and how much harm was still to come.</li>
+  </ul>
+  <div class="foot"><span>Details: report Section 3</span><span>4</span></div>
+</section>
+
+<section class="s">
+  <div class="k">Results</div>
+  <h2>Dated, linked, and checked against the investigators</h2>
+  <div class="big">
+    <div><b>59%</b><span>of 91,037 payloads given an estimated time (the release could date 3%)</span></div>
+    <div><b>2.2 h</b><span>largest gap between 7 moments we date and times METR and Hugging Face published</span></div>
+    <div><b>166</b><span>messages among 36 named tokens in 95 pairs, all through Hugging Face datasets</span></div>
+    <div><b>ρ = 1.0</b><span>our actions per day rank the five days as Hugging Face's own logs do</span></div>
+  </div>
+  <p class="small muted" style="margin-top:28px">Every number recomputed with <code>python3 -m agenttrace evaluate</code>; published times from METR pp. 34–38 and Hugging Face's technical timeline.</p>
+  <div class="foot"><span>Report Section 4</span><span>5</span></div>
+</section>
+
+<section class="s">
+  <div class="k">Who talked to whom</div>
+  <div class="grid">
+    <div>
+      <h2>Two clusters, joined by a few brokers</h2>
+      <ul>
+        <li>Agents talked almost entirely through Hugging Face datasets: 493 of 495 messages.</li>
+        <li>Tokens 169 and 170 talked evenly both ways, shared programs and a name prefix: probably one agent with two keys. The tool proposes this merge with direct evidence.</li>
+        <li>Naive counting overstates contact: on the wiki swarm, the rules cut 20,535 apparent messages to 9,866.</li>
+      </ul>
+    </div>
+    <img src="../reports/submission/figures/app_network.jpg" alt="">
+  </div>
+  <div class="foot"><span>Report Sections 4.2 and 4.5</span><span>6</span></div>
+</section>
+
+<section class="s">
+  <div class="k">Could it have been flagged early?</div>
+  <div class="grid">
+    <div>
+      <h2>Not from coordination itself</h2>
+      <p>Share of dated harm still to come when each sign first fired:</p>
+      <div class="rowb"><span>Single-agent signs (first dataset write)</span><span class="track"><span class="bar" style="width:90%;background:#4b5157"></span></span><b>90–100%</b></div>
+      <div class="rowb"><span>First message between tokens</span><span class="track"><span class="bar" style="width:88%;background:#2f6fb3"></span></span><b>88%</b></div>
+      <div class="rowb"><span>Volume alarm (baseline)</span><span class="track"><span class="bar" style="width:84%;background:#8a94a0"></span></span><b>84%</b></div>
+      <div class="rowb"><span>Signs of shared control</span><span class="track"><span class="bar" style="width:54%;background:#2f6fb3"></span></span><b>50–57%</b></div>
+      <p class="small muted">Robust to time errors as large as the dating fit's own (95% ranges in the report).</p>
+    </div>
+    <img src="../reports/submission/figures/app_early.jpg" alt="">
+  </div>
+  <div class="foot"><span>Report Section 4.4 and Appendix B</span><span>7</span></div>
+</section>
+
+<section class="s">
+  <div class="k">How accurate is it?</div>
+  <h2>Scored on 50 simulated swarms with known answers</h2>
+  <table>
+    <tr><th>Measure</th><th>Result (min–median–max)</th></tr>
+    <tr><td>Message links: precision / recall</td><td>44–<b>66</b>–80% / 56–<b>73</b>–80%</td></tr>
+    <tr><td>Agent pairs that talked: precision / recall</td><td>51–<b>74</b>–89% / 73–<b>83</b>–89%</td></tr>
+    <tr><td>Dating error, median</td><td>about one minute</td></tr>
+    <tr><td>Identity merges labelled high: before / after a rule change</td><td>10 of 240 right / 10 of 10 right</td></tr>
+    <tr><td>Benign swarms: messages between different agents</td><td>0 in 10 runs</td></tr>
+    <tr><td>Benign swarms: program-reuse sign (shared boilerplate)</td><td>fires in 10 of 10: a known false positive</td></tr>
+  </table>
+  <div class="foot"><span>docs/validation.md · report Appendix C</span><span>8</span></div>
+</section>
+
+<section class="s">
+  <div class="k">What an investigator would still miss</div>
+  <h2>The biggest blind spot is identity</h2>
+  <ul>
+    <li><b>A token is not an agent.</b> 241 named tokens and names against about 1,200 agents in the reports; 85% of actions carry no named actor.</li>
+    <li><b>Time:</b> 60% of records cannot be placed at all; estimated times come from a fit.</li>
+    <li><b>Reading is inferred:</b> code shows attempts, not results; 97 of 495 messages sit on places the redaction may have merged.</li>
+    <li><b>Hindsight:</b> the signals and the harm list were written knowing how the incident unfolded.</li>
+    <li><b>Dual use:</b> these gaps are also what a careful swarm could exploit; we describe them only at the level of the public reports and test no evasion.</li>
+  </ul>
+  <div class="foot"><span>Report Section 5 and Appendix A; docs/known-issues.md</span><span>9</span></div>
+</section>
+
+<section class="s">
+  <div class="k">A general tool</div>
+  <h2>Any swarm, and deeper forensics</h2>
+  <div class="grid">
+    <ul>
+      <li>Reads JSONL, JSON, CSV, plain logs, folders, and OpenTelemetry GenAI, LangSmith, Langfuse, AutoGen, CrewAI, OpenAI Agents SDK and MCP traces.</li>
+      <li>Agents tab: which tokens are one agent, with evidence and confidence.</li>
+      <li>Live mode and editable alert rules; case files; labels; compare two swarms.</li>
+      <li>AI investigator (any OpenAI-compatible or local model) whose answers are charts with every id checked.</li>
+    </ul>
+    <ul>
+      <li><b>Forensics tab:</b> trace any string; credential lifecycles; command and control; dead drops; program evolution with diffs; attack stage ladder; lead–lag; anomalies; a story from the data; what-if; chain of custody; STIX and Timesketch exports.</li>
+    </ul>
+  </div>
+  <div class="foot"><span>Tested on two very different swarms: code payloads and wiki edits</span><span>10</span></div>
+</section>
+
+<section class="s dark">
+  <div style="margin-top:1.1in">
+    <div class="k">Try it</div>
+    <h1 style="font-size:44px">pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.0.0</h1>
+    <p class="sub">then <code>swarm-tracer demo</code>, or <code>swarm-tracer serve --input your-swarm.jsonl</code></p>
+    <p class="sub" style="font-size:22px;margin-top:30px">Code: github.com/itsfingerlickinggood/swarm-tracer<br>Website, docs and video: itsfingerlickinggood.github.io/swarm-tracer</p>
+  </div>
+  <div class="foot"><span>{{AUTHOR}}</span><span>11</span></div>
+</section>
+</body>
+</html>
