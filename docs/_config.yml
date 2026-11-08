@@ -1,0 +1,4 @@
+title: Swarm Tracer
+description: Forensics for AI agent swarms
+theme: jekyll-theme-cayman
+exclude: [tool-study.md]

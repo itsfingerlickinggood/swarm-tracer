@@ -82,7 +82,7 @@ class SessionTests(unittest.TestCase):
 
     def test_ai_requires_key(self):
         with self.assertRaises(ValueError):
-            ai.call("http://127.0.0.1:9", "", "m", [])
+            ai.call("https://example.invalid/v1", "", "m", [])
 
 
 class ServerTests(unittest.TestCase):

@@ -4,35 +4,39 @@ Forensics for AI agent swarms. Built for the Apart Research Swarm Alignment Hack
 
 The main tool is **agenttrace** and its web app, **Swarm Tracer**. It works on any agent trace (JSONL, JSON, CSV, or a folder of linked files), not only the Swarm Traces release.
 
+**Website and documentation:** <https://itsfingerlickinggood.github.io/swarm-tracer/>
+
 ## Quick start
 
-Python 3.9+ standard library only, no installs.
+Python 3.9+ standard library only.
 
 ```bash
-# run the app on 127.0.0.1:8010, then upload a trace file or folder in the browser
-python3 -m agenttrace serve
-
-# or preload a dataset (the pack is picked from the data unless you name one)
-python3 -m agenttrace serve --input redacted.jsonl
-python3 -m agenttrace serve --input full-wiki-logs --pack wiki_swarm.json
-
-# every number and figure in the report: baselines, robustness, counting rules, timing check
-python3 -m agenttrace evaluate redacted_columns.csv --pack code_traces.json --out reports/evaluation
-python3 -m agenttrace evaluate full-wiki-logs --pack wiki_swarm.json --out reports/evaluation-wiki
-python3 paper/build.py --author "Name" --affiliation "Affiliation"   # the report PDF (needs Google Chrome)
-
-# tests
-python3 -m unittest discover -s agenttrace/tests -t .
+pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer
+swarm-tracer demo                         # a simulated swarm with known answers
+swarm-tracer serve --input my-swarm.jsonl # then open http://127.0.0.1:8010
 ```
 
-The app has three panes, and every actor, place and record id in it can be hovered for a card and clicked to inspect:
-- **Left:** one tab per question. Overview (incident brief from the public reports, the whole incident on one chart, short answers), who talked to whom (the graph of every message, a time scrubber, the full matrix, every conversation with its record ids), timeline (one swimlane per actor with messages drawn between them), channels (a map of every place), spread (what each shared program does and who reused it), early flag (an hour-by-hour replay with every warning sign and a simple alert rule), every event, and what's missing (each blind spot measured).
-- **Right top:** the Inspector. A record explained in plain words with its role in the swarm, or an actor's or a place's profile.
-- **Right bottom:** an AI investigator that uses any OpenAI-compatible endpoint. The default is OpenCode Go with `deepseek-v4.1-flash`: paste your key under Settings and press **Check connection**. On OpenCode Go, DeepSeek models also need **Global** selected under Settings > Privacy > Regions in the OpenCode console. Answers come back as charts and cards (timelines, flow diagrams, actor cards, evidence with confidence), and every record id, actor and place in them is checked against the data.
+From a clone, `python3 -m agenttrace …` is the same command. Reproduce the report:
 
-**Any trace.** With the `auto` pack (the default) the tool picks a pack from the data's shape and says why on the overview. The generic pack also finds shared keys on its own: a token used in a quarter or more of all runs, in a trace with 20 or more tokens, is treated as shared rather than as one agent.
+```bash
+python3 -m agenttrace evaluate redacted_columns.csv --pack code_traces.json --out reports/evaluation
+python3 -m agenttrace evaluate full-wiki-logs --pack wiki_swarm.json --out reports/evaluation-wiki
+python3 paper/build.py --author "Name" --affiliation "Affiliation"   # needs Google Chrome
+python3 -m unittest discover -s agenttrace/tests -t .                 # tests
+```
 
-See [`agenttrace/README.md`](agenttrace/README.md) for the full guide: formats, packs, labeling and precision, and the command-line reports.
+## What it does
+
+- **Any swarm.** JSONL, JSON, CSV/TSV, plain-text logs and folders, plus OpenTelemetry GenAI spans, LangSmith, Langfuse, AutoGen, CrewAI, OpenAI Agents SDK and MCP tool-call traces, detected from their shape. Logged agent-to-agent messages count directly; messages left in shared places are inferred. A pack adapts the tool to a new kind of swarm, and the pack builder proposes one from a sample.
+- **Who talked to whom:** the graph of every message, a time slider, the full matrix, and every conversation with its record ids.
+- **Spread:** programs and tokens that moved between agents.
+- **Early flag:** an hour-by-hour replay with every warning sign, editable alert rules, and **live mode** on a growing trace.
+- **Agents:** a token is not an agent. Proposals that identities are one agent, with evidence and confidence, and roles.
+- **Inspector:** any record explained, with the code that set each reading highlighted; estimated times with their likely range.
+- **Case file:** pins, notes, and an exported dossier. Labels in the app give live precision for each pattern.
+- **Compare** two swarms, from a library of past incidents. **Ground-truth mode** scores the tool on a simulated swarm whose true links are known.
+- **AI investigator** (optional; any OpenAI-compatible model, including local Ollama): answers drawn as charts and cards with every id checked against the data, a gap audit, and a draft incident report.
+- Large datasets are cached on disk (32.7 s to 0.5 s for the Swarm Traces release).
 
 ## Data
 
@@ -47,7 +51,8 @@ The datasets are not in this repository.
 |---|---|
 | `agenttrace/` | The tool and the Swarm Tracer app: loader, analysis, time and identity reconstruction, message flow, conversations, claims checking, labeling, AI investigator, tests |
 | `reports/findings/` | A written summary of what the swarm did, with record ids |
-| `docs/tool-study.md` | Notes on existing trace viewers and what they lack for swarm forensics |
+| `docs/` | The website and documentation (GitHub Pages), and `tool-study.md`, notes on existing trace viewers |
+| `agenttrace/samples/` | One small sample per framework format, and a simulated demo swarm with its true links |
 | `paper/` | The hackathon report source, its build script (tables and figures filled from `agenttrace evaluate`), and the app screenshots in Appendix C (`paper/figures`; `python3 paper/build.py --capture http://localhost:8010` recaptures them from a running app) |
 
 Earlier prototypes (`analyzer/`, `forensics/`) were replaced by `agenttrace` and removed; they remain in the git history.

@@ -109,6 +109,88 @@ def cmd_serve(a):
     server.serve(a.port, a.input, a.pack, parse_map(a.map))
 
 
+SAMPLES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "samples")
+
+
+def demo_input():
+    """The bundled demo swarm (agenttrace/samples/demo_swarm/), else any trace file in agenttrace/samples/."""
+    d = os.path.join(SAMPLES, "demo_swarm")
+    if os.path.isdir(d) and any(not f.startswith(".") for f in os.listdir(d)):
+        return d
+    if os.path.isdir(SAMPLES):
+        for root, _, files in sorted(os.walk(SAMPLES)):
+            for f in sorted(files):
+                if f.lower().endswith((".csv", ".jsonl", ".json", ".tsv", ".txt", ".log")) and not f.startswith("."):
+                    return os.path.join(root, f)
+    return None
+
+
+def _open_when_up(port, timeout=120):
+    """Open the browser once the server answers (the demo is analyzed before the server starts)."""
+    import socket
+    import threading
+    import time
+    import webbrowser
+
+    def wait():
+        end = time.time() + timeout
+        while time.time() < end:
+            try:
+                socket.create_connection(("127.0.0.1", port), timeout=1).close()
+                webbrowser.open(f"http://127.0.0.1:{port}/")
+                return
+            except OSError:
+                time.sleep(0.5)
+    threading.Thread(target=wait, daemon=True).start()
+
+
+def cmd_demo(a):
+    path = demo_input()
+    if not path:
+        raise SystemExit("No demo data found in " + SAMPLES + ". Run `swarm-tracer serve` and upload a trace instead.")
+    print(f"demo swarm: {path}", flush=True)
+    if not a.no_browser:
+        _open_when_up(a.port)
+    from . import server
+    server.serve(a.port, path, a.pack, {})
+
+
+def cmd_compare(a):
+    from . import compare
+    from .session import Session
+    out = []
+    for path, pack in ((a.first, a.pack), (a.second, a.pack2 or a.pack)):
+        s = Session()
+        s.load(path, pack, {})
+        out.append(compare.measures(s))
+    diff = compare.differences(out[0], out[1])
+    if a.json:
+        print(json.dumps({"a": out[0], "b": out[1], "differences": diff}, indent=2, default=str))
+        return
+    keys = ["records", "dated_share", "named_actors", "actions", "places", "messages_named", "messages_named_merged", "pairs",
+            "two_way_share", "largest_group", "wait_median_h", "wait_p90_h", "programs_shared", "adoption_median_h", "harm_total"]
+    w = max(len(k) for k in keys)
+    print(f"{'':{w}}  {out[0]['name'][:30]:>30}  {out[1]['name'][:30]:>30}")
+    for k in keys:
+        print(f"{k:{w}}  {str(out[0][k]):>30}  {str(out[1][k]):>30}")
+    for fam in ("joint", "single", "baseline"):
+        cells = []
+        for m in out:
+            g = m["first_sign"].get(fam)
+            cells.append(f"{g['time']} ({round(100 * g['harm_share_after'])}% to come)"
+                         if g and g["harm_share_after"] is not None else "-")
+        print(f"{'first ' + fam + ' sign':{w}}  " + "  ".join(f"{c:>30}" for c in cells))
+    print()
+    for d in diff:
+        print("- " + d["text"])
+
+
+def cmd_library(a):
+    from . import compare
+    for e in compare.library()["entries"]:
+        print(f"{e['id']:16s} {e['title']}\n{'':16s} pack {e.get('pack')}; {'here: ' + e['available'] if e['available'] else 'not on this machine; get it from ' + str(e.get('source_url'))}")
+
+
 def cmd_sample(a):
     pack = packs.load_pack(a.pack)
     events = model.load(a.input, parse_map(a.map))
@@ -198,6 +280,23 @@ def main(argv=None):
     ev.add_argument("--out", required=True)
     ev.add_argument("--map", action="append")
     ev.set_defaults(fn=cmd_evaluate)
+
+    dm = sub.add_parser("demo", help="open the app on the bundled demo swarm (agenttrace/samples/demo_swarm)")
+    dm.add_argument("--port", type=int, default=8010)
+    dm.add_argument("--pack", default="auto")
+    dm.add_argument("--no-browser", action="store_true", help="do not open a browser tab")
+    dm.set_defaults(fn=cmd_demo)
+
+    cp = sub.add_parser("compare", help="compare two swarms: the same measures side by side, and what differs")
+    cp.add_argument("first")
+    cp.add_argument("second")
+    cp.add_argument("--pack", default="auto", help="pack for both (or the first, with --pack2)")
+    cp.add_argument("--pack2", help="pack for the second dataset")
+    cp.add_argument("--json", action="store_true")
+    cp.set_defaults(fn=cmd_compare)
+
+    lb = sub.add_parser("library", help="known datasets and incidents, and whether each is on this machine")
+    lb.set_defaults(fn=cmd_library)
 
     q = sub.add_parser("precision", help="precision and recall from a filled labels CSV")
     q.add_argument("labels")

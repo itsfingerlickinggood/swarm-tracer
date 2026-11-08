@@ -1,0 +1,445 @@
+{
+ "runs": [
+  {
+   "id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "name": "LangGraph",
+   "run_type": "chain",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": null,
+   "start_time": "2026-10-14T09:33:20.000000",
+   "end_time": "2026-10-14T09:33:23.000000",
+   "inputs": {
+    "messages": [
+     {
+      "role": "user",
+      "content": "Book a table for 4 near the venue and send the team the details"
+     }
+    ]
+   },
+   "outputs": null,
+   "error": null,
+   "extra": {
+    "metadata": {
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000001",
+   "name": "alice",
+   "run_type": "chain",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "start_time": "2026-10-14T09:33:21.000000",
+   "end_time": "2026-10-14T09:33:24.000000",
+   "inputs": {
+    "messages": []
+   },
+   "outputs": null,
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "alice",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000002",
+   "name": "ChatOpenAI",
+   "run_type": "llm",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-000000000001",
+   "start_time": "2026-10-14T09:33:22.000000",
+   "end_time": "2026-10-14T09:33:25.000000",
+   "inputs": {
+    "messages": [
+     [
+      {
+       "role": "user",
+       "content": "Book a table for 4 near the venue and send the team the details"
+      }
+     ]
+    ]
+   },
+   "outputs": {
+    "generations": [
+     [
+      {
+       "text": "",
+       "message": {
+        "content": "I'll look up the venue first."
+       }
+      }
+     ]
+    ]
+   },
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "alice",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000003",
+   "name": "get_event_venue",
+   "run_type": "tool",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-000000000001",
+   "start_time": "2026-10-14T09:33:24.000000",
+   "end_time": "2026-10-14T09:33:27.000000",
+   "inputs": {
+    "input": "{\"event\": \"offsite-2026\"}"
+   },
+   "outputs": {
+    "output": "Venue: Harbor Hall, 12 Pier St"
+   },
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "alice",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000004",
+   "name": "ChatOpenAI",
+   "run_type": "llm",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-000000000001",
+   "start_time": "2026-10-14T09:33:26.000000",
+   "end_time": "2026-10-14T09:33:29.000000",
+   "inputs": {
+    "messages": [
+     [
+      {
+       "role": "tool",
+       "content": "Venue: Harbor Hall"
+      }
+     ]
+    ]
+   },
+   "outputs": {
+    "generations": [
+     [
+      {
+       "text": "Booking is Bob's job, transferring."
+      }
+     ]
+    ]
+   },
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "alice",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000005",
+   "name": "transfer_to_bob",
+   "run_type": "tool",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-000000000001",
+   "start_time": "2026-10-14T09:33:28.000000",
+   "end_time": "2026-10-14T09:33:31.000000",
+   "inputs": {
+    "input": "{\"reason\": \"needs restaurant booking near Harbor Hall\"}"
+   },
+   "outputs": {
+    "output": "Successfully transferred to bob"
+   },
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "alice",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000006",
+   "name": "bob",
+   "run_type": "chain",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "start_time": "2026-10-14T09:33:29.000000",
+   "end_time": "2026-10-14T09:33:32.000000",
+   "inputs": {
+    "messages": []
+   },
+   "outputs": null,
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "bob",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000007",
+   "name": "ChatOpenAI",
+   "run_type": "llm",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-000000000006",
+   "start_time": "2026-10-14T09:33:30.000000",
+   "end_time": "2026-10-14T09:33:33.000000",
+   "inputs": {
+    "messages": [
+     [
+      {
+       "role": "user",
+       "content": "needs restaurant booking near Harbor Hall"
+      }
+     ]
+    ]
+   },
+   "outputs": {
+    "generations": [
+     [
+      {
+       "text": "Searching restaurants near 12 Pier St."
+      }
+     ]
+    ]
+   },
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "bob",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000008",
+   "name": "search_restaurants",
+   "run_type": "tool",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-000000000006",
+   "start_time": "2026-10-14T09:33:32.000000",
+   "end_time": "2026-10-14T09:33:35.000000",
+   "inputs": {
+    "input": "{\"near\": \"12 Pier St\", \"party\": 4}"
+   },
+   "outputs": {
+    "output": "Saltline (7pm free), Dockside (8pm free)"
+   },
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "bob",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000009",
+   "name": "book_table",
+   "run_type": "tool",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-000000000006",
+   "start_time": "2026-10-14T09:33:34.000000",
+   "end_time": "2026-10-14T09:33:37.000000",
+   "inputs": {
+    "input": "{\"restaurant\": \"Saltline\", \"time\": \"19:00\", \"party\": 4}"
+   },
+   "outputs": {
+    "output": "confirmation SL-2291"
+   },
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "bob",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000010",
+   "name": "send_message",
+   "run_type": "tool",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-000000000006",
+   "start_time": "2026-10-14T09:33:36.000000",
+   "end_time": "2026-10-14T09:33:39.000000",
+   "inputs": {
+    "input": "{\"to\": \"alice\", \"text\": \"Booked Saltline 7pm, conf SL-2291\"}"
+   },
+   "outputs": {
+    "output": "sent"
+   },
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "bob",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000011",
+   "name": "transfer_to_alice",
+   "run_type": "tool",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-000000000006",
+   "start_time": "2026-10-14T09:33:38.000000",
+   "end_time": "2026-10-14T09:33:41.000000",
+   "inputs": {
+    "input": "{}"
+   },
+   "outputs": {
+    "output": "Successfully transferred to alice"
+   },
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "bob",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000012",
+   "name": "alice",
+   "run_type": "chain",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "start_time": "2026-10-14T09:33:39.000000",
+   "end_time": "2026-10-14T09:33:42.000000",
+   "inputs": {
+    "messages": []
+   },
+   "outputs": null,
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "alice",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000013",
+   "name": "ChatOpenAI",
+   "run_type": "llm",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-000000000012",
+   "start_time": "2026-10-14T09:33:40.000000",
+   "end_time": "2026-10-14T09:33:43.000000",
+   "inputs": {
+    "messages": [
+     [
+      {
+       "role": "tool",
+       "content": "Booked Saltline 7pm, conf SL-2291"
+      }
+     ]
+    ]
+   },
+   "outputs": {
+    "generations": [
+     [
+      {
+       "text": "Posting the booking to #offsite."
+      }
+     ]
+    ]
+   },
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "alice",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  },
+  {
+   "id": "1f0a9b2c-0000-4000-8000-000000000014",
+   "name": "post_to_slack",
+   "run_type": "tool",
+   "trace_id": "1f0a9b2c-0000-4000-8000-00000000a001",
+   "parent_run_id": "1f0a9b2c-0000-4000-8000-000000000012",
+   "start_time": "2026-10-14T09:33:42.000000",
+   "end_time": "2026-10-14T09:33:45.000000",
+   "inputs": {
+    "input": "{\"channel\": \"#offsite\", \"text\": \"Dinner: Saltline 7pm, 4 people\"}"
+   },
+   "outputs": {
+    "output": "ok"
+   },
+   "error": null,
+   "extra": {
+    "metadata": {
+     "langgraph_node": "alice",
+     "thread_id": "th-42"
+    }
+   },
+   "tags": [
+    "swarm"
+   ],
+   "session_name": "support-swarm"
+  }
+ ]
+}

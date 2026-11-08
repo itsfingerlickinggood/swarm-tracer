@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swarm-tracer"
+version = "1.0.0"
+description = "Forensics for AI agent swarms: who talked to whom, how information spread, whether coordination could be flagged early, and what an investigator would still miss. A local web app and command line; Python standard library only."
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["ai agents", "multi-agent", "forensics", "traces", "incident response"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Environment :: Web Environment",
+    "Intended Audience :: Science/Research",
+    "Topic :: Security",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/itsfingerlickinggood/swarm-tracer"
+
+[project.scripts]
+swarm-tracer = "agenttrace.cli:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+include = ["agenttrace", "agenttrace.*"]
+
+[tool.setuptools.package-data]
+agenttrace = [
+    "*.md",
+    "app/*",
+    "app/**/*",
+    "packs/*.json",
+    "claims/*.json",
+    "samples/*",
+    "samples/**/*",
+]

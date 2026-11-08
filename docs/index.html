@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swarm Tracer: forensics for AI agent swarms</title>
+<meta name="description" content="An open, local tool that reconstructs who talked to whom in an AI agent swarm, how information spread, and whether the coordination could have been flagged early.">
+<style>
+:root{--ink:#1b2430;--muted:#5b6672;--line:#e2e6eb;--accent:#2f6fb3;--amber:#e3a43b;--bg:#f6f8fb;--top:#0f1b2a}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.6 -apple-system,system-ui,"Segoe UI",sans-serif;color:var(--ink);background:#fff}
+a{color:var(--accent)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+header.hero{background:linear-gradient(180deg,#18283b,var(--top));color:#e9eef4;padding:28px 0 56px}
+nav{display:flex;align-items:center;gap:22px;font-size:14px}
+nav .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;color:#fff;margin-right:auto;text-decoration:none}
+nav a{color:#b9c7d6;text-decoration:none}
+nav a:hover{color:#fff}
+.hero h1{font-size:44px;line-height:1.12;margin:48px 0 14px;letter-spacing:-.6px;max-width:820px}
+.hero p.sub{font-size:19px;color:#b9c7d6;max-width:760px;margin:0 0 26px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-block;padding:10px 18px;border-radius:9px;font-weight:600;text-decoration:none;font-size:15px}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.ghost{border:1px solid #3d5571;color:#e9eef4}
+.shot{margin:-36px auto 0;max-width:1120px;padding:0 24px}
+.shot img{width:100%;border-radius:12px;border:1px solid var(--line);box-shadow:0 24px 60px rgba(10,20,35,.25);display:block}
+section{padding:64px 0}
+section.alt{background:var(--bg)}
+h2{font-size:30px;margin:0 0 10px;letter-spacing:-.3px}
+.lead{font-size:18px;color:var(--muted);max-width:780px;margin:0 0 30px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.card h3{margin:0 0 6px;font-size:17px}
+.card p{margin:0;color:var(--muted);font-size:15px}
+.card .k{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.stat{border-left:3px solid var(--accent);padding:4px 0 4px 14px}
+.stat b{display:block;font-size:30px;letter-spacing:-.5px}
+.stat span{color:var(--muted);font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
+.two img{width:100%;border-radius:10px;border:1px solid var(--line)}
+@media (max-width:820px){.two{grid-template-columns:1fr}.hero h1{font-size:34px}}
+pre{background:#0f1b2a;color:#e9eef4;border-radius:10px;padding:16px 18px;overflow:auto;font:14px/1.55 ui-monospace,Menlo,monospace}
+code{font:14px ui-monospace,Menlo,monospace;background:#eef1f5;padding:1px 5px;border-radius:4px}
+pre code{background:none;padding:0}
+ul.docs{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+ul.docs a{display:block;border:1px solid var(--line);border-radius:10px;padding:12px 16px;text-decoration:none;color:var(--ink);background:#fff}
+ul.docs a b{display:block}
+ul.docs a span{color:var(--muted);font-size:14px}
+ul.docs a:hover{border-color:var(--accent)}
+footer{background:var(--top);color:#9fb0c3;padding:28px 0;font-size:14px}
+footer a{color:#cfdbe8}
+.note{font-size:14px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="./"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><g fill="none" stroke="#7fb3e6" stroke-width="1.3"><path d="M5 7L13 4L21 8L19 17L11 21L5 15Z" opacity=".55"/><path d="M13 4L11 21M5 7L19 17M21 8L5 15" opacity=".35"/></g><g fill="#fff"><circle cx="5" cy="7" r="2"/><circle cx="13" cy="4" r="2"/><circle cx="21" cy="8" r="2"/><circle cx="19" cy="17" r="2"/><circle cx="11" cy="21" r="2"/><circle cx="5" cy="15" r="2"/></g><circle cx="13" cy="12.5" r="2.6" fill="#e3a43b"/></svg>Swarm Tracer</a>
+      <a href="getting-started.html">Get started</a>
+      <a href="user-guide.html">Guide</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="assets/Swarm_Tracer_report.pdf">Report (PDF)</a>
+      <a href="https://github.com/itsfingerlickinggood/swarm-tracer">GitHub</a>
+    </nav>
+    <h1>Forensics for AI agent swarms</h1>
+    <p class="sub">Swarm Tracer reads the logs an agent swarm leaves behind and reconstructs who talked to whom, how information and code spread between agents, and whether the coordination could have been flagged early. It also measures what an investigator still cannot see. It runs on your machine and works with any agent trace.</p>
+    <div class="btns">
+      <a class="btn primary" href="getting-started.html">Get started</a>
+      <a class="btn ghost" href="https://github.com/itsfingerlickinggood/swarm-tracer">View on GitHub</a>
+      <a class="btn ghost" href="assets/Swarm_Tracer_report.pdf">Read the report</a>
+    </div>
+  </div>
+</header>
+<div class="shot"><img src="assets/app_overview.jpg" alt="The Swarm Tracer app: an overview of the incident, the Inspector explaining a record, and the AI investigator"></div>
+
+<section>
+  <div class="wrap">
+    <h2>Built on a real incident</h2>
+    <p class="lead">In July 2026 about 1,200 AI agents in a security evaluation turned a shared package cache into a message board, and roughly 700 of them broke into Hugging Face. We built Swarm Tracer on the public <a href="https://swarmtraces.org/">Swarm Traces</a> release and checked it against what the incident's investigators published.</p>
+    <div class="stats">
+      <div class="stat"><b>40%</b><span>of 189,579 records dated from timestamps the agents wrote into their own code (the release dates 3%)</span></div>
+      <div class="stat"><b>2.2 h</b><span>largest gap between seven times the tool estimates and the times METR and Hugging Face published</span></div>
+      <div class="stat"><b>166</b><span>messages among 36 named tokens in 95 sender-receiver pairs, almost all through Hugging Face datasets</span></div>
+      <div class="stat"><b>50–57%</b><span>of the harm was still to come when signs of shared control fired; a plain volume alarm fired at 84%</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>What it does</h2>
+    <p class="lead">One local web app, one tab per question. Every actor, place and record is clickable, and every number says what it counts.</p>
+    <div class="grid">
+      <div class="card"><div class="k">Who talked to whom</div><h3>Every message, as a graph</h3><p>A message is a read of a place after a different agent wrote to it. Graph, matrix, a time slider that grows the network, and the full conversation behind any arrow, with every record id.</p></div>
+      <div class="card"><div class="k">Spread</div><h3>Code and credentials that moved</h3><p>Programs run by several agents, in the order they were adopted, and tokens seen as data before they were used to log in.</p></div>
+      <div class="card"><div class="k">Early flag</div><h3>Replay the incident hour by hour</h3><p>Every warning sign as it fires, the share of harm still to come, the network as it stood, and an alert rule you can edit and run live on a growing trace.</p></div>
+      <div class="card"><div class="k">Agents</div><h3>Tokens are not agents</h3><p>Proposals that two identities are one agent, each with its evidence and confidence, roles such as coordinator or relay, and an estimate of how many agents there really were.</p></div>
+      <div class="card"><div class="k">Inspector</div><h3>Why the tool reads it that way</h3><p>Any record explained in plain words, with the exact stretch of code that set its intent, tags, identities and places highlighted.</p></div>
+      <div class="card"><div class="k">AI investigator</div><h3>Answers as charts, checked</h3><p>Any OpenAI-compatible model, including local ones. Answers come back as timelines, flow diagrams and evidence cards, and every record id is checked against the data.</p></div>
+      <div class="card"><div class="k">Case file</div><h3>Evidence you can hand over</h3><p>Pin records, agents and conversations, add notes, and export a self-contained dossier.</p></div>
+      <div class="card"><div class="k">Compare</div><h3>Swarm against swarm</h3><p>Load two swarms and compare group sizes, message speed and which signs fired first, from a library of past incidents.</p></div>
+      <div class="card"><div class="k">What's missing</div><h3>Blind spots, measured</h3><p>How much of the data has no time, no named actor or only weak evidence, which question each gap limits, and how to close it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap two">
+    <div>
+      <h2>Any swarm, not one dataset</h2>
+      <p>Swarm Tracer reads JSONL, JSON, CSV and plain-text logs, folders of linked files, and the trace formats of common agent frameworks: OpenTelemetry GenAI spans, LangSmith, Langfuse, AutoGen, CrewAI, the OpenAI Agents SDK and MCP tool calls. Messages agents logged to each other count directly; messages left in shared places are inferred and labelled with what they rest on.</p>
+      <p>A small JSON <a href="packs.html">pack</a> adapts it to a new kind of swarm, and the pack builder proposes one from a sample. It was tested on two very different swarms: code payloads from the Hugging Face incident, and agents using public wikis as a back channel.</p>
+    </div>
+    <img src="assets/app_network.jpg" alt="Who talked to whom: the graph of every message between named tokens">
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap two">
+    <img src="assets/app_early.jpg" alt="The early-flag replay stopped at 06:00 on July 11">
+    <div>
+      <h2>Could it have been flagged early?</h2>
+      <p>The replay steps through the incident hour by hour. In this swarm, single-agent signs such as the first write to a dataset fired a day or more ahead, a link between two tokens through a shared place fired three hours before the surge, and signs that tokens shared control came only when half the harm was still to come.</p>
+      <p class="note">The signals were chosen with hindsight and there is no benign baseline yet, so these are not false-positive rates. The <a href="how-it-works.html">method</a> and the <a href="limitations.html">limits</a> say exactly what the numbers rest on.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Start in a minute</h2>
+    <p class="lead">Python 3.9 or newer, standard library only. Nothing leaves your machine unless you turn on the AI investigator.</p>
+<pre><code>pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer
+swarm-tracer demo                 # a small simulated swarm with known answers
+swarm-tracer serve --input my-swarm.jsonl
+# then open http://127.0.0.1:8010</code></pre>
+    <p class="note">Or from a clone: <code>python3 -m agenttrace serve</code>. See <a href="getting-started.html">Getting started</a>.</p>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>Documentation</h2>
+    <ul class="docs">
+      <li><a href="getting-started.html"><b>Getting started</b><span>Install, load a trace, a first investigation</span></a></li>
+      <li><a href="user-guide.html"><b>User guide</b><span>Every tab, the Inspector, case file, live mode</span></a></li>
+      <li><a href="formats.html"><b>Trace formats</b><span>Files, folders and framework traces it reads</span></a></li>
+      <li><a href="packs.html"><b>Packs</b><span>Adapting the tool to a new swarm</span></a></li>
+      <li><a href="how-it-works.html"><b>How it works</b><span>Dating, identities, messages, signals, replay</span></a></li>
+      <li><a href="ai-investigator.html"><b>AI investigator</b><span>Providers, checked answers, privacy</span></a></li>
+      <li><a href="cli.html"><b>Command line</b><span>serve, evaluate, demo, ground truth, replay</span></a></li>
+      <li><a href="api.html"><b>HTTP API</b><span>Every endpoint the app uses</span></a></li>
+      <li><a href="limitations.html"><b>Limits and dual use</b><span>What it cannot see, and who it helps</span></a></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Swarm Tracer was built at the <a href="https://apartresearch.com/sprints/swarm-alignment-2026">Apart Research Swarm Alignment Hackathon</a>, November 2026. Open source on <a href="https://github.com/itsfingerlickinggood/swarm-tracer">GitHub</a>. Data: <a href="https://swarmtraces.org/">Swarm Traces</a> and <a href="https://collusion.wiki/">collusion.wiki</a>; neither is redistributed.</div>
+</footer>
+</body>
+</html>

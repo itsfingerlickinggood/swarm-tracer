@@ -9,6 +9,10 @@ A delivery is a read of a channel after a write to it by a different actor. The 
 a record is, in order: a non-shared identity token, a handle named in the text, or the
 record's own run (its thread root), so every record has an actor.
 
+A direct message is a record the trace itself addresses to another actor (a recipient field, a
+handoff span, a delegation): the strongest evidence, kept as a delivery with how = "direct
+message (logged)" on the recipient's inbox place (inbox:<recipient>).
+
 Content spread uses near-duplicate families: the same program, with ids masked, sent by
 several actors. The first actor to send it is the source; later actors are adopters.
 """
@@ -53,6 +57,80 @@ def actor_of(e, rec, res, pack):
     if inherited:
         return inherited, "token_via_thread"
     return "run:" + res["_root"][e.id], "run"
+
+
+# ------------------------------------------------------------------ direct messages
+
+DIRECT_HOW = "direct message (logged)"
+DIRECT_PREFIX = "inbox"
+
+
+def direct_messages(events, pack, rec, res):
+    """Records addressed to another actor (Event.to): sender -> recipient, with the recipient's
+    reply when the trace has one (a child record by the recipient, else the recipient's next record
+    in the same thread). Cached in rec; undated ones are kept with write_time None."""
+    if "_direct" in rec:
+        return rec["_direct"]
+    addressed = [(i, e) for i, e in enumerate(events) if getattr(e, "to", None)]
+    out = []
+    if addressed:
+        times = rec["_times"]
+        children = defaultdict(list)
+        thread = defaultdict(list)
+        pos = {}
+        for i, e in enumerate(events):
+            if e.parent:
+                children[e.parent].append(i)
+            key = e.channel or ""
+            pos[e.id] = len(thread[key])
+            thread[key].append(i)
+        memo = {}
+
+        def who(j):
+            if j not in memo:
+                memo[j] = actor_of(events[j], rec, res, pack)[0]
+            return memo[j]
+        for i, e in addressed:
+            a, ak = actor_of(e, rec, res, pack)
+            to = str(e.to)
+            if to == a:
+                continue
+            t = times.get(e.id)
+            ok = lambda j: who(j) == to and j != i and (t is None or times.get(events[j].id) is None or times[events[j].id] >= t)
+            reply = next((j for j in children.get(e.id, []) if ok(j)), None)
+            if reply is None:
+                lst = thread[e.channel or ""]
+                k = pos[e.id]
+                reply = next((j for j in lst[k + 1:k + 60] if ok(j)), None)
+            rid = events[reply].id if reply is not None else e.id
+            rt = times.get(rid) if reply is not None else t
+            if rt is None:
+                rt = t
+            out.append({"channel": f"{DIRECT_PREFIX}:{to}", "from": a, "from_kind": ak, "to": to, "to_kind": "named",
+                        "write_id": e.id, "read_id": rid, "write_time": t, "read_time": rt,
+                        "latency_h": round((rt - t) / 3600, 2) if t is not None and rt is not None else 0,
+                        "how": DIRECT_HOW, "_i": i, "_ri": reply if reply is not None else i})
+    rec["_direct"] = out
+    return out
+
+
+def _direct_perf(direct):
+    by = defaultdict(list)
+    for d in direct:
+        by[d["channel"]].append(d)
+    out = []
+    for ch, lst in by.items():
+        dated = [d for d in lst if d["write_time"] is not None]
+        lat = sorted(d["latency_h"] for d in dated)
+        out.append({"channel": ch, "writes": len(lst), "reads": len(lst),
+                    "writers": len({d["from"] for d in lst}), "readers": len({d["to"] for d in lst}),
+                    "actors": len({d["from"] for d in lst} | {d["to"] for d in lst}),
+                    "first_write": iso(min((d["write_time"] for d in dated), default=None)),
+                    "first_read": iso(min((d["read_time"] for d in dated), default=None)),
+                    "deliveries": len(dated), "overwrites": 0,
+                    "median_latency_h": lat[len(lat) // 2] if lat else None,
+                    "never_read": False, "read_without_write_seen": False})
+    return out
 
 
 # ------------------------------------------------------------------ channels
@@ -138,6 +216,11 @@ def channel_ops(events, pack, rec, res):
         a, ak = actor_of(e, rec, res, pack)
         for ch, op in found:
             ops.append((ch, op, a, ak, times.get(e.id), i, e.id))
+    # logged direct messages: the sender writes to the recipient's inbox, the recipient's reply reads it
+    for d in direct_messages(events, pack, rec, res):
+        ops.append((d["channel"], "write", d["from"], d["from_kind"], d["write_time"], d["_i"], d["write_id"]))
+        if d["read_id"] != d["write_id"]:
+            ops.append((d["channel"], "read", d["to"], d["to_kind"], d["read_time"], d["_ri"], d["read_id"]))
     return ops
 
 
@@ -326,7 +409,12 @@ def _how_group(how):
 def message_flow(events, pack, rec, res):
     ops = channel_ops(events, pack, rec, res)
     texts = {e.id: e.text for e in events} if pack.raw.get("full_body_posts") else None
-    dels, perf, unknown, same_prog, overwrites, rereads = deliveries(ops, program_prefix(events), texts)
+    inferred = [o for o in ops if not o[0].startswith(DIRECT_PREFIX + ":")]
+    dels, perf, unknown, same_prog, overwrites, rereads = deliveries(inferred, program_prefix(events), texts)
+    # logged direct messages are deliveries as they stand: no inference needed
+    direct = direct_messages(events, pack, rec, res)
+    dels = dels + [{k: v for k, v in d.items() if not k.startswith("_")} for d in direct if d["write_time"] is not None]
+    perf = perf + _direct_perf(direct)
     over_pairs = Counter((d["from"], d["to"]) for d in overwrites)
     actor_kinds = Counter()
     seen = set()
@@ -377,6 +465,8 @@ def message_flow(events, pack, rec, res):
         "actors_on_channels": dict(actor_kinds),
         "deliveries": len(dels),
         "deliveries_order_unknown": unknown,
+        "direct_messages": sum(1 for d in direct if d["write_time"] is not None),
+        "direct_messages_undated": sum(1 for d in direct if d["write_time"] is None),
         "reads_dropped_as_same_program": same_prog,
         "deliveries_between_named_actors": sum(pair[k] for k in known_pairs),
         "actor_pairs": len(pair),

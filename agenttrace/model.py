@@ -17,6 +17,12 @@ How a file is read:
   reference tables (for example per-page or per-user summaries) and are not loaded as
   events; the read report lists them.
 
+- Files in a known agent-framework format (OpenTelemetry GenAI spans, OpenAI Agents SDK,
+  LangSmith, Langfuse, AutoGen/AG2, CrewAI, MCP JSON-RPC logs, chat transcripts) are detected
+  from their shape and read by readers.py; the read report names the format.
+- A "to" field (recipient, receiver, handoff target ...) marks a record addressed to another
+  actor: a logged direct message.
+
 LAST_REPORT holds how the last load read each file, for the app to show.
 """
 import csv
@@ -47,13 +53,15 @@ ALIASES = {
     "channel": ["channel", "page_key", "page_id", "page", "thread_id", "thread", "conversation_id", "conversation",
                 "room", "room_id", "topic", "session_id", "trace_id", "issue", "repo", "board"],
     "ref": ["revision_ref", "ref", "ref_id", "record_ref", "target_id"],
+    # who a record is addressed to: a logged direct message or handoff (messages.py)
+    "to": ["to", "recipient", "receiver", "target_agent", "to_agent", "handoff_to", "recipient_name", "addressee"],
 }
 TEXT_FIELDS_TO_SKIP_IN_FALLBACK = {"hunks", "source_refs", "body_sha256"}
 # roles read through a chain of fields, record by record: the first non-empty wins
 CHAIN_ROLES = {"actor", "parent", "channel", "time", "kind"}
 WEAK_ACTOR_FIELDS = {"ip16", "ip", "client_ip", "remote_addr"}
 
-LAST_REPORT = {"files": [], "skipped_files": [], "dropped_pointer_records": 0}
+LAST_REPORT = {"files": [], "skipped_files": [], "dropped_pointer_records": 0, "format": None}
 
 
 @dataclass
@@ -67,6 +75,7 @@ class Event:
     tool: Optional[str] = None
     channel: Optional[str] = None
     ref: Optional[str] = None
+    to: Optional[str] = None
     text_from_fields: bool = False
     raw: dict = field(default_factory=dict, repr=False)
 
@@ -186,7 +195,8 @@ def _events_from_row(row, cols, stem, line):
                              kind=str(m.get("role") or "message"), parent=prev,
                              actor=s(m.get("name") or m.get("role")), time=parse_time(m.get("timestamp") or g("time")),
                              tool=s((m.get("tool_calls") or [{}])[0].get("function", {}).get("name") if m.get("tool_calls") else None),
-                             channel=s(g("channel")) or rid, raw={}))
+                             channel=s(g("channel")) or rid,
+                             to=s(m.get("to") or m.get("recipient")), raw={}))
             prev = mid
         return out
     text = g("text")
@@ -201,6 +211,7 @@ def _events_from_row(row, cols, stem, line):
         tool=s(g("tool")),
         channel=s(g("channel")),
         ref=s(g("ref")),
+        to=s(g("to")),
         text_from_fields=fallback,
         raw={},
     )]
@@ -242,11 +253,20 @@ def _read_rows(path):
 def load_file(path, mapping=None):
     rows = _read_rows(path)
     stem = os.path.splitext(os.path.basename(path))[0]
-    cols = resolve_columns(rows, mapping or {})
+    from . import readers
+    fmt = None
+    if not mapping:
+        # a known agent-framework format (OpenTelemetry, LangSmith, AutoGen, MCP ...) is read by its
+        # own reader into fixed fields; anything else is read by field name
+        fmt, rows = readers.read(rows, stem)
+    cols = dict(readers.COLUMNS) if fmt else resolve_columns(rows, mapping or {})
     events = []
     for i, r in enumerate(rows, start=1):
         events.extend(_events_from_row(r, cols, stem, i))
-    info = {"file": os.path.basename(path), "rows": len(rows), "events": len(events), "fields": cols,
+    info = {"file": os.path.basename(path), "format": readers.label(fmt), "format_key": fmt,
+            "rows": len(rows), "events": len(events),
+            # for a known format, where its reader took each field from
+            "fields": readers.SOURCE_FIELDS.get(fmt, cols) if fmt else cols,
             "text_from_fields": sum(1 for e in events if e.text_from_fields),
             "with_time": sum(1 for e in events if e.time), "with_parent": sum(1 for e in events if e.parent)}
     return events, info
@@ -263,7 +283,7 @@ def load(path_or_paths, mapping=None):
     """Load one file, a list of files, or a folder. Returns events in file order, files in
     the order given (folders: event tables only, sorted by name)."""
     mapping = mapping or {}
-    LAST_REPORT.update({"files": [], "skipped_files": [], "dropped_pointer_records": 0})
+    LAST_REPORT.update({"files": [], "skipped_files": [], "dropped_pointer_records": 0, "format": None})
     if isinstance(path_or_paths, (list, tuple)):
         paths, from_folder = list(path_or_paths), False
     elif os.path.isdir(path_or_paths):
@@ -293,6 +313,11 @@ def load(path_or_paths, mapping=None):
             seen.add(e.id)
         events.extend(evs)
         LAST_REPORT["files"].append(info)
+    fmts = []
+    for info in LAST_REPORT["files"]:
+        if info.get("format") and info["format"] not in fmts:
+            fmts.append(info["format"])
+    LAST_REPORT["format"] = ", ".join(fmts) or None
     # drop records that only point at another loaded record that carries the content
     by_id = {e.id: e for e in events}
     kept = []

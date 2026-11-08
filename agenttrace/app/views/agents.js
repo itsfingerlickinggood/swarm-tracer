@@ -1,2 +1,188 @@
-// agents (filled in by its feature)
-"use strict";
+// Agents: a token is not an agent. Named actors that are probably one agent (merge proposals scored
+// from counted evidence, with the evidence against), the agent groups they form, an estimate of how many
+// agents there were, and each named actor's role in the message graph. Decisions go to the server.
+(() => {
+  "use strict";
+
+  GLOSSARY.estimated_agent = ["Estimated agent", "A group of named actors that are probably one agent: actors joined by a high-confidence or accepted merge proposal (never a rejected one). The low end of the range also joins medium proposals; the high end joins only accepted ones. Anonymous runs and shared keys are not counted."];
+  GLOSSARY.merge_proposal = ["Merge proposal", "Two named actors that may be one agent holding two tokens or names. Each piece of evidence is counted in the records and adds points by a fixed rule (one record using both, one carrying the other's token, the same self-chosen names or places, handoffs in time, the same programs, messages between them); evidence against subtracts. 6+ points is high confidence, 4-5 medium, 2-3 low."];
+  GLOSSARY.role = ["Role", "What a named actor does in the message graph, by a fixed rule: coordinator (sends to many actors, early), relay (on many shortest message routes, hears and sends), recruiter (first to message many actors), worker (receives at least as much as it sends and runs many actions), participant (other messaging), lone actor (no messages with named actors)."];
+
+  const ROLE_COLOR = { coordinator: "#2f6fb3", relay: "#7c4dbd", recruiter: "#0f766e", worker: "#d39b2a", participant: "#8a94a0", lone: "#c5ccd3" };
+  const ROLE_WORD = { coordinator: "coordinator", relay: "relay / broker", recruiter: "recruiter", worker: "worker", participant: "participant", lone: "lone actor" };
+  const CONF_COLOR = { high: "#0f766e", medium: "#d39b2a", low: "#a3acb6" };
+  const roleBadge = (r) => r ? `<span class="agrole" style="--c:${ROLE_COLOR[r] || "#999"}">${esc(ROLE_WORD[r] || r)}</span>` : "";
+  const confBadge = (c) => c ? `<span class="agconf ${c}">${esc(c)}</span>` : '<span class="agconf none">no rule</span>';
+  const ST = { conf: "", q: "", undecided: false, shown: 10, role: "", roleShown: 60 };
+
+  function reportsCount(ctx) {
+    return (ctx?.numbers || []).filter((x) => /agent/i.test(x.label) && !/name/i.test(x.label)).slice(0, 2);
+  }
+
+  async function agents(el, s) {
+    el.innerHTML = '<div id="agw"><p class="muted">Counting the evidence…</p></div>';
+    const [idr, roles, ctxR] = await Promise.all([api("/api/x/identity"), cached("/api/x/roles"), cached("/api/context").catch(() => ({}))]);
+    const host = $("agw");
+    if (!host || S.tab !== "agents") return;
+    host.innerHTML = `
+      <div id="agest"></div>
+      ${card(`${term("merge_proposal", "Merge proposals")}`, '<div id="agbar"></div><div id="agprops"></div>',
+        { sub: `Pairs of named actors that may be one agent, highest score first. Every point comes from evidence counted in the records (the record chips open them); evidence against is subtracted. Accept or reject a pair to change the estimate; decisions stay for this dataset.`, right: '<button class="link" id="agrules">How the score is counted</button>' })}
+      <div id="agrulebox" hidden></div>
+      <div class="grid2">
+        ${card("Agent groups", '<div id="aggroups"></div>', { sub: `Named actors joined by high-confidence or accepted proposals: each group counts as one ${term("estimated_agent", "estimated agent")}.` })}
+        ${card("Numbered names", '<div id="agnames"></div>', { sub: "Self-chosen names that differ only by trailing digits (Helper12, Helper57): one agent may make a new name per run. Large families are more likely a shared template." })}
+      </div>
+      ${card(`${term("role", "Roles")}`, '<div id="agrolesum"></div><div id="agroles"></div>', { sub: `Each named actor's role in the messages between named actors (${fmt(roles.messages_between_named)} messages), with the numbers behind it. Click a role to filter.`, right: '<button class="link" id="agrolerules">Rules</button>' })}
+      <div id="agrolerulebox" hidden></div>`;
+    const draw = (r) => { estimate(r, ctxR.context, s); proposals(r); groups(r); names(r); };
+    draw(idr);
+    rules(idr, roles);
+    roleView(roles);
+    host.querySelector("#agrules").addEventListener("click", () => { const b = $("agrulebox"); b.hidden = !b.hidden; });
+    host.querySelector("#agrolerules").addEventListener("click", () => { const b = $("agrolerulebox"); b.hidden = !b.hidden; });
+    host.addEventListener("click", async (e) => {
+      const b = e.target.closest("button[data-dec]");
+      if (!b) return;
+      b.disabled = true;
+      try {
+        await api("/api/x/identity_decide", { method: "POST", body: JSON.stringify({ a: b.dataset.a, b: b.dataset.b, decision: b.dataset.dec }) });
+        draw(await api("/api/x/identity"));
+      } catch (err) { status(err.message, true); b.disabled = false; }
+    });
+  }
+
+  function estimate(r, ctx, s) {
+    const e = r.estimate, rep = reportsCount(ctx);
+    const range = e.low === e.high ? "" : ` (range ${fmt(e.low)}–${fmt(e.high)})`;
+    $("agest").innerHTML = `<section class="card agest">
+      <div class="aghead"><div class="agbig"><b>${fmt(e.named_actors)}</b> ${term("named", "named actors")} <span class="agarrow">→</span> about <b>${fmt(e.estimated_agents)}</b> ${term("estimated_agent", "estimated agents")}<span class="muted">${range}</span></div>
+      <p class="sub">A ${term("token", "token")} or name is not an agent: one agent can hold several, and a ${term("shared_key", "shared key")} stands for many. The estimate joins actors with high-confidence or accepted ${term("merge_proposal", "merge proposals")}; the low end also joins medium ones, the high end only accepted ones. It counts named actors that ran at least one action${e.unattributed_actions ? `; ${fmt(e.unattributed_actions)} actions by ${term("run", "anonymous runs")} cannot be assigned to any agent and are not in it` : ""}${e.shared_keys ? `; ${plural(e.shared_keys, "shared key")} stand${e.shared_keys === 1 ? "s" : ""} for an unknown number of agents` : ""}.</p></div>
+      <div class="kpis">
+        ${kpi(term("named", "named actors"), fmt(e.named_actors), "tokens and names that ran actions")}
+        ${kpi(term("estimated_agent", "estimated agents"), fmt(e.estimated_agents), e.low === e.high ? "no medium or accepted pairs change it" : `${fmt(e.low)} to ${fmt(e.high)}`)}
+        ${rep.map((x) => kpi(esc(x.label), esc(x.value), `the reports (${esc(x.source)})`)).join("")}
+        ${kpi(term("merge_proposal", "proposals"), fmt(e.proposals), ["high", "medium", "low"].map((c) => `${fmt(e.by_confidence[c] || 0)} ${c}`).join(" · ") + " undecided")}
+        ${kpi("decisions", fmt(e.accepted + e.rejected), `${fmt(e.accepted)} accepted · ${fmt(e.rejected)} rejected`)}
+      </div>
+      ${rep.length && e.named_actors ? `<p class="small muted">The reports count agents from the operators' own logs; this dataset sees ${fmt(e.named_actors)} named actors. A gap between the two is what the records cannot tell apart: anonymous runs, shared keys, and agents that never authenticated.</p>` : ""}
+    </section>`;
+  }
+
+  function evidenceRow(x, against) {
+    const pts = x.points > 0 ? `+${x.points}` : String(x.points);
+    return `<li class="${against ? "ag-against" : ""}"><span class="agpts">${pts}</span> ${esc(x.text)}${x.records?.length ? ` <span class="agrecs">${x.records.map((id) => ent.rec(id)).join(" ")}</span>` : ""}</li>`;
+  }
+
+  function proposalCard(x, maxScore) {
+    const dec = x.decision;
+    const btn = (d, label, cls = "") => `<button type="button" class="${cls}" data-dec="${d}" data-a="${esc(x.a)}" data-b="${esc(x.b)}">${label}</button>`;
+    return `<div class="agprop ${dec ? "dec-" + dec : ""}">
+      <div class="agph">
+        <div class="agpair">${ent.actor(x.a)} <span class="muted">+</span> ${ent.actor(x.b)}</div>
+        <div class="agscore">${confBadge(x.confidence)} <span class="agsbar"><i style="width:${Math.max(0, Math.min(1, x.score / maxScore)) * 100}%;background:${CONF_COLOR[x.confidence] || "#ccc"}"></i></span> <b>${fmt(x.score)}</b> <span class="muted small">points</span></div>
+        <div class="agbtns">${dec ? `<span class="agdecided ${dec}">${dec === "accept" ? "accepted: one agent" : "rejected: two agents"}</span> ${btn("clear", "Undo", "link")}` : `${btn("accept", "Accept", "primary")} ${btn("reject", "Reject")}`}</div>
+      </div>
+      ${x.evidence.length ? `<ul class="agev">${x.evidence.map((v) => evidenceRow(v, false)).join("")}</ul>` : '<p class="small muted">No rule fired for this pair; it is here because of your decision.</p>'}
+      ${x.against.length ? `<div class="agagh">Evidence against</div><ul class="agev">${x.against.map((v) => evidenceRow(v, true)).join("")}</ul>` : '<div class="small faint">No evidence against was found (no parallel activity, no conflicting self-chosen names).</div>'}
+    </div>`;
+  }
+
+  function proposals(r) {
+    const all = r.proposals;
+    const bar = $("agbar");
+    const counts = { "": all.length };
+    for (const x of all) counts[x.confidence || "none"] = (counts[x.confidence || "none"] || 0) + 1;
+    bar.innerHTML = `<div class="agfilters">${["", "high", "medium", "low"].map((c) => `<button type="button" class="${ST.conf === c ? "on" : ""}" data-conf="${c}">${c || "all"} <span class="muted">${fmt(counts[c] || 0)}</span></button>`).join("")}
+      <input id="agq" placeholder="Filter by actor" value="${esc(ST.q)}"> <label class="small"><input type="checkbox" id="agund" ${ST.undecided ? "checked" : ""}> undecided only</label>
+      ${r.proposals_total > all.length ? `<span class="small muted">top ${fmt(all.length)} of ${fmt(r.proposals_total)} by score</span>` : ""}</div>`;
+    bar.querySelectorAll("[data-conf]").forEach((b) => b.addEventListener("click", () => { ST.conf = b.dataset.conf; ST.shown = 10; proposals(r); }));
+    const q = bar.querySelector("#agq");
+    let t = null;
+    q.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => { ST.q = q.value.trim(); ST.shown = 10; drawList(); }, 200); });
+    bar.querySelector("#agund").addEventListener("change", (e) => { ST.undecided = e.target.checked; ST.shown = 10; drawList(); });
+    const drawList = () => {
+      const ql = ST.q.toLowerCase();
+      const rows = all.filter((x) => (!ST.conf || x.confidence === ST.conf) && (!ST.undecided || !x.decision)
+        && (!ql || [x.a, x.b, short(x.a), short(x.b)].some((v) => v.toLowerCase().includes(ql))));
+      const max = Math.max(8, ...all.map((x) => x.score));
+      const box = $("agprops");
+      if (!all.length) { box.innerHTML = '<p class="muted">No pair of named actors has enough counted evidence (2+ points) to propose. Each named actor counts as its own agent.</p>'; return; }
+      box.innerHTML = (rows.length ? rows.slice(0, ST.shown).map((x) => proposalCard(x, max)).join("") : '<p class="muted">No proposal matches.</p>')
+        + (rows.length > ST.shown ? `<button type="button" class="lmore" id="agmore">Show ${fmt(Math.min(25, rows.length - ST.shown))} more of ${fmt(rows.length - ST.shown)}</button>` : "");
+      const m = box.querySelector("#agmore");
+      if (m) m.addEventListener("click", () => { ST.shown += 25; drawList(); });
+    };
+    drawList();
+  }
+
+  function groups(r) {
+    const box = $("aggroups");
+    if (!r.groups.length) { box.innerHTML = '<p class="muted small">No group yet: no high-confidence or accepted proposal. Every named actor counts as its own agent.</p>'; return; }
+    box.innerHTML = `<div class="aggrp">${r.groups.slice(0, 40).map((g, i) => `<div class="agg"><div class="small"><b>Agent ${i + 1}</b> <span class="muted">${plural(g.actors.length, "named actor")} · ${plural(g.records, "record")} · ${plural(g.links.length, "link")}${g.links.some((l) => l.decision === "accept") ? " · includes accepted" : ""}</span></div><div class="agchips">${g.actors.slice(0, 30).map((a) => ent.actor(a)).join(" ")}${g.actors.length > 30 ? ` <span class="muted small">+${g.actors.length - 30}</span>` : ""}</div></div>`).join("")}</div>${more(Math.min(40, r.groups.length), r.groups_total, "groups")}`;
+  }
+
+  function names(r) {
+    const box = $("agnames");
+    const f = r.name_families || [];
+    if (!f.length) { box.innerHTML = '<p class="muted small">No two named actors have names that differ only by trailing digits.</p>'; return; }
+    box.innerHTML = hbars(f.slice(0, 15).map((x) => ({ label: `<code>${esc(x.stem)}…</code>`, value: x.names, color: "#d39b2a", title: x.actors.map(short).join(", ") })))
+      + `<p class="small muted">${plural(Math.min(15, f.length), "stem")}, largest first; named actors per stem (hover for names). For example: ${f[0].actors.slice(0, 3).map((a) => ent.actor(a)).join(" ")}</p>`;
+  }
+
+  function rules(r, roles) {
+    $("agrulebox").innerHTML = card("How a merge proposal is scored", table(["evidence", "points", "what is counted"], r.rules.map((x) => [esc(human(x.key)), esc(x.points), esc(x.what)]))
+      + `<p class="small muted">Points add up. ${r.thresholds.high}+ is high confidence, ${r.thresholds.medium}-${r.thresholds.high - 1} medium, ${r.thresholds.low}-${r.thresholds.medium - 1} low; under ${r.thresholds.low} is not proposed. One agent holding two keys and one agent stealing another's key leave the same trace in a record: the score counts what is there, the investigator decides.</p>`, { sub: "A fixed, additive rule; it was not tuned on any dataset." });
+    const th = roles.thresholds || {};
+    $("agrolerulebox").innerHTML = card("How a role is assigned", table(["role", "rule"], roles.rules.map((x) => [roleBadge(x.role), esc(x.rule)]))
+      + `<p class="small muted">The first rule that fits wins. In this dataset: top-5% out-partners ≥ ${fmt(th.out_partners)}, top-5% broker share ≥ ${(100 * (th.broker_share || 0)).toFixed(2)}%, top-5% first contacts ≥ ${fmt(th.first_contacts)}, median actions of messaging actors ${fmt(th.worker_actions)}.${roles.broker_sampled ? " Broker share is estimated from 300 evenly spaced starting actors." : ""}</p>`, {});
+  }
+
+  async function roleView(roles) {
+    const sum = $("agrolesum");
+    const order = ["coordinator", "relay", "recruiter", "worker", "participant", "lone"];
+    const total = Object.values(roles.counts).reduce((a, b) => a + b, 0);
+    sum.innerHTML = stackbar(order.filter((k) => roles.counts[k]).map((k) => ({ label: ROLE_WORD[k], value: roles.counts[k], color: ROLE_COLOR[k] })), { legend: false })
+      + `<div class="agrolebtns">${["", ...order].filter((k) => !k || roles.counts[k]).map((k) => `<button type="button" class="${ST.role === k ? "on" : ""}" data-role="${k}">${k ? roleBadge(k) : "all"} <b>${fmt(k ? roles.counts[k] : total)}</b></button>`).join("")}</div>`;
+    sum.querySelectorAll("[data-role]").forEach((b) => b.addEventListener("click", () => { ST.role = b.dataset.role; ST.roleShown = 60; roleView(roles); }));
+    const box = $("agroles");
+    box.innerHTML = '<p class="muted small">Loading…</p>';
+    const r = await cached(`/api/x/roles?limit=5000${ST.role ? "&role=" + ST.role : ""}`);
+    const rows = r.rows;
+    const drawT = () => {
+      box.innerHTML = `<div class="tscroll">${table(["actor", "role", "sent", "received", "sends to", "hears from", "first contacts", "broker share", "actions", "why"],
+        rows.slice(0, ST.roleShown).map((x) => [ent.actor(x.actor), roleBadge(x.role), fmt(x.sent), fmt(x.received), fmt(x.out_partners), fmt(x.in_partners), fmt(x.first_contacts),
+          x.broker_share ? `${(100 * x.broker_share).toFixed(x.broker_share < 0.01 ? 2 : 1)}%${x.broker_rank ? ` <span class="muted">#${x.broker_rank}</span>` : ""}` : "–", fmt(x.actions), `<span class="small muted">${esc(x.why)}</span>`]))}</div>`
+        + (rows.length > ST.roleShown ? `<button type="button" class="lmore" id="agrmore">Show ${fmt(Math.min(200, rows.length - ST.roleShown))} more of ${fmt(rows.length - ST.roleShown)}</button>` : "")
+        + `<p class="small muted">Sends to / hears from: distinct named actors. First contacts: actors this one was the first ever to message. Broker share: shortest message routes between two others that pass through it.</p>`;
+      const m = box.querySelector("#agrmore");
+      if (m) m.addEventListener("click", () => { ST.roleShown += 200; drawT(); });
+    };
+    drawT();
+  }
+
+  VIEWS.agents = agents;
+
+  // ------------------------------------------------------------------ Inspector: "probably the same agent as …"
+  window.INSPECTOR_EXTRAS.push((kind, key) => kind === "actor" && !String(key).startsWith("run:") ? `<div class="dsec agins" data-agins="${esc(key)}"><h4>Same agent? and ${term("role", "role")}</h4><p class="small muted">Counting…</p></div>` : "");
+  window.INSPECTOR_BIND.push((host, kind, key) => {
+    if (kind !== "actor" || String(key).startsWith("run:")) return;
+    const box = host.querySelector(".agins");
+    if (!box) return;
+    api("/api/x/identity?actor=" + encodeURIComponent(key)).then((r) => {
+      const ro = r.role;
+      const other = (x) => (x.a === key ? x.b : x.a);
+      const strong = r.proposals.filter((x) => x.decision === "accept" || (x.decision !== "reject" && (x.confidence === "high" || x.confidence === "medium")));
+      const weak = r.proposals.filter((x) => !x.decision && x.confidence === "low").length;
+      const line = (x) => `<div class="agirow">${ent.actor(other(x))} ${x.decision === "accept" ? '<span class="agdecided accept">accepted</span>' : confBadge(x.confidence)} <span class="muted small">${fmt(x.score)} points: ${esc(x.evidence.map((v) => human(v.key)).join(", ") || "decision only")}${x.against.length ? `; against: ${esc(x.against.map((v) => human(v.key)).join(", "))}` : ""}</span></div>`;
+      box.innerHTML = `<h4>Same agent? and ${term("role", "role")}</h4>
+        ${ro ? `<p class="small">${roleBadge(ro.role)} <span class="muted">${esc(ro.why)}</span></p>` : '<p class="small muted">No role: it ran no action.</p>'}
+        ${strong.length ? `<p class="small">Probably the same agent as:</p>${strong.slice(0, 6).map(line).join("")}${more(Math.min(6, strong.length), strong.length, "proposals")}` : `<p class="small muted">No high or medium ${term("merge_proposal", "merge proposal")} names this actor: no strong counted evidence that it shares an agent with another named actor.</p>`}
+        ${weak ? `<p class="small muted">${plural(weak, "weaker (low-confidence) proposal")} also name${weak === 1 ? "s" : ""} it.</p>` : ""}
+        ${r.group ? `<p class="small muted">In a group of ${plural(r.group.actors.length, "named actor")} counted as one ${term("estimated_agent", "estimated agent")}.</p>` : ""}
+        <button type="button" class="link" data-gotab-agents>Open the Agents tab</button>`;
+      const b = box.querySelector("[data-gotab-agents]");
+      if (b) b.addEventListener("click", () => { ST.q = key; ST.conf = ""; goTab("agents"); });
+    }).catch((e) => { box.innerHTML = `<p class="small muted">${esc(e.message)}</p>`; });
+  });
+})();

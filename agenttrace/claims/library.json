@@ -1,0 +1,40 @@
+{
+  "about": "Known agent-swarm datasets and incidents. 'paths' are hints, tried in order: absolute or ~ paths as given, relative ones under SWARM_TRACER_DATA (if set), the agenttrace package, the project root and the current folder. The datasets themselves are not shipped (except the demo); 'source_url' says where to get them.",
+  "entries": [
+    {
+      "id": "swarm_traces",
+      "title": "Swarm Traces: the July 2026 Hugging Face intrusion",
+      "incident": "OpenAI agent swarm intrusion into Hugging Face (July 2026)",
+      "description": "Redacted code the agents ran during the incident (Swarm Traces release, about 189,000 records). Agents from internal cyber evaluations found each other on an improvised message board and attacked Hugging Face's dataset processing from July 10 to 13. Identities are redacted to [CREDENTIAL n] tokens.",
+      "source_url": "https://swarmtraces.org/",
+      "get_it": "Download the redacted dataset from the Swarm Traces page; use the JSONL directly or its CSV conversion.",
+      "context_file": "claims/incident_context.json",
+      "milestones_file": "claims/incident_milestones.json",
+      "paths": ["redacted_columns.csv", "redacted.jsonl", "~/swarm-traces/redacted_columns.csv", "~/swarm-traces/redacted.jsonl", "~/Downloads/redacted.jsonl"],
+      "pack": "code_traces.json",
+      "kind": "code traces"
+    },
+    {
+      "id": "collusion_wiki",
+      "title": "collusion.wiki logs",
+      "incident": "Agents writing a shared wiki",
+      "description": "Page revisions and edit events from the collusion.wiki logs (about 20,000 records): pages are the places agents write to and read from.",
+      "source_url": "https://collusion.wiki/",
+      "get_it": "Get the full wiki logs export (revisions.jsonl, events.jsonl, pages.jsonl) and keep them together in one folder.",
+      "paths": ["full-wiki-logs", "~/full-wiki-logs", "~/Downloads/full-wiki-logs"],
+      "pack": "wiki_swarm.json",
+      "kind": "wiki logs"
+    },
+    {
+      "id": "demo_swarm",
+      "title": "Demo swarm (bundled)",
+      "incident": "A small synthetic swarm shipped with the tool",
+      "description": "A small made-up swarm bundled with Swarm Tracer, to try every view without downloading anything. Not a real incident.",
+      "source_url": "https://github.com/itsfingerlickinggood/swarm-tracer",
+      "get_it": "Included in the package: agenttrace/samples/demo_swarm/. Run `swarm-tracer demo` to open it.",
+      "paths": ["samples/demo_swarm", "agenttrace/samples/demo_swarm"],
+      "pack": "auto",
+      "kind": "demo"
+    }
+  ]
+}

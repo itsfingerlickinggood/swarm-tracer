@@ -12,7 +12,9 @@ import uuid
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROMPT_PATH = os.path.join(HERE, "ai_system_prompt.md")
-FORMAT_PATHS = {"chat": os.path.join(HERE, "ai_answer_format.md"), "gaps": os.path.join(HERE, "ai_gaps_format.md")}
+FORMAT_PATHS = {"chat": os.path.join(HERE, "ai_answer_format.md"), "gaps": os.path.join(HERE, "ai_gaps_format.md"),
+                "report": os.path.join(HERE, "ai_report_format.md")}
+REPORT_MARK = "# Incident report format"   # first line of ai_report_format.md: a report gets a larger answer budget
 DEFAULT_BASE_URL = "https://opencode.ai/inference/go/openai/v1"
 DEFAULT_MODEL = "deepseek-v4.1-flash"
 ID_RX = re.compile(r"\b[A-Z]\d{4,}\b")
@@ -200,7 +202,7 @@ def build_messages(session, history, selected_id=None, max_ids=4, conversation=N
         places.insert(0, selected["key"])
     for ch in places[:2]:
         context += "\n\n" + place_context(session, ch)
-    if mode == "gaps":
+    if mode in ("gaps", "report"):
         context += "\n\n" + gap_context(session)
     msgs = [{"role": "system", "content": system_prompt(mode)},
             {"role": "system", "content": context}]
@@ -281,9 +283,22 @@ def _post(url, payload, api_key, session_id, timeout):
             raise RuntimeError(f"The AI provider at {url} did not return JSON.")
 
 
-def call(base_url, api_key, model, messages, timeout=180, temperature=0.2, session_id=None, max_tokens=4096, json_mode=False):
-    if not api_key:
-        raise ValueError("No API key. Enter one in the AI settings.")
+def is_local(base_url):
+    """A model served on this machine (Ollama, LM Studio, a local proxy) needs no API key."""
+    import urllib.parse
+    try:
+        host = (urllib.parse.urlparse(str(base_url or "")).hostname or "").lower()
+    except ValueError:
+        return False
+    return host in ("localhost", "127.0.0.1", "::1", "0.0.0.0") or host.endswith(".localhost")
+
+
+def call(base_url, api_key, model, messages, timeout=180, temperature=0.2, session_id=None, max_tokens=None, json_mode=False):
+    if not api_key and not is_local(base_url):
+        raise ValueError("No API key. Enter one in the AI settings (a model on localhost, like Ollama, needs none).")
+    if max_tokens is None:
+        report = any(REPORT_MARK in str(m.get("content", "")) for m in messages[:1])
+        max_tokens = 8192 if report else 4096
     url = base_url.rstrip("/") + "/chat/completions"
     payload = {"model": model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens}
     if json_mode:
@@ -346,7 +361,7 @@ def parse_answer(text):
         obj = json.loads(t[i:j + 1])
     except ValueError:
         return None
-    if not isinstance(obj, dict) or not any(k in obj for k in ("answer", "blocks", "gaps")):
+    if not isinstance(obj, dict) or not any(k in obj for k in ("answer", "blocks", "gaps", "sections", "timeline")):
         return None
     if not isinstance(obj.get("blocks", []), list):
         obj["blocks"] = []
@@ -432,5 +447,26 @@ def verify(obj, session):
     for g in obj.get("gaps") or []:
         if isinstance(g, dict):
             ids_of(g, "example_ids")
+    # an incident report: its timeline, its sections, and record ids quoted in its prose
+    if isinstance(obj.get("timeline"), list):
+        obj["timeline"] = [it for it in obj["timeline"] if isinstance(it, dict)]
+        for it in obj["timeline"]:
+            ids = ids_of(it)
+            ok = [x for x in ids if x in session.by_id]
+            if ok:
+                it["_data_time"] = reconstruct.iso(session.rec["_times"].get(ok[0]))
+    if isinstance(obj.get("sections"), list):
+        obj["sections"] = [sec for sec in obj["sections"] if isinstance(sec, dict)]
+        for sec in obj["sections"]:
+            ids_of(sec)
+            paras = sec.get("paragraphs") or []
+            sec["paragraphs"] = [paras] if isinstance(paras, str) else [str(p) for p in paras]
+            quoted = {q for p in sec["paragraphs"] for q in re.findall(r"`([^`\s]{2,160})`", p)}
+            sec["_inline"] = {q: list(kind_of(session, q)) for q in sorted(quoted)[:60]}   # token -> [kind or None, exact name]
+            found.update(q for q in quoted if q in session.by_id)
+            missing.update(q for q, (k, _) in sec["_inline"].items() if k is None and (ID_RX.match(q) or "~" in q or "@" in q))
+    for key in ("unknowns", "recommendations"):
+        if key in obj and not isinstance(obj[key], list):
+            obj[key] = [str(obj[key])]
     obj["_checks"] = {"ids_found": len(found), "ids_missing": sorted(missing)[:30], "names_missing": sorted(names_missing)[:30]}
     return obj

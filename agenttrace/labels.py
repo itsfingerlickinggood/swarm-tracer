@@ -84,3 +84,51 @@ def precision(path):
     judged = c["missed"] + c["clean"]
     c["miss_rate"] = (c["missed"] / judged) if judged else None
     return {"tags": out, "controls": c}
+
+
+# ------------------------------------------------------------------ labels kept by the app
+# The app writes the same CSV (id, tag, preview, label) plus when each label was set, one row per
+# (id, tag): a tag or intent judged on a record ("intent:<name>" for intents), or a message judged
+# as a whole (tag "message", id "<write record>><read record>"). label is 1 (right), 0 (wrong) or
+# ? (can't tell); precision() above reads it unchanged.
+APP_FIELDS = ["id", "tag", "preview", "label", "when"]
+LABEL_VALUES = {"1", "0", "?"}
+
+
+def read_labels(path):
+    try:
+        with open(path, encoding="utf-8", newline="") as f:
+            return [dict(r) for r in csv.DictReader(f)]
+    except FileNotFoundError:
+        return []
+
+
+_LOCK = __import__("threading").Lock()
+
+
+def set_label(path, rid, tag, label, preview="", when=""):
+    """Add, change or (label None or "") remove the label for (rid, tag). Returns the number of rows kept.
+    Safe to call from several threads at once (the app's server answers requests in parallel)."""
+    with _LOCK:
+        return _set_label(path, rid, tag, label, preview, when)
+
+
+def _set_label(path, rid, tag, label, preview, when):
+    import os
+    label = "" if label is None else str(label).strip()
+    if label and label not in LABEL_VALUES:
+        raise ValueError("label must be 1 (right), 0 (wrong) or ? (can't tell)")
+    rows = [r for r in read_labels(path) if not (r.get("id") == rid and r.get("tag") == tag)]
+    if label:
+        rows.append({"id": rid, "tag": tag, "preview": _preview(preview or "", 230), "label": label, "when": when})
+    d = os.path.dirname(path)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    tmp = f"{path}.{os.getpid()}.tmp"
+    with open(tmp, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=APP_FIELDS, extrasaction="ignore")
+        w.writeheader()
+        for r in rows:
+            w.writerow({k: r.get(k, "") for k in APP_FIELDS})
+    os.replace(tmp, path)
+    return len(rows)

@@ -165,14 +165,19 @@
     return d;
   }
   const settings = () => ({ apiKey: $("apiKey").value, baseUrl: $("baseUrl").value, model: $("model").value });
+  // a model served on this machine (Ollama, LM Studio, a local proxy) needs no key
+  const isLocal = (u) => { try { const h = new URL(u).hostname.replace(/^\[|\]$/g, ""); return ["localhost", "127.0.0.1", "::1", "0.0.0.0"].includes(h) || h.endsWith(".localhost"); } catch { return false; } };
+  const keyOk = () => !!$("apiKey").value || isLocal($("baseUrl").value);
+  window.aiKeyOk = keyOk;
   function keyState() {
     const line = $("aiStateLine");
-    line.className = $("apiKey").value ? "ok" : "";
-    line.innerHTML = `<span class="dot"></span>${$("apiKey").value ? esc($("model").value) : "no key yet"}`;
+    line.className = keyOk() ? "ok" : "";
+    line.innerHTML = `<span class="dot"></span>${keyOk() ? esc($("model").value) + ($("apiKey").value ? "" : " (local, no key)") : "no key yet"}`;
+    $("apiKey").placeholder = isLocal($("baseUrl").value) ? "not needed for a local model" : "oc_sk_... or sk-...";
   }
   async function askAI(q, { mode = "chat", host = null } = {}) {
     if (!S.summary) throw new Error("Load a dataset first.");
-    if (!$("apiKey").value) { $("aisettings").hidden = false; throw new Error("Enter an API key in Settings first (it is the only thing the investigator needs)."); }
+    if (!keyOk()) { $("aisettings").hidden = false; throw new Error("Enter an API key in Settings first (it is the only thing the investigator needs; a local model needs none)."); }
     const history = mode === "chat" ? S.chat.concat([{ role: "user", content: q }]) : [{ role: "user", content: q }];
     const cur = INS.stack.at(-1);
     const sel = $("useSel").checked && cur ? cur : null;
@@ -181,7 +186,7 @@
     return r;
   }
   async function ask(q, fromBox = false) {
-    if (!$("apiKey").value) {
+    if (!keyOk()) {
       // keep the question where it was typed; say what is missing next to the box
       if (fromBox) $("q").value = q;
       $("aisettings").hidden = false; $("aiset").setAttribute("aria-expanded", "true");
@@ -229,6 +234,7 @@
     keyState();
   }
   ["baseUrl", "model", "apiKey", "remember"].forEach((id) => $(id).addEventListener("change", saveAI));
+  $("baseUrl").addEventListener("input", keyState);
   $("apiKey").addEventListener("input", keyState);
   $("listModels").addEventListener("click", async () => {
     const st = $("aistatus");
@@ -241,7 +247,7 @@
   $("newChat").addEventListener("click", () => { S.chat = []; S.aiSession = newSessionId(); $("chat").innerHTML = '<div class="aiempty">New chat.</div>'; $("aistatus").textContent = "Started a new chat."; });
   $("checkAI").addEventListener("click", async () => {
     const st = $("aistatus");
-    if (!$("apiKey").value) { st.textContent = "Enter an API key first."; st.className = "small bad"; return; }
+    if (!keyOk()) { st.textContent = "Enter an API key first (a model on localhost needs none)."; st.className = "small bad"; return; }
     st.textContent = "Checking…"; st.className = "small muted";
     try {
       const r = await api("/api/ai/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...settings(), sessionId: S.aiSession }) });
@@ -252,11 +258,124 @@
   $("ask").addEventListener("submit", (e) => { e.preventDefault(); const q = $("q").value.trim(); if (q) { $("q").value = ""; ask(q, true); } });
   $("q").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) $("ask").requestSubmit(); });
 
+  // ---------------------------------------------------------------- provider presets
+  const PRESETS = [
+    { id: "opencode", label: "OpenCode Go (default)", baseUrl: "https://opencode.ai/inference/go/openai/v1", model: "deepseek-v4.1-flash", note: "Key from the OpenCode console; DeepSeek models need the Global region turned on." },
+    { id: "openai", label: "OpenAI", baseUrl: "https://api.openai.com/v1", model: "gpt-5-mini", note: "Key from platform.openai.com. Press List models to pick another model." },
+    { id: "anthropic", label: "Anthropic (OpenAI-compatible endpoint)", baseUrl: "https://api.anthropic.com/v1", model: "claude-sonnet-4-5", note: "Anthropic's OpenAI-format endpoint with an Anthropic API key." },
+    { id: "proxy", label: "Claude or other models via a local proxy (LiteLLM)", baseUrl: "http://localhost:4000/v1", model: "claude-sonnet-4-5", note: "Any proxy that speaks the OpenAI format; on localhost the key is optional." },
+    { id: "ollama", label: "Ollama on this machine", baseUrl: "http://localhost:11434/v1", model: "llama3.1", note: "Runs locally: nothing leaves this machine and no key is needed. Start it with `ollama run llama3.1`." },
+    { id: "custom", label: "Custom", baseUrl: "", model: "", note: "Any OpenAI-compatible service: set its base URL, model and key." },
+  ];
+  (() => {
+    const lab = document.createElement("label");
+    lab.innerHTML = `Provider <select id="aipreset">${PRESETS.map((p) => `<option value="${p.id}">${esc(p.label)}</option>`).join("")}</select><span id="aipresetnote" class="small muted"></span>`;
+    $("aisettings").insertBefore(lab, $("aisettings").firstElementChild);
+    $("aipreset").addEventListener("change", () => {
+      const p = PRESETS.find((x) => x.id === $("aipreset").value);
+      if (p && p.id !== "custom") { $("baseUrl").value = p.baseUrl; $("model").value = p.model; }
+      $("aipresetnote").textContent = p?.note || "";
+      saveAI();
+    });
+    $("baseUrl").addEventListener("input", syncPreset);
+  })();
+  function syncPreset() {
+    const p = PRESETS.find((x) => x.baseUrl && x.baseUrl === $("baseUrl").value.trim()) || PRESETS.find((x) => x.id === "custom");
+    if ($("aipreset")) { $("aipreset").value = p.id; $("aipresetnote").textContent = p.note; }
+  }
+
+  // ---------------------------------------------------------------- incident report
+  // the model drafts it as JSON (agenttrace/ai_report_format.md); every record id in it was checked on the server
+  const inlineChips = (text, inline) => esc(text).replace(/`([^`\s]{2,160})`/g, (m, tok) => {
+    const k = (inline || {})[tok] || [null, tok];
+    if (k[0] === "record") return ent.rec(k[1]);
+    if (k[0] === "actor") return ent.actor(k[1]);
+    if (k[0] === "place") return ent.place(k[1]);
+    return `<code${/^[A-Z]\d{4,}$/.test(tok) ? ' class="missing" title="Not found in this dataset"' : ""}>${tok}</code>`;
+  }).replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+  function renderReport(o) {
+    const ck = o._checks || {};
+    const bad = (ck.ids_missing || []).length + (ck.names_missing || []).length;
+    const tl = (o.timeline || []).map((it) => ({ ...it, t: toTime(it._data_time || it.time) })).sort((a, b) => (a.t ?? Infinity) - (b.t ?? Infinity));
+    return `<article class="aireport">
+      <h2>${esc(o.title || "Incident report")}</h2>
+      <p class="small muted">Draft by ${esc($("model").value)} from the analysis of ${esc(S.summary?.name || "this dataset")}, ${esc(new Date().toISOString().slice(0, 10))}. Check it before you share it.</p>
+      ${o.summary ? `<section><h3>Summary</h3><p>${inlineChips(o.summary)}</p></section>` : ""}
+      ${tl.length ? `<section><h3>Timeline</h3><ol class="airtl">${tl.map((it) => {
+        const off = it._data_time && it.time && it._data_time.slice(0, 16) !== String(it.time).slice(0, 16);
+        return `<li><span class="tm">${esc(it.t != null ? when(it.t) : it.time || "time unknown")}${off ? ` <span class="warnc small" title="The model said ${esc(it.time)}; the data says ${esc(it._data_time)}">(data: ${esc(it._data_time)})</span>` : ""}</span><span>${esc(it.label || "")} ${idChips(it)}</span></li>`;
+      }).join("")}</ol></section>` : ""}
+      ${(o.sections || []).map((sec) => `<section><h3>${esc(sec.heading || "")}</h3>${(sec.paragraphs || []).map((p) => `<p>${inlineChips(p, sec._inline)}</p>`).join("")}${(sec.ids || []).length ? `<div class="ids small">Records: ${idChips(sec)}</div>` : ""}</section>`).join("")}
+      ${(o.unknowns || []).length ? `<section><h3>What the data cannot show</h3><ul>${o.unknowns.map((x) => `<li>${inlineChips(typeof x === "string" ? x : JSON.stringify(x))}</li>`).join("")}</ul></section>` : ""}
+      ${(o.recommendations || []).length ? `<section><h3>Recommendations</h3><ol>${o.recommendations.map((x) => `<li>${inlineChips(typeof x === "string" ? x : JSON.stringify(x))}</li>`).join("")}</ol></section>` : ""}
+      <div class="aicheck ${bad ? "bad" : "ok"}">${bad ? `Checked against the data: ${fmt(ck.ids_found)} record ids found; <b>not found</b>: ${[...(ck.ids_missing || []), ...(ck.names_missing || [])].slice(0, 8).map(esc).join(", ")}. Remove or fix what rests on them.` : `Checked against the data: all ${fmt(ck.ids_found)} record ids found.`}</div>
+      <div class="aibtns"><button type="button" class="primary" data-mdreport>Download as Markdown</button></div>
+    </article>`;
+  }
+  function reportMarkdown(o) {
+    const L = [`# ${o.title || "Incident report"}`, "", `_Draft by ${$("model").value} from Swarm Tracer's analysis of ${S.summary?.name || "the dataset"}, ${new Date().toISOString().slice(0, 10)}. Record ids are as in the dataset; ids marked (not found) were not in the data._`, ""];
+    const ids = (it) => (it.ids || []).map((x) => (it._missing || []).includes(x) ? `\`${x}\` (not found)` : `\`${x}\``).join(", ");
+    if (o.summary) L.push("## Summary", "", o.summary, "");
+    if ((o.timeline || []).length) {
+      L.push("## Timeline", "", "| Time (UTC) | What happened | Records |", "|---|---|---|");
+      o.timeline.forEach((it) => L.push(`| ${it._data_time || it.time || "unknown"} | ${String(it.label || "").replace(/\|/g, "\\|")} | ${ids(it)} |`));
+      L.push("");
+    }
+    (o.sections || []).forEach((sec) => { L.push(`## ${sec.heading || ""}`, ""); (sec.paragraphs || []).forEach((p) => L.push(p, "")); if ((sec.ids || []).length) L.push(`Records: ${ids(sec)}`, ""); });
+    if ((o.unknowns || []).length) { L.push("## What the data cannot show", ""); o.unknowns.forEach((x) => L.push(`- ${typeof x === "string" ? x : JSON.stringify(x)}`)); L.push(""); }
+    if ((o.recommendations || []).length) { L.push("## Recommendations", ""); o.recommendations.forEach((x, i) => L.push(`${i + 1}. ${typeof x === "string" ? x : JSON.stringify(x)}`)); L.push(""); }
+    const ck = o._checks || {};
+    L.push("---", "", `Checked against the data: ${ck.ids_found ?? 0} record ids found` + ((ck.ids_missing || []).length ? `; not found: ${ck.ids_missing.join(", ")}.` : "."));
+    return L.join("\n");
+  }
+  async function draftReport() {
+    if (!keyOk()) { $("aisettings").hidden = false; $("aiset").setAttribute("aria-expanded", "true"); $("aistatus").textContent = "Add an API key here first (a model on localhost needs none)."; $("aistatus").className = "small bad"; return; }
+    if (!S.summary) { addMsg("error", "Load a dataset first."); return; }
+    addMsg("user", "Draft the incident report.");
+    const wait = addMsg("assistant", '<div class="aiwait"><i></i><i></i><i></i> Drafting the incident report from the brief, the warning signs and the measured gaps… this takes a minute or two.</div>');
+    const btn = $("draftReport"); btn.disabled = true;
+    try {
+      const r = await askAI("Draft the incident report for this swarm in the report format.", { mode: "report" });
+      wait.remove();
+      const o = r.structured;
+      if (!o || !(o.sections || o.timeline)) { addMsg("assistant", md(r.content), "The model did not return the report format; its answer is shown as text."); return; }
+      const meta = `${esc($("model").value)}${r.usage?.total_tokens ? " · " + fmt(r.usage.total_tokens) + " tokens" : ""}`;
+      const d = addMsg("assistant", renderReport(o) + `<button type="button" class="link rawtoggle small">raw answer</button><pre hidden>${esc(r.content)}</pre>`, meta);
+      d.querySelector("[data-mdreport]").addEventListener("click", () => {
+        const blob = new Blob([reportMarkdown(o)], { type: "text/markdown" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = String(o.title || "incident-report").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) + ".md";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      });
+    } catch (e) { wait.remove(); addMsg("error", esc(e.message)); }
+    finally { btn.disabled = false; }
+  }
+  window.renderAIReport = renderReport;
+  window.aiReportMarkdown = reportMarkdown;
+  (() => {
+    const b = document.createElement("button");
+    b.type = "button"; b.id = "draftReport"; b.textContent = "Draft incident report";
+    b.title = "The model writes a full incident report (summary, timeline, sections, unknowns, recommendations) that you can download as Markdown";
+    b.addEventListener("click", draftReport);
+    $("quick").appendChild(b);
+    const st = document.createElement("style");
+    st.textContent = `.aireport{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;line-height:1.5;font-size:13px}
+.aireport h2{margin:0 0 2px;font-size:16px}.aireport h3{margin:12px 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#3d4a58}
+.aireport p{margin:0 0 7px}.aireport ul,.aireport ol{margin:0 0 6px;padding-left:20px}
+.aireport .airtl{list-style:none;padding:0;display:flex;flex-direction:column;gap:4px}.aireport .airtl li{display:grid;grid-template-columns:110px 1fr;gap:8px}
+.aireport .airtl .tm{color:var(--muted);font-variant-numeric:tabular-nums}.aireport code.missing{color:#b42318;text-decoration:line-through}
+.aireport .aibtns{margin-top:10px}`;
+    document.head.appendChild(st);
+  })();
+
   window.initAI = (d) => {
     const saved = JSON.parse(sessionStorage.getItem("st-ai") || "{}");
     $("baseUrl").value = saved.baseUrl || d.baseUrl;
     $("model").value = saved.model || d.model;
     if (saved.apiKey) { $("apiKey").value = saved.apiKey; $("remember").checked = true; }
+    syncPreset();
     keyState();
   };
 })();

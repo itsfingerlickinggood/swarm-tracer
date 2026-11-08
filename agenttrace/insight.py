@@ -714,8 +714,11 @@ def context(s):
         with open(path, encoding="utf-8") as f:
             ctx = json.load(f)
         m = ctx.get("match", {})
-        ok = (s.pack.name in m.get("packs", []) or any(re.search(p, s.name or "", re.I) for p in m.get("datasets", []))
-              or any(tok in s.by_actor for tok in m.get("identities", [])))
+        # the dataset itself must match (its name or its identities), and be large enough: a pack alone
+        # is not enough, since other traces (a simulated swarm) can use the same pack
+        ok = ((any(re.search(p, s.name or "", re.I) for p in m.get("datasets", []))
+               or any(tok in s.by_actor for tok in m.get("identities", [])))
+              and len(s.events) >= m.get("min_records", 0))
         if ok:
             out["context"] = ctx
             from . import evaluate

@@ -746,6 +746,22 @@ $("upload").addEventListener("submit", async (ev) => {
   finally { $("analyze").disabled = false; }
 });
 
+// deep links: #tab=early&hour=2026-07-11T06&rec=R0006786&actor=...&place=...&scroll=600&ai=wide
+// open a view, a record, an actor or a place straight from the address (also used to capture figures)
+function deepLink() {
+  return Object.fromEntries(new URLSearchParams(location.hash.replace(/^#/, "")).entries());
+}
+function openDeepLink() {
+  const d = deepLink();
+  if (d.ai === "wide") document.body.classList.add("aiwide");
+  if (d.a && d.b) { S.conv = { a: d.a, b: d.b }; if (!d.tab) d.tab = "network"; }   // a conversation link
+  if (d.tab && VIEWS[d.tab]) goTab(d.tab);
+  if (d.rec) selectEvent(d.rec);
+  else if (d.actor) inspectActor(d.actor);
+  else if (d.place) inspectPlace(d.place);
+  if (d.scroll) setTimeout(() => { $("left").scrollTop = +d.scroll; }, 2500);
+}
+
 async function init() {
   const p = await api("/api/packs");
   $("pack").innerHTML = p.packs.map((x) => `<option value="${esc(x.file)}" title="${esc(x.description)}"${x.file === "auto" ? " selected" : ""}>${esc(x.name)}</option>`).join("");

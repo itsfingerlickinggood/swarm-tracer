@@ -40,6 +40,21 @@ class Session:
 
     # ------------------------------------------------------------------ load
     def load(self, path, pack_file, mapping=None, name=None):
+        """Analyze a file or folder. A large input analyzed before with the same pack, mapping and code
+        comes back from the disk cache (agenttrace/cache.py; SWARM_TRACER_NO_CACHE=1 turns it off)."""
+        from . import cache
+        self.path = path                 # where the data came from (ground truth files sit next to it)
+        if cache.restore(self, path, pack_file, mapping, name):
+            return
+        self._analyze(path, pack_file, mapping, name)
+        try:
+            self.summary()   # computed once here, so a cached session needs no recomputation either
+        except Exception:
+            self._summary = None   # the app will raise it where the summary is asked for, as before
+            return
+        cache.store(self, path, pack_file, mapping)
+
+    def _analyze(self, path, pack_file, mapping=None, name=None):
         self.events = model.load(path, mapping or {})
         import copy
         self.read_report = copy.deepcopy(model.LAST_REPORT)

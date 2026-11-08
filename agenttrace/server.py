@@ -269,7 +269,7 @@ class Handler(BaseHTTPRequestHandler):
     def ai_chat(self):
         body = json.loads(self.read_body(5_000_000) or b"{}")
         s = self.need_session()
-        mode = "gaps" if body.get("mode") == "gaps" else "chat"
+        mode = body.get("mode") if body.get("mode") in ("gaps", "report") else "chat"
         msgs, ids = ai.build_messages(s, body.get("messages", []), body.get("selectedId"),
                                       conversation=body.get("conversation"), mode=mode, selected=body.get("selected"))
         content, usage = ai.call(body.get("baseUrl") or ai.DEFAULT_BASE_URL, body.get("apiKey", ""),
