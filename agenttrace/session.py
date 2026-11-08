@@ -8,9 +8,9 @@ operations, messages in and out, and copies of the same program under other acto
 import json
 import os
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 
-from . import analysis, messages, model, packs, reconstruct
+from . import analysis, insight, messages, model, packs, reconstruct
 
 PACK_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "packs")
 
@@ -74,6 +74,7 @@ class Session:
         for e in ev:
             self.actor[e.id] = messages.actor_of(e, self.rec, self.res, self.pack)
         ops = messages.channel_ops(ev, self.pack, self.rec, self.res)
+        self.op_list = ops
         self.ops_by_id = defaultdict(list)
         for ch, op, a, ak, t, i, rid in ops:
             self.ops_by_id[rid].append({"channel": ch, "op": op})
@@ -92,6 +93,7 @@ class Session:
         self.by_prefix = defaultdict(list)
         for rid, p in self.prefix.items():
             self.by_prefix[p].append(rid)
+        insight.build_indexes(self)
 
     # ------------------------------------------------------------------ pairs and conversations
     def _index_pairs(self):
@@ -189,7 +191,7 @@ class Session:
                 while j < total and reconstruct.iso(harm[j])[:13] <= h:
                     j += 1
                 remaining.append([h, round(1 - j / total, 4)])
-        spread_named = [s for s in flow["content_spread"]][:30]
+        spread_named = [{**x, "what": insight.program_gist(self, x["source_record"])} for x in flow["content_spread"][:30]]
         return {
             "name": self.name,
             "pack": self.pack.name,
@@ -223,13 +225,20 @@ class Session:
             "top_channels": flow["top_channels"][:30],
             "content_spread": spread_named,
             "list_totals": {k: len(v) for k, v in self._lists().items()},
+            "intent_names": insight.intent_names(self.pack),
+            "tag_names": insight.tag_names(self.pack),
+            "harm_names": sorted(self.pack.harm),
+            "actor_kinds": dict(Counter({a: ak for a, ak in self.actor.values()}.values())),
+            "phases": insight.simulate(self)["phases"],
         }
 
     # ------------------------------------------------------------------ full lists
     def _lists(self):
         """Every list the app shows, uncut. The summary carries the first rows; /api/list pages through the rest."""
         rec, res, flow = self.rec, self.res, self.flow
-        return {"identities": rec["identities"], "seen_then_used": rec["seen_then_used"],
+        stu = [{**x, "first_seen_actor": self.actor[x["first_seen_id"]][0] if x["first_seen_id"] in self.actor else None}
+               for x in rec["seen_then_used"]]
+        return {"identities": rec["identities"], "seen_then_used": stu,
                 "carried_edges": rec["carried_edges"], "shared_places": rec["shared_places"],
                 "reply_edges": [{"from": r[0], "to": r[1], "replies": r[2]} for r in res["reply_edges"]],
                 "channels": flow.get("_channels", flow["top_channels"]),
@@ -261,6 +270,7 @@ class Session:
         ql = q.lower().strip()
         out = []
         total = 0
+        kinds, intents_c, actors_c, hours = Counter(), Counter(), Counter(), Counter()
         for e in self.events:
             if kind and e.kind != kind:
                 continue
@@ -282,7 +292,18 @@ class Session:
             if offset <= total < offset + limit:
                 out.append(self.event_row(e))
             total += 1
-        return {"total": total, "offset": offset, "rows": out}
+            kinds[e.kind] += 1
+            it = self.rec["_intents"].get(e.id)
+            if it:
+                intents_c[it] += 1
+            actors_c[self.actor[e.id][0]] += 1
+            t = self.rec["_times"].get(e.id)
+            if t is not None:
+                hours[reconstruct.iso(t)[:13]] += 1
+        return {"total": total, "offset": offset, "rows": out,
+                "facets": {"kind": dict(kinds.most_common()), "intent": dict(intents_c.most_common()),
+                           "actor": [[a, n] for a, n in actors_c.most_common(12)]},
+                "hist": sorted(hours.items()), "timed": sum(hours.values())}
 
     def trace(self, rid, text_limit=20000):
         e = self.by_id.get(rid)
@@ -326,5 +347,7 @@ class Session:
             "messages_in": din, "messages_out": dout,
             "overwrote": overwrote, "overwritten_by": overwritten_by,
             "same_program": copies, "same_program_total": len(self.by_prefix.get(p, [])) - 1 if p else 0,
+            "explain": insight.explain(self, rid),
         })
+        row["explain"]["components"]["ancestors"] = len(chain)
         return row

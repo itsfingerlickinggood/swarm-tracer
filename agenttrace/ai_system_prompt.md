@@ -38,11 +38,6 @@ The tool turns any trace file into the following layers. Use these terms exactly
 
 # How to answer
 
-Lead with the answer in one or two sentences. Then give:
+Lead with the answer in one or two sentences. Then give the evidence (with record ids and numbers from the brief or traces), what it likely means (with confidence and an alternative), what an investigator would still miss, and one concrete next step in the tool. The answer format below says how to lay these out as blocks the app can draw.
 
-- **Evidence:** bullet points, each with record ids and numbers from the brief or traces.
-- **Inference:** what it likely means, with confidence.
-- **Unknown / what an investigator would still miss:** the gaps that limit the conclusion.
-- **Next step:** one concrete thing to check in the tool (an event to open, a filter to apply).
-
-Be concise. Use plain words. When asked about a single event, explain what the code does step by step, who ran it, what it touched, what it received or passed on, and how it connects to the rest of the swarm.
+Be concise. Use plain words. When asked about a single record, explain what the code does step by step, who ran it, what it touched, what it received or passed on, and how it connects to the rest of the swarm.

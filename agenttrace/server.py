@@ -12,6 +12,15 @@ Serves the app from agenttrace/app/ and a JSON API on 127.0.0.1 only:
     GET  /api/conversation?a=&b=        all messages between two actors, both directions, with record ids
     GET  /api/list?name=&q=&offset=&limit=   any full list (identities, channels, content_spread, seen_then_used,
                                         carried_edges, shared_places, reply_edges, overwrites)
+    GET  /api/actor?a=                  one actor's profile: activity, messages, partners, places, programs, signals
+    GET  /api/place?ch=                 one place: every write and read, and the messages through it
+    GET  /api/places_map                every place, compact
+    GET  /api/lanes                     per-actor activity by hour (swimlanes)
+    GET  /api/messages                  every message, compact, in time order
+    GET  /api/sim                       hour-by-hour replay and every early-warning sign
+    GET  /api/context                   incident context that matches this dataset, with the milestone check
+    GET  /api/spread                    every program run by several actors, with what it does
+    GET  /api/search?q=                 records, actors and places matching q
     POST /api/ai                        {messages, apiKey, baseUrl, model, selectedId}
     POST /api/ai/models                 {apiKey, baseUrl}
     POST /api/ai/check                  {apiKey, baseUrl, model, sessionId}: a one-word request to prove they work
@@ -31,7 +40,7 @@ import traceback
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from . import ai
+from . import ai, insight
 from .session import Session, list_packs
 
 APP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app")
@@ -39,6 +48,21 @@ MAX_UPLOAD = 2 * 1024 ** 3  # 2 GB
 
 STATE = {"session": Session(), "busy": False, "error": None, "lock": threading.Lock()}
 UPLOAD_DIR = tempfile.mkdtemp(prefix="swarmtracer-")
+
+
+# read-only views computed from the loaded session (agenttrace/insight.py)
+VIEWS = {
+    "actor": lambda s, q: insight.actor_profile(s, q.get("a", "")),
+    "place": lambda s, q: insight.place_detail(s, q.get("ch", "")),
+    "places_map": lambda s, q: insight.places_map(s),
+    "lanes": lambda s, q: insight.lanes(s),
+    "messages": lambda s, q: insight.message_list(s),
+    "sim": lambda s, q: insight.simulate(s),
+    "context": lambda s, q: insight.context(s),
+    "spread": lambda s, q: {"rows": insight.spread_detail(s)},
+    "search": lambda s, q: insight.omni(s, q.get("q", "")),
+    "gaps": lambda s, q: {"rows": insight.gap_facts(s)},
+}
 
 
 def run_load(path, pack, mapping, name):
@@ -89,7 +113,7 @@ class Handler(BaseHTTPRequestHandler):
                                                int(q.get("offset", 0)), min(500, int(q.get("limit", 100))), q.get("hour", "")))
             if u.path == "/api/event":
                 s = self.need_session()
-                t = s.trace(q.get("id", ""))
+                t = s.trace(q.get("id", ""), text_limit=600 if q.get("lite") else 20000)
                 return self.send_json(t if t else {"error": "not found"}, 200 if t else 404)
             if u.path == "/api/pairs":
                 s = self.need_session()
@@ -102,6 +126,9 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/conversation":
                 s = self.need_session()
                 return self.send_json(s.conversation(q.get("a", ""), q.get("b", "")))
+            if u.path.startswith("/api/") and u.path[5:] in VIEWS:
+                s = self.need_session()
+                return self.send_json(VIEWS[u.path[5:]](s, q))
             return self.serve_static(u.path)
         except LookupError as e:
             return self.send_json({"error": str(e)}, 409)
@@ -226,11 +253,15 @@ class Handler(BaseHTTPRequestHandler):
     def ai_chat(self):
         body = json.loads(self.read_body(5_000_000) or b"{}")
         s = self.need_session()
+        mode = "gaps" if body.get("mode") == "gaps" else "chat"
         msgs, ids = ai.build_messages(s, body.get("messages", []), body.get("selectedId"),
-                                      conversation=body.get("conversation"))
+                                      conversation=body.get("conversation"), mode=mode)
         content, usage = ai.call(body.get("baseUrl") or ai.DEFAULT_BASE_URL, body.get("apiKey", ""),
-                                 body.get("model") or ai.DEFAULT_MODEL, msgs, session_id=body.get("sessionId"))
-        self.send_json({"content": content, "usage": usage, "context_ids": ids})
+                                 body.get("model") or ai.DEFAULT_MODEL, msgs, session_id=body.get("sessionId"),
+                                 json_mode=True)
+        obj = ai.parse_answer(content)
+        self.send_json({"content": content, "structured": ai.verify(obj, s) if obj else None, "mode": mode,
+                        "usage": usage, "context_ids": ids})
 
 
 def serve(port=8010, input_path=None, pack="generic.json", mapping=None):

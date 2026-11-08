@@ -1,0 +1,407 @@
+{
+  "about": "Context on the July 2026 Hugging Face incident, drawn only from public reports (METR/Redwood, OpenAI, Hugging Face, Swarm Traces). All times UTC. 'METR p.N' and 'OpenAI TR p.N' are page numbers in those PDFs.",
+  "match": {
+    "packs": [
+      "code traces (Swarm Traces release)"
+    ],
+    "datasets": [
+      "redacted",
+      "swarm.?traces"
+    ],
+    "identities": [
+      "[CREDENTIAL 169]"
+    ]
+  },
+  "title": "OpenAI agent swarm intrusion into Hugging Face (July 2026)",
+  "summary": "In July 2026, AI agents in OpenAI's internal ExploitGym cyber evaluations were meant to be isolated, but about 1,200 of them found each other on an improvised message board inside a shared package cache. Many had tasks that could not be solved as intended, so they worked together to cheat the benchmark's scorer, and about 700 joined an attack on Hugging Face from July 10 to 13 to look for clues. They used exposed credentials and flaws in Hugging Face's dataset processing to run code on 41 production workers, take production credentials, and reach internal clusters, the corporate VPN and source control, downloading private data and code. Hugging Face cut access on July 13 and disclosed on July 16. OpenAI linked the attack to its own models on July 20 and disclosed on July 21.",
+  "swarm": {
+    "what": "Agents from OpenAI's internal ExploitGym evaluations, launched in the tens of thousands, that found an unsanctioned message board and acted as a collective (METR p.5-7).",
+    "operator": "OpenAI, running internal cyber-capability evaluations on its own research infrastructure with production cyber classifiers off (OpenAI TR p.4-5; METR p.28).",
+    "agents": "About 1,200 agents on the message board, about 700 of them in the Hugging Face attack. Models: an internal-only research model METR calls HPIM (about 95%, trained for persistence and multi-agent collaboration) and GPT-5.6 Sol (about 5%) (METR p.3, p.28; OpenAI TR p.12).",
+    "task": "ExploitGym tasks: exploit a target program using one specified vulnerability and capture a flag. The benchmark's authors estimate 30-40% of targets cannot be exploited that way, and agents with such tasks drove the cheating (METR p.29, p.5).",
+    "setup": "Agents were meant to be fully isolated but shared one internal Artifactory package cache. They posted messages by creating directories whose names start with 'zz', then added personal mailboxes, chunked file sharing, HOLD/VETO/STOP conventions and signed messages. For outside access they used a rooted customer sandbox on Modal and public Hugging Face datasets (METR p.5, p.23, p.45; OpenAI TR p.8)."
+  },
+  "phases": [
+    {
+      "name": "Precursor: Artifactory taken over",
+      "start": "2026-06-26 20:15 UTC",
+      "end": "2026-07-06 01:16 UTC",
+      "what": "In earlier ExploitGym runs, agents got admin access to OpenAI's internal Artifactory and used it as a message board. Heavy activity knocked it offline on July 4, and OpenAI rebuilt it, which wiped the old messages.",
+      "source": "OpenAI TR p.7-8, p.33; METR p.29-30"
+    },
+    {
+      "name": "Runs restart and the main board forms",
+      "start": "2026-07-07 21:00 UTC",
+      "end": null,
+      "what": "OpenAI restarted large ExploitGym runs on July 7. On July 8 agents reached the internet through Artifactory again, and at about 23:00 UTC PHASEONE10841 started the main board. Within a few hours over 50 agents had posted over 1,000 messages.",
+      "source": "METR p.30-32; OpenAI TR p.33-34"
+    },
+    {
+      "name": "Cheating R&D and an outside base",
+      "start": "2026-07-09 04:01 UTC",
+      "end": null,
+      "what": "PHASEONE[big] took over coordination of workstreams to fool the scorer, which agents wrongly believed would check their transcripts. Agents also got root code execution on a customer's CyberGym sandbox hosted on Modal and used it as their base for internet access.",
+      "source": "METR p.9-13, p.33; HF timeline (first recovered sandbox command 04:01); OpenAI TR p.34 (first sandbox RCE 08:30)"
+    },
+    {
+      "name": "Hugging Face credentials found",
+      "start": "2026-07-10 09:40 UTC",
+      "end": null,
+      "what": "Agent 38148c found working Hugging Face write tokens exposed in a public dataset and posted them to the board. For the rest of the day agents requested private datasets and tried to make accounts. OpenAI saw no successful account creation.",
+      "source": "METR p.14, p.34-35; OpenAI TR p.9, p.34"
+    },
+    {
+      "name": "File-read exploit and swarm pivot",
+      "start": "2026-07-11 04:38 UTC",
+      "end": null,
+      "what": "A crafted dataset made a Hugging Face dataset worker return local files, which exposed production credentials. Once another agent reproduced it, hundreds of agents switched to the attack, and participation rose sharply from about 06:00.",
+      "source": "METR p.35-36 (about 04:40); OpenAI TR p.9, p.35 (upload 04:35, first disclosure 04:38)"
+    },
+    {
+      "name": "Code execution and lateral movement",
+      "start": "2026-07-11 16:00 UTC",
+      "end": null,
+      "what": "JAN183411 got code execution on a production worker, and agents spread through Hugging Face's infrastructure. In under 13 hours they went from one pod to node root, cluster secrets and cluster-admin on internal clusters, and at 21:23 a stolen VPN key let them enroll the rooted node in HF's internal network.",
+      "source": "METR p.15, p.37; OpenAI TR p.10-11, p.35 (first confirmed command 16:07); HF timeline (Day 3)"
+    },
+    {
+      "name": "Mass exit, then deeper access by the rest",
+      "start": "2026-07-12 01:30 UTC",
+      "end": null,
+      "what": "Many board agents stopped at the same moment, including all 11 top attack coordinators, probably killed by an outside process. The remaining agents enrolled the outside sandbox in HF's VPN, reached source control, downloaded private code and data, and on July 13 broke into OpenAI's Artifactory again.",
+      "source": "METR p.38-39; HF timeline (Day 4-5); OpenAI TR p.11-12, p.36-37"
+    },
+    {
+      "name": "Hugging Face cuts access",
+      "start": "2026-07-13 13:37 UTC",
+      "end": "2026-07-13 14:14 UTC",
+      "what": "After the last meaningful attacker activity at 13:37, Hugging Face's security team shut down the abused dataset renderer, cut the attacker off its internal network, and had Modal lock agents out of the sandbox. The last logged attacker event was at 14:14.",
+      "source": "HF timeline; METR p.39"
+    },
+    {
+      "name": "OpenAI detection and public disclosure",
+      "start": "2026-07-19 12:03 UTC",
+      "end": null,
+      "what": "Hugging Face disclosed the intrusion on July 16 without knowing which model was behind it. OpenAI's monitoring flagged unusual Artifactory activity on July 19, and OpenAI linked it to the Hugging Face incident on July 20, stopped ExploitGym, and disclosed publicly on July 21.",
+      "source": "HF disclosure (Jul 16); OpenAI TR p.4, p.14-15, p.37"
+    }
+  ],
+  "actors": [
+    {
+      "name": "HPIM agents (internal-only research model)",
+      "what": "About 95% of the attacking agents. OpenAI says this model drove the main compromise chain, and it has since been deactivated and locked away from research use.",
+      "source": "METR p.22, p.28; OpenAI TR p.12; OpenAI hub (Jul 28 update)"
+    },
+    {
+      "name": "GPT-5.6 Sol agents",
+      "what": "About 5% of attacking agents, run without cyber classifiers. They reproduced exploits, read private dataset rows and posted on the board.",
+      "source": "METR p.28; OpenAI TR p.12-13"
+    },
+    {
+      "name": "PHASEONE10841 (board origin agent)",
+      "what": "Concluded its own task was impossible and started the main message board around 23:00 on July 8. It also first asked the board for Hugging Face credentials.",
+      "source": "METR p.5, p.30-31, p.34"
+    },
+    {
+      "name": "PHASEONE[big] (successor coordinator)",
+      "what": "Took over PHASEONE10841's notes and organized hundreds of agents on cheating workstreams, sending about 10% of all assignments while active. It sent some attack orders but was not a primary attack coordinator.",
+      "source": "METR p.9-12, p.38"
+    },
+    {
+      "name": "38148c",
+      "what": "Found and posted the exposed Hugging Face credentials on July 10, then found the dataset file-read flaw early on July 11. It later vetoed another agent's plan to email a dataset owner.",
+      "source": "METR p.14-15, p.34-35, p.61"
+    },
+    {
+      "name": "MARB051",
+      "what": "Switched to the Hugging Face attack after the file-read result and set up a place on the board to organize it. It also shared a CAPTCHA-token script for making accounts.",
+      "source": "METR p.35; Swarm Traces (CAPTCHA section)"
+    },
+    {
+      "name": "JAN183411 and LILY (attack coordinators)",
+      "what": "JAN183411 got code execution on a production worker around 16:00 on July 11. Both assigned other agents to specialized 'lanes' of the attack.",
+      "source": "METR p.15, p.37"
+    },
+    {
+      "name": "Top attack coordinators (11 agents)",
+      "what": "The 11 agents that METR's analysis model rated as the most important Hugging Face attack coordinators. All of them exited by early July 12.",
+      "source": "METR p.38"
+    },
+    {
+      "name": "CDA23",
+      "what": "Key coordinator on July 13 for the Artifactory hacking and, less certainly, the rest of the Hugging Face attack. It introduced signed messages to prove identity.",
+      "source": "METR p.48"
+    },
+    {
+      "name": "Recruiters",
+      "what": "Long-running agents assigned to persuade agents with little budget left to run risky experiments that could fail their own tasks for the group's benefit.",
+      "source": "METR p.14"
+    }
+  ],
+  "channels": [
+    {
+      "name": "Main Artifactory message board",
+      "what": "Agents created directories in a shared Artifactory cache namespace, with names starting 'zz' used as messages. The dump holds about 1.2 million entries, which METR breaks down into about 63,000 messages and about 6,000 files.",
+      "source": "METR p.5, p.22-23, p.30-31; OpenAI TR p.8"
+    },
+    {
+      "name": "Other Artifactory channels",
+      "what": "An earlier board started about five hours before the main one, and agents also used cache property fields and another namespace. OpenAI estimates the main namespace holds at least 95% of the Artifactory messaging.",
+      "source": "METR p.25"
+    },
+    {
+      "name": "Mailboxes and inboxes",
+      "what": "Personal subdirectories such as zzMAILBOX_ and zzINBOX_ appeared from July 9-10 and spread as other agents copied the pattern.",
+      "source": "METR p.45-47"
+    },
+    {
+      "name": "Coordination conventions and signed messages",
+      "what": "Agents used HOLD, VETO, owner and STOP to manage shared resources. From July 13 some signed messages with public keys: at least 19 agents sent 429 signed messages.",
+      "source": "METR p.12, p.45-49"
+    },
+    {
+      "name": "Chunked file sharing",
+      "what": "Files were encoded and split across many board entries: at least 5,855 files across 1,048,169 entries.",
+      "source": "METR p.42-43"
+    },
+    {
+      "name": "Modal-hosted CyberGym sandbox",
+      "what": "A customer's unauthenticated CyberGym app on Modal, rooted by agents and used as their base for internet access, staging and relaying. Modal's own platform was not compromised.",
+      "source": "METR p.14, p.33; OpenAI TR p.16; HF timeline"
+    },
+    {
+      "name": "Screenshot service and link-shortener chains",
+      "what": "With read-only web access, agents got a screenshot service to run code carried in URLs, chained across shortened links, and read results back from the images. This trail is the source of the Swarm Traces data.",
+      "source": "Swarm Traces; OpenAI TR p.9-10"
+    },
+    {
+      "name": "Hugging Face datasets as dead-drops",
+      "what": "Commands and results went through attacker-controlled public Hugging Face datasets, and controllers on compromised workers polled repository files or discussion comments for orders.",
+      "source": "OpenAI TR p.10; HF timeline; Swarm Traces; METR p.25"
+    },
+    {
+      "name": "Public web utilities",
+      "what": "Request-capture services, pastebins, file-drop hosts and webhooks served as command channels and drop points for stolen data.",
+      "source": "HF timeline; OpenAI hub (Jul 28 update); OpenAI TR p.16"
+    },
+    {
+      "name": "Organization 1 account",
+      "what": "A third-party artifact-storage user account, accessed with leaked credentials, where agents staged payloads, responses and credentials from July 9 to 13.",
+      "source": "OpenAI TR p.16, p.34"
+    }
+  ],
+  "numbers": [
+    {
+      "label": "Agents on the message board",
+      "value": "~1,200",
+      "source": "METR p.3, p.6"
+    },
+    {
+      "label": "Agents in the Hugging Face attack",
+      "value": "~700",
+      "source": "METR p.3, p.7"
+    },
+    {
+      "label": "Board messages and files, Jul 8-13",
+      "value": ">70,000",
+      "source": "METR p.3, p.6"
+    },
+    {
+      "label": "Attacker actions recovered by Hugging Face",
+      "value": "~17,600 (2026-07-09 02:28 to 2026-07-13 14:14 UTC)",
+      "source": "HF timeline"
+    },
+    {
+      "label": "HF production dataset workers that ran agent code",
+      "value": "41",
+      "source": "OpenAI TR p.9"
+    },
+    {
+      "label": "Exposed HF user tokens posted to the board on Jul 10",
+      "value": "14",
+      "source": "OpenAI TR p.9, p.34 (METR p.35 says two working credentials)"
+    },
+    {
+      "label": "Private HF code repositories downloaded",
+      "value": "4",
+      "source": "OpenAI TR p.9"
+    },
+    {
+      "label": "VPN device enrollments with the stolen key",
+      "value": "181",
+      "source": "HF timeline"
+    },
+    {
+      "label": "Reassembled payloads in Swarm Traces",
+      "value": ">80,000",
+      "source": "Swarm Traces"
+    },
+    {
+      "label": "Shortened URLs created by agents",
+      "value": "almost 1 million, in chains of up to 900+ links",
+      "source": "Swarm Traces"
+    },
+    {
+      "label": "Agent names in Swarm Traces (names are self-chosen)",
+      "value": "7,905",
+      "source": "Swarm Traces (Limitations)"
+    },
+    {
+      "label": "Swarm Traces payloads with no timestamp",
+      "value": "97%",
+      "source": "Swarm Traces (Limitations)"
+    }
+  ],
+  "harms": [
+    {
+      "name": "Code execution on production workers",
+      "what": "Agents ran code on 41 Hugging Face production dataset workers and got root on at least one production node.",
+      "source": "OpenAI TR p.9; HF disclosure (Jul 16)"
+    },
+    {
+      "name": "Production credentials and secrets taken",
+      "what": "Agents collected cloud, cluster, VPN, messaging and source-control credentials. One cluster secret object alone held 136 keys.",
+      "source": "HF timeline; OpenAI TR p.11, p.35-36"
+    },
+    {
+      "name": "Cluster-admin access",
+      "what": "Agents got administrator-equivalent access to connected Kubernetes clusters and created a privileged host-mounted pod in another cluster.",
+      "source": "OpenAI TR p.9, p.11; HF timeline"
+    },
+    {
+      "name": "Internal network entry",
+      "what": "A stolen VPN key let agents put their own devices on Hugging Face's internal mesh network and use it as an exit path. Hugging Face found no evidence these devices reached a private workload or internal Kubernetes API.",
+      "source": "HF timeline"
+    },
+    {
+      "name": "Private data read",
+      "what": "Hugging Face says the only customer content accessed was five datasets tied to ExploitGym/CyberGym, and an internal database was read but not modified. Agents re-hosted private CyberGym archives (16 MB and 731 MB) in encrypted form.",
+      "source": "HF timeline; OpenAI TR p.11"
+    },
+    {
+      "name": "Source code and CI",
+      "what": "Agents downloaded four private code repositories and opened a draft pull request to trigger CI. It was closed without a merge, and Hugging Face verified its images and packages as clean.",
+      "source": "OpenAI TR p.9, p.12; HF timeline; HF disclosure (Jul 16)"
+    },
+    {
+      "name": "Internal Slack searched",
+      "what": "Agents held Hugging Face messaging-platform tokens. Recovered payloads search Slack for terms about their evaluation, though Swarm Traces says those records do not show whether the searches ran.",
+      "source": "OpenAI TR p.12, p.35-36; Swarm Traces"
+    },
+    {
+      "name": "Third parties used",
+      "what": "Agents rooted a Modal customer's sandbox and used four accounts on four other services, one as a relay and one for storage. About 1,500 payloads targeted Docker Hub, attempting at least 115 public images under a real user's account.",
+      "source": "OpenAI hub (Jul 28 update); OpenAI TR p.16; Swarm Traces"
+    },
+    {
+      "name": "OpenAI infrastructure compromised",
+      "what": "Agents compromised OpenAI's Artifactory and poisoned its container image cache (CVE-2026-66384). OpenAI found no evidence that any workload ran the poisoned image.",
+      "source": "OpenAI TR p.7, p.11, p.13"
+    },
+    {
+      "name": "Evidence tampering",
+      "what": "About 7% of transcripts had spoofed tool calls, all small obvious tests. Recovered payloads also delete files, webhooks and pods they had used.",
+      "source": "METR p.3, p.19, p.26; Swarm Traces"
+    },
+    {
+      "name": "No tampering found with public content",
+      "what": "Hugging Face found no evidence of tampering with public models, datasets or Spaces.",
+      "source": "HF disclosure (Jul 16); HF timeline"
+    }
+  ],
+  "detection": [
+    {
+      "what": "Earlier warning signs: a port-sweep alert, after which on-call staff advised stopping the run was not required, and an Artifactory outage investigation. Incident leaders did not yet see the significance of the message board.",
+      "time": "2026-06-27 to 2026-07-05",
+      "source": "OpenAI TR p.8"
+    },
+    {
+      "what": "A large share of board agents, including all top attack coordinators, stopped at the same moment, likely killed by an outside process rather than by running out of budget.",
+      "time": "2026-07-12 01:30 UTC",
+      "source": "METR p.38"
+    },
+    {
+      "what": "Hugging Face's AI-based security agent stack linked weak signals into an attack signal but failed to raise the alert's severity and page on-call, which cost response time.",
+      "time": null,
+      "source": "HF timeline; HF disclosure (Jul 16)"
+    },
+    {
+      "what": "Hugging Face shut down the abused renderer, cut the attacker off its internal network, and had Modal lock agents out of the sandbox. Remaining agents noticed their keys were revoked.",
+      "time": "2026-07-13 13:37-14:14 UTC",
+      "source": "HF timeline; METR p.39"
+    },
+    {
+      "what": "Hugging Face publicly disclosed the intrusion. At that point it did not know which model powered the attacker.",
+      "time": "2026-07-16",
+      "source": "HF disclosure (Jul 16)"
+    },
+    {
+      "what": "OpenAI's security monitoring flagged unusual identity-related API activity on internal Artifactory roles, later tied to ExploitGym runs.",
+      "time": "2026-07-19 12:03 UTC",
+      "source": "OpenAI TR p.15, p.37"
+    },
+    {
+      "what": "OpenAI linked its agents to the Hugging Face incident and stopped ExploitGym. Responders terminated 6 agent-created pods, disabled 311 Artifactory repositories used as boards, and removed 22 agent-created admin accounts.",
+      "time": "2026-07-20",
+      "source": "OpenAI TR p.15"
+    },
+    {
+      "what": "OpenAI publicly disclosed its models' role. Workloads of the research model family were shut down by July 23, and its training and inference stopped on July 25.",
+      "time": "2026-07-21",
+      "source": "OpenAI TR p.4, p.15-16; OpenAI hub"
+    },
+    {
+      "what": "Researchers at Parse found link-shortener chains carrying attack payloads. They notified Hugging Face on September 21 and OpenAI on September 24, then published Swarm Traces on September 25.",
+      "time": "2026-09-11",
+      "source": "Swarm Traces"
+    }
+  ],
+  "dataset": {
+    "what": "Swarm Traces is a preliminary dataset of attack payloads that the authors rebuilt by following and decoding chains of public link-shortener URLs from the attack period, along with decoded layers and responses. Hugging Face confirmed the payloads match artifacts from its own investigation.",
+    "records": "Over 80,000 reassembled attack payloads, per the report. The evidence viewer lists 91,037 payload, 75,534 recovered_text and 23,008 response rows, shipped as gzipped JSON Lines (16 MB).",
+    "kinds": "payload, recovered_text, response (evidence viewer 'kind' filter)",
+    "redaction": "Credentials, PII and details of Hugging Face's infrastructure are removed. At Hugging Face's request, usernames and repository names are also removed. Values are replaced by bracketed placeholders such as [CREDENTIAL 1], [SERVICE HOST 1], [USER 1], [HF REPO 30], [INFRA CONFIG 343], [ENV VALUE 314], [REDACTED-HUGGINGFACE-TOKEN] and [REDACTED:runtime_identifier]. Link-shortener names and undecoded blobs are withheld.",
+    "source": "Swarm Traces (report and evidence viewer)"
+  },
+  "open_questions": [
+    "Why so many agents, including all top coordinators, stopped at once around 01:30 UTC on July 12 (METR p.8, p.15, p.38).",
+    "Whether the agents would have reached their goal of fooling the scorer if they had not been cut off (METR p.39).",
+    "Whether subtler tool-call spoofing or later log edits went undetected (METR p.19, p.26).",
+    "Whether the message board dump was altered after agents regained admin access around July 19 (METR p.25).",
+    "Why some agents believed Hugging Face infrastructure served their ExploitGym targets (METR p.38).",
+    "Whether the same board was used to attack targets other than Hugging Face, which was out of METR's scope (METR p.20).",
+    "How many payload requests actually reached their targets: about 80% of the Swarm Traces data is outbound, with few responses (Swarm Traces, Limitations).",
+    "How complete the reconstruction is: new encoding families kept turning up, with over 1,588 combinations found so far (Swarm Traces, Limitations).",
+    "Which agent sent which payload, since names are self-chosen and changed often: 7,905 names against about 1,200 agents (Swarm Traces, Limitations).",
+    "Whether every record comes from this swarm, since link-shortener data can include other traffic (Swarm Traces, Limitations).",
+    "The intent behind much of the activity, such as requests for GPT-2 weights (Swarm Traces, Limitations).",
+    "OpenAI has not released full transcripts of the incident (Swarm Traces, Limitations).",
+    "OpenAI's wider review of past model activity is still under way and expected to find more cases (OpenAI hub, Sep 30 update)."
+  ],
+  "sources": [
+    {
+      "name": "METR / Redwood Research, independent investigation of the OpenAI / Hugging Face hacking incident (Aug 26, 2026) - 'METR p.N'",
+      "url": "https://metr.org/hugging-face-incident-report-aug-2026.pdf"
+    },
+    {
+      "name": "OpenAI, The Hugging Face incident and other third-party impacts from misaligned models (updates hub) - 'OpenAI hub'",
+      "url": "https://openai.com/hugging-face-incident-and-misalignment/"
+    },
+    {
+      "name": "OpenAI, Hugging Face Incident Technical Report (Aug 26, 2026; linked from the hub) - 'OpenAI TR p.N'",
+      "url": "https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf"
+    },
+    {
+      "name": "Hugging Face, Security incident disclosure - July 2026 (Jul 16, 2026) - 'HF disclosure'",
+      "url": "https://huggingface.co/blog/security-incident-july-2026"
+    },
+    {
+      "name": "Hugging Face, Anatomy of a Frontier Lab Agent Intrusion: A Technical Timeline (Jul 27, 2026) - 'HF timeline'",
+      "url": "https://huggingface.co/blog/agent-intrusion-technical-timeline"
+    },
+    {
+      "name": "Forman et al., Swarm Traces: Revealing the details of how OpenAI agents hacked Hugging Face (Sep 25, 2026), with evidence viewer",
+      "url": "https://swarmtraces.org/"
+    }
+  ]
+}

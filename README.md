@@ -25,10 +25,10 @@ python3 paper/build.py --author "Name" --affiliation "Affiliation"   # the repor
 python3 -m unittest discover -s agenttrace/tests -t .
 ```
 
-The app has three panes:
-- **Left:** the analysis. Overview, who talked to whom (a sender-receiver graph; click an arrow for the whole conversation with every record id), timeline, places, spread, early flag, every event, and what is missing. Every list can be shown in full and filtered.
-- **Right top:** a trace of any selected event.
-- **Right bottom:** an AI investigator that uses any OpenAI-compatible endpoint. The default is OpenCode Go with `deepseek-v4.1-flash`: paste your key under Settings and press **Check connection**. On OpenCode Go, DeepSeek models also need **Global** selected under Settings > Privacy > Regions in the OpenCode console. The app sends the session header Go requires, and explains provider errors in plain words.
+The app has three panes, and every actor, place and record id in it can be hovered for a card and clicked to inspect:
+- **Left:** one tab per question. Overview (incident brief from the public reports, the whole incident on one chart, short answers), who talked to whom (the graph of every message, a time scrubber, the full matrix, every conversation with its record ids), timeline (one swimlane per actor with messages drawn between them), channels (a map of every place), spread (what each shared program does and who reused it), early flag (an hour-by-hour replay with every warning sign and a simple alert rule), every event, and what's missing (each blind spot measured).
+- **Right top:** the Inspector. A record explained in plain words with its role in the swarm, or an actor's or a place's profile.
+- **Right bottom:** an AI investigator that uses any OpenAI-compatible endpoint. The default is OpenCode Go with `deepseek-v4.1-flash`: paste your key under Settings and press **Check connection**. On OpenCode Go, DeepSeek models also need **Global** selected under Settings > Privacy > Regions in the OpenCode console. Answers come back as charts and cards (timelines, flow diagrams, actor cards, evidence with confidence), and every record id, actor and place in them is checked against the data.
 
 **Any trace.** With the `auto` pack (the default) the tool picks a pack from the data's shape and says why on the overview. The generic pack also finds shared keys on its own: a token used in a quarter or more of all runs, in a trace with 20 or more tokens, is treated as shared rather than as one agent.
 
@@ -39,6 +39,7 @@ See [`agenttrace/README.md`](agenttrace/README.md) for the full guide: formats, 
 The datasets are not in this repository.
 - **Swarm Traces release:** https://swarmtraces.org/ (redacted dataset download on that page). Convert it to CSV or use the JSONL directly.
 - **Wiki logs** (`full-wiki-logs/`): from collusion.wiki.
+- **Incident context** (`agenttrace/claims/incident_context.json`): facts about the July 2026 incident drawn from the public reports (METR/Redwood, OpenAI's technical report, Hugging Face's disclosure and timeline, Swarm Traces), each with its source and page. The overview shows it only for a dataset its `match` rule fits; where the sources disagree, both versions are kept.
 
 ## What is here
 

@@ -5,28 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Swarm Tracer</title>
 <link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="views/overview.css">
+<link rel="stylesheet" href="views/network.css">
+<link rel="stylesheet" href="views/timeline.css">
+<link rel="stylesheet" href="views/channels.css">
+<link rel="stylesheet" href="views/spread.css">
+<link rel="stylesheet" href="views/early.css">
+<link rel="stylesheet" href="views/events.css">
+<link rel="stylesheet" href="views/gaps.css">
+<link rel="stylesheet" href="views/ai.css">
 </head>
 <body>
 <header class="top">
-  <div class="brand"><b>Swarm Tracer</b><span id="dsname" class="muted">no dataset</span></div>
-  <form id="upload" class="upload" autocomplete="off">
-    <label class="file">Trace files <input type="file" id="file" accept=".csv,.jsonl,.json,.tsv,.txt" multiple></label>
-    <label class="file">or a folder <input type="file" id="folder" webkitdirectory directory multiple></label>
-    <label>Pack <select id="pack"></select></label>
-    <details class="map"><summary>Columns</summary>
-      <div class="mapgrid">
-        <label>id <input data-role="id" placeholder="auto"></label>
-        <label>text <input data-role="text" placeholder="auto"></label>
-        <label>kind <input data-role="kind" placeholder="auto"></label>
-        <label>parent <input data-role="parent" placeholder="auto"></label>
-        <label>actor <input data-role="actor" placeholder="auto"></label>
-        <label>time <input data-role="time" placeholder="auto"></label>
-      </div>
-      <p class="muted small">Leave blank to detect by name. In JSONL, a dotted path works, e.g. meta.agent.</p>
-    </details>
-    <button type="submit" id="analyze">Analyze</button>
-    <span id="status" class="status" role="status"></span>
-  </form>
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><g fill="none" stroke="#7fb3e6" stroke-width="1.3"><path d="M5 7L13 4L21 8L19 17L11 21L5 15Z" opacity=".55"/><path d="M13 4L11 21M5 7L19 17M21 8L5 15" opacity=".35"/></g><g fill="#fff"><circle cx="5" cy="7" r="2"/><circle cx="13" cy="4" r="2"/><circle cx="21" cy="8" r="2"/><circle cx="19" cy="17" r="2"/><circle cx="11" cy="21" r="2"/><circle cx="5" cy="15" r="2"/></g><circle cx="13" cy="12.5" r="2.6" fill="#e3a43b"/></svg>
+    <div><b>Swarm Tracer</b><span>forensics for agent swarms</span></div>
+  </div>
+  <div id="dsname" class="dataset"><b>no dataset</b><span>load a trace to begin</span></div>
+  <div id="ribbon" class="ribbon"></div>
+  <div class="omni"><input id="omni" placeholder="Find an actor, place or record id…" autocomplete="off" spellcheck="false"><div id="omniout" class="omniout" hidden></div></div>
+  <span id="status" class="status" role="status"></span>
+  <button id="loadbtn" class="loadbtn" type="button">Load data</button>
+  <div id="loadpanel" class="loadpanel" hidden>
+    <form id="upload" autocomplete="off">
+      <h3>Analyze a trace</h3>
+      <p class="muted small">Any agent trace: JSONL, JSON, CSV, or a folder of linked files. Files stay on this machine.</p>
+      <label class="file">Trace files <input type="file" id="file" accept=".csv,.jsonl,.json,.tsv,.txt" multiple></label>
+      <label class="file">or a folder <input type="file" id="folder" webkitdirectory directory multiple></label>
+      <label>Pack <select id="pack"></select></label>
+      <details class="map"><summary>Columns (optional)</summary>
+        <div class="mapgrid">
+          <label>id <input data-role="id" placeholder="auto"></label>
+          <label>text <input data-role="text" placeholder="auto"></label>
+          <label>kind <input data-role="kind" placeholder="auto"></label>
+          <label>parent <input data-role="parent" placeholder="auto"></label>
+          <label>actor <input data-role="actor" placeholder="auto"></label>
+          <label>time <input data-role="time" placeholder="auto"></label>
+        </div>
+        <p class="muted small">Leave blank to detect by name. In JSONL, a dotted path works, e.g. meta.agent.</p>
+      </details>
+      <button type="submit" id="analyze" class="primary">Analyze</button>
+    </form>
+  </div>
 </header>
 
 <main class="panes">
@@ -41,16 +61,17 @@
       <button data-tab="events">Events</button>
       <button data-tab="gaps">What's missing</button>
     </nav>
-    <div class="body" id="left"><div class="empty">Upload a trace file (CSV or JSONL) and press Analyze. Any agent trace works; pick a pack that describes it, or start with the generic pack.</div></div>
+    <div class="body" id="left"><div class="empty">Load a trace file (CSV or JSONL) to begin. Any agent trace works.</div></div>
   </section>
 
   <section class="pane rtop">
-    <div class="phead"><b>Event trace</b><span id="traceid" class="muted">select an event</span></div>
-    <div class="body" id="trace"><div class="empty">Click any event, node, dot or record id to trace it: where it came from, what it touched, who it reached, and where the same program appears elsewhere.</div></div>
+    <div class="phead"><b>Inspector</b><span id="traceid" class="muted">select a record, actor or place</span></div>
+    <div class="body" id="trace"><div class="empty">Hover any record id, actor or place anywhere in the app for a quick card. Click it to inspect it here: what it is, its role in the swarm, and everything it connects to.</div></div>
   </section>
 
   <section class="pane rbot">
-    <div class="phead"><b>AI investigator</b><span class="muted">AI Swarm Tracer</span>
+    <div class="phead"><b>AI investigator</b><span id="aiStateLine" class="muted"><span class="dot"></span>no key</span>
+      <button id="aiwide" class="link" type="button" title="Give the investigator the whole right column">Expand</button>
       <button id="aiset" class="link" type="button" aria-expanded="false">Settings</button></div>
     <div id="aisettings" class="aisettings" hidden>
       <label>Base URL <input id="baseUrl"></label>
@@ -60,23 +81,32 @@
       <div class="aibtns"><button type="button" id="checkAI">Check connection</button> <button type="button" id="listModels">List models</button> <button type="button" id="newChat">New chat</button></div>
       <p id="aistatus" class="small muted"></p>
       <p class="muted small">OpenCode Go: create a key in the OpenCode console (Account &gt; API keys) on a workspace subscribed to Go. DeepSeek models also need <b>Global</b> selected under Settings &gt; Privacy &gt; Regions. Any OpenAI-compatible endpoint works: change the base URL and model.</p>
-      <p class="muted small">The analysis brief, the events you select or name, an open conversation, and this chat are sent to the provider above. The key is sent with each request and never stored on disk.</p>
+      <p class="muted small">The analysis brief, the records you select or name, an open conversation, and this chat are sent to the provider above. The key is sent with each request and never stored on disk.</p>
     </div>
-    <div class="chat" id="chat"></div>
+    <div class="chat" id="chat"><div class="aiempty">Ask a question. Answers come back as cards, charts and diagrams built from the analysis, with every record id checked against the data.</div></div>
     <div class="quick" id="quick">
-      <button type="button" data-q="Who talked to whom in this swarm? Name the main sender-receiver pairs and the channels they used.">Who talked to whom?</button>
-      <button type="button" data-q="Trace how one piece of information spread through the swarm. Pick the clearest case from the evidence.">How did information spread?</button>
+      <button type="button" data-q="Who talked to whom in this swarm? Name the main sender-receiver pairs, the places they used, and when.">Who talked to whom?</button>
+      <button type="button" data-q="Trace how one piece of information spread through the swarm. Pick the clearest case from the evidence and show each hop in time order.">How did information spread?</button>
       <button type="button" data-q="Could the coordination have been flagged early? Which signal would have fired first, and how much harm was still to come?">Flag it early?</button>
       <button type="button" data-q="What would an investigator still miss with this data?">What's missed?</button>
-      <button type="button" data-q="Explain the selected event step by step: what the code does, who ran it, what it touched, what it received or passed on, and how it connects to the rest of the swarm.">Explain selected event</button>
+      <button type="button" data-q="Explain the selected record step by step: what the code does, who ran it, what it touched, what it received or passed on, and how it connects to the rest of the swarm.">Explain selected record</button>
     </div>
     <form id="ask" class="ask">
-      <label class="chk small"><input type="checkbox" id="useSel" checked> include selected event</label>
-      <textarea id="q" rows="2" placeholder="Ask the investigator. Mention record ids to include them."></textarea>
-      <button type="submit" id="send">Ask</button>
+      <label class="chk small"><input type="checkbox" id="useSel" checked> include the selected record</label>
+      <textarea id="q" rows="2" placeholder="Ask the investigator. Mention record ids or actors to include them."></textarea>
+      <button type="submit" id="send" class="primary">Ask</button>
     </form>
   </section>
 </main>
-<script src="app.js"></script>
+<script src="core.js"></script>
+<script src="views/overview.js"></script>
+<script src="views/network.js"></script>
+<script src="views/timeline.js"></script>
+<script src="views/channels.js"></script>
+<script src="views/spread.js"></script>
+<script src="views/early.js"></script>
+<script src="views/events.js"></script>
+<script src="views/gaps.js"></script>
+<script src="ai.js"></script>
 </body>
 </html>
