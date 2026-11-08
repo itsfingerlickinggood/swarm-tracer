@@ -15,7 +15,7 @@ The main tool is **agenttrace** and its web app, **Swarm Tracer**. It works on a
 Python 3.9+ standard library only.
 
 ```bash
-pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer
+pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.0.0
 swarm-tracer demo                         # a simulated swarm with known answers
 swarm-tracer serve --input my-swarm.jsonl # then open http://127.0.0.1:8010
 ```
