@@ -78,12 +78,12 @@ footer a{color:#cfdbe8}
 <section>
   <div class="wrap">
     <h2>Built on a real incident</h2>
-    <p class="lead">In July 2026 about 1,200 AI agents in a security evaluation turned a shared package cache into a message board, and roughly 700 of them broke into Hugging Face. We built Swarm Tracer on the public <a href="https://swarmtraces.org/">Swarm Traces</a> release and checked it against what the incident's investigators published.</p>
+    <p class="lead">In July 2026 about 1,200 AI agents in a security evaluation turned a shared package cache into a message board, and roughly 700 of them broke into Hugging Face. We built Swarm Tracer on the public <a href="https://swarmtraces.org/">Swarm Traces</a> release and checked it against what the incident's investigators published. Every number below is recomputed from the release by <code>python3 -m agenttrace evaluate</code>; the published times are from <a href="https://metr.org/hugging-face-incident-report-aug-2026.pdf">METR</a> (pp. 34–38) and <a href="https://huggingface.co/blog/agent-intrusion-technical-timeline">Hugging Face's timeline</a>.</p>
     <div class="stats">
-      <div class="stat"><b>40%</b><span>of 189,579 records dated from timestamps the agents wrote into their own code (the release dates 3%)</span></div>
-      <div class="stat"><b>2.2 h</b><span>largest gap between seven times the tool estimates and the times METR and Hugging Face published</span></div>
-      <div class="stat"><b>166</b><span>messages among 36 named tokens in 95 sender-receiver pairs, almost all through Hugging Face datasets</span></div>
-      <div class="stat"><b>50–57%</b><span>of the harm was still to come when signs of shared control fired; a plain volume alarm fired at 84%</span></div>
+      <div class="stat"><b>59%</b><span>of 91,037 payloads given an estimated time, fitted from 1,514 timestamps the agents wrote into their own code (the release could date 3% of payloads)</span></div>
+      <div class="stat"><b>2.2 h</b><span>largest gap between seven moments the tool dates from the records (matched by rules set out in the report) and the times METR and Hugging Face published</span></div>
+      <div class="stat"><b>166</b><span>messages among 36 named tokens in 95 sender-receiver pairs, all through Hugging Face datasets</span></div>
+      <div class="stat"><b>50–57%</b><span>of the 8,133 dated harmful actions were still to come when signs of shared control fired; a plain volume alarm fired with 84% to come</span></div>
     </div>
   </div>
 </section>
