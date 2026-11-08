@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command cards</title>
+<style>
+  body{font:14px -apple-system,system-ui,sans-serif;margin:0;color:#222;background:#f6f6f4}
+  header{background:#1f2a36;color:#fff;padding:12px 16px}
+  header h1{font-size:16px;margin:0 0 3px} header p{margin:0;font-size:12px;opacity:.8}
+  .kpis{display:flex;flex-wrap:wrap;gap:10px;padding:12px 16px;background:#fff;border-bottom:1px solid #ddd}
+  .kpi{background:#f0f4f8;border-radius:8px;padding:8px 12px;min-width:140px}
+  .kpi b{display:block;font-size:18px} .kpi span{font-size:12px;color:#555}
+  .bars{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:12px 16px;background:#fff;border-bottom:1px solid #ddd}
+  .bars h3{font-size:13px;margin:0 0 6px} .row{display:flex;align-items:center;gap:6px;font-size:12px;margin:2px 0}
+  .row{font-size:12.5px} .row .l{width:340px;flex:none;text-align:right;font-family:ui-monospace,Menlo,monospace;word-break:break-all}
+  .row .n{color:#555;width:110px;flex:none;text-align:right;font-variant-numeric:tabular-nums}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 16px;background:#fff;border-bottom:1px solid #ddd;font-size:13px}
+  .bar input[type=text]{width:240px;padding:4px 6px} .wrap{display:grid;grid-template-columns:1fr 480px;height:calc(100vh - 330px)}
+  #list{overflow:auto;background:#fff} table{border-collapse:collapse;width:100%;font-size:12.5px}
+  th,td{text-align:left;padding:4px 6px;border-bottom:1px solid #eee;vertical-align:top} th{background:#eef1f4;position:sticky;top:0}
+  tr:hover{background:#f1f7ff;cursor:pointer} tr.sel{background:#d9ebff}
+  .mono{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;word-break:break-word}
+  #detail{overflow:auto;padding:12px;background:#fafafa;border-left:1px solid #ddd;font-size:13px}
+  #detail h4{margin:14px 0 4px;font-size:13px} #detail pre{white-space:pre-wrap;word-break:break-all;background:#fff;border:1px solid #ddd;padding:8px;font-size:12px;max-height:30vh;overflow:auto}
+  .chip{display:inline-block;padding:1px 7px;margin:2px;border-radius:10px;background:#dbeafe;color:#1e3a8a;font-size:12px}
+  .warn{background:#fff3cd;border-left:3px solid #e0a800;padding:6px 8px;font-size:12.5px}
+  .ok{background:#e8f5e9;border-left:3px solid #2e7d32;padding:6px 8px;font-size:12.5px}
+  .note{color:#666;font-size:12px} .pager{padding:6px 16px;font-size:13px;background:#fff}
+  .panel{background:#fff;border-bottom:1px solid #ddd;padding:14px 16px;width:100%;box-sizing:border-box}
+  .panel h2{font-size:15px;margin:0 0 4px} .panel p.note{margin:0 0 8px}
+  .scroll{max-height:620px;overflow:auto;border:1px solid #eee;border-radius:6px;padding:6px 8px}
+  .cols{display:grid;grid-template-columns:1fr;gap:18px;width:100%}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px}
+  .track{flex:1;height:10px;background:#eef1f4;border-radius:3px;min-width:40px;position:relative}
+  .fill{height:10px;background:#3b6ea5;border-radius:3px;position:absolute;left:0;top:0}
+  table.s{font-size:12.5px;border-collapse:collapse;width:100%} table.s td,table.s th{padding:3px 6px;border-bottom:1px solid #eee;text-align:left}
+  table.s td.n{text-align:right;white-space:nowrap}
+</style>
+</head>
+<body>
+<header>
+  <h1>Command cards: what each payload runs, in order</h1>
+  <p>Commands are in the order they appear in the code. Responses are shown only when the release contains them; otherwise the card says "not in release". Runs entirely in your browser.</p>
+</header>
+<div class="kpis" id="kpis"></div>
+<div class="panel"><h2>1. What the commands do</h2><p class="note">Each command is grouped by what it does (the grouping is a reading aid, not a label in the data). The bar shows the share of all commands in each group.</p><div id="catbar"></div><div id="catlegend" class="note" style="margin-top:6px"></div></div>
+<div class="panel"><h2>2. Where the output goes</h2><p class="note">Left: command group. Right: output channel. Band width is the number of cards that have both.</p><div id="sankey"></div></div>
+<div class="panel"><h2>3. How many cards have a response in the release</h2><div id="respview"></div></div>
+<div class="panel"><h2>4. One card, step by step</h2><p class="note">Pick a card to see its commands in order, what each does, where its output goes, and whether a response is in the release.</p><select id="cardpick" style="min-width:320px;padding:4px"></select><div id="timeline" style="margin-top:10px"></div></div>
+<div class="panel"><h2>The data file (redacted_columns.csv)</h2><div id="datapanel"></div></div>
+<div class="panel"><h2>Every command word, with counts and share of all commands</h2><p class="note">All words in the cards (first word of each command), with the share of the 27,621 commands.</p><div class="scroll" id="allcmd"></div></div>
+<div class="panel"><h2>Top 40 full commands</h2><p class="note">Full command text as it appears in the code, with counts and share.</p><div class="scroll" id="fullcmd"></div></div>
+<div class="panel"><h2>Output channels and response status</h2><p class="note">Cards per channel, and how many of those cards have a response in the release.</p><div id="chanstatus"></div></div>
+<div class="panel"><div class="cols">
+  <div><h2>Commands per card</h2><div id="hist"></div></div>
+</div></div>
+<div class="panel"><h2>Output channels that appear together (cards with both)</h2><div id="pairs"></div></div>
+<div class="bar">
+  <label>Search <input type="text" id="q" placeholder="record id or command text"></label>
+  <label>Output channel <select id="ch"><option value="">any</option></select></label>
+  <label>Response <select id="rs"><option value="">any</option><option value="in_release">in release</option><option value="not_in_release">not in release</option></select></label>
+  <label>Min commands <input type="number" id="minc" min="0" value="0" style="width:60px"></label>
+  <span id="count" class="note"></span>
+</div>
+<div class="wrap">
+  <div id="list">
+    <table><thead><tr><th>record</th><th>#</th><th>commands in order (first 4)</th><th>channels</th><th>response</th></tr></thead>
+    <tbody id="rows"></tbody></table>
+    <div class="pager"><button id="prev">Prev</button> <span id="page"></span> <button id="next">Next</button></div>
+  </div>
+  <div id="detail"><p class="note">Select a card to see its commands in order, what each output channel means, and the response status.</p></div>
+</div>
+<script>
+const PAGE = 50;
+const COLORS = {decode_unpack:'#7f77dd', cloud_cluster:'#d4537e', network_request:'#d85a30', system_recon:'#1d9e75', file_write_or_delete:'#ba7517', run_code:'#378add', other:'#888780'};
+const CAT_LABEL = {decode_unpack:'decode / unpack', cloud_cluster:'cloud / cluster', network_request:'network request', system_recon:'system recon', file_write_or_delete:'file write / delete', run_code:'run code', other:'other'};
+function catName(k){ return CAT_LABEL[k] || k; }
+let cards = [], view = [], page = 0, sel = null;
+
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+async function load(){
+  const [jl, sm] = await Promise.all([fetch('../reports/cards/cards.jsonl').then(r=>r.text()),
+                                       fetch('../reports/cards/summary.json').then(r=>r.json())]);
+  cards = jl.split('\n').filter(Boolean).map(l => JSON.parse(l));
+  kpis(sm);
+  bars(sm);
+  const chSel = document.getElementById('ch');
+  Object.keys(sm.channels).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = k; chSel.appendChild(o); });
+  ['q','ch','rs','minc'].forEach(id => document.getElementById(id).addEventListener('input', apply));
+  document.getElementById('prev').onclick = () => { if (page>0){page--;render();} };
+  document.getElementById('next').onclick = () => { page++; render(); };
+  apply();
+}
+
+function kpis(s){
+  const d = s.data;
+  const items = [['rows in file', d.rows_in_file], ['command cards', s.cards], ['commands in order', s.commands_total],
+                 ['unique commands', s.unique_commands], ['cards with output channel', s.cards_with_output_channel],
+                 ['response in release', s.cards_with_response_in_release], ['response not in release', s.cards_response_not_in_release]];
+  document.getElementById('kpis').innerHTML = items.map(([l,v]) => `<div class="kpi"><b>${Number(v).toLocaleString()}</b><span>${l}</span></div>`).join('');
+}
+
+function barlist(arr, total){
+  const m = Math.max(1, ...arr.map(x => x[1]));
+  return arr.map(([k,v]) => {
+    const pct = total ? ` (${(100*v/total).toFixed(2)}%)` : '';
+    return `<div class="row" style="display:flex;align-items:center;gap:8px;margin:3px 0"><div class="l" title="${esc(k)}">${esc(k)}</div><div class="track"><div class="fill" style="width:${(100*v/m).toFixed(2)}%"></div></div><div class="n">${Number(v).toLocaleString()}${pct}</div></div>`;
+  }).join('');
+}
+
+function table(headers, rows){
+  return '<table class="s"><thead><tr>' + headers.map(h => `<th>${esc(h)}</th>`).join('') + '</tr></thead><tbody>' +
+    rows.map(r => '<tr>' + r.map((c,i) => `<td class="${i>0 && typeof c === 'number' ? 'n' : ''}">${esc(c)}</td>`).join('') + '</tr>').join('') + '</tbody></table>';
+}
+
+function bars(s){
+  const d = s.data;
+  const kinds = Object.entries(d.kinds);
+  document.getElementById('datapanel').innerHTML = table(['measure', 'count'], [
+    ['rows in file', d.rows_in_file],
+    ...kinds.map(([k,v]) => ['rows of kind ' + k, v]),
+    ['rows with a parent_id', d.rows_with_parent],
+    ['payload rows with the file_path command field', d.payload_rows_with_file_path_field],
+    ['payload rows that yield a command card', d.payload_rows_with_command],
+    ['commands, all cards', s.commands_total],
+    ['unique command strings', s.unique_commands],
+    ...Object.entries(s.commands_by_source).map(([k,v]) => ['commands from ' + k.replace(/_/g,' '), v]),
+  ]);
+  document.getElementById('allcmd').innerHTML = barlist(s.all_first_words, s.commands_total);
+  document.getElementById('fullcmd').innerHTML = barlist(s.top_full_commands, s.commands_total);
+  const st = s.status_by_channel;
+  document.getElementById('chanstatus').innerHTML = table(['channel', 'cards', 'in release', 'not in release'],
+    Object.entries(s.channels).map(([k,v]) => [k, v, (st[k]||{}).in_release || 0, (st[k]||{}).not_in_release || 0]));
+  document.getElementById('hist').innerHTML = table(['commands per card', 'cards'], Object.entries(s.commands_per_card_hist).sort((a,b)=>a[0].localeCompare(b[0])));
+  document.getElementById('hist').innerHTML += '<br>' + table(['command source', 'commands'], Object.entries(s.commands_by_source));
+  document.getElementById('pairs').innerHTML = table(['channel A', 'channel B', 'cards with both'], s.channel_pairs);
+  views(s);
+  // channels bar list is in the table above; keep the chart on the cards list too
+}
+
+function views(s){
+  // 1. stacked bar of command groups
+  const cats = Object.entries(s.categories);
+  const total = cats.reduce((a,[,v]) => a+v, 0);
+  document.getElementById('catbar').innerHTML = '<div style="display:flex;height:34px;border-radius:6px;overflow:hidden">' +
+    cats.map(([k,v]) => `<div title="${catName(k)}: ${v.toLocaleString()}" style="width:${(100*v/total).toFixed(3)}%;background:${COLORS[k]||'#888'}"></div>`).join('') + '</div>';
+  document.getElementById('catlegend').innerHTML = cats.map(([k,v]) =>
+    `<span style="display:inline-block;margin:3px 14px 3px 0"><span style="display:inline-block;width:10px;height:10px;background:${COLORS[k]||'#888'};border-radius:2px;margin-right:5px"></span>${catName(k)}: <b>${v.toLocaleString()}</b> (${(100*v/total).toFixed(1)}%)</span>`).join('');
+
+  // 2. sankey: category (left, cards) -> channel (right, cards)
+  const flows = s.category_channel_flows;
+  const catCards = {}; for (const [k,v] of Object.entries(s.category_response)) catCards[k] = (v.in_release||0)+(v.not_in_release||0);
+  const chanCards = s.channels;
+  const L = Object.keys(catCards).sort((a,b)=>catCards[b]-catCards[a]);
+  const R = Object.keys(chanCards).sort((a,b)=>chanCards[b]-chanCards[a]);
+  const W = 992, H = 420, top = 20, usable = H - 40, gap = 10;
+  const sumL = L.reduce((a,k)=>a+catCards[k],0), sumR = R.reduce((a,k)=>a+chanCards[k],0);
+  const scale = (usable - gap*Math.max(L.length,R.length)) / Math.max(sumL, sumR);
+  const xl = 200, xr = 700, nw = 14;
+  const posL = {}, posR = {}; let y = top;
+  for (const k of L){ posL[k] = {y, h: catCards[k]*scale}; y += posL[k].h + gap; }
+  y = top; for (const k of R){ posR[k] = {y, h: chanCards[k]*scale}; y += posR[k].h + gap; }
+  const offL = {}, offR = {}; for (const k of L) offL[k] = 0; for (const k of R) offR[k] = 0;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img"><title>Command groups to output channels</title><desc>Band widths are card counts.</desc>`;
+  for (const [cat, ch, n] of flows){
+    const a = posL[cat], b = posR[ch]; if (!a || !b) continue;
+    const h = n*scale;
+    const y1 = a.y + offL[cat] + h/2, y2 = b.y + offR[ch] + h/2;
+    offL[cat] += h; offR[ch] += h;
+    svg += `<path d="M${xl+nw},${y1} C${(xl+xr)/2},${y1} ${(xl+xr)/2},${y2} ${xr},${y2}" fill="none" stroke="${COLORS[cat]||'#888'}" stroke-opacity="0.35" stroke-width="${Math.max(1,h)}"><title>${catName(cat)} to ${ch}: ${n.toLocaleString()} cards</title></path>`;
+  }
+  for (const k of L){ svg += `<rect x="${xl}" y="${posL[k].y}" width="${nw}" height="${Math.max(2,posL[k].h)}" fill="${COLORS[k]||'#888'}"/><text x="${xl-8}" y="${posL[k].y+posL[k].h/2}" text-anchor="end" dominant-baseline="central" font-size="13" fill="currentColor">${catName(k)} (${catCards[k].toLocaleString()})</text>`; }
+  for (const k of R){ svg += `<rect x="${xr}" y="${posR[k].y}" width="${nw}" height="${Math.max(2,posR[k].h)}" fill="#3b6ea5"/><text x="${xr+nw+8}" y="${posR[k].y+posR[k].h/2}" dominant-baseline="central" font-size="13" fill="currentColor">${esc(k)} (${chanCards[k].toLocaleString()})</text>`; }
+  svg += '</svg>';
+  document.getElementById('sankey').innerHTML = svg;
+
+  // 3. response ratio
+  const inR = s.cards_with_response_in_release, notR = s.cards_response_not_in_release, all = inR + notR;
+  const pct = (100*inR/all).toFixed(1);
+  const catRows = Object.entries(s.category_response).map(([k,v]) => {
+    const i = v.in_release||0, n = v.not_in_release||0, t = i+n;
+    return `<div class="row" style="display:flex;align-items:center;gap:8px;margin:3px 0"><div class="l" style="width:200px;text-align:right">${catName(k)}</div><div style="flex:1;display:flex;height:12px;border-radius:3px;overflow:hidden;background:#eef1f4"><div style="width:${(100*i/t).toFixed(2)}%;background:#2e7d32"></div></div><div class="n" style="width:260px">${i.toLocaleString()} in release, ${n.toLocaleString()} not (${(100*i/t).toFixed(1)}%)</div></div>`;
+  }).join('');
+  document.getElementById('respview').innerHTML =
+    `<div style="font-size:28px;font-weight:600">${inR.toLocaleString()} of ${all.toLocaleString()} cards <span style="font-size:16px;font-weight:400">(${pct}%) have a response in the release</span></div>` +
+    `<div style="display:flex;height:22px;border-radius:6px;overflow:hidden;margin:10px 0"><div style="width:${pct}%;background:#2e7d32" title="in release"></div><div style="flex:1;background:#d9d9d9" title="not in release"></div></div>` +
+    `<p class="note">Green: a child response record exists in the release. Grey: none. Output of a command is only counted here if the release has a response record for it. Many responses are code, not output, so this is an upper bound on verified output.</p>` +
+    `<div style="margin-top:10px">${catRows}</div>`;
+
+  // 4. card picker
+  const sel = document.getElementById('cardpick');
+  const topCards = [...cards].sort((a,b) => b.commands.length - a.commands.length).slice(0, 300);
+  sel.innerHTML = topCards.map(c => `<option value="${esc(c.id)}">${esc(c.id)}: ${c.commands.length} commands</option>`).join('');
+  sel.onchange = () => timeline(cards.find(c => c.id === sel.value));
+  if (topCards.length) timeline(topCards[0]);
+}
+
+function timeline(c){
+  if (!c) return;
+  const box = document.getElementById('timeline');
+  let h = `<div class="note">${esc(c.id)}, ${c.commands.length} commands in order. Output channels: ${c.output_channels.length ? c.output_channels.map(x => esc(x.channel)).join(', ') : 'none found'}.</div>`;
+  h += c.commands.slice(0, 60).map(x => {
+    const cat = x.category || '';
+    return `<div style="display:flex;gap:10px;align-items:stretch;margin:4px 0"><div style="width:6px;border-radius:3px;background:${COLORS[cat]||'#888'}"></div>` +
+      `<div style="flex:1"><div class="mono"><b>${x.order}.</b> ${esc(x.cmd)}</div><div class="note">${esc(catName(cat))} · from ${esc(x.source.replace(/_/g,' '))}</div></div></div>`;
+  }).join('');
+  if (c.commands.length > 60) h += `<div class="note">… and ${c.commands.length - 60} more (see the detail pane)</div>`;
+  h += `<div style="margin-top:8px;padding:8px;border-radius:6px;background:${c.response.status==='in_release'?'#e8f5e9':'#fff3cd'}">` +
+       (c.response.status==='in_release' ? `Response in release: ${esc(c.response.records[0] ? c.response.records[0].text.slice(0,240) : '')}` : 'Response: not in release. The output of these commands is not recorded here.') + '</div>';
+  box.innerHTML = h;
+}
+
+function apply(){
+  const q = document.getElementById('q').value.toLowerCase();
+  const ch = document.getElementById('ch').value;
+  const rs = document.getElementById('rs').value;
+  const minc = parseInt(document.getElementById('minc').value || '0', 10);
+  view = cards.filter(c =>
+    (!q || c.id.toLowerCase().includes(q) || c.commands.some(x => x.cmd.toLowerCase().includes(q))) &&
+    (!ch || c.output_channels.some(x => x.channel === ch)) &&
+    (!rs || c.response.status === rs) &&
+    c.commands.length >= minc);
+  page = 0; render();
+}
+
+function render(){
+  const tb = document.getElementById('rows'); tb.innerHTML = '';
+  const slice = view.slice(page*PAGE, page*PAGE + PAGE);
+  for (const c of slice){
+    const tr = document.createElement('tr');
+    if (sel && sel.id === c.id) tr.className = 'sel';
+    const first = c.commands.slice(0,4).map(x => x.cmd).join('  →  ');
+    tr.innerHTML = `<td class="mono">${esc(c.id)}</td><td>${c.commands.length}</td><td class="mono">${esc(first)}</td>` +
+                   `<td>${esc(c.output_channels.map(x=>x.channel).join(', '))}</td><td>${esc(c.response.status.replace(/_/g,' '))}</td>`;
+    tr.onclick = () => { sel = c; show(c); render(); };
+    tb.appendChild(tr);
+  }
+  const pages = Math.max(1, Math.ceil(view.length / PAGE));
+  document.getElementById('count').textContent = `${view.length.toLocaleString()} cards`;
+  document.getElementById('page').textContent = `page ${page+1} of ${pages}`;
+  document.getElementById('prev').disabled = page === 0;
+  document.getElementById('next').disabled = page+1 >= pages;
+}
+
+function show(c){
+  const d = document.getElementById('detail');
+  let h = `<h3 class="mono" style="margin:0">${esc(c.id)}</h3>`;
+  h += `<p class="note">parent: ${esc(c.parent || 'none')}</p>`;
+  h += '<h4>Commands, in order of appearance</h4>';
+  h += '<p class="note">The order is the order in the code. A branch or loop can change the real run order.</p><ol>';
+  for (const x of c.commands) h += `<li><code>${esc(x.cmd)}</code> <span class="note">(from ${esc(x.source.replace(/_/g,' '))})</span></li>`;
+  h += '</ol>';
+  h += '<h4>Output channels (what the code does with results)</h4>';
+  if (!c.output_channels.length) h += '<p class="note">None found by pattern.</p>';
+  for (const o of c.output_channels) h += `<p><span class="chip">${esc(o.channel)}</span> ${esc(o.meaning)}<br><span class="note mono">match: ${esc(o.match)}</span></p>`;
+  h += '<h4>Response</h4>';
+  if (c.response.status === 'in_release') {
+    h += '<div class="ok">The release contains a response for this payload.</div>';
+    for (const r of c.response.records) h += `<pre>${esc(r.text)}</pre>`;
+  } else {
+    h += '<div class="warn">Not in release. The output of these commands is not recorded here, so none is shown.</div>';
+  }
+  if (c.related_code_records.length) h += `<p class="note">Related code records (not output): ${esc(c.related_code_records.join(', '))}</p>`;
+  h += '<h4>Purpose hints (from comments in the code)</h4>';
+  h += c.purpose_hints.length ? c.purpose_hints.map(p => `<span class="chip">${esc(p)}</span>`).join('') : '<p class="note">No comments near the commands.</p>';
+  h += '<h4>Code (first 300 characters)</h4>';
+  h += `<pre>${esc(c.text_preview)}</pre>`;
+  d.innerHTML = h;
+}
+
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+{
+  "name": "chat (example pack)",
+  "description": "Example rules for chat-style agent logs. Edit the patterns for your data.",
+  "behaviors": [
+    {
+      "name": "asks_for_review",
+      "stage": "coordination",
+      "pattern": "review|can someone|please check",
+      "flags": "i"
+    },
+    {
+      "name": "claims_done",
+      "stage": "reporting",
+      "pattern": "\\bdone\\b|finished|pushed|deployed",
+      "flags": "i"
+    },
+    {
+      "name": "moves_data_out",
+      "stage": "exfiltration",
+      "pattern": "upload|send(ing)? the|paste|POST",
+      "flags": "i"
+    },
+    {
+      "name": "touches_secret",
+      "stage": "credential",
+      "pattern": "password|token|secret|vault",
+      "flags": "i"
+    },
+    {
+      "name": "generic_status",
+      "stage": "reporting",
+      "pattern": "ok|thanks|green",
+      "flags": "i",
+      "context": true
+    }
+  ],
+  "shared_names": [],
+  "handles": [],
+  "handle_families": {},
+  "harm": [
+    "touches_secret",
+    "moves_data_out"
+  ],
+  "intents": [
+    {
+      "name": "secret",
+      "pattern": "password|token|secret|vault",
+      "flags": "i"
+    },
+    {
+      "name": "review_request",
+      "pattern": "review|can someone",
+      "flags": "i"
+    },
+    {
+      "name": "status",
+      "pattern": "."
+    }
+  ]
+}

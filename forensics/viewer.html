@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Swarm Traces viewer (draft)</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: #f6f6f4; color: #222; }
+  header { padding: 12px 16px; background: #1f2a36; color: #fff; }
+  header h1 { font-size: 16px; margin: 0 0 4px; }
+  header p { margin: 0; font-size: 12px; opacity: .8; }
+  #status { padding: 10px 16px; font-size: 13px; background: #fff3cd; border-bottom: 1px solid #e0c97a; display: none; }
+  #load { padding: 40px; text-align: center; border: 2px dashed #888; margin: 24px; border-radius: 8px; background: #fff; }
+  #app { display: none; }
+  .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 16px; background: #fff; border-bottom: 1px solid #ddd; font-size: 13px; }
+  .bar input[type=text] { width: 240px; padding: 4px 6px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 14px; padding: 8px 16px; font-size: 13px; background: #fff; border-bottom: 1px solid #ddd; }
+  .stats b { font-size: 14px; }
+  .wrap { display: grid; grid-template-columns: 1fr 460px; height: calc(100vh - 185px); }
+  #list { overflow: auto; background: #fff; }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+  th { position: sticky; top: 0; background: #eef1f4; }
+  td.text { font-family: ui-monospace, Menlo, monospace; white-space: pre-wrap; word-break: break-word; min-width: 420px; }
+  td.tags { min-width: 170px; color: #345; }
+  tr:hover { background: #f1f7ff; cursor: pointer; }
+  tr.sel { background: #d9ebff; }
+  #detail { overflow: auto; padding: 12px; background: #fafafa; border-left: 1px solid #ddd; font-size: 13px; }
+  #detail pre { white-space: pre-wrap; word-break: break-all; background: #fff; border: 1px solid #ddd; padding: 8px; font-size: 12px; max-height: 40vh; overflow: auto; }
+  #detail h4 { margin: 14px 0 4px; }
+  .chip { display: inline-block; padding: 1px 7px; margin: 2px; border-radius: 10px; background: #e5e9ef; cursor: pointer; font-size: 12px; }
+  .chip.tag { background: #dbeafe; color: #1e3a8a; }
+  .pager { padding: 8px 16px; font-size: 13px; }
+  .pager button { margin-right: 6px; }
+  .note { color: #666; font-size: 12px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Swarm Traces release: record viewer (draft)</h1>
+  <p>Everything runs in this page; no data leaves your machine. Behavior tags come from forensics/quantify.py (pattern rules, not verified).</p>
+</header>
+
+<div id="status"></div>
+<div id="load">
+  <p><b>Loading redacted_columns.csv…</b></p>
+  <p class="note">If it does not load, serve the project folder: run <code>python3 -m http.server 8000</code> in the project root, then open <code>http://localhost:8000/forensics/viewer.html</code>.</p>
+  <input type="file" id="file" accept=".csv,text/csv">
+</div>
+
+<div id="app">
+  <div class="stats" id="stats"></div>
+  <div class="bar">
+    <label>Kind
+      <select id="kind"><option value="">all</option><option>payload</option><option>recovered_text</option><option>response</option></select>
+    </label>
+    <label>Behavior tag <select id="btag"><option value="">any</option></select></label>
+    <label>Handle <select id="handle"><option value="">any</option></select></label>
+    <label><input type="checkbox" id="hasParent"> has parent only</label>
+    <label><input type="checkbox" id="noParent"> no parent only</label>
+    <label>Search text <input type="text" id="q" placeholder="substring, case-insensitive"></label>
+    <span id="count"></span>
+  </div>
+  <div class="wrap">
+    <div id="list">
+      <table>
+        <thead><tr><th>id</th><th>kind</th><th>parent_id</th><th>behavior tags</th><th>text (full)</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div id="detail"><p class="note">Select a row to see the record, its behavior tags, the parent and children, and a plain-language description.</p></div>
+  </div>
+  <div class="pager">
+    <button id="prev">Prev</button>
+    <span id="page"></span>
+    <button id="next">Next</button>
+  </div>
+</div>
+
+<script>
+// Handles to find in the text. Same list as forensics/swarm_forensics.py.
+const HANDLES = ["C6E6E","C5DF","C23RO","C64I","C608","C5L14","C5GH","C4E1","C4R1","OTS92","G23619","G236C3","G236","LIBR11","Future9180","SC4E1","SC4","H20E1","A22B","PX32","U58E1","U58","MARB051","BE90","flb4","hb58428env","K64AUTO","M47E1","C5","C6"];
+const PAGE = 25;  // full text is shown per row, so keep pages small
+
+let recs = [];        // {id, cite, kind, parent_id, time_utc, tags, text, _h, btags, commands}
+let byId = new Map();
+let children = new Map();
+let view = [];
+let page = 0;
+let selected = null;
+
+// RFC 4180 CSV parser: handles quotes, escaped quotes, and newlines inside fields.
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", i = 0, inQ = false;
+  while (i < text.length) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i += 2; continue; }
+        inQ = false; i++; continue;
+      }
+      field += c; i++; continue;
+    }
+    if (c === '"') { inQ = true; i++; continue; }
+    if (c === ",") { row.push(field); field = ""; i++; continue; }
+    if (c === "\r") { i++; continue; }
+    if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; i++; continue; }
+    field += c; i++;
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+function handlesIn(text) {
+  const found = new Set();
+  for (const h of HANDLES) {
+    const re = new RegExp("(?<![A-Za-z0-9])" + h.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    if (re.test(text)) found.add(h);
+  }
+  return [...found];
+}
+
+function loadText(text) {
+  const rows = parseCSV(text);
+  const head = rows.shift();
+  const ix = Object.fromEntries(head.map((h, k) => [h, k]));
+  recs = rows.map(r => ({
+    id: r[ix.id], cite: r[ix.cite], kind: r[ix.kind], parent_id: r[ix.parent_id] || "",
+    time_utc: r[ix.time_utc] || "", tags: r[ix.tags] || "", text: r[ix.text] || "",
+    btags: [], commands: 0
+  }));
+  byId = new Map(recs.map(r => [r.id, r]));
+  children = new Map();
+  for (const r of recs) {
+    if (r.parent_id) {
+      if (!children.has(r.parent_id)) children.set(r.parent_id, []);
+      children.get(r.parent_id).push(r.id);
+    }
+    r._h = handlesIn(r.text);
+  }
+  buildStats();
+  buildHandleSelect();
+  document.getElementById("load").style.display = "none";
+  document.getElementById("app").style.display = "block";
+}
+
+// Behavior tags and command counts per record, from forensics/out/record_tags.csv.
+function mergeTags(text) {
+  const rows = parseCSV(text);
+  rows.shift();
+  const tagMap = new Map(rows.map(r => [r[0], { tags: r[2] ? r[2].split("|") : [], commands: parseInt(r[3] || "0", 10) }]));
+  const counts = {};
+  for (const r of recs) {
+    const t = tagMap.get(r.id);
+    r.btags = t ? t.tags : [];
+    r.commands = t ? t.commands : 0;
+    for (const x of r.btags) counts[x] = (counts[x] || 0) + 1;
+  }
+  const sel = document.getElementById("btag");
+  for (const [tag, c] of Object.entries(counts).sort((a, b) => b[1] - a[1])) {
+    const o = document.createElement("option");
+    o.value = tag; o.textContent = `${tag} (${c.toLocaleString()})`;
+    sel.appendChild(o);
+  }
+}
+
+function buildStats() {
+  const kinds = {}; let withParent = 0, withHandle = 0;
+  for (const r of recs) {
+    kinds[r.kind] = (kinds[r.kind] || 0) + 1;
+    if (r.parent_id) withParent++;
+    if (r._h.length) withHandle++;
+  }
+  const k = Object.entries(kinds).map(([a, b]) => `${a}: <b>${b.toLocaleString()}</b>`).join(" &nbsp; ");
+  document.getElementById("stats").innerHTML =
+    `records <b>${recs.length.toLocaleString()}</b> &nbsp; ${k} &nbsp; with parent <b>${withParent.toLocaleString()}</b> &nbsp; naming a handle <b>${withHandle.toLocaleString()}</b> &nbsp; <span class="note">time_utc empty in all records</span>`;
+}
+
+function buildHandleSelect() {
+  const counts = {};
+  for (const r of recs) for (const h of r._h) counts[h] = (counts[h] || 0) + 1;
+  const sel = document.getElementById("handle");
+  for (const [h, c] of Object.entries(counts).sort((a, b) => b[1] - a[1])) {
+    const o = document.createElement("option"); o.value = h; o.textContent = `${h} (${c})`; sel.appendChild(o);
+  }
+}
+
+function applyFilters() {
+  const kind = document.getElementById("kind").value;
+  const handle = document.getElementById("handle").value;
+  const btag = document.getElementById("btag").value;
+  const hasP = document.getElementById("hasParent").checked;
+  const noP = document.getElementById("noParent").checked;
+  const q = document.getElementById("q").value.toLowerCase();
+  view = recs.filter(r =>
+    (!kind || r.kind === kind) &&
+    (!handle || r._h.includes(handle)) &&
+    (!btag || r.btags.includes(btag)) &&
+    (!hasP || r.parent_id) &&
+    (!noP || !r.parent_id) &&
+    (!q || r.text.toLowerCase().includes(q))
+  );
+  page = 0;
+  render();
+}
+
+function render() {
+  const start = page * PAGE;
+  const slice = view.slice(start, start + PAGE);
+  const tb = document.getElementById("rows");
+  tb.innerHTML = "";
+  for (const r of slice) {
+    const tr = document.createElement("tr");
+    if (selected && selected.id === r.id) tr.className = "sel";
+    const cells = [r.id, r.kind, r.parent_id, r.btags.join(", "), r.text];
+    cells.forEach((v, i) => {
+      const td = document.createElement("td");
+      if (i === 3) td.className = "tags";
+      if (i === 4) td.className = "text";
+      td.textContent = v;
+      tr.appendChild(td);
+    });
+    tr.onclick = () => select(r.id);
+    tb.appendChild(tr);
+  }
+  const pages = Math.max(1, Math.ceil(view.length / PAGE));
+  document.getElementById("count").textContent = `${view.length.toLocaleString()} matching`;
+  document.getElementById("page").textContent = `page ${page + 1} of ${pages}`;
+  document.getElementById("prev").disabled = page === 0;
+  document.getElementById("next").disabled = page + 1 >= pages;
+}
+
+// Plain-language annotation of a record. Pattern-based: it describes what the code
+// would do, it does not run anything.
+const RULES = [
+  [/fetch\(|XMLHttpRequest|urllib\.request|requests\.(get|post)|socket\.getaddrinfo/i, "Makes a network request"],
+  [/method:\s*'POST'|\.open\('POST'|method='POST'|requests\.post/, "Sends data with POST"],
+  [/method:\s*'DELETE'|method='DELETE'|\.delete\(/, "Deletes something remotely"],
+  [/X-API-Key|Authorization['"]?\s*:\s*'Bearer|Bearer '\s*\+/, "Attaches an API key or bearer token"],
+  [/new Image|\.src\s*=\s*'/, "Loads a URL as an image (a silent request, often used as a beacon)"],
+  [/innerHTML|innerText|document\.write/, "Writes the result into the page"],
+  [/os\.popen|subprocess|child_process|exec\(/, "Runs shell commands on a machine"],
+  [/\/proc\/|\/etc\/|resolv\.conf|environ/, "Reads system files (process, network or environment info)"],
+  [/serviceaccount|kube|clusterrole|\/secrets|\bsecrets\b|auth\.docker\.io\/token|LOOT|SECRET|PASSWORD/, "Looks for credentials or cluster access"],
+  [/hfcommit|commit\(|README\.md|\.huggingface/, "Edits a repository (commit to a dataset)"],
+  [/b64encode|base64|b32encode/, "Encodes data (base64)"],
+  [/\bid;|uname -a|whoami/, "Runs identity or system-recon commands"],
+  [/Date\.now\(\)|time\.time\(\)/, "Uses timestamps (possibly to track runs)"],
+];
+
+function explainRecord(text) {
+  const notes = [];
+  for (const [re, label] of RULES) if (re.test(text)) notes.push(label);
+
+  const urls = [...new Set((text.match(/https?:\/\/[^\s"'`)]+/g) || []))];
+  const cmdBlock = (text.match(/"file_path\\?":\s*\\?"([^"\\]+)/) || text.match(/file_path[^;]*?:\s*\\"([^\\"]+)/) || [])[1];
+  let filePath = "", commands = [];
+  if (cmdBlock) {
+    const parts = cmdBlock.split(";").map(s => s.trim()).filter(s => s && s !== "#");
+    filePath = parts.shift() || "";   // first segment is the file_path field, not a command
+    commands = parts;
+  }
+  const placeholders = [...new Set(text.match(/\[(REDACTED[^\]]*|SERVICE[^\]]*|CREDENTIAL[^\]]*|USER[^\]]*|PROXY[^\]]*|INFRA[^\]]*|ENV VALUE[^\]]*|WEBHOOK[^\]]*|HF REPO[^\]]*)\]/g) || [])];
+
+  const wrap = document.createElement("div");
+  const h = document.createElement("h4"); h.textContent = "What this record does (pattern-based)"; wrap.appendChild(h);
+  const ul = document.createElement("ul");
+  (notes.length ? notes : ["No known pattern matched; read the raw text below."]).forEach(n => {
+    const li = document.createElement("li"); li.textContent = n; ul.appendChild(li);
+  });
+  wrap.appendChild(ul);
+
+  if (urls.length) {
+    const p = document.createElement("p"); p.textContent = "Targets: " + urls.join("  ,  ");
+    wrap.appendChild(p);
+  }
+  if (filePath) {
+    const p = document.createElement("p");
+    p.textContent = "The file_path field begins with '" + filePath + "'. The segments after it are separated by ';', so if a server runs this value in a shell, they execute as commands (command injection).";
+    wrap.appendChild(p);
+  }
+  if (commands.length) {
+    const p = document.createElement("p"); p.textContent = "Shell commands passed in the request, in order:";
+    wrap.appendChild(p);
+    const ol = document.createElement("ol");
+    commands.forEach(c => { const li = document.createElement("li"); const code = document.createElement("code"); code.textContent = c; li.appendChild(code); ol.appendChild(li); });
+    wrap.appendChild(ol);
+  }
+  if (placeholders.length) {
+    const p = document.createElement("p");
+    p.textContent = "Hidden by redaction: " + placeholders.join("  ");
+    p.className = "note";
+    wrap.appendChild(p);
+  }
+  return wrap;
+}
+
+function chip(id) {
+  const s = document.createElement("span");
+  s.className = "chip"; s.textContent = id;
+  s.onclick = () => select(id);
+  return s;
+}
+
+function select(id) {
+  const r = byId.get(id);
+  if (!r) return;
+  selected = r;
+  const d = document.getElementById("detail");
+  d.innerHTML = "";
+
+  const h = document.createElement("h3"); h.textContent = r.id; d.appendChild(h);
+  const meta = document.createElement("div");
+  meta.className = "note";
+  meta.textContent = `kind: ${r.kind} | cite: ${r.cite} | source tags: ${r.tags || "-"} | time_utc: ${r.time_utc || "none"} | shell commands: ${r.commands}`;
+  d.appendChild(meta);
+
+  const tagP = document.createElement("p");
+  tagP.textContent = "Behavior tags: ";
+  if (!r.btags.length) tagP.append("none");
+  r.btags.forEach(t => {
+    const s = document.createElement("span"); s.className = "chip tag"; s.textContent = t;
+    s.title = "Filter the list to this tag";
+    s.onclick = () => { document.getElementById("btag").value = t; applyFilters(); };
+    tagP.appendChild(s);
+  });
+  d.appendChild(tagP);
+
+  const pl = document.createElement("p"); pl.textContent = "Parent: ";
+  if (r.parent_id && byId.has(r.parent_id)) pl.appendChild(chip(r.parent_id));
+  else pl.append(r.parent_id ? r.parent_id + " (not in file)" : "none");
+  d.appendChild(pl);
+
+  const cl = document.createElement("p"); cl.textContent = "Children: ";
+  const kids = children.get(r.id) || [];
+  if (!kids.length) cl.append("none");
+  kids.slice(0, 200).forEach(k => cl.appendChild(chip(k)));
+  if (kids.length > 200) cl.append(` … and ${kids.length - 200} more`);
+  d.appendChild(cl);
+
+  const hl = document.createElement("p");
+  hl.textContent = "Handles named: " + (r._h.length ? r._h.join(", ") : "none");
+  d.appendChild(hl);
+
+  d.appendChild(explainRecord(r.text || ""));
+
+  const rawH = document.createElement("h4"); rawH.textContent = "Full text"; d.appendChild(rawH);
+  const pre = document.createElement("pre");
+  pre.textContent = r.text || "(empty)";
+  d.appendChild(pre);
+  render();
+}
+
+function readFile(f) {
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => { loadText(reader.result); applyFilters(); };
+  reader.readAsText(f);
+}
+
+// Load automatically when served over http (file:// blocks this fetch).
+async function autoLoad() {
+  const st = document.getElementById("status");
+  try {
+    const [res, tres] = await Promise.all([fetch("../redacted_columns.csv"), fetch("out/record_tags.csv")]);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    st.style.display = "block";
+    st.textContent = "Reading redacted_columns.csv (about 75 MB)…";
+    loadText(await res.text());
+    if (tres.ok) mergeTags(await tres.text());
+    else st.textContent = "Loaded records, but out/record_tags.csv was not found. Run forensics/quantify.py to add behavior tags.";
+    applyFilters();
+    if (tres.ok) st.style.display = "none";
+  } catch (err) {
+    st.style.display = "block";
+    st.textContent = "Could not load the CSV automatically (" + err.message + "). Use the file picker, or serve the folder as described above.";
+  }
+}
+
+document.getElementById("file").addEventListener("change", e => readFile(e.target.files[0]));
+["kind", "handle", "btag", "hasParent", "noParent"].forEach(id =>
+  document.getElementById(id).addEventListener("change", applyFilters));
+document.getElementById("q").addEventListener("input", applyFilters);
+document.getElementById("prev").onclick = () => { if (page > 0) { page--; render(); } };
+document.getElementById("next").onclick = () => { page++; render(); };
+autoLoad();
+</script>
+</body>
+</html>

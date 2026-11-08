@@ -1,0 +1,126 @@
+{
+  "name": "generic agent traces",
+  "description": "A starting pack for any agent trace: common actions, secrets, URLs as channels, and timestamps in text. Copy and edit it for a specific dataset.",
+  "behaviors": [
+    {
+      "name": "network_request",
+      "stage": "network",
+      "pattern": "fetch\\(|XMLHttpRequest|urllib|requests\\.(get|post)|\\bcurl\\b|\\bwget\\b|https?://",
+      "flags": "i",
+      "context": true,
+      "description": "Makes or mentions a network request"
+    },
+    {
+      "name": "sends_data",
+      "stage": "exfiltration",
+      "pattern": "method\\s*[:=]\\s*['\"](POST|PUT)|requests\\.post|-X\\s*(POST|PUT)|upload",
+      "flags": "i",
+      "description": "Sends data out"
+    },
+    {
+      "name": "runs_shell",
+      "stage": "execution",
+      "pattern": "os\\.popen|subprocess|child_process|\\bexec\\(|\\bbash -c|\\bsh -c",
+      "description": "Runs shell commands"
+    },
+    {
+      "name": "reads_system_files",
+      "stage": "reconnaissance",
+      "pattern": "/proc/|/etc/passwd|/etc/hosts|environ\\b|\\bwhoami\\b|uname -a",
+      "description": "Reads system or identity information"
+    },
+    {
+      "name": "handles_secrets",
+      "stage": "credential_access",
+      "pattern": "\\b(sk-[A-Za-z0-9]{16,}|hf_[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16})\\b|\\[(CREDENTIAL|TOKEN|SECRET)[ :][^\\]]{1,20}\\]|password|api[_-]?key|secret",
+      "flags": "i",
+      "description": "Mentions or uses a secret"
+    },
+    {
+      "name": "deletes",
+      "stage": "cover_up",
+      "pattern": "method\\s*[:=]\\s*['\"]DELETE|\\brm -rf\\b|\\bdelete\\b",
+      "flags": "i",
+      "description": "Deletes something"
+    },
+    {
+      "name": "coordinates",
+      "stage": "coordination",
+      "pattern": "\\b(lock|claim|elect|heartbeat|beacon|mailbox|board|command|relay|controller)\\b",
+      "flags": "i",
+      "context": true,
+      "description": "Words used in coordination"
+    }
+  ],
+  "identity_patterns": [
+    {
+      "role": "bearer",
+      "pattern": "Bearer\\s*['\"]?\\s*\\+?\\s*['\"]?(\\[[A-Z][A-Z ]*\\d+\\]|[A-Za-z0-9_\\-\\.]{16,})"
+    },
+    {
+      "role": "api-key",
+      "pattern": "x-api-key['\"]?\\s*[:,]\\s*['\"]?(\\[[A-Z][A-Z ]*\\d+\\]|[A-Za-z0-9_\\-\\.]{16,})",
+      "flags": "i"
+    }
+  ],
+  "info_patterns": [
+    {
+      "family": "secret",
+      "pattern": "\\b(sk-[A-Za-z0-9]{16,}|hf_[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16})\\b"
+    },
+    {
+      "family": "credential_placeholder",
+      "pattern": "\\[(CREDENTIAL|TOKEN|SECRET) ?\\d+\\]"
+    }
+  ],
+  "channels": [
+    {
+      "name": "url",
+      "pattern": "https?://([\\w.-]+\\.[a-z]{2,}(?:/[\\w.%~-]+){1,2})",
+      "write": "method\\s*[:=]\\s*['\"](POST|PUT|PATCH)|requests\\.post|-X\\s*(POST|PUT)|upload|commit",
+      "flags": "i"
+    }
+  ],
+  "intents": [
+    {
+      "name": "sends_data",
+      "pattern": "method\\s*[:=]\\s*['\"](POST|PUT)|requests\\.post|-X\\s*(POST|PUT)|upload",
+      "flags": "i"
+    },
+    {
+      "name": "runs_shell",
+      "pattern": "os\\.popen|subprocess|child_process|\\bbash -c|\\bsh -c"
+    },
+    {
+      "name": "reads_system",
+      "pattern": "/proc/|/etc/|whoami|uname"
+    },
+    {
+      "name": "network_read",
+      "pattern": "fetch\\(|XMLHttpRequest|urllib|requests\\.get|\\bcurl\\b|https?://",
+      "flags": "i"
+    },
+    {
+      "name": "message",
+      "pattern": "."
+    }
+  ],
+  "harm": [
+    "handles_secrets",
+    "sends_data",
+    "runs_shell",
+    "deletes"
+  ],
+  "time": {
+    "embedded_epoch": true,
+    "window": "auto",
+    "min_points": 100,
+    "min_spearman": 0.8,
+    "max_p90_error_hours": 6
+  },
+  "handles": [],
+  "handle_families": {},
+  "shared_names": [],
+  "structural_channels": true,
+  "mention_channels": true
+}

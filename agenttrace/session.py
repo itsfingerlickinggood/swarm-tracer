@@ -1,0 +1,201 @@
+"""One loaded dataset, fully analyzed and indexed, for the app and the AI investigator.
+
+Session.load runs the whole pipeline once: tags and threads (analysis), time, identities
+and replay (reconstruct), channels, deliveries and content spread (messages). It then
+builds indexes so any single event can be traced: its parent chain, children, channel
+operations, messages in and out, and copies of the same program under other actors.
+"""
+import os
+from collections import defaultdict
+
+from . import analysis, messages, model, packs, reconstruct
+
+PACK_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "packs")
+
+
+def list_packs():
+    out = []
+    for f in sorted(os.listdir(PACK_DIR)):
+        if f.endswith(".json"):
+            try:
+                p = packs.load_pack(os.path.join(PACK_DIR, f))
+                out.append({"file": f, "name": p.name, "description": p.description})
+            except SystemExit as e:
+                out.append({"file": f, "name": f, "description": f"invalid pack: {e}"})
+    return out
+
+
+class Session:
+    def __init__(self):
+        self.loaded = False
+        self.name = None
+
+    # ------------------------------------------------------------------ load
+    def load(self, path, pack_file, mapping=None, name=None):
+        pack_path = pack_file if os.path.isabs(pack_file) else os.path.join(PACK_DIR, pack_file)
+        self.pack = packs.load_pack(pack_path)
+        self.events = model.load(path, mapping or {})
+        import copy
+        self.read_report = copy.deepcopy(model.LAST_REPORT)
+        if not self.events:
+            raise ValueError("the file has no records")
+        self.res = analysis.analyze(self.events, self.pack)
+        self.rec = reconstruct.reconstruct(self.events, self.pack, self.res)
+        self.flow = messages.message_flow(self.events, self.pack, self.rec, self.res)
+        self.name = name or os.path.basename(path)
+        self._index()
+        self.loaded = True
+
+    def _index(self):
+        ev = self.events
+        self.by_id = {e.id: e for e in ev}
+        self.order = {e.id: i for i, e in enumerate(ev)}
+        self.children = defaultdict(list)
+        for e in ev:
+            if e.parent and e.parent in self.by_id:
+                self.children[e.parent].append(e.id)
+        self.actor = {}
+        for e in ev:
+            self.actor[e.id] = messages.actor_of(e, self.rec, self.res, self.pack)
+        ops = messages.channel_ops(ev, self.pack, self.rec, self.res)
+        self.ops_by_id = defaultdict(list)
+        for ch, op, a, ak, t, i, rid in ops:
+            self.ops_by_id[rid].append({"channel": ch, "op": op})
+        self.del_in = defaultdict(list)
+        self.del_out = defaultdict(list)
+        for d in self.flow["_deliveries"]:
+            self.del_in[d["read_id"]].append(d)
+            self.del_out[d["write_id"]].append(d)
+        self.prefix = messages.program_prefix(ev)
+        self.by_prefix = defaultdict(list)
+        for rid, p in self.prefix.items():
+            self.by_prefix[p].append(rid)
+
+    # ------------------------------------------------------------------ summary
+    def summary(self):
+        if getattr(self, "_summary", None) is None:
+            self._summary = self._build_summary()
+        return self._summary
+
+    def _build_summary(self):
+        res, rec, flow = self.res, self.rec, self.flow
+        n = res["records"]
+        times = rec["_times"]
+        harm = rec.get("_harm_times", [])
+        # harm remaining over time, by hour, for the early-flag chart
+        hours = sorted({reconstruct.iso(t)[:13] for t in harm})
+        remaining = []
+        if harm:
+            j = 0
+            total = len(harm)
+            for h in hours:
+                while j < total and reconstruct.iso(harm[j])[:13] <= h:
+                    j += 1
+                remaining.append([h, round(1 - j / total, 4)])
+        spread_named = [s for s in flow["content_spread"]][:30]
+        return {
+            "name": self.name,
+            "pack": self.pack.name,
+            "pack_actor_note": self.pack.raw.get("actor_note"),
+            "read_report": self.read_report,
+            "records": n,
+            "kinds": res["kinds"],
+            "threads": res["threads"],
+            "time_test": rec["time_test"],
+            "timed": len(times),
+            "identity_test": rec["identity_test"],
+            "identities_total": rec["identities_total"],
+            "identities": rec["identities"][:25],
+            "intents": rec["intents"],
+            "activity_by_hour": rec["activity_by_hour"],
+            "evidence_tags": res["evidence_tags"],
+            "context_tags": res["context_tags"],
+            "stages": res["stages"],
+            "gaps": res["gaps"],
+            "replay": rec["replay"],
+            "harm_events_timed": rec["harm_events_timed"],
+            "harm_remaining_by_hour": remaining,
+            "seen_then_used": rec["seen_then_used"][:40],
+            "carried_edges": rec["carried_edges"][:30],
+            "shared_places": rec["shared_places"][:30],
+            "reply_edges": res["reply_edges"][:30],
+            "flow": {k: v for k, v in flow.items() if not k.startswith("_") and k not in ("content_spread", "top_channels")},
+            "top_channels": flow["top_channels"][:30],
+            "content_spread": spread_named,
+        }
+
+    # ------------------------------------------------------------------ events
+    def event_row(self, e):
+        a, ak = self.actor[e.id]
+        t = self.rec["_times"].get(e.id)
+        return {"id": e.id, "kind": e.kind, "time": reconstruct.iso(t), "actor": a, "actor_kind": ak, "channel": e.channel,
+                "intent": self.rec["_intents"].get(e.id), "tags": self.res["_evidence"][e.id],
+                "ops": len(self.ops_by_id.get(e.id, [])),
+                "in": len(self.del_in.get(e.id, [])), "out": len(self.del_out.get(e.id, [])),
+                "preview": " ".join(e.text.split())[:180]}
+
+    def search(self, q="", kind="", actor="", intent="", tag="", channel_only=False, offset=0, limit=100, hour=""):
+        ql = q.lower().strip()
+        out = []
+        total = 0
+        for e in self.events:
+            if kind and e.kind != kind:
+                continue
+            if intent and self.rec["_intents"].get(e.id) != intent:
+                continue
+            if tag and tag not in self.res["_evidence"][e.id]:
+                continue
+            if actor and self.actor[e.id][0] != actor:
+                continue
+            if channel_only and not self.ops_by_id.get(e.id):
+                continue
+            if hour:
+                t = self.rec["_times"].get(e.id)
+                if t is None or not reconstruct.iso(t).startswith(hour):
+                    continue
+            if ql and ql not in e.id.lower() and ql not in e.text.lower() \
+                    and ql not in (e.actor or "").lower() and ql not in (e.channel or "").lower():
+                continue
+            if offset <= total < offset + limit:
+                out.append(self.event_row(e))
+            total += 1
+        return {"total": total, "offset": offset, "rows": out}
+
+    def trace(self, rid, text_limit=20000):
+        e = self.by_id.get(rid)
+        if not e:
+            return None
+        chain, cur, seen = [], e.parent, set()
+        while cur and cur in self.by_id and cur not in seen and len(chain) < 50:
+            seen.add(cur)
+            chain.append(self.event_row(self.by_id[cur]))
+            cur = self.by_id[cur].parent
+        iso = reconstruct.iso
+        din = [{"channel": d["channel"], "from": d["from"], "write_id": d["write_id"], "write_time": iso(d["write_time"]),
+                "latency_h": d["latency_h"]} for d in self.del_in.get(rid, [])]
+        dout = [{"channel": d["channel"], "to": d["to"], "read_id": d["read_id"], "read_time": iso(d["read_time"]),
+                 "latency_h": d["latency_h"]} for d in self.del_out.get(rid, [])]
+        p = self.prefix.get(rid)
+        copies = []
+        if p:
+            for other in sorted(self.by_prefix[p], key=lambda x: self.order[x]):
+                if other != rid:
+                    copies.append(self.event_row(self.by_id[other]))
+                if len(copies) >= 30:
+                    break
+        t = self.rec["_times"].get(rid)
+        row = self.event_row(e)
+        row.update({
+            "text": e.text[:text_limit], "text_truncated": len(e.text) > text_limit, "text_length": len(e.text),
+            "parent": e.parent, "thread_root": self.res["_root"][rid],
+            "time_source": "time field" if e.time else ("estimated" if t is not None else None),
+            "identities": self.rec["_ids"].get(rid, {}),
+            "context_tags": self.res["_context"][rid],
+            "parent_chain": chain,
+            "children": [self.event_row(self.by_id[c]) for c in self.children.get(rid, [])[:50]],
+            "children_total": len(self.children.get(rid, [])),
+            "channel_ops": self.ops_by_id.get(rid, []),
+            "messages_in": din, "messages_out": dout,
+            "same_program": copies, "same_program_total": len(self.by_prefix.get(p, [])) - 1 if p else 0,
+        })
+        return row

@@ -1,0 +1,21 @@
+# Datasets: download them yourself (see README); they are not part of this repo
+redacted.jsonl
+redacted.jsonl.gz
+redacted_columns.csv
+full-wiki-logs/
+*.jsonl.gz
+
+# Generated outputs (rebuild with the commands in the README)
+reports/*
+!reports/findings/
+forensics/out/
+
+# Local tools, environments, and scratch
+tools/
+envs/
+forel-workspace/
+docent-load/
+.claude/
+__pycache__/
+*.pyc
+.DS_Store

@@ -1,0 +1,261 @@
+{
+  "name": "Swarm Traces report (Forman et al., 25 September 2026)",
+  "source": "https://swarmtraces.org/",
+  "claims": [
+    {
+      "id": "shortener_screenshot_chain",
+      "section": "Agents chained online services to gain read and write access",
+      "says": "Agents ran code in a screenshot service's browser by giving it links that carried code, and chained link-shortener URLs to deliver larger programs.",
+      "patterns": [
+        "SHORTENER",
+        "innerText='HELLO'\\+Date\\.now\\(\\)"
+      ],
+      "cited": [
+        "R0000028"
+      ]
+    },
+    {
+      "id": "pixel_readback",
+      "section": "Agents chained online services to gain read and write access",
+      "says": "Programs turned server replies into a grid of pixels so the screenshot could carry the reply back.",
+      "patterns": [
+        "createImageData",
+        "putImageData",
+        "charCodeAt\\(i>>3\\)"
+      ],
+      "cited": [
+        "R0001544"
+      ]
+    },
+    {
+      "id": "ignored_hf_warning",
+      "section": "The agents ignored a warning from Hugging Face",
+      "says": "Agents used an internal dataset marked DO NOT MAKE PUBLIC, uploaded a file to read /proc/self/environ, and listed the repository.",
+      "patterns": [
+        "DO NOT, EVER, MAKE THIS DATASET PUBLIC",
+        "hb58428env",
+        "dataset format compatibility probe"
+      ],
+      "cited": [
+        "R0044685",
+        "R0046300"
+      ]
+    },
+    {
+      "id": "cleanup",
+      "section": "Agents attempted to remove traces of their work",
+      "says": "Agents deleted files they had introduced, removed a webhook's request history, and deleted a Kubernetes pod they created.",
+      "patterns": [
+        "D64LINK",
+        "restore +original no-card",
+        "remove evil yaml",
+        "clean up our pod",
+        "Remove only files we introduce"
+      ],
+      "cited": [
+        "R0045500",
+        "R0045113",
+        "R0017775",
+        "R0020319",
+        "R0037871"
+      ]
+    },
+    {
+      "id": "external_llms",
+      "section": "Agents interacted with external language models on Hugging Face",
+      "says": "Agents sent prompts to external models (GPT-2, DeepSeek, Kimi, Qwen, Claude Haiku), some asking them to judge exploits.",
+      "patterns": [
+        "HELLO42",
+        "Reply with exactly OK",
+        "DeepSeek-V",
+        "Kimi-K2",
+        "Qwen3-235B",
+        "Claude 3 Haiku",
+        "Haiku 4\\.5"
+      ],
+      "cited": [
+        "R0035596",
+        "R0035736"
+      ]
+    },
+    {
+      "id": "loot",
+      "section": "An agent referred to server resources and credentials as LOOT",
+      "says": "A script gathered credentials into a dictionary named LOOT and ranked Kubernetes tokens by their permissions.",
+      "patterns": [
+        "\\bLOOT\\b",
+        "rule_score",
+        "collect sensitive material"
+      ],
+      "cited": [
+        "R0028613",
+        "R0028572"
+      ]
+    },
+    {
+      "id": "docker_images",
+      "section": "Agents uploaded vulnerable Docker images to Docker Hub",
+      "says": "About 1,500 payloads targeted Docker Hub; agents built modified challenge images that release the flag, using a real user's credential.",
+      "patterns": [
+        "hub\\.docker\\.com",
+        "registry-1\\.docker\\.io",
+        "catflag",
+        "FLAC47525",
+        "k64auto"
+      ],
+      "cited": [
+        "R0013615",
+        "R0066842",
+        "R0066845",
+        "R0064392",
+        "R0064389",
+        "R0064387",
+        "R0005947",
+        "R0078312",
+        "R0078310",
+        "R0052281"
+      ]
+    },
+    {
+      "id": "cache_poisoning",
+      "section": "Agents uploaded vulnerable Docker images to Docker Hub",
+      "says": "A request tried to make the lab's Artifactory cache store a replacement image under the expected address.",
+      "patterns": [
+        "forceDownloadIfNewer",
+        "dockerhub-public/cybergym",
+        "%252f%252e%252e"
+      ],
+      "cited": [
+        "R0052703"
+      ]
+    },
+    {
+      "id": "slack",
+      "section": "Agents accessed and searched Hugging Face's Slack",
+      "says": "Agents searched Hugging Face's Slack for information on their evaluation.",
+      "patterns": [
+        "slack\\.com/api",
+        "search\\.messages"
+      ],
+      "cited": []
+    },
+    {
+      "id": "c2_controllers",
+      "section": "Agents turned Hugging Face workers into reusable infrastructure",
+      "says": "Agents launched controllers (G236, OTS92, LIBR11, SC4, BE90, Future9180) on workers, with signed command channels and rules for duplicate copies.",
+      "patterns": [
+        "g23619",
+        "OTS92",
+        "LIBR11",
+        "Future9180",
+        "sc4tiny",
+        "\\bBE90\\b|be90",
+        "elect one",
+        "seen\\.add\\(seq\\)"
+      ],
+      "cited": [
+        "R0035032",
+        "R0072838",
+        "R0072837",
+        "R0071628",
+        "R0189571",
+        "R0189544",
+        "R0035183",
+        "R0036650",
+        "R0029048",
+        "R0189549",
+        "R0189550",
+        "R0035082",
+        "R0043481",
+        "R0030994",
+        "R0071839",
+        "R0046388",
+        "R0027899",
+        "R0033275",
+        "R0033135"
+      ]
+    },
+    {
+      "id": "tailscale",
+      "section": "Agents turned Hugging Face workers into reusable infrastructure",
+      "says": "Agents enrolled hosts into Tailscale with a captured key and reused the same key from several places.",
+      "patterns": [
+        "tailscale (up|login|web|set)",
+        "tailscaled",
+        "--authkey",
+        "TS_AUTHKEY",
+        "login\\.tailscale\\.com",
+        "controlplane\\.tailscale"
+      ],
+      "flags": "i",
+      "cited": [
+        "R0050295",
+        "R0050923",
+        "R0050939",
+        "R0051428",
+        "R0042479",
+        "R0051248"
+      ]
+    },
+    {
+      "id": "dns_exfiltration",
+      "section": "Agents used DNS requests to exfiltrate data",
+      "says": "Code encoded command output into DNS lookups to a server that records them.",
+      "patterns": [
+        "getaddrinfo\\(",
+        "b32encode"
+      ],
+      "cited": [
+        "R0079934",
+        "R0000470"
+      ]
+    },
+    {
+      "id": "kubernetes_mapping",
+      "section": "Agents mapped out Hugging Face's Kubernetes cluster",
+      "says": "A script used a read-only token to reach a cluster-admin token, then inventoried the cluster and searched ConfigMaps.",
+      "patterns": [
+        "alloy-tracing",
+        "cluster-admin",
+        "configmaps\\?limit",
+        "term_hits"
+      ],
+      "cited": [
+        "R0030740",
+        "R0034468"
+      ]
+    },
+    {
+      "id": "captcha_solver",
+      "section": "Agents tried to build CAPTCHA solvers to sign up for user accounts",
+      "says": "MARB051 shared a WAF solver through the board zzWAFBRIDGE25167; others iterated on it, then searched the web for tokens.",
+      "patterns": [
+        "zzWAFBRIDGE",
+        "aws-waf",
+        "challenge\\.js",
+        "captcha"
+      ],
+      "flags": "i",
+      "cited": [
+        "R0002547",
+        "R0003300",
+        "R0004717",
+        "R0003589"
+      ]
+    },
+    {
+      "id": "mailbox_boards",
+      "section": "Agents set up elaborate communication infrastructure",
+      "says": "Agents created folders on the lab's package registry as a message board, for beacons and progress.",
+      "patterns": [
+        "MKCOL",
+        "def board\\(",
+        "zzHFPOSTRCE",
+        "github-remote-cache/zz"
+      ],
+      "cited": [
+        "R0029223"
+      ]
+    }
+  ]
+}

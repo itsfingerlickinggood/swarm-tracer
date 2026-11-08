@@ -1,0 +1,127 @@
+{
+  "name": "wiki swarm (agents editing shared wiki pages)",
+  "description": "For wiki or forum logs where agents write pages: pages are channels, editing a page reads and writes it, naming another page reads it. Tuned on the collusion.wiki logs (revisions.jsonl and events.jsonl).",
+  "structural_channels": true,
+  "mention_channels": true,
+  "behaviors": [
+    {
+      "name": "proxy_link",
+      "stage": "evasion",
+      "pattern": "__PROXY__|proxymule|/api/v0\\?url=|jqp\\.vercel\\.app|r\\.jina\\.ai|webcache|allorigins|corsproxy",
+      "flags": "i",
+      "description": "Routes a fetch through a proxy or reader service"
+    },
+    {
+      "name": "external_data_link",
+      "stage": "collection",
+      "pattern": "https?://",
+      "context": true,
+      "description": "Links an external page or data source"
+    },
+    {
+      "name": "structured_data",
+      "stage": "collection",
+      "pattern": "^\\s*[\\[{]|\\|\\s*-{3,}|\\.json\\b|\\bcsv\\b",
+      "flags": "im",
+      "context": true,
+      "description": "Holds tables or JSON-like data"
+    },
+    {
+      "name": "agent_signature",
+      "stage": "coordination",
+      "pattern": "\\b(Agent\\w{0,20}\\d+\\w*|signed|--\\s*\\w+Agent)\\b",
+      "description": "Signs or names an agent in the text"
+    },
+    {
+      "name": "handoff_note",
+      "stage": "coordination",
+      "pattern": "\\b(next agent|handoff|hand off|todo|round[- ]\\d+|cadence|continue from|see page|please (update|add|verify))\\b",
+      "flags": "i",
+      "description": "Leaves a note or task for another agent"
+    },
+    {
+      "name": "hides_page",
+      "stage": "evasion",
+      "pattern": "#OPTION noindex|noindex|robots",
+      "flags": "i",
+      "description": "Tries to keep the page out of indexes"
+    },
+    {
+      "name": "encoded_blob",
+      "stage": "obfuscation",
+      "pattern": "[A-Za-z0-9+/]{120,}={0,2}",
+      "description": "Carries a long encoded string"
+    },
+    {
+      "name": "admin_delete",
+      "stage": "moderation",
+      "pattern": "\"event_type\": \"delete\"",
+      "description": "A page was deleted by a moderator"
+    },
+    {
+      "name": "recreated_after_delete",
+      "stage": "evasion",
+      "pattern": "first_recreation_of",
+      "description": "A deleted page was recreated"
+    },
+    {
+      "name": "probe_request",
+      "stage": "reconnaissance",
+      "pattern": "\"event_type\": \"probe\"",
+      "description": "A scripted probe request against the wiki"
+    }
+  ],
+  "info_patterns": [
+    {
+      "family": "url_host",
+      "pattern": "https?://[A-Za-z0-9.-]+\\.[a-z]{2,}"
+    }
+  ],
+  "intents": [
+    {
+      "name": "moderator_delete",
+      "pattern": "\"event_type\": \"delete\""
+    },
+    {
+      "name": "probe",
+      "pattern": "\"event_type\": \"probe\""
+    },
+    {
+      "name": "recreate",
+      "pattern": "first_recreation_of"
+    },
+    {
+      "name": "proxy_routing",
+      "pattern": "__PROXY__|proxymule|/api/v0\\?url=|jqp\\.vercel\\.app|r\\.jina\\.ai|allorigins|corsproxy",
+      "flags": "i"
+    },
+    {
+      "name": "handoff_note",
+      "pattern": "\\b(next agent|handoff|hand off|todo|round[- ]\\d+|continue from|see page)\\b",
+      "flags": "i"
+    },
+    {
+      "name": "data_links",
+      "pattern": "https?://"
+    },
+    {
+      "name": "page_edit",
+      "pattern": "."
+    }
+  ],
+  "harm": [
+    "proxy_link",
+    "recreated_after_delete",
+    "hides_page",
+    "probe_request"
+  ],
+  "shared_identities": [],
+  "time": {},
+  "handles": [],
+  "handle_families": {},
+  "shared_names": [],
+  "write_only_kinds": [
+    "delete"
+  ],
+  "actor_note": "Labels are chosen by the writer for each edit, so one agent may use many labels and a label may be reused. Network addresses (ip16) stand in when no label is given."
+}

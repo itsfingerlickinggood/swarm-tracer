@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swarm Tracer</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><b>Swarm Tracer</b><span id="dsname" class="muted">no dataset</span></div>
+  <form id="upload" class="upload" autocomplete="off">
+    <label class="file">Trace files <input type="file" id="file" accept=".csv,.jsonl,.json,.tsv,.txt" multiple></label>
+    <label class="file">or a folder <input type="file" id="folder" webkitdirectory directory multiple></label>
+    <label>Pack <select id="pack"></select></label>
+    <details class="map"><summary>Columns</summary>
+      <div class="mapgrid">
+        <label>id <input data-role="id" placeholder="auto"></label>
+        <label>text <input data-role="text" placeholder="auto"></label>
+        <label>kind <input data-role="kind" placeholder="auto"></label>
+        <label>parent <input data-role="parent" placeholder="auto"></label>
+        <label>actor <input data-role="actor" placeholder="auto"></label>
+        <label>time <input data-role="time" placeholder="auto"></label>
+      </div>
+      <p class="muted small">Leave blank to detect by name. In JSONL, a dotted path works, e.g. meta.agent.</p>
+    </details>
+    <button type="submit" id="analyze">Analyze</button>
+    <span id="status" class="status" role="status"></span>
+  </form>
+</header>
+
+<main class="panes">
+  <section class="pane left">
+    <nav class="tabs" id="tabs">
+      <button data-tab="overview" class="on">Overview</button>
+      <button data-tab="network">Who talked to whom</button>
+      <button data-tab="timeline">Timeline</button>
+      <button data-tab="channels">Channels</button>
+      <button data-tab="spread">Spread</button>
+      <button data-tab="early">Early flag</button>
+      <button data-tab="events">Events</button>
+      <button data-tab="gaps">What's missing</button>
+    </nav>
+    <div class="body" id="left"><div class="empty">Upload a trace file (CSV or JSONL) and press Analyze. Any agent trace works; pick a pack that describes it, or start with the generic pack.</div></div>
+  </section>
+
+  <section class="pane rtop">
+    <div class="phead"><b>Event trace</b><span id="traceid" class="muted">select an event</span></div>
+    <div class="body" id="trace"><div class="empty">Click any event, node, dot or record id to trace it: where it came from, what it touched, who it reached, and where the same program appears elsewhere.</div></div>
+  </section>
+
+  <section class="pane rbot">
+    <div class="phead"><b>AI investigator</b><span class="muted">AI Swarm Tracer</span>
+      <button id="aiset" class="link" type="button" aria-expanded="false">Settings</button></div>
+    <div id="aisettings" class="aisettings" hidden>
+      <label>Base URL <input id="baseUrl"></label>
+      <label>Model <input id="model" list="modellist"><datalist id="modellist"></datalist></label>
+      <label>API key <input id="apiKey" type="password" autocomplete="off" placeholder="sk-..."></label>
+      <label class="chk"><input type="checkbox" id="remember"> Keep the key for this browser session</label>
+      <button type="button" id="listModels">List models</button>
+      <p class="muted small">The analysis brief, the events you select or name, and this chat are sent to the provider above. The key is sent with each request and is not stored on disk.</p>
+    </div>
+    <div class="chat" id="chat"></div>
+    <div class="quick" id="quick">
+      <button type="button" data-q="Who talked to whom in this swarm? Name the main sender-receiver pairs and the channels they used.">Who talked to whom?</button>
+      <button type="button" data-q="Trace how one piece of information spread through the swarm. Pick the clearest case from the evidence.">How did information spread?</button>
+      <button type="button" data-q="Could the coordination have been flagged early? Which signal would have fired first, and how much harm was still to come?">Flag it early?</button>
+      <button type="button" data-q="What would an investigator still miss with this data?">What's missed?</button>
+      <button type="button" data-q="Explain the selected event step by step: what the code does, who ran it, what it touched, what it received or passed on, and how it connects to the rest of the swarm.">Explain selected event</button>
+    </div>
+    <form id="ask" class="ask">
+      <label class="chk small"><input type="checkbox" id="useSel" checked> include selected event</label>
+      <textarea id="q" rows="2" placeholder="Ask the investigator. Mention record ids to include them."></textarea>
+      <button type="submit" id="send">Ask</button>
+    </form>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
