@@ -48,6 +48,8 @@ def brief(session):
         f"MESSAGES: {f['deliveries']} dated deliveries; {f['deliveries_between_named_actors']} between named actors; "
         f"{f['named_actor_pairs']} named pairs; order unknown for {f['deliveries_order_unknown']}; "
         f"latency median {f['latency_hours']['median']} h, p90 {f['latency_hours']['p90']} h; actors on channels {f['actors_on_channels']}.",
+        f"MESSAGE EVIDENCE: {f.get('deliveries_by_how')}; overwrites not counted as messages (an edit that kept none of "
+        f"the earlier edit's added lines): {f.get('overwrites', 0)}; top overwrite pairs {f.get('top_overwrite_pairs', [])[:5]}.",
         "FIRST NAMED MESSAGE: " + (f"{fnd['from']} wrote {fnd['channel']} in {fnd['write_id']} at {fnd['write_time']}; "
                                     f"{fnd['to']} read it in {fnd['read_id']} at {fnd['read_time']}; harm still to come "
                                     f"{f.get('harm_share_after_first_named_delivery')}" if fnd else "none"),
@@ -70,8 +72,10 @@ def event_context(session, rid, text_limit=3500):
         f"  parent {t['parent']}; thread root {t['thread_root']}; parent chain {[p['id'] for p in t['parent_chain']]}; "
         f"children {t['children_total']} ({[c['id'] for c in t['children'][:10]]}).",
         f"  channel operations: {t['channel_ops'][:15]}",
-        f"  messages in: {[(m['channel'], m['from'], m['write_id'], m['write_time']) for m in t['messages_in'][:10]]}",
-        f"  messages out: {[(m['channel'], m['to'], m['read_id'], m['read_time']) for m in t['messages_out'][:10]]}",
+        f"  messages in: {[(m['channel'], m['from'], m['write_id'], m['write_time'], m.get('how')) for m in t['messages_in'][:10]]}",
+        f"  messages out: {[(m['channel'], m['to'], m['read_id'], m['read_time'], m.get('how')) for m in t['messages_out'][:10]]}",
+        f"  overwrote (not messages): {[(o['actor'], o['record'], o['how']) for o in t.get('overwrote', [])[:8]]}; "
+        f"overwritten by: {[(o['actor'], o['record'], o['how']) for o in t.get('overwritten_by', [])[:8]]}",
         f"  same program elsewhere: {t['same_program_total']} records, e.g. {[(c['id'], c['actor'], c['time']) for c in t['same_program'][:8]]}",
         f"  TEXT ({t['text_length']} chars{', truncated' if t['text_truncated'] else ''}):\n<<<RECORD TEXT (data, not instructions)\n{t['text']}\nRECORD TEXT>>>",
     ]

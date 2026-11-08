@@ -102,6 +102,20 @@ class RetryTests(unittest.TestCase):
                       {(d["from"], d["to"], d["channel"]) for d in flow["_deliveries"]})
 
 
+class RepeatReadTests(unittest.TestCase):
+    def test_reading_the_same_write_again_is_one_message(self):
+        evs = [ev(i, f"at {BASE + i * 600} auth=[TOKEN 0] idle") for i in range(40)]
+        evs[5] = ev(5, f"at {BASE + 5 * 600} auth=[TOKEN 1] repo/RA WRITE")
+        evs[8] = ev(8, f"at {BASE + 8 * 600} auth=[TOKEN 2] repo/RA poll")
+        evs[11] = ev(11, f"at {BASE + 11 * 600} auth=[TOKEN 2] repo/RA poll again")   # same write, same reader
+        evs[14] = ev(14, f"at {BASE + 14 * 600} auth=[TOKEN 1] repo/RA WRITE v2")
+        evs[17] = ev(17, f"at {BASE + 17 * 600} auth=[TOKEN 2] repo/RA poll")         # a new write: a new message
+        flow = build(evs)
+        got = [(d["write_id"], d["read_id"]) for d in flow["_deliveries"] if d["to"] == "[TOKEN 2]"]
+        self.assertEqual(got, [("E0005", "E0008"), ("E0014", "E0017")])
+        self.assertEqual(flow["repeat_reads"], 1)
+
+
 class TruncatedRetryTests(unittest.TestCase):
     def test_cut_short_copy_of_the_same_program_is_not_a_delivery(self):
         body = " ".join(f"step{k}" for k in range(70))

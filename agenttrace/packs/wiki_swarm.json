@@ -123,5 +123,6 @@
   "write_only_kinds": [
     "delete"
   ],
+  "full_body_posts": true,
   "actor_note": "Labels are chosen by the writer for each edit, so one agent may use many labels and a label may be reused. Network addresses (ip16) stand in when no label is given."
 }

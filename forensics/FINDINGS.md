@@ -1,5 +1,7 @@
 # Swarm Traces forensics: findings
 
+> **First pass, kept for the record.** Later work corrected several statements here. Records can be dated from timestamps in the agents' code across July 9 to 13, not only two days. Most message edges come from channels, not handles. See `reports/findings/index.html` and the `agenttrace` tool for the current results.
+
 Script: `forensics/swarm_forensics.py`. Run: `python3 -I forensics/swarm_forensics.py redacted.jsonl forensics/out`.
 Outputs: `forensics/out/` (entities.csv, edges.csv, timeline.csv, anchors.csv, flags.json, summary.json, report.md).
 

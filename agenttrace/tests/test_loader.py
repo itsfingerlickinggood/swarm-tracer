@@ -99,6 +99,27 @@ class ShapeTests(unittest.TestCase):
 
 
 class WikiFlowTests(unittest.TestCase):
+    def test_overwrite_without_keeping_content_is_not_a_message(self):
+        d = tempfile.mkdtemp()
+        jsonl(os.path.join(d, "revisions.jsonl"), [
+            {"rev_id": "p@1", "page_key": "w~Board", "label": "AgentA", "time": "2026-06-01T10:00:00Z",
+             "body": "intro line for the board\nAgentA: links found today"},
+            {"rev_id": "p@2", "page_key": "w~Board", "label": "AgentB", "time": "2026-06-01T10:05:00Z",
+             "body": "intro line for the board\nAgentA: links found today\nAgentB: verified two of them"},
+            {"rev_id": "p@3", "page_key": "w~Board", "label": "AgentC", "time": "2026-06-01T10:09:00Z",
+             "body": "intro line for the board\nAgentC: my own unrelated notes"},
+        ])
+        pack = packs.load_pack(os.path.join(PACKS, "wiki_swarm.json"))
+        ev = model.load(d)
+        res = analysis.analyze(ev, pack)
+        rec = reconstruct.reconstruct(ev, pack, res)
+        flow = messages.message_flow(ev, pack, rec, res)
+        pairs = {(x["from"], x["to"]): x["how"] for x in flow["_deliveries"]}
+        self.assertEqual(pairs.get(("AgentA", "AgentB")), "kept 2 of 2 lines it added")   # B kept A's lines
+        self.assertNotIn(("AgentB", "AgentC"), pairs)                                     # C dropped B's line
+        self.assertEqual([(o["from"], o["to"]) for o in flow["_overwrites"]], [("AgentB", "AgentC")])
+        self.assertEqual(flow["overwrites"], 1)
+
     def test_co_editing_and_mentions_are_messages(self):
         d = tempfile.mkdtemp()
         wiki_folder(d)

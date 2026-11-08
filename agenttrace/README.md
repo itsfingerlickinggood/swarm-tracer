@@ -29,6 +29,8 @@ You can upload one file, several files, or a whole folder; the tool reads linked
 
 **Channels.** Each record's own page, thread, room or trace becomes a channel. Posting there reads what is already there and adds to it. Naming another page in the text counts as reading that page, which is how information spreads by reference. Pack patterns can add more channels, as the code-traces pack does for repositories and mailbox boards.
 
+**Messages.** A message is a read of a channel after a different actor wrote to it, counted once per write and reader. Each message records what it rests on ("read in code", "named the place", "posted after it", or "kept N of M lines it added"). With `"full_body_posts": true` in the pack (set in `wiki_swarm.json`), each post is taken to replace the whole place. A post that keeps none of the lines the previous post added is then an overwrite, not a message. Overwrites are listed separately in the overview, in each event's trace and in What's missing.
+
 **Packs.** `generic.json` is a starting point for any trace. `code_traces.json` is for the Swarm Traces release. `wiki_swarm.json` is for wiki logs such as `full-wiki-logs/`. To analyze the wiki logs, upload the folder, or run:
 
 ```bash

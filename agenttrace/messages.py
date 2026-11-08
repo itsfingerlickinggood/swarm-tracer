@@ -141,21 +141,52 @@ def channel_ops(events, pack, rec, res):
     return ops
 
 
-def deliveries(ops, fam=None):
+def _lines(text):
+    """Distinct non-trivial lines, the unit for checking whether an edit kept earlier content."""
+    return {s for s in (x.strip() for x in text.splitlines()) if len(s) >= 8}
+
+
+def _how(w, r):
+    if r[1] == "read":
+        return "read in code" if not w[0].startswith("place:") else "named the place"
+    return "posted after it"
+
+
+def deliveries(ops, fam=None, texts=None):
     """Link each read to the latest earlier write on the same channel by another actor.
-    Order is by time when both records are dated; otherwise the pair is 'order unknown'."""
+    Order is by time when both records are dated; otherwise the pair is 'order unknown'.
+
+    texts: given when each post holds the whole place (a wiki edit sends the full page).
+    Then a later post is evidence of reading an earlier one only if it keeps some of the lines
+    the earlier post added. A post that drops all of them may have been written without
+    seeing it, so it is returned as an overwrite, not a delivery."""
     by_ch = defaultdict(list)
     for o in ops:
         by_ch[o[0]].append(o)
     out, unknown_order = [], 0
+    overwrites = []
     perf = []
     same_program = [0]
+    rereads = [0]
     for ch, lst in by_ch.items():
         writes = [o for o in lst if o[1] in ("write", "post")]
         reads = [o for o in lst if o[1] in ("read", "post")]
         dated_w = sorted((o for o in writes if o[4] is not None), key=lambda o: o[4])
+        added = {}
+        if texts is not None:
+            # what each post added to the place, compared with the post just before it
+            posts = sorted((o for o in lst if o[1] == "post"),
+                           key=lambda o: (o[4] if o[4] is not None else float("inf"), o[5]))
+            before = set()
+            for o in posts:
+                now = _lines(texts.get(o[6], ""))
+                added[o[6]] = now - before
+                before = now
         delivered = 0
+        over_start = len(overwrites)
         latencies = []
+        got = set()  # (write, reader) already delivered: reading the same write again is one message
+        reads = sorted(reads, key=lambda o: (o[4] is None, o[4] or 0, o[5]))
         for r in reads:
             if r[4] is None:
                 if any(w[2] != r[2] for w in writes):
@@ -170,9 +201,25 @@ def deliveries(ops, fam=None):
                 prior = [w for w in prior if not (fam.get(w[6]) and fam.get(w[6]) == fam.get(r[6]))]
             if prior:
                 w = prior[-1]
-                out.append({"channel": ch, "from": w[2], "from_kind": w[3], "to": r[2], "to_kind": r[3],
-                            "write_id": w[6], "read_id": r[6], "write_time": w[4], "read_time": r[4],
-                            "latency_h": round((r[4] - w[4]) / 3600, 2)})
+                if (w[6], r[2]) in got:
+                    rereads[0] += 1
+                    continue
+                got.add((w[6], r[2]))
+                d = {"channel": ch, "from": w[2], "from_kind": w[3], "to": r[2], "to_kind": r[3],
+                     "write_id": w[6], "read_id": r[6], "write_time": w[4], "read_time": r[4],
+                     "latency_h": round((r[4] - w[4]) / 3600, 2), "how": _how(w, r)}
+                if texts is not None and w[1] == "post" and r[1] == "post":
+                    new = added.get(w[6], set())
+                    if new:
+                        kept = new & _lines(texts.get(r[6], ""))
+                        if not kept:
+                            d["how"] = f"dropped all {len(new)} lines it added"
+                            overwrites.append(d)
+                            continue
+                        d["how"] = f"kept {len(kept)} of {len(new)} lines it added"
+                    else:
+                        d["how"] = "edited after it (it added no lines to compare)"
+                out.append(d)
                 delivered += 1
                 latencies.append((r[4] - w[4]) / 3600)
         first_w = dated_w[0][4] if dated_w else None
@@ -183,11 +230,12 @@ def deliveries(ops, fam=None):
             "actors": len({o[2] for o in lst}),
             "first_write": iso(first_w), "first_read": iso(first_r),
             "deliveries": delivered,
+            "overwrites": len(overwrites) - over_start,
             "median_latency_h": round(sorted(latencies)[len(latencies) // 2], 2) if latencies else None,
             # written, but never read by an actor other than its writers
             "never_read": len(writes) > 0 and delivered == 0, "read_without_write_seen": len(writes) == 0,
         })
-    return out, perf, unknown_order, same_program[0]
+    return out, perf, unknown_order, same_program[0], overwrites, rereads[0]
 
 
 # ------------------------------------------------------------------ content spread
@@ -258,9 +306,14 @@ def content_spread(events, pack, rec, res, kinds=None):
 
 # ------------------------------------------------------------------ main
 
+def _how_group(how):
+    return "kept earlier content" if how.startswith("kept ") else how
+
 def message_flow(events, pack, rec, res):
     ops = channel_ops(events, pack, rec, res)
-    dels, perf, unknown, same_prog = deliveries(ops, program_prefix(events))
+    texts = {e.id: e.text for e in events} if pack.raw.get("full_body_posts") else None
+    dels, perf, unknown, same_prog, overwrites, rereads = deliveries(ops, program_prefix(events), texts)
+    over_pairs = Counter((d["from"], d["to"]) for d in overwrites)
     actor_kinds = Counter()
     seen = set()
     for o in ops:
@@ -327,5 +380,10 @@ def message_flow(events, pack, rec, res):
         "top_channels": sorted(perf, key=lambda p: (-p["deliveries"], -p["actors"]))[:40],
         "content_spread": spread[:40],
         "content_families_moving": len(spread),
+        "deliveries_by_how": dict(Counter(_how_group(d["how"]) for d in dels)),
+        "overwrites": len(overwrites),
+        "repeat_reads": rereads,
+        "top_overwrite_pairs": [{"from": a, "to": b, "overwrites": n} for (a, b), n in over_pairs.most_common(15)],
         "_deliveries": dels,
+        "_overwrites": overwrites,
     }

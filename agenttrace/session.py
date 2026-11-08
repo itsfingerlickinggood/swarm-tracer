@@ -66,6 +66,11 @@ class Session:
         for d in self.flow["_deliveries"]:
             self.del_in[d["read_id"]].append(d)
             self.del_out[d["write_id"]].append(d)
+        self.over_in = defaultdict(list)
+        self.over_out = defaultdict(list)
+        for d in self.flow.get("_overwrites", []):
+            self.over_in[d["read_id"]].append(d)
+            self.over_out[d["write_id"]].append(d)
         self.prefix = messages.program_prefix(ev)
         self.by_prefix = defaultdict(list)
         for rid, p in self.prefix.items():
@@ -172,9 +177,14 @@ class Session:
             cur = self.by_id[cur].parent
         iso = reconstruct.iso
         din = [{"channel": d["channel"], "from": d["from"], "write_id": d["write_id"], "write_time": iso(d["write_time"]),
-                "latency_h": d["latency_h"]} for d in self.del_in.get(rid, [])]
+                "latency_h": d["latency_h"], "how": d.get("how")} for d in self.del_in.get(rid, [])]
         dout = [{"channel": d["channel"], "to": d["to"], "read_id": d["read_id"], "read_time": iso(d["read_time"]),
-                 "latency_h": d["latency_h"]} for d in self.del_out.get(rid, [])]
+                 "latency_h": d["latency_h"], "how": d.get("how")} for d in self.del_out.get(rid, [])]
+        # edits that replaced another actor's edit without keeping any of it: not messages
+        overwrote = [{"channel": d["channel"], "actor": d["from"], "record": d["write_id"], "how": d["how"]}
+                     for d in self.over_in.get(rid, [])]
+        overwritten_by = [{"channel": d["channel"], "actor": d["to"], "record": d["read_id"], "how": d["how"]}
+                          for d in self.over_out.get(rid, [])]
         p = self.prefix.get(rid)
         copies = []
         if p:
@@ -196,6 +206,7 @@ class Session:
             "children_total": len(self.children.get(rid, [])),
             "channel_ops": self.ops_by_id.get(rid, []),
             "messages_in": din, "messages_out": dout,
+            "overwrote": overwrote, "overwritten_by": overwritten_by,
             "same_program": copies, "same_program_total": len(self.by_prefix.get(p, [])) - 1 if p else 0,
         })
         return row

@@ -126,6 +126,7 @@ function overview(el, s) {
   </div>
   <div class="note"><b>Answer in brief.</b> ${fnd ? `The first message between two named actors: ${esc(short(fnd.from))} wrote <code>${esc(fnd.channel)}</code> (${idlink(fnd.write_id)}, ${esc(fnd.write_time)}); ${esc(short(fnd.to))} read it (${idlink(fnd.read_id)}, ${esc(fnd.read_time)}). ${f.harm_share_after_first_named_delivery != null ? `At that point ${pct(f.harm_share_after_first_named_delivery)} of the timed harmful activity was still to come.` : ""}` : "No message between two named actors was found."}
   ${f.named_actor_pairs} named sender-receiver pairs exchanged ${fmt(f.deliveries_between_named_actors)} messages; the median message was read ${f.latency_hours.median ?? "–"} h after it was written.</div>
+  ${f.deliveries_by_how ? `<p class="muted small">What each message rests on: ${Object.entries(f.deliveries_by_how).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${esc(k)} ${fmt(v)}`).join(" · ")}. Each write counts once per reader${f.repeat_reads ? `; ${fmt(f.repeat_reads)} later reads of a write the reader already had are not counted again` : ""}.${f.overwrites ? ` Also not counted: ${fmt(f.overwrites)} edits that replaced another actor's edit without keeping any line it added, so they show no sign the editor saw it.` : ""}</p>` : ""}
   <h2>How the files were read</h2>
   ${table(["file", "rows", "events", "fields found"], (s.read_report?.files || []).map((f) => [esc(f.file), fmt(f.rows), fmt(f.events),
     Object.entries(f.fields).map(([k, v]) => `${esc(k)}: <code>${esc(v.join(" → "))}</code>`).join("<br>") + (f.text_from_fields ? `<br><span class="muted small">${fmt(f.text_from_fields)} rows had no text field; their fields are used as text</span>` : "")]))}
@@ -342,6 +343,8 @@ function gaps(el, s) {
   <li><b>Token is not agent.</b> One agent can hold several tokens; a shared key stands for many agents. A message between two tokens may be one agent talking to itself.</li>
   <li><b>Order.</b> ${fmt(f.deliveries_order_unknown)} reads follow another actor's write on the same channel but cannot be ordered because one side has no time.</li>
   <li><b>Merged places.</b> ${fmt(f.coarse_channel_deliveries || 0)} messages are on channels the redaction reduced to an owner, which may join two different places.</li>
+  ${f.overwrites ? `<li><b>Overwrites.</b> ${fmt(f.overwrites)} edits replaced another actor's edit without keeping any line it added. A whole-page edit can be sent without reading the page first, so these may be agents unaware of each other, not a disagreement. They are left out of the message counts.</li>` : ""}
+  <li><b>Reading is inferred.</b> ${fmt((f.deliveries_by_how || {})["named the place"] || 0)} messages rest only on a record naming the place. Naming a page or posting after someone shows the place was known, not that the earlier content was read.</li>
   <li><b>Success.</b> A read or write in the code is an attempt; the data rarely records whether it worked.</li>
   <li><b>Unlisted channels.</b> Messages through places the pack does not describe, or with no shared place, are invisible.</li>
   <li><b>Patterns.</b> Tags and intents are pattern matches on text, not verified behavior.</li>
@@ -388,8 +391,11 @@ function traceHTML(t) {
   <h3>Identities</h3><p>${Object.entries(t.identities).map(([k, v]) => `<code>${esc(short(k))}</code> <span class="muted small">${esc(v)}</span>`).join(", ") || '<span class="muted">none in this record</span>'}</p>
   <h3>Thread</h3><p>Root ${idlink(t.thread_root)} · parent ${idlink(t.parent)} · ancestors ${t.parent_chain.map((p) => idlink(p.id)).join(" ← ") || "none"}${t.children_total ? ` · children: ${t.children.slice(0, 12).map((c) => idlink(c.id)).join(", ")}${t.children_total > 12 ? " …" : ""}` : ""}</p>
   <h3>Channels touched</h3>${table(["channel", "op"], t.channel_ops.map((o) => [`<code>${esc(o.channel)}</code>`, esc(o.op)]))}
-  <h3>Messages in</h3>${table(["from", "channel", "written in", "at", "latency h"], t.messages_in.map((m) => [`<code>${esc(short(m.from))}</code>`, `<code>${esc(m.channel)}</code>`, idlink(m.write_id), esc(m.write_time), esc(m.latency_h)]))}
-  <h3>Messages out</h3>${table(["to", "channel", "read in", "at", "latency h"], t.messages_out.map((m) => [`<code>${esc(short(m.to))}</code>`, `<code>${esc(m.channel)}</code>`, idlink(m.read_id), esc(m.read_time), esc(m.latency_h)]))}
+  <h3>Messages in</h3>${table(["from", "channel", "written in", "at", "evidence"], t.messages_in.map((m) => [`<code>${esc(short(m.from))}</code>`, `<code>${esc(m.channel)}</code>`, idlink(m.write_id), esc(m.write_time), esc(m.how || "")]))}
+  <h3>Messages out</h3>${table(["to", "channel", "read in", "at", "evidence"], t.messages_out.map((m) => [`<code>${esc(short(m.to))}</code>`, `<code>${esc(m.channel)}</code>`, idlink(m.read_id), esc(m.read_time), esc(m.how || "")]))}
+  ${(t.overwrote || []).length || (t.overwritten_by || []).length ? `<h3>Overwrites <span class="muted small">(not counted as messages)</span></h3>${table(["", "actor", "record", "channel", "what happened"], [
+    ...(t.overwrote || []).map((o) => ["replaced", `<code>${esc(short(o.actor))}</code>`, idlink(o.record), `<code>${esc(o.channel)}</code>`, esc(o.how)]),
+    ...(t.overwritten_by || []).map((o) => ["replaced by", `<code>${esc(short(o.actor))}</code>`, idlink(o.record), `<code>${esc(o.channel)}</code>`, esc(o.how)])])}` : ""}
   <h3>Same program elsewhere (${fmt(t.same_program_total)})</h3>${table(["id", "actor", "time"], t.same_program.slice(0, 12).map((c) => [idlink(c.id), `<code>${esc(short(c.actor))}</code>`, esc(c.time || "–")]))}
   <h3>Text <span class="muted small">(${fmt(t.text_length)} chars${t.text_truncated ? ", truncated" : ""}; data written by the agents)</span></h3><pre>${esc(t.text)}</pre>`;
 }
