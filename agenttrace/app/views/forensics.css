@@ -1,0 +1,9 @@
+/* forensics shell */
+.fxwrap{display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px}
+.fxnav{display:flex;flex-direction:column;gap:2px;position:sticky;top:0;align-self:start}
+.fxnav .fxg{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:10px 0 3px;font-weight:700}
+.fxnav .fxg:first-child{margin-top:0}
+.fxnav button{text-align:left;border:none;background:none;padding:4px 8px;border-radius:6px;font-size:12.5px;color:#3d4a58}
+.fxnav button:hover{background:#f2f6fb}
+.fxnav button.on{background:var(--accent-bg);color:#1e4f86;font-weight:650}
+@media (max-width:760px){.fxwrap{grid-template-columns:1fr}.fxnav{position:static;flex-direction:row;flex-wrap:wrap}.fxnav .fxg{width:100%}}

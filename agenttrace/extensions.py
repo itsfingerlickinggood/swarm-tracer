@@ -9,7 +9,7 @@ raise LookupError for "not found / not loaded" (HTTP 409) and ValueError for bad
 """
 import importlib
 
-MODULES = ["readers", "identity", "live", "casework", "compare"]
+MODULES = ["readers", "identity", "live", "casework", "compare", "fx_lineage", "fx_behavior", "fx_whatif"]
 
 
 def routes():
