@@ -81,8 +81,9 @@
       <label class="chk"><input type="checkbox" id="remember"> Keep the key for this browser session</label>
       <div class="aibtns"><button type="button" id="checkAI">Check connection</button> <button type="button" id="listModels">List models</button> <button type="button" id="newChat">New chat</button></div>
       <p id="aistatus" class="small muted"></p>
-      <p class="muted small">OpenCode Go: create a key in the OpenCode console (Account &gt; API keys) on a workspace subscribed to Go. DeepSeek models also need <b>Global</b> selected under Settings &gt; Privacy &gt; Regions. Any OpenAI-compatible endpoint works: change the base URL and model.</p>
-      <p class="muted small">The analysis brief, the records you select or name, an open conversation, and this chat are sent to the provider above. The key is sent with each request and never stored on disk.</p>
+      <p class="muted small">Any OpenAI-compatible service works: set its base URL, model and key, then press Check connection. The default is OpenCode Go (key from the OpenCode console; DeepSeek models there need the Global region turned on).</p>
+      <p class="muted small">Sent to that service: a summary of the analysis, what you select or name, an open conversation and this chat. The key goes with each request and is never saved to disk.</p>
+      <div class="aibtns"><button type="button" id="closeSet">Done</button></div>
     </div>
     <div class="chat" id="chat"><div class="aiempty">Ask a question. Answers come back as cards, charts and diagrams built from the analysis, with every record id checked against the data.</div></div>
     <div class="quick" id="quick">
@@ -90,10 +91,10 @@
       <button type="button" data-q="Trace how one piece of information spread through the swarm. Pick the clearest case from the evidence and show each hop in time order.">How did information spread?</button>
       <button type="button" data-q="Could the coordination have been flagged early? Which signal would have fired first, and how much harm was still to come?">Flag it early?</button>
       <button type="button" data-q="What would an investigator still miss with this data?">What's missed?</button>
-      <button type="button" data-q="Explain the selected record step by step: what the code does, who ran it, what it touched, what it received or passed on, and how it connects to the rest of the swarm.">Explain selected record</button>
+      <button type="button" data-q="@selected" title="Explains whatever the Inspector shows: a record, an actor or a place">Explain what's selected</button>
     </div>
     <form id="ask" class="ask">
-      <label class="chk small"><input type="checkbox" id="useSel" checked> include the selected record</label>
+      <label class="chk small"><input type="checkbox" id="useSel" checked> send what the Inspector shows (record, actor or place) with the question</label>
       <textarea id="q" rows="2" placeholder="Ask the investigator. Mention record ids or actors to include them."></textarea>
       <button type="submit" id="send" class="primary">Ask</button>
     </form>

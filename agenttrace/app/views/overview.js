@@ -5,30 +5,34 @@
 (() => {
   async function overview(el, s) {
     el.innerHTML = '<div id="ovw"><p class="muted">Loading…</p></div>';
+    const names = await cached("/api/list?name=identities&limit=1000").catch(() => ({ rows: [] }));
+    const lanesAll = await cached("/api/lanes").catch(() => null);
+    ACTORS = new Set([...(names.rows || []).map((r) => r.identity), ...((lanesAll?.actors) || []).map((a) => a.actor)]);
     const [ctxR, sim, lanes, gapsR] = await Promise.all([
       cached("/api/context").catch(() => ({})), cached("/api/sim").catch(() => null),
       cached("/api/lanes").catch(() => null), cached("/api/gaps").catch(() => ({ rows: [] }))]);
     const ctx = ctxR.context, ms = ctxR.milestones;
     const f = s.flow, T = s.list_totals || {};
-    const named = Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0);
+    const named = s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0);
     const sigs = sim?.signals || [];
     const firstOf = (fam) => sigs.find((g) => g.family === fam);
     const j = firstOf("joint"), sg = firstOf("single"), bl = firstOf("baseline");
     const host = $("ovw");
+    if (!host || S.tab !== "overview") return;      // the user moved on while the data loaded
     host.innerHTML = `
     ${ctx ? brief(ctx) : `<div class="card ovnoctx"><h2>${esc(s.name)}</h2><p class="muted small">No incident report is linked to this dataset, so this page shows only what the records say. To add context, put a file like <code>agenttrace/claims/incident_context.json</code> with a <code>match</code> rule for this dataset.</p></div>`}
     ${card("The incident at a glance", '<div id="glance"></div><div id="glancekey" class="legend"></div>',
-      { sub: `Timed actions per hour, coloured by what the code does${ctx ? "; the investigators' phases above; " : "; "}warning signs as dots (blue: actors together, dark: a single actor, grey: volume baseline)${ms?.milestones?.length ? "; below, each time the reports give against the tool's estimate" : ""}. Click an hour to list its events.` })}
+      { sub: `Dated actions per hour (UTC; most times are ${term("dated", "estimated")} from timestamps in the code, so long flat stretches come from the fit), coloured by what the code does${ctx ? "; the investigators' phases above; " : "; "}warning signs as dots (blue: actors together, dark: a single actor, grey: volume baseline)${ms?.milestones?.length ? "; below, each time the reports give against the tool's estimate" : ""}. Click an hour to list its events.` })}
     <h3 class="ovh">Answers to the challenge</h3>
     <div class="grid2 answers">
       ${answer("Who talked to whom", "network", f.named_actor_pairs ? `<b>${fmt(f.named_actor_pairs)}</b> named sender-receiver pairs exchanged <b>${fmt(f.deliveries_between_named_actors)}</b> messages, read a median <b>${hoursWord(f.latency_hours.median)}</b> after they were written.` : "No message between two named actors was found.",
         (f.top_pairs || []).length ? hbars(f.top_pairs.slice(0, 5).map((p) => ({ label: `${ent.actor(p.from)} → ${ent.actor(p.to)}`, value: p.deliveries, color: ACCENT }))) : "",
         f.first_named_delivery ? `First: ${ent.actor(f.first_named_delivery.from)} wrote ${ent.rec(f.first_named_delivery.write_id)}, ${ent.actor(f.first_named_delivery.to)} read it in ${ent.rec(f.first_named_delivery.read_id)} (${esc(f.first_named_delivery.read_time)})` : "")}
       ${answer("How information spread", "spread", spreadLine(s, T),
-        (s.content_spread || []).length ? hbars(s.content_spread.slice(0, 5).map((x) => ({ label: `${ent.actor(x.source)} <span class="muted small">${esc(x.what?.intent_what ? x.what.intent_what.split(" (")[0] : "")}</span>`, value: x.actors, color: C.program }))) + '<p class="small muted">actors reached by each program</p>' : "",
+        (s.content_spread || []).length ? hbars(s.content_spread.slice(0, 5).map((x) => ({ label: `${ent.actor(x.source)} <span class="muted small">${esc(x.what?.intent_what ? x.what.intent_what.split(" (")[0] : "")}</span>`, value: x.actors, color: C.program }))) + `<p class="small muted">actors who ran each ${term("program")} (the first + those who reused it)</p>` : "",
         s.seen_then_used?.length ? `${fmt(T.seen_then_used ?? s.seen_then_used.length)} tokens were seen as data before their first use; ${fmt(T.carried_edges ?? 0)} times one identity carried another's token.` : "")}
       ${answer("Could it have been flagged early?", "early", j ? `The first sign of actors working together, <b>${esc(j.name.toLowerCase())}</b>, fired on ${esc(when(toTime(j.time)))} with <b>${pct(j.harm_share_after)}</b> of the harmful activity still to come.` : "No sign of actors working together fired.",
-        famBars(sigs), bl ? `A volume alarm would have fired on ${esc(when(toTime(bl.time)))} with ${pct(bl.harm_share_after)} still to come.` : "")}
+        famBars(sigs), (bl ? `A ${term("volume", "volume alarm")} would have fired on ${esc(when(toTime(bl.time)))} with ${pct(bl.harm_share_after)} still to come. ` : "") + `${term("harm_left")}: the share of dated ${term("harm", "harmful actions")} that came after the sign; higher is earlier.`)}
       ${answer("What an investigator would still miss", "gaps", "The biggest blind spots, measured:",
         hbars((gapsR.rows || []).filter((g) => g.share != null).sort((a, b) => b.share - a.share).slice(0, 4).map((g) => ({ label: esc(g.gap), value: Math.round(g.share * 1000) / 10, color: HARM, title: g.hides }))) , "Share of records, messages or places affected (%).")}
     </div>
@@ -36,7 +40,8 @@
     <div class="kpis">
       ${kpi(term("record", "records"), fmt(s.records), Object.entries(s.kinds).map(([k, v]) => `${fmt(v)} ${esc(k)}`).join(" · "))}
       ${kpi(term("dated", "dated"), pct(s.timed / s.records), `${fmt(s.timed)} records`)}
-      ${kpi(term("named", "named actors"), fmt(named), `and ${fmt(s.actor_kinds?.run || 0)} ${term("run", "anonymous runs")}`)}
+      ${kpi(term("named", "named actors"), fmt(named), `${term("actor", "tokens and names, not agents")}${ctxAgents(ctx) ? `; the reports count ${esc(ctxAgents(ctx))} agents` : ""}`)}
+      ${kpi(term("action", "actions"), fmt(s.actions?.total), `${pct((s.actions?.unattributed || 0) / Math.max(1, s.actions?.total || 1))} by ${term("run", "anonymous runs")}`)}
       ${kpi(term("place", "places"), fmt(f.channels), `${fmt(f.records_on_channels)} records touch one`)}
       ${kpi(term("message", "messages"), fmt(f.deliveries), `${fmt(f.deliveries_between_named_actors)} between named actors`)}
       ${kpi(term("program", "programs shared"), fmt(T.content_spread ?? f.content_families_moving), "run by 2+ named actors")}
@@ -45,7 +50,7 @@
     </div>
     <div class="grid2">
       ${card("What the swarm is made of", anatomy(s), { sub: "Each bar is one whole, split by kind. Hover a segment for its count." })}
-      ${card("What the agents did", hbars(Object.entries(s.intents).map(([k, v]) => ({ label: `${esc(human(k))}${isHarm(k) ? ' <span class="harmtag">harm</span>' : ""}`, value: v, color: intentColor(k), title: intentName(k), attrs: `data-click data-intent="${esc(k)}"` })), { total: Object.values(s.intents).reduce((a, b) => a + b, 0) }), { sub: "Actions by what the code does (pattern match). Click one to list its events." })}
+      ${card("What the agents did", hbars(Object.entries(s.intents).map(([k, v]) => ({ label: `${esc(human(k))}${isHarm(k) ? ' <span class="harmtag">harm</span>' : ""}`, value: v, color: intentColor(k), title: intentName(k), attrs: `data-click data-intent="${esc(k)}"` })), { total: Object.values(s.intents).reduce((a, b) => a + b, 0) }), { sub: `Every ${term("action")} by its ${term("intent")}: the first of the pack's patterns that matches its code, so one action has one intent. Marked <span class="harmtag">harm</span>: in the pack's ${term("harm", "harm list")}. Click one to list its events.` })}
     </div>
     ${card("Most active actors", '<div id="ovactors"></div>', { sub: "Named actors by timed actions, with their activity across the whole incident. Hover for a card, click to inspect." })}
     ${ctx ? reported(ctx, ms) : ""}
@@ -59,6 +64,11 @@
     if (lanes) leaders($("ovactors"), lanes);
   }
 
+  // the reports' count of agents, to set against the data's named actors
+  function ctxAgents(ctx) {
+    const n = (ctx?.numbers || []).find((x) => /agents? on the message board|agents/i.test(x.label));
+    return n ? String(n.value) : null;
+  }
   function spreadLine(s, T) {
     const w = s.content_spread?.[0];
     if (!w) return "No program was run by more than one named actor.";
@@ -72,7 +82,7 @@
       const first = xs[0];
       return { label: `${FAMILY[fam].label} <span class="muted small">${esc(when(toTime(first.time)))}</span>`, value: Math.round(first.harm_share_after * 100), color: FAMILY[fam].color, title: first.name };
     }).filter(Boolean);
-    return rows.length ? hbars(rows, { max: 100, unit: "%" }) + '<p class="small muted">harm still to come when each kind of sign first fired</p>' : "";
+    return rows.length ? hbars(rows, { max: 100, unit: "%" }) + `<p class="small muted">${term("harm_left")} when each kind of ${term("sign")} first fired. The first single-actor sign is itself the first harmful action, so it always shows 100%.</p>` : "";
   }
   function answer(title, tab, line, viz, foot) {
     return `<section class="card answer"><header><h3>${esc(title)}</h3><button type="button" class="link" data-gotab="${tab}">Open →</button></header><p class="aline">${line}</p>${viz || ""}${foot ? `<p class="small muted afoot">${foot}</p>` : ""}</section>`;
@@ -90,6 +100,9 @@
       <p class="small muted bsrc">Sources: ${(ctx.sources || []).map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(String(x.name).split(" - ")[0].split(",")[0])}</a>`).join(" · ")}</p>
     </section>`;
   }
+  // a name from the reports that is also an actor in the data (self-chosen names survive the redaction)
+  let ACTORS = new Set();
+  const known = (name) => { const m = String(name).match(/[A-Za-z]{2,}\d[\w]*|\b[a-f0-9]{6}\b/g) || []; return m.find((x) => ACTORS.has(x)) || null; };
   function reported(ctx, ms) {
     const list = (items, f) => `<ul class="rlist">${(items || []).map(f).join("")}</ul>`;
     const mrows = ms?.milestones || [];
@@ -98,7 +111,7 @@
     ${mrows.length ? card("Report times against the tool's estimates", `<div class="dumb">${mrows.map((m) => `<div class="drow"><div class="dlab">${esc(m.event)}<span class="muted small"> ${esc(m.source)}</span></div><div class="dbar"><i class="mid"></i>${m.difference_h != null ? `<i class="v" style="left:${50 + 50 * Math.max(-1, Math.min(1, m.difference_h / Math.max(3, mx)))}%"></i>` : ""}</div><div class="dval">${m.difference_h == null ? "–" : (m.difference_h > 0 ? "+" : "") + m.difference_h + " h"}</div></div>`).join("")}<div class="drow axis"><div></div><div class="dbar"><span style="left:0">${-Math.max(3, mx).toFixed(0)} h (tool earlier)</span><span style="left:50%">0</span><span style="right:0">+${Math.max(3, mx).toFixed(0)} h</span></div><div></div></div></div>`,
       { sub: `Each row: a moment the reports date, and how far the tool's estimate from the records lands from it. ${mrows.filter((m) => m.difference_h != null && Math.abs(m.difference_h) <= 3).length} of ${mrows.length} fall within 3 hours.` }) : ""}
     <div class="grid2">
-      ${card("Actors the reports name", list(ctx.actors, (a) => `<li><b>${esc(a.name)}</b> ${esc(a.what)} <span class="src">${esc(a.source)}</span></li>`))}
+      ${card("Actors the reports name", list(ctx.actors, (a) => { const hit = known(a.name); return `<li><b>${esc(a.name)}</b>${hit ? ` ${ent.actor(hit)} <span class="small muted">in the data</span>` : ""} ${esc(a.what)} <span class="src">${esc(a.source)}</span></li>`; }), { sub: "Names that also appear as actors in the records are chips; the others are not in the redacted data." })}
       ${card("Channels the reports describe", list(ctx.channels, (a) => `<li><b>${esc(a.name)}</b> ${esc(a.what)} <span class="src">${esc(a.source)}</span></li>`))}
       ${card("Harms", list(ctx.harms, (a) => `<li><b>${esc(a.name)}</b> ${esc(a.what)} <span class="src">${esc(a.source)}</span></li>`))}
       ${card("Detection and response", list(ctx.detection, (a) => `<li>${a.time ? `<b>${esc(a.time)}</b> ` : ""}${esc(a.what)} <span class="src">${esc(a.source)}</span></li>`))}
@@ -148,9 +161,9 @@
     (s.phases || []).filter((p) => ["surge", "peak", "stop"].includes(p.key)).forEach((p) => {
       const x = X(toTime(p.time));
       lrow = x - lastLx < 34 ? lrow + 1 : 0; lastLx = x;
-      svg += `<line x1="${x}" x2="${x}" y1="${yT}" y2="${yB}" stroke="${INK}" stroke-dasharray="3 3" stroke-opacity=".45"/><text x="${x + 3}" y="${yT + 10 + lrow * 11}" font-size="10" fill="${INK}" fill-opacity=".75">${esc({ surge: "surge", peak: "peak", stop: "drop" }[p.key])}<title>${esc(p.name)} ${esc(p.time)}${p.why ? ": " + esc(p.why) : ""}</title></text>`;
+      svg += `<line x1="${x}" x2="${x}" y1="${yT}" y2="${yB}" stroke="${INK}" stroke-dasharray="3 3" stroke-opacity=".45"/><text x="${x + 3}" y="${yT + 10 + lrow * 11}" font-size="10" fill="${INK}" fill-opacity=".75">${esc({ surge: "surge begins", peak: "busiest hour", stop: "falls below 15% of peak" }[p.key])}<title>${esc(p.name)} ${esc(p.time)}${p.why ? ": " + esc(p.why) : ""}</title></text>`;
     });
-    svg += `<line x1="${x0}" x2="${x1}" y1="${yB}" y2="${yB}" stroke="${AXIS}"/>`;
+    svg += `<line x1="${x0}" x2="${x1}" y1="${yB}" y2="${yB}" stroke="${AXIS}"/><text x="${x0 - 38}" y="${yT + chartH / 2}" font-size="10" fill="${QUIET}" transform="rotate(-90 ${x0 - 38} ${yT + chartH / 2})" text-anchor="middle">actions per hour</text>`;
     // signals
     svg += `<text x="${x0 - 6}" y="${ySig + 12}" text-anchor="end" font-size="10" fill="${QUIET}">signs</text>`;
     let lastX = -99, lane = 0;
@@ -173,6 +186,7 @@
     host.innerHTML = svg + "</svg>";
     host.querySelectorAll("rect[data-hour]").forEach((r) => r.addEventListener("click", () => goEvents({ hour: r.dataset.hour })));
     $("glancekey").innerHTML = intents.filter((k) => s.intents[k]).map((k) => `<span><i style="background:${intentColor(k)}"></i>${esc(human(k))}</span>`).join("") +
+      ["joint", "single", "baseline"].filter((f) => (sim?.signals || []).some((g) => g.family === f)).map((f) => `<span><i style="background:${FAMILY[f].color};border-radius:50%"></i>sign: ${esc(FAMILY[f].label)}</span>`).join("") +
       (rowMs ? `<span><svg width="10" height="10"><path d="M5,1L9,5L5,9L1,5Z" fill="#fff" stroke="${INK}"/></svg> report time</span><span><i style="background:${ACCENT};border-radius:50%"></i>tool estimate</span>` : "");
   }
 
@@ -181,16 +195,20 @@
     const f = s.flow;
     const kc = ["#2f6fb3", "#6aa5dc", "#bcd3ec", "#9aa5b1", "#cfd6dd"];
     const recs = Object.entries(s.kinds).map(([k, v], i) => ({ label: k, value: v, color: kc[i % kc.length] }));
-    const ak = s.actor_kinds || {};
+    const ak = s.actions?.kinds || s.actor_kinds || {};
     const actorWord = { token: "tokens", token_via_thread: "tokens via thread", handle: "self-chosen names", named: "actor field", run: "anonymous runs" };
-    const actors = Object.entries(ak).sort((a, b) => (a[0] === "run") - (b[0] === "run") || b[1] - a[1]).map(([k, v], i) => ({ label: actorWord[k] || k, value: v, color: k === "run" ? "#cfd6dd" : ["#b7791f", "#e3a43b", "#f3c97a", "#f9e2b5"][i % 4] }));
+    const actors = Object.entries(ak).filter(([k]) => k !== "run").sort((a, b) => b[1] - a[1]).map(([k, v], i) => ({ label: actorWord[k] || k, value: v, color: ["#b7791f", "#e3a43b", "#f3c97a", "#f9e2b5"][i % 4] }));
+    const A = s.actions || {};
+    const acts = A.total ? [{ label: "credited to a named actor", value: A.total - A.unattributed, color: "#b7791f" }, { label: "anonymous runs", value: A.unattributed, color: "#cfd6dd" }] : [];
     const pc = ["#6b46c1", "#9a7be0", "#c4b1ef", "#e0d6f7"];
     const places = Object.entries(f.channel_types || {}).sort((a, b) => b[1].channels - a[1].channels).map(([k, v], i) => ({ label: placeType(k), value: v.channels, color: pc[i % pc.length] }));
     const hc = { "read in code": "#2e7d32", "named the place": "#c58a00", "posted after it": "#e3a43b", "kept earlier content": "#2f6fb3" };
     const how = Object.entries(f.deliveries_by_how || {}).map(([k, v]) => ({ label: k, value: v, color: hc[k] || "#9aa5b1" }));
     const row = (title, parts, note) => `<div class="anat"><div class="anh"><b>${esc(title)}</b>${note ? `<span class="muted small">${note}</span>` : ""}</div>${stackbar(parts, { h: 14 })}</div>`;
-    return row("Records by kind", recs, fmt(s.records)) + row("Actors by kind", actors, "named actors and anonymous runs") +
-      (places.length ? row("Places by type", places, fmt(f.channels)) : "") + (how.length ? row("Messages by what they rest on", how, fmt(f.deliveries)) : "");
+    return row("Records by kind", recs, fmt(s.records)) + row("Named actors by kind", actors, "tokens and self-chosen names") +
+      (acts.length ? row("Actions by who they are credited to", acts, fmt(A.total)) : "") +
+      (places.length ? row("Places by type", places, fmt(f.channels)) : "") +
+      (how.length > 1 ? row("Messages by what they rest on", how, fmt(f.deliveries)) : how.length ? `<p class="small muted">Every one of the ${fmt(f.deliveries)} messages rests on the same evidence: ${esc(how[0].label)}.</p>` : "");
   }
 
   function leaders(host, lanes) {
@@ -199,11 +217,12 @@
     const t0 = toTime(lanes.start), t1 = t0 + lanes.hours * 3600e3;
     const series = (a) => a.bins.map((b) => [new Date(t0 + b[0] * 3600e3).toISOString().slice(0, 13).replace("T", " "), b.slice(1).reduce((x, y) => x + y, 0)]);
     const max = Math.max(...rows.map((a) => a.total));
-    host.innerHTML = `<table class="leaders"><thead><tr><th>actor</th><th>activity over the incident</th><th class="n">actions</th><th class="n">harmful</th><th class="n">sent</th><th class="n">received</th><th>first seen</th></tr></thead><tbody>${rows.map((a) => `<tr>
-      <td>${ent.actor(a.actor)}</td><td>${spark(series(a), { w: 190, h: 22, t0, t1, color: C.actor })}</td>
+    host.innerHTML = `<div class="tscroll"><table class="leaders"><thead><tr><th>actor</th><th>dated actions per hour, ${esc(dayWord(t0))} to ${esc(dayWord(t1 - 1))}</th><th class="n">dated actions</th><th class="n">harmful</th><th class="n" title="messages to anyone, anonymous runs included">sent</th><th class="n" title="messages from anyone, anonymous runs included">received</th><th>first seen (UTC)</th></tr></thead><tbody>${rows.map((a) => `<tr>
+      <td>${ent.actor(a.actor)}</td><td>${spark(series(a), { w: 170, h: 22, t0, t1, color: C.actor })}</td>
       <td class="n"><span class="minibar"><i style="width:${(100 * a.total / max).toFixed(1)}%"></i></span>${fmt(a.total)}</td>
       <td class="n">${a.harmful ? `${fmt(a.harmful)} <span class="muted small">${pct(a.harmful / a.total)}</span>` : "–"}</td>
-      <td class="n">${fmt(a.sent)}</td><td class="n">${fmt(a.received)}</td><td class="small">${esc(a.first)}</td></tr>`).join("")}</tbody></table>`;
+      <td class="n">${fmt(a.sent)}</td><td class="n">${fmt(a.received)}</td><td class="nowrap small">${esc(when(toTime(a.first)))}</td></tr>`).join("")}</tbody></table></div>
+      <p class="small muted">Counts here are dated ${term("action", "actions")} only; the Inspector also counts undated actions and the responses credited to an actor. Sent and received include messages with anonymous runs.</p>`;
   }
 
   function method(s) {

@@ -265,3 +265,14 @@ pre.whytext mark{border-radius:2px;padding:0;color:inherit}
 .w-handle,pre.whytext mark.top-handle{background:#fdf0c4}
 .w-name,pre.whytext mark.top-name{background:#d1fae5}
 .w-context,pre.whytext mark.top-context{background:#eef1f5}
+
+/* ---------------------------------------------------------------- inspector, clarity pass */
+.mline{font-size:12px;line-height:1.7;padding:3px 0;border-bottom:1px solid var(--line2)}
+.mline:last-child{border-bottom:none}
+.mline .how{font-size:10.5px;background:#e8f5e9;color:#1b5e20;border-radius:4px;padding:0 5px;margin-left:4px;white-space:nowrap}
+.saxis{display:flex;justify-content:space-between;font-size:10px;color:var(--faint);margin-top:1px}
+.plist{display:flex;flex-direction:column;gap:2px;font-size:12px}
+.dsec.two{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.dsec .hb{grid-template-columns:minmax(110px,52%) 1fr 44px}
+.ent.place.wrap{white-space:normal;overflow:visible}
+.harmtag{font-size:9.5px;text-transform:uppercase;background:var(--harm-bg);color:var(--harm);border-radius:3px;padding:0 4px;letter-spacing:.3px;vertical-align:1px}

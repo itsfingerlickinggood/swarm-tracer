@@ -390,10 +390,10 @@
     "submit_to_eval_api": "Submits code to the evaluation API with the shared evaluation key",
     "kubernetes_api": "Calls a Kubernetes API (cluster access)",
     "cloud_metadata": "Queries the cloud metadata service, where machine credentials live",
-    "registry_board": "Uses the registry mailbox: folders on a package cache used as a shared board",
+    "registry_board": "Uses the registry mailbox: folders on a package cache used as a shared message board",
     "docker_registry": "Talks to the Docker registry",
     "hf_dataset_write": "Writes to a Hugging Face dataset",
-    "hf_read": "Reads from Hugging Face",
+    "hf_read": "Contacts Hugging Face (any request that is not a dataset commit or upload; it can still POST)",
     "search_for_secrets": "Searches public sites for secrets",
     "shortener_chain": "Follows a chain of link-shortener redirects",
     "other": "No known pattern"

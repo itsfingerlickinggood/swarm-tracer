@@ -239,7 +239,8 @@ class Session:
         named = {self.actor[r][0] for r in acts if self.actor[r][1] != "run"}
         runs = {self.actor[r][0] for r in acts if self.actor[r][1] == "run"}
         timed_named = {self.actor[r][0] for r in acts if self.actor[r][1] != "run" and r in self.rec["_times"]}
-        return {"total": len(acts), "unattributed": sum(1 for r in acts if self.actor[r][1] == "run"),
+        kinds = Counter({self.actor[r][0]: self.actor[r][1] for r in acts}.values())
+        return {"total": len(acts), "unattributed": sum(1 for r in acts if self.actor[r][1] == "run"), "kinds": dict(kinds),
                 "named_actors": len(named), "named_actors_dated": len(timed_named), "runs": len(runs),
                 "dated": sum(1 for r in acts if r in self.rec["_times"])}
 

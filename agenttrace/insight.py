@@ -586,7 +586,8 @@ def explain(s, rid):
         what.append(names_i.get(it, human(it)) + ".")
     tags = s.res["_evidence"][rid]
     if tags:
-        what.append("The code " + "; ".join(names_t.get(g, human(g)).lower() for g in tags[:6]) + ".")
+        descs = [names_t.get(g, human(g)) for g in tags[:6]]
+        what.append("Patterns found in it: " + "; ".join(d[0].lower() + d[1:] if d[:2] != d[:2].upper() else d for d in descs) + ".")
     ops = s.ops_by_id.get(rid, [])
     w = [o["channel"] for o in ops if o["op"] in ("write", "post")]
     r = [o["channel"] for o in ops if o["op"] in ("read", "post")]
@@ -597,7 +598,8 @@ def explain(s, rid):
     ids = s.rec["_ids"].get(rid, {})
     shared = set(s.pack.raw.get("shared_identities", []))
     if ids:
-        what.append("It authenticates as " + ", ".join(f"{k}{' (shared key)' if k in shared else ''} via {v}" for k, v in list(ids.items())[:4]) + ".")
+        how = {"via_variable": "a token stored in a variable", "bearer": "a bearer token", "x-api-key": "an API-key header", "actor_field": "its actor field"}
+        what.append("It authenticates as " + ", ".join(f"{k}{' (a shared key)' if k in shared else ''}, using {how.get(v, human(v))}" for k, v in list(ids.items())[:4]) + ".")
     if not what:
         what.append(f"A {e.kind or 'record'} with no known pattern." if reconstruct.is_action(e, s.pack)
                     else f"A {e.kind or 'record'}: not an action an agent ran, but text recovered or returned around one. "
@@ -606,11 +608,13 @@ def explain(s, rid):
     roles = []
     din, dout = s.del_in.get(rid, []), s.del_out.get(rid, [])
     if dout:
+        nto = len({d['to'] for d in dout})
         roles.append({"role": "sender", "label": "Sent a message",
-                      "detail": f"{len(dout)} later read{'s' if len(dout) != 1 else ''} by {len({d['to'] for d in dout})} other actor(s)"})
+                      "detail": f"what it wrote was read {len(dout)} time{'s' if len(dout) != 1 else ''} by {nto} other actor{'s' if nto != 1 else ''}"})
     if din:
+        nfrom = len({d['from'] for d in din})
         roles.append({"role": "receiver", "label": "Received a message",
-                      "detail": f"read what {len({d['from'] for d in din})} other actor(s) wrote ({len(din)} message{'s' if len(din) != 1 else ''})"})
+                      "detail": f"read what {nfrom} other actor{'s' if nfrom != 1 else ''} wrote ({len(din)} message{'s' if len(din) != 1 else ''})"})
     sim = simulate(s)
     for g in sim["signals"]:
         if g.get("ref") == rid:
@@ -620,7 +624,7 @@ def explain(s, rid):
         x = s.flow["_content_spread"][sr[1]]
         if sr[0] == "source":
             roles.append({"role": "source", "label": "First run of a shared program",
-                          "detail": f"{x['actors'] - 1} other actor(s) ran the same program later ({x['copies']} copies)"})
+                          "detail": f"{x['actors'] - 1} other named actor{'s' if x['actors'] != 2 else ''} ran the same program later ({x['copies']} copies in all)"})
         else:
             roles.append({"role": "adopter", "label": "Reused another actor's program",
                           "detail": f"first run by {x['source']} in {x['source_record']} at {x['source_time']}"})
@@ -774,14 +778,14 @@ def gap_facts(s):
     never = sum(1 for c in chans if c["never_read"])
     shared = set(s.pack.raw.get("shared_identities", []))
     shared_recs = sum(1 for ids in s.rec["_ids"].values() if any(t in shared for t in ids)) if shared else 0
-    runs = summ.get("actor_kinds", {}).get("run", 0)
+    runs = (summ.get("actions") or {}).get("runs", summ.get("actor_kinds", {}).get("run", 0))
     named_actors = sum(v for k, v in summ.get("actor_kinds", {}).items() if k != "run")
     rows = [
         {"key": "time", "gap": "Records with no time", "count": n - timed, "of": n, "unit": "records", "question": "early flag",
          "hides": "anything they did cannot be placed on the timeline or in the early-flag replay",
          "close": "server-side timestamps for each run, or more timestamps written in the records"},
         {"key": "actor", "gap": "Actions with no named actor", "count": len(acts) - named_records, "of": len(acts), "unit": "actions", "question": "who talked to whom",
-         "hides": f"messages from or to {runs:,} anonymous runs cannot be tied to an agent",
+         "hides": f"what these actions did cannot be tied to an agent: they fall into {runs:,} anonymous runs (threads with no token or name)",
          "close": "an agent id per run from the operator's logs"},
         {"key": "identity", "gap": "Identities are tokens and names, not agents", "count": named_actors, "of": None, "unit": "named actors", "question": "who talked to whom",
          "hides": "one agent can hold several tokens or names, so a 'message' may be an agent talking to itself",

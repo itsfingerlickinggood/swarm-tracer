@@ -40,3 +40,7 @@
 .nowrap{white-space:nowrap}
 
 #efCounters{grid-template-columns:repeat(4,minmax(0,1fr))}
+.efdef{max-width:900px;margin:-2px 0 8px}
+.efrec{margin:8px 0 0;max-width:900px}
+svg.efclick{cursor:crosshair}
+svg.efclick .node{cursor:pointer}

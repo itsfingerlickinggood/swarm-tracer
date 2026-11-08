@@ -66,3 +66,6 @@
 body.aiwide .rtop{display:none}
 body.aiwide .rbot{grid-row:1 / span 2}
 .tlstrip{height:30px}
+/* settings float over the chat, so the Ask box stays reachable */
+.rbot{position:relative}
+.aisettings{position:absolute;top:37px;left:0;right:0;z-index:6;max-height:calc(100% - 37px);overflow:auto;box-shadow:0 10px 24px rgba(10,20,35,.18)}

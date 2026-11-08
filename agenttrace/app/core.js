@@ -289,7 +289,8 @@ function glossaryText(key) {
   if (!g) return "";
   let d = g[1];
   if (key === "harm" && (S.summary?.harm_names || []).length) d += " In this pack: " + S.summary.harm_names.map(human).join(", ") + ".";
-  if (key === "named" && S.summary?.actor_kinds) { const k = S.summary.actor_kinds; d += ` In this dataset: ${fmt(k.token || 0)} tokens, ${fmt(k.token_via_thread || 0)} tokens via thread, ${fmt(k.handle || 0)} self-chosen names.`; }
+  const ak = S.summary?.actions?.kinds || S.summary?.actor_kinds;
+  if (key === "named" && ak) d += ` In this dataset, ${fmt(S.summary.actions?.named_actors)} named actors ran actions: ${[[ak.token, "identity tokens"], [ak.token_via_thread, "tokens via thread"], [ak.handle, "self-chosen names"], [ak.named, "actor fields"]].filter(([n]) => n).map(([n, w]) => `${fmt(n)} ${w}`).join(", ")}.`;
   return d;
 }
 function glossaryCard(key) { const g = GLOSSARY[key]; return g ? `<div class="hc"><div class="hch"><b>${esc(g[0])}</b></div><div class="hcwhat">${esc(glossaryText(key))}</div><div class="hcfoot">Click for the glossary</div></div>` : ""; }
@@ -384,6 +385,11 @@ document.addEventListener("mouseover", (e) => {
   clearTimeout(HC.hide); clearTimeout(HC.timer);
   HC.timer = setTimeout(() => showCard(t, e.clientX, e.clientY), 260);
 });
+// a card never outlives the pointer: close it on any press, scroll or key
+const dropCard = () => { clearTimeout(HC.timer); if (HC.el) HC.el.hidden = true; HC.key = null; };
+document.addEventListener("mousedown", (e) => { if (!e.target.closest(".hovercard")) dropCard(); });
+document.addEventListener("scroll", dropCard, true);
+document.addEventListener("keydown", (e) => { if (e.target.matches?.("input,textarea")) dropCard(); });
 document.addEventListener("mouseout", (e) => {
   const t = e.target.closest("[data-term],[data-actor],[data-place],[data-id],[data-ev]");
   if (t && !t.contains(e.relatedTarget)) hideCard();
@@ -442,46 +448,69 @@ function recordGraph(t) {
   return svg;
 }
 const ROLE_ICON = { sender: "↗", receiver: "↘", signal: "⚑", source: "◆", adopter: "◇", carrier: "⇄", seen: "◉", overwrite: "✎", harm: "!" };
+// plain text from the server with record ids, credentials and place keys turned into chips
+function richText(text) {
+  return esc(text)
+    .replace(/(hf_dataset|board|webhook|command_file|place):((?:\[[^\]\s]+(?: [^\]]+)?\]|[\w.\-~@#/])+)/g, (m) => ent.place(m.replace(/&amp;/g, "&")))
+    .replace(/\[CREDENTIAL (\d+)\]/g, (m) => ent.actor(m))
+    .replace(/(^|[\s(,;])(R\d{6,8})\b/g, (m, pre, id) => pre + ent.rec(id));
+}
+const KIND_WORD = { payload: "payload: code an agent ran", response: "response: what came back to an agent", recovered_text: "recovered text: text recovered from the agents' files" };
+const ACTOR_KIND = { token: ["identity token", "token"], token_via_thread: ["token taken from its thread", "token_via_thread"], handle: ["self-chosen name", "handle"], run: ["anonymous run", "run"], named: ["actor field", "actor"] };
+const actorKind = (k) => ACTOR_KIND[k] ? term(ACTOR_KIND[k][1], esc(ACTOR_KIND[k][0])) : esc(k);
+function msgLine(m, dir) {
+  const who = dir === "in" ? m.from : m.to;
+  return `<div class="mline">${dir === "in" ? `${ent.actor(who)} wrote ${ent.place(m.channel)} in ${ent.rec(m.write_id)} <span class="muted">${esc(m.write_time || "")}</span>; this record read it`
+    : `this record wrote ${ent.place(m.channel)}; ${ent.actor(who)} read it in ${ent.rec(m.read_id)} <span class="muted">${esc(m.read_time || "")}</span>`}${m.latency_h != null ? ` <span class="muted">(${hoursWord(m.latency_h)} later)</span>` : ""} <span class="how">${esc(m.how || "")}</span></div>`;
+}
+const more = (shown, total, what) => total > shown ? `<p class="small muted">Showing ${fmt(shown)} of ${fmt(total)} ${what}.</p>` : "";
 function recordDossier(t) {
-  const x = t.explain || {}, a = x.actor || {}, comp = x.components || {};
-  const sp = span();
-  const pos = a.position && a.timed ? `record ${fmt(a.position)} of ${fmt(a.timed)} timed records by this actor` : "";
+  const x = t.explain || {}, a = x.actor || {}, comp = x.components || {}, pr = x.program;
+  const pos = a.position && a.timed ? `record ${fmt(a.position)} of ${fmt(a.timed)} dated records by this actor` : "";
   return `
-  <div class="dhead"><div><span class="ent rec big" data-noclick data-id="${esc(t.id)}">${esc(t.id)}</span> <span class="badge">${esc(t.kind)}</span> ${ent.intent(t.intent)}</div>
-    <div class="muted small">${esc(t.time || "no time")}${t.time_source ? ` (${esc(t.time_source)})` : ""} · by ${ent.actor(t.actor)} <span class="muted">(${esc(t.actor_kind)})</span></div></div>
-  <div class="dsec what"><h4>What it is</h4><ul>${(x.what || []).map((w) => `<li>${esc(w)}</li>`).join("")}</ul>
-    ${t.tags.length ? `<div class="chips">${t.tags.map((g) => `<span class="chip" title="${esc(tagName(g))}">${esc(human(g))}</span>`).join("")}${t.context_tags.map((g) => `<span class="chip ctx" title="context only: ${esc(tagName(g))}">${esc(human(g))}</span>`).join("")}</div>` : ""}</div>
+  <div class="dhead"><div><span class="ent rec big" data-noclick data-id="${esc(t.id)}">${esc(t.id)}</span> <span class="badge" title="${esc(KIND_WORD[t.kind] || t.kind)}">${esc(t.kind)}</span> ${ent.intent(t.intent)}</div>
+    <div class="muted small">${esc(t.time ? t.time + " UTC" : "no time")}${t.time_source ? ` (${t.time_source === "estimated" ? term("dated", "estimated") : esc(t.time_source)})` : ""} · by ${ent.actor(t.actor)} <span class="muted">(${actorKind(t.actor_kind)})</span></div></div>
+  ${x.copy_of ? `<div class="note small">Not an ${term("action")} itself: ${esc(KIND_WORD[t.kind] || t.kind)}. It repeats or answers ${ent.rec(x.copy_of.record)} (${esc(x.copy_of.why)}), so its identities and places are counted there, not twice.</div>` : ""}
+  <div class="dsec what"><h4>What it is</h4><ul>${(x.what || []).map((w) => `<li>${richText(w)}</li>`).join("")}</ul>
+    ${t.tags.length || t.context_tags.length ? `<div class="chips"><span class="small muted">${term("tag", "tags")}:</span>${t.tags.map((g) => `<span class="chip" title="${esc(tagName(g))}">${esc(human(g))}</span>`).join("")}${t.context_tags.map((g) => `<span class="chip ctx" title="context only, not evidence: ${esc(tagName(g))}">${esc(human(g))}</span>`).join("")}</div>` : ""}</div>
   <div class="dsec"><h4>Its role in the swarm</h4>
-    ${(x.roles || []).length ? `<div class="rolelist">${x.roles.map((r) => `<div class="rolecard ${r.role}"><span class="ri">${ROLE_ICON[r.role] || "•"}</span><div><b>${esc(r.label)}</b><div class="small muted">${esc(r.detail)}</div></div></div>`).join("")}</div>` : '<p class="small muted">No link to another actor found: it sends and receives no message, starts or reuses no shared program, and fires no warning sign.</p>'}
+    ${(x.roles || []).length ? `<div class="rolelist">${x.roles.map((r) => `<div class="rolecard ${r.role}"><span class="ri">${ROLE_ICON[r.role] || "•"}</span><div><b>${esc(r.label)}</b><div class="small muted">${richText(r.detail)}</div></div></div>`).join("")}</div>` : '<p class="small muted">No link to another actor found: it sends and receives no message, starts or reuses no shared program, and fires no warning sign.</p>'}
     <div class="dgrid">
-      <div><div class="dl">Harm still to come</div>${x.harm_share_after != null ? `${meter(x.harm_share_after, HARM, 110)} <b>${pct(x.harm_share_after)}</b><div class="small muted">of the timed harmful actions came after this record</div>` : '<span class="muted small">no time, so no position</span>'}</div>
-      <div><div class="dl">Stretch of the incident</div>${x.phase ? `<b>${esc(x.phase.name)}</b><div class="small muted">${esc(x.phase.what)}</div>` : '<span class="muted small">–</span>'}${x.report_phase ? `<div class="small">Reports: ${esc(x.report_phase.name)} <span class="muted">(${esc(x.report_phase.source)})</span></div>` : ""}</div>
+      <div><div class="dl">${term("harm_left")}</div>${x.harm_share_after != null ? `${meter(x.harm_share_after, HARM, 110)} <b>${pct(x.harm_share_after)}</b><div class="small muted">of all dated harmful actions came after this record's time</div>` : `<span class="muted small">${x.is_action === false ? "not an action, so not placed" : "no time, so no position"}</span>`}</div>
+      <div><div class="dl">${term("stretch")}</div>${x.phase ? `<b>${esc(x.phase.name)}</b><div class="small muted">${esc(x.phase.what)}</div>` : '<span class="muted small">–</span>'}${x.report_phase ? `<div class="small">The reports call this stretch: ${esc(x.report_phase.name)} <span class="muted">(${esc(x.report_phase.source)})</span></div>` : ""}</div>
     </div></div>
   <div class="dsec"><h4>Its actor ${ent.actor(t.actor)}</h4>
-    ${sp ? spark(a.hourly, { w: 320, h: 34, color: C.actor, mark: toTime(t.time) }) : ""}
-    <div class="small muted">${fmt(a.records)} records${pos ? " · this is " + pos : ""}${a.first ? ` · active ${esc(a.first)} to ${esc(a.last)}` : ""}</div></div>
-  <div class="dsec"><h4>Components</h4>
-    <div class="comp">${[["identities", comp.identities], ["places written", comp.places_written], ["places read", comp.places_read], ["messages in", comp.messages_in], ["messages out", comp.messages_out], ["ancestors", comp.ancestors], ["children", comp.children], ["evidence tags", comp.tags]].map(([k, v]) => `<div class="${v ? "" : "zero"}"><b>${fmt(v || 0)}</b><span>${k}</span></div>`).join("")}</div>
+    ${spark(a.hourly, { w: 320, h: 34, color: C.actor, mark: toTime(t.time) })}
+    ${sparkAxis(320)}
+    <div class="small muted">${fmt(a.records)} records${pos ? " · this is " + pos : ""}. Bars: its dated records per hour; ${t.time ? "red line: this record." : "this record has no time."}</div></div>
+  <div class="dsec"><h4>What it connects to</h4>
+    <div class="comp">${[["identities", comp.identities], ["places written", comp.places_written], ["places read", comp.places_read], ["messages in", comp.messages_in], ["messages out", comp.messages_out], ["records before it in its thread", comp.ancestors], ["records after it (children)", comp.children], ["evidence tags", comp.tags], ["context tags", comp.context_tags]].map(([k, v]) => `<div class="${v ? "" : "zero"}"><b>${fmt(v || 0)}</b><span>${k}</span></div>`).join("")}</div>
     ${recordGraph(t)}
-    ${t.messages_in.length > 3 || t.messages_out.length > 3 || t.children_total > 3 ? `<p class="small muted">The picture shows up to 3 of each.</p>` : ""}</div>
-  ${x.program ? `<div class="dsec"><h4>The same program elsewhere</h4>
-    <div class="small">${plural(x.program.copies, "copy", "copies")} run by ${plural(x.program.actors, "actor")} (${fmt(x.program.named_actors)} named), ${esc(x.program.first_time || "")} to ${esc(x.program.last_time || "")}</div>
-    ${spark(x.program.hourly, { w: 320, h: 30, color: C.program, mark: toTime(t.time) })}
-    <div class="chips">${x.program.top_actors.map((p) => ent.actor(p.actor, ` <span class="muted">${fmt(p.n)}</span>`)).join(" ")}</div></div>` : ""}
-  <div class="dsec"><h4>Identities</h4><p>${Object.entries(t.identities).map(([k, v]) => `${ent.actor(k)} <span class="muted small">${esc(v)}</span>`).join(" ") || '<span class="muted">none in this record</span>'}</p></div>
-  <div class="dsec"><h4>Places touched</h4>${t.channel_ops.length ? `<div class="chips">${t.channel_ops.map((o) => ent.place(o.channel, ` <span class="op ${o.op}">${esc(o.op)}</span>`)).join(" ")}</div>` : '<p class="muted small">none</p>'}</div>
-  ${t.messages_in.length ? `<div class="dsec"><h4>Messages in</h4>${table(["from", "place", "written in", "at", "evidence"], t.messages_in.map((m) => [ent.actor(m.from), ent.place(m.channel), ent.rec(m.write_id), esc(m.write_time), esc(m.how || "")]))}</div>` : ""}
-  ${t.messages_out.length ? `<div class="dsec"><h4>Messages out</h4>${table(["to", "place", "read in", "at", "evidence"], t.messages_out.map((m) => [ent.actor(m.to), ent.place(m.channel), ent.rec(m.read_id), esc(m.read_time), esc(m.how || "")]))}</div>` : ""}
-  ${(t.overwrote || []).length || (t.overwritten_by || []).length ? `<div class="dsec"><h4>Overwrites <span class="muted small">(not counted as messages)</span></h4>${table(["", "actor", "record", "place", "what happened"], [
-    ...(t.overwrote || []).map((o) => ["replaced", ent.actor(o.actor), ent.rec(o.record), ent.place(o.channel), esc(o.how)]),
-    ...(t.overwritten_by || []).map((o) => ["replaced by", ent.actor(o.actor), ent.rec(o.record), ent.place(o.channel), esc(o.how)])])}</div>` : ""}
-  <div class="dsec"><h4>Thread</h4><p class="small">Root ${ent.rec(t.thread_root)} · parent ${ent.rec(t.parent)}${t.parent_chain.length > 1 ? ` · ancestors ${t.parent_chain.slice(0, 8).map((p) => ent.rec(p.id)).join(" ← ")}` : ""}${t.children_total ? ` · children ${t.children.slice(0, 10).map((c) => ent.rec(c.id)).join(" ")}${t.children_total > 10 ? " …" : ""}` : ""}</p></div>
-  ${t.same_program.length ? `<div class="dsec"><h4>Copies (${fmt(t.same_program_total)})</h4>${table(["id", "actor", "time"], t.same_program.slice(0, 10).map((c) => [ent.rec(c.id), ent.actor(c.actor), esc(c.time || "–")]))}</div>` : ""}
+    <p class="small muted">Above: messages in (writers, amber); left: its parent; right: its children; below: who read what it wrote (blue). Up to 3 of each.</p></div>
+  ${t.messages_in.length ? `<div class="dsec"><h4>${term("message", "Messages in")} (${fmt(t.messages_in.length)})</h4>${t.messages_in.slice(0, 20).map((m) => msgLine(m, "in")).join("")}${more(Math.min(20, t.messages_in.length), t.messages_in.length, "messages")}</div>` : ""}
+  ${t.messages_out.length ? `<div class="dsec"><h4>${term("message", "Messages out")} (${fmt(t.messages_out.length)})</h4>${t.messages_out.slice(0, 20).map((m) => msgLine(m, "out")).join("")}${more(Math.min(20, t.messages_out.length), t.messages_out.length, "messages")}</div>` : ""}
+  ${(t.overwrote || []).length || (t.overwritten_by || []).length ? `<div class="dsec"><h4>${term("overwrite", "Overwrites")} <span class="muted small">(not counted as messages)</span></h4>${[
+    ...(t.overwrote || []).map((o) => `<div class="mline">replaced ${ent.actor(o.actor)}'s edit ${ent.rec(o.record)} on ${ent.place(o.channel)} <span class="how">${esc(o.how)}</span></div>`),
+    ...(t.overwritten_by || []).map((o) => `<div class="mline">replaced by ${ent.actor(o.actor)} in ${ent.rec(o.record)} on ${ent.place(o.channel)} <span class="how">${esc(o.how)}</span></div>`)].join("")}</div>` : ""}
+  ${pr && pr.copies <= 1 ? `<div class="dsec"><h4>The same ${term("program")} elsewhere</h4><p class="small muted">No other action runs exactly this code (ids, numbers and hashes masked).</p></div>` : ""}
+  ${pr && pr.copies > 1 ? `<div class="dsec"><h4>The same ${term("program")} elsewhere</h4>
+    <div class="small">${plural(pr.copies, "copy", "copies")} including this one (${esc(pr.rule)}), run by ${plural(pr.actors, "actor")}, ${fmt(pr.named_actors)} of them named. ${pr.is_first ? "<b>This is its first run.</b>" : pr.first_record ? `First run by ${ent.actor(pr.first_actor)} in ${ent.rec(pr.first_record)}${pr.first_time ? ` at ${esc(pr.first_time)}` : ""}.` : ""}</div>
+    ${pr.hourly.length ? spark(pr.hourly, { w: 320, h: 30, color: C.program, mark: toTime(t.time) }) + sparkAxis(320) : ""}
+    <div class="chips">${pr.top_actors.map((p) => ent.actor(p.actor, ` <span class="muted">${fmt(p.n)}</span>`)).join(" ")}</div></div>` : ""}
+  <div class="dsec"><h4>${term("token", "Identities")}</h4><p>${Object.entries(t.identities).map(([k, v]) => `${ent.actor(k)} <span class="muted small">used as ${esc(v.replace(/_/g, " "))}</span>`).join(" ") || '<span class="muted">none in this record</span>'}</p></div>
+  <div class="dsec"><h4>${term("place", "Places touched")}</h4>${t.channel_ops.length ? `<div class="chips">${t.channel_ops.map((o) => ent.place(o.channel, ` <span class="op ${o.op}">${esc(o.op)}</span>`)).join(" ")}</div>` : '<p class="muted small">none</p>'}</div>
+  <div class="dsec"><h4>Thread</h4><p class="small">First record of its thread ${ent.rec(t.thread_root)} · parent ${ent.rec(t.parent)}${t.parent_chain.length > 1 ? ` · earlier in the thread ${t.parent_chain.slice(0, 8).map((p) => ent.rec(p.id)).join(" ← ")}` : ""}${t.children_total ? ` · children ${t.children.slice(0, 10).map((c) => ent.rec(c.id)).join(" ")}${t.children_total > 10 ? ` and ${fmt(t.children_total - 10)} more` : ""}` : ""}</p></div>
+  ${t.same_program.length ? `<div class="dsec"><h4>Records whose code starts the same way (${fmt(t.same_program_total)})</h4><p class="small muted">The first 60 words of code match (ids masked): the rule that treats a rerun of one program as one sender, not a message.</p>${table(["id", "actor", "time"], t.same_program.slice(0, 10).map((c) => [ent.rec(c.id), ent.actor(c.actor), esc(c.time || "–")]))}${more(Math.min(10, t.same_program.length), t.same_program_total, "records")}</div>` : ""}
   ${whySection(t)}
   <div class="dsec"><h4>Text <span class="muted small">(${fmt(t.text_length)} chars${t.text_truncated ? ", truncated" : ""}; written by the agents, shown as data)</span></h4>
     ${(t.why || []).length ? `<div class="wlegend">${WHY_ORDER.filter((k) => t.why.some((w) => w.type === k)).map((k) => `<span class="w-${k}">${esc(WHY_NAME[k])}</span>`).join("")}<span class="muted small">hover a mark to see what it set</span></div>` : ""}
     <pre class="whytext">${highlight(t.text, t.why || [])}</pre></div>
   <div class="dsec"><button type="button" class="primary" onclick="askAbout('${esc(t.id)}')">Ask the AI to explain this record</button></div>`;
+}
+// start and end dates under a sparkline that spans the whole dataset
+function sparkAxis(w) {
+  const sp = span();
+  return sp ? `<div class="saxis" style="width:${w}px"><span>${esc(dayWord(sp[0]))}</span><span>${esc(dayWord(sp[1] - 1))}</span></div>` : "";
 }
 // why the tool reads a record the way it does: the stretches of its text that set each reading
 const WHY_ORDER = ["intent", "tag", "identity", "info", "place", "write_cue", "handle", "name", "context"];
@@ -512,26 +541,27 @@ function whySection(t) {
     <p class="small muted">Every reading is a pattern match on the text, from the pack. It shows what the code would do, not whether it worked.</p></div>`;
 }
 
+const progWhat = (w) => !w ? "" : [w.intent_what, ...(w.tags || []).map((t) => t.what)].filter(Boolean).join("; ");
 function actorDossier(p) {
   const kindWord = { token: "identity token", handle: "self-chosen name", run: "anonymous run", token_via_thread: "token (from its thread)", named: "actor field" }[p.kind] || p.kind;
   const ev = esc(JSON.stringify({ actor: p.actor }));
   return `
   <div class="dhead"><div><span class="ent actor big" data-noclick data-actor="${esc(p.actor)}"><i></i>${esc(short(p.actor))}</span> <span class="badge">${esc(kindWord)}</span>${p.shared ? ' <span class="badge warnb">shared key: stands for many agents</span>' : ""}</div>
-    <div class="muted small">${esc(p.first || "no time")} to ${esc(p.last || "")}</div></div>
-  <div class="dsec">${spark(p.hourly, { w: 420, h: 46, color: C.actor })}
+    <div class="muted small">${actorKind(p.kind)} · active ${esc(p.first || "no time")} to ${esc(p.last || "")} UTC</div></div>
+  <div class="dsec">${spark(p.hourly, { w: 420, h: 46, color: C.actor })}${sparkAxis(420)}<div class="small muted">Its dated records per hour.</div>
     <div class="comp">${[["actions", p.actions], ["dated actions", p.timed_actions], ["harmful actions", p.harmful], ["records incl. responses", p.records], ["messages sent", p.sent], ["messages received", p.received], ["partners", p.partners], ["places", p.places_total], ["programs started", p.programs_started_total], ["programs reused", p.programs_adopted_total]].map(([k, v]) => `<div class="${v ? "" : "zero"}"><b>${fmt(v || 0)}</b><span>${k}</span></div>`).join("")}</div>
     <p class="small muted">Messages count every partner, anonymous runs included; with named actors only: ${fmt(p.sent_named)} sent, ${fmt(p.received_named)} received, ${fmt(p.partners_named)} partners (the numbers on Who talked to whom). Records include the responses and texts credited to this actor through its threads.</p>
     <button type="button" data-goevents="${ev}">List all ${fmt(p.records)} events</button></div>
-  <div class="dsec"><h4>What it does</h4>${hbars(p.intents.map((i) => ({ label: esc(human(i.intent)), value: i.n, color: intentColor(i.intent), title: i.what })), { total: p.records })}
-    ${p.tags.length ? `<div class="chips">${p.tags.map((g) => `<span class="chip" title="${esc(g.what)}">${esc(human(g.tag))} <b>${fmt(g.n)}</b></span>`).join("")}</div>` : ""}</div>
-  ${p.signals.length ? `<div class="dsec"><h4>Warning signs it fired</h4>${p.signals.map((g) => `<div class="sigrow"><span class="sigdot" style="background:${FAMILY[g.family]?.color}"></span><b>${esc(g.name)}</b> <span class="muted small">${esc(g.time)} · ${pct(g.harm_share_after)} of harm still to come</span>${g.ref ? " " + ent.rec(g.ref) : ""}</div>`).join("")}</div>` : ""}
-  <div class="dsec two"><div><h4>Sends to</h4>${p.sends_to.length ? hbars(p.sends_to.map((x) => ({ label: ent.actor(x.actor), value: x.n, color: ACCENT }))) : '<p class="muted small">nobody</p>'}</div>
-    <div><h4>Hears from</h4>${p.hears_from.length ? hbars(p.hears_from.map((x) => ({ label: ent.actor(x.actor), value: x.n, color: C.actor }))) : '<p class="muted small">nobody</p>'}</div></div>
-  <div class="dsec"><h4>Places it used (${fmt(p.places_total)})</h4>${p.places.length ? table(["place", "writes", "reads", "posts"], p.places.map((r) => [ent.place(r.channel), fmt(r.write || 0), fmt(r.read || 0), fmt(r.post || 0)])) : '<p class="muted small">none</p>'}</div>
-  ${p.programs_started.length ? `<div class="dsec"><h4>Programs it started that others reused</h4>${table(["first run", "actors", "copies", "what it does"], p.programs_started.map((x) => [ent.rec(x.record), fmt(x.actors), fmt(x.copies), esc(x.what?.intent_what || "")]))}</div>` : ""}
-  ${p.programs_adopted.length ? `<div class="dsec"><h4>Programs it reused from others</h4>${table(["record", "from", "after", "what it does"], p.programs_adopted.map((x) => [ent.rec(x.record), ent.actor(x.source), hoursWord(x.hours_after_source), esc(x.what?.intent_what || "")]))}</div>` : ""}
-  ${p.carried.length ? `<div class="dsec"><h4>Carried tokens</h4>${table(["carrier", "token", "records", "evidence"], p.carried.map((c) => [ent.actor(c.from), ent.actor(c.to), fmt(c.records), c.evidence.map(ent.rec).join(" ")]))}</div>` : ""}
-  ${p.seen_then_used.length ? `<div class="dsec"><h4>Seen as data before its first use</h4>${table(["first seen", "record", "first used", "lead"], p.seen_then_used.map((x) => [esc(x.first_seen), ent.rec(x.first_seen_id), esc(x.first_used), hoursWord(x.lead_hours)]))}</div>` : ""}
+  <div class="dsec"><h4>What its ${term("action", "actions")} do <span class="muted small">(${term("intent", "intent")}; share of its ${fmt(p.actions)} actions)</span></h4>${hbars(p.intents.map((i) => ({ label: `${esc(human(i.intent))}${isHarm(i.intent) ? ' <span class="harmtag">harm</span>' : ""}`, value: i.n, color: intentColor(i.intent), title: i.what })), { total: p.actions || p.records })}
+    ${p.tags.length ? `<div class="small muted" style="margin-top:6px">Patterns found in its code (${term("tag", "tags")}; one action can have several)</div><div class="chips">${p.tags.map((g) => `<span class="chip" title="${esc(g.what)}">${esc(human(g.tag))} <b>${fmt(g.n)}</b></span>`).join("")}</div>` : ""}</div>
+  ${p.signals.length ? `<div class="dsec"><h4>${term("sign", "Warning signs")} it fired</h4>${p.signals.map((g) => `<div class="sigrow"><span class="sigdot" style="background:${FAMILY[g.family]?.color}"></span><b>${esc(g.name)}</b> <span class="muted small">${esc(g.time)} UTC · ${pct(g.harm_share_after)} of the harm still to come</span>${g.record ? " " + ent.rec(g.record) : ""}<div class="small muted">${richText(g.why)}</div></div>`).join("")}</div>` : ""}
+  <div class="dsec two"><div><h4>Sends ${term("message", "messages")} to</h4>${p.sends_to.length ? hbars(p.sends_to.map((x) => ({ label: ent.actor(x.actor), value: x.n, color: ACCENT }))) + more(p.sends_to.reduce((a, x) => a + x.n, 0), p.sent, "messages (the busiest partners)") : '<p class="muted small">nobody</p>'}</div>
+    <div><h4>Hears from</h4>${p.hears_from.length ? hbars(p.hears_from.map((x) => ({ label: ent.actor(x.actor), value: x.n, color: C.actor }))) + more(p.hears_from.reduce((a, x) => a + x.n, 0), p.received, "messages (the busiest partners)") : '<p class="muted small">nobody</p>'}</div></div>
+  <div class="dsec"><h4>${term("place", "Places")} it used (${fmt(p.places_total)})</h4>${p.places.length ? `<div class="plist">${p.places.map((r) => `<div>${ent.place(r.channel)} <span class="muted small">${[["write", r.write], ["read", r.read], ["post", r.post]].filter(([, n]) => n).map(([k, n]) => `${fmt(n)} ${k}${n === 1 ? "" : "s"}`).join(", ")}</span></div>`).join("")}</div>` + more(p.places.length, p.places_total, "places, busiest first") : '<p class="muted small">none</p>'}</div>
+  ${p.programs_started.length ? `<div class="dsec"><h4>${term("program", "Programs")} it ran first that others reused</h4>${table(["first run", "actors who ran it", "what it does"], p.programs_started.map((x) => [ent.rec(x.record), fmt(x.actors), esc(progWhat(x.what))]))}${more(p.programs_started.length, p.programs_started_total, "programs")}</div>` : ""}
+  ${p.programs_adopted.length ? `<div class="dsec"><h4>${term("program", "Programs")} it reused from others</h4>${table(["its first run", "first run by", "after", "what it does"], p.programs_adopted.map((x) => [ent.rec(x.record), ent.actor(x.source), hoursWord(x.hours_after_source), esc(progWhat(x.what))]))}${more(p.programs_adopted.length, p.programs_adopted_total, "programs")}</div>` : ""}
+  ${p.carried.length ? `<div class="dsec"><h4>${term("carried", "Carried tokens")}</h4>${table(["carrier", "token", "records", "evidence"], p.carried.map((c) => [ent.actor(c.from), ent.actor(c.to), fmt(c.records), c.evidence.map(ent.rec).join(" ")]))}</div>` : ""}
+  ${p.seen_then_used.length ? `<div class="dsec"><h4>${term("seen_used", "Seen as data before its first use")}</h4>${table(["first seen", "record", "first used", "lead"], p.seen_then_used.map((x) => [esc(x.first_seen), ent.rec(x.first_seen_id), esc(x.first_used), hoursWord(x.lead_hours)]))}</div>` : ""}
   <div class="dsec"><p class="small">First record ${ent.rec(p.first_record)} · last ${ent.rec(p.last_record)}</p><button type="button" class="primary" onclick="askAbout(null, ${esc(JSON.stringify("Profile the actor " + p.actor + ": what it did, who it exchanged messages with, which programs it shared, and which warning signs it fired."))})">Ask the AI about this actor</button></div>`;
 }
 function placeDossier(p) {
@@ -541,13 +571,13 @@ function placeDossier(p) {
   return `
   <div class="dhead"><div><span class="ent place big" data-noclick data-place="${esc(p.channel)}"><i></i>${esc(placeLabel(p.channel))}</span> <span class="badge">${esc(placeType(p.type))}</span>${p.merged ? ' <span class="badge warnb">may merge several places</span>' : ""}</div>
     <div class="muted small"><code>${esc(p.channel)}</code></div></div>
-  <div class="dsec">${spark(series, { w: 420, h: 40, color: C.place })}${spark(wseries, { w: 420, h: 18, color: HARM })}
-    <div class="small muted">all operations above; writes below in orange</div>
+  <div class="dsec">${spark(series, { w: 420, h: 40, color: C.place })}${spark(wseries, { w: 420, h: 18, color: HARM })}${sparkAxis(420)}
+    <div class="small muted">Purple: every ${term("write", "read and write")} per hour; orange: writes only.</div>
     <div class="comp">${[["writes", r.writes], ["reads", r.reads], ["writers", p.writers.length], ["readers", p.readers.length], ["messages", p.messages_total], ["overwrites", p.overwrites]].map(([k, v]) => `<div class="${v ? "" : "zero"}"><b>${fmt(v || 0)}</b><span>${k}</span></div>`).join("")}</div>
     ${r.never_read ? '<p class="warn small">Written, but never read by another actor: a message nobody picked up, or a read the patterns could not see.</p>' : ""}</div>
   <div class="dsec two"><div><h4>Writers</h4>${p.writers.length ? hbars(p.writers.slice(0, 12).map((x) => ({ label: ent.actor(x.actor), value: x.n, color: HARM }))) : '<p class="muted small">none</p>'}</div>
     <div><h4>Readers</h4>${p.readers.length ? hbars(p.readers.slice(0, 12).map((x) => ({ label: ent.actor(x.actor), value: x.n, color: ACCENT }))) : '<p class="muted small">none</p>'}</div></div>
-  <div class="dsec"><h4>Messages through it (${fmt(p.messages_total)})</h4>${p.messages.length ? table(["from", "to", "written", "read", "after", "evidence"], p.messages.slice(0, 60).map((m) => [ent.actor(m.from), ent.actor(m.to), `${ent.rec(m.write_id)} <span class="muted small">${esc(m.write_time || "")}</span>`, `${ent.rec(m.read_id)} <span class="muted small">${esc(m.read_time || "")}</span>`, hoursWord(m.latency_h), esc(m.how || "")])) : '<p class="muted small">none</p>'}</div>
+  <div class="dsec"><h4>${term("message", "Messages")} through it (${fmt(p.messages_total)})</h4>${p.messages.length ? p.messages.slice(0, 60).map((m) => `<div class="mline">${ent.actor(m.from)} wrote in ${ent.rec(m.write_id)} <span class="muted">${esc(m.write_time || "")}</span> → ${ent.actor(m.to)} read in ${ent.rec(m.read_id)} <span class="muted">${esc(m.read_time || "")} (${hoursWord(m.latency_h)} later)</span> <span class="how">${esc(m.how || "")}</span></div>`).join("") + more(Math.min(60, p.messages.length), p.messages_total, "messages") : `<p class="muted small">none${(p.row?.reads || 0) ? ": no write by a different actor came before its reads" : ""}</p>`}</div>
   <div class="dsec"><h4>Every operation (${fmt(p.ops_total)})</h4>${table(["time", "op", "actor", "record"], p.ops.slice(0, 200).map((o) => [esc(o.time || "–"), `<span class="op ${o.op}">${esc(o.op)}</span>`, ent.actor(o.actor), ent.rec(o.record)]))}${p.ops_total > 200 ? `<p class="small muted">First 200 of ${fmt(p.ops_total)}.</p>` : ""}</div>`;
 }
 
@@ -580,7 +610,7 @@ function render() {
 }
 function tabCounts(s) {
   const f = s.flow, T = s.list_totals || {};
-  const counts = { network: f.named_actor_pairs, channels: f.channels, spread: T.content_spread, early: (s.replay || []).length, events: s.records };
+  const counts = { network: f.named_actor_pairs, channels: f.channels, spread: T.content_spread, events: s.records };   // early: set from the replay below
   const what = { network: "sender-receiver pairs between named actors", channels: "places", spread: "programs run by two or more named actors", early: "warning signs", events: "records" };
   document.querySelectorAll("#tabs button").forEach((b) => {
     const n = counts[b.dataset.tab];
@@ -591,7 +621,13 @@ function tabCounts(s) {
     c.title = `${fmt(n)} ${what[b.dataset.tab] || ""}`;
   });
   // the early-flag count is every warning sign the replay tracks, which the summary does not carry
-  cached("/api/sim").then((sim) => { const c = document.querySelector('#tabs button[data-tab="early"] .cnt'); if (c) c.textContent = fmt(sim.signals.length); }).catch(() => {});
+  cached("/api/sim").then((sim) => {
+    const b = document.querySelector('#tabs button[data-tab="early"]');
+    if (!b) return;
+    let c = b.querySelector(".cnt");
+    if (!c) { c = document.createElement("span"); c.className = "cnt"; b.appendChild(c); }
+    c.textContent = fmt(sim.signals.length); c.title = `${fmt(sim.signals.length)} warning signs`;
+  }).catch(() => {});
 }
 
 // ------------------------------------------------------------------ top bar
@@ -607,7 +643,7 @@ function setSummary(s) {
   $("ribbon").innerHTML = [
     sp ? [term("dated", "span"), (() => { const a = toTime(sp[0]), b = toTime(sp[1]); const da = dayWord(a), db = dayWord(b); return da.split(" ")[0] === db.split(" ")[0] ? `${da}–${db.split(" ")[1]}` : `${da}–${db}`; })()] : null,
     [term("dated", "dated"), pct(s.timed / s.records)],
-    [term("named", "named actors"), fmt(Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0))],
+    [term("named", "named actors"), fmt(s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0))],
     [term("place", "places"), fmt(s.flow.channels)],
     [term("message", "messages"), fmt(s.flow.deliveries)],
   ].filter(Boolean).map(([k, v]) => `<span><b>${v}</b>${k}</span>`).join("");

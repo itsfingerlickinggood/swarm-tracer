@@ -16,18 +16,32 @@
   const catOf = (p) => (p.messages ? "msg" : p.never ? "never" : !p.writes ? "readonly" : "quiet");
   const hourKey = (t) => new Date(t).toISOString().slice(0, 13).replace("T", " ");
   const median = (xs) => { if (!xs.length) return null; const a = xs.slice().sort((p, q) => p - q); return a[Math.floor(a.length / 2)]; };
+  // a small share is never shown as 0%
+  const share = (x) => (!x ? "0%" : x < 0.001 ? "<0.1%" : x < 0.01 ? (100 * x).toFixed(1) + "%" : pct(x));
+  // cut a label at its end, keeping its start (the kind and the first part of the name)
+  const endCut = (str, max, font) => { str = String(str); if (textWidth(str, font) <= max) return str; let lo = 1, hi = str.length; while (lo < hi) { const k = Math.ceil((lo + hi) / 2); if (textWidth(str.slice(0, k) + "…", font) <= max) lo = k; else hi = k - 1; } return str.slice(0, lo) + "…"; };
+  // the redaction placeholders that appear in place names, in plain words
+  const PLACEHOLDERS = [
+    [/\[REDACTED:destination:/, "“destination N”: a redacted repository an upload or commit went to"],
+    [/\[REDACTED:repo_locator:/, "“repo_locator N”: a redacted repository named in a read or write URL"],
+    [/\[HF REPO \d+\]/, "“HF REPO N”: a redacted Hugging Face repository"],
+    [/\[REDACTED:username:/, `“username N”: only the owner was kept, so it is the owner's whole namespace and may ${"merge"} several repositories`],
+    [/\[REDACTED:query_value:/, "“URL value N”: a dataset named in a URL parameter rather than in the path"],
+  ];
 
   VIEWS.channels = async function channels(el, s) {
     const my = ++seq;
-    el.innerHTML = `<h2>Places and how messages moved through them</h2><p class="lead" id="chLead">Loading every place…</p>
+    el.innerHTML = `<h2>Places and how messages moved through them</h2>
+      <p class="small muted ch-what">A ${term("place", "place")} (a channel) is anywhere one actor can leave something for another: a repository, a board folder, a webhook, a command file. Each mention of a place in code is judged a ${term("write", "write or a read")}, and a ${term("message", "message")} is a read after a different actor's write.</p>
+      <p class="lead" id="chLead">Loading every place…</p><p class="small muted" id="chNames"></p>
       <div id="chTiles" class="grid3"></div>
       ${card("Every place", `<div id="chMapKey" class="legend"></div><div id="chMap" class="ch-map"></div>`,
-        { sub: "Each tile is one place, grouped by kind. Its size grows with the reads and writes on it (square root, so small places stay visible; a kind with few places still gets a sliver of the map). Its colour says what happened there. Hover a tile for its card; click it to inspect every write and read." })}
+        { sub: "Each tile is one place, grouped by kind. Its size grows with the reads and writes on it (square root, so small places stay visible). Kinds with very few places sit in a thin strip along the bottom. Its colour says what happened there. Hover a tile for its card; click it to inspect every write and read." })}
       ${card("The busiest places, hour by hour", `<div id="chHeatCtl" class="ch-ctl"></div><div id="chHeat"></div>`,
-        { sub: "One row per place. In each hour the top half shows writes and the bottom half reads; darker means more. A dark dot marks an hour in which another actor read a message there. Click a cell to list those events." })}
+        { sub: "One row per place, hours in UTC (estimated times). In each hour the top half shows writes and the bottom half reads; darker means more. A dark dot marks an hour in which another actor read a message there. Hover a name for the whole name; click a cell to list those events." })}
       <div class="grid2">
-        ${card("How long a message waited", `<div id="chLat"></div>`, { sub: "Time from a write to the first read of it by a different actor, for every message." })}
-        ${card("How places were shared", `<div id="chScatter"></div>`, { sub: "Every place by how many actors wrote to it and how many read it (log scales). A bigger circle holds more places; purple ones carried messages." })}
+        ${card("How long a message waited", `<div id="chLat"></div>`, { sub: `The ${term("latency", "wait")} from a write to the read of it by a different actor, for every message.` })}
+        ${card("How places were shared", `<div id="chScatter"></div>`, { sub: "Every place by how many actors wrote to it and how many read it. Both axes use log(1 + count), so 0 fits on the scale. A bigger circle holds more places; the colours are the same as on the map." })}
       </div>
       ${card("Every place", `<div id="chanList"></div>`, { sub: "Busiest first. Click a row to inspect the place; filter to search all of them." })}`;
     let map, msgs;
@@ -41,14 +55,16 @@
       ["chTiles"].forEach((id) => ($(id).innerHTML = ""));
       return;
     }
-    const M = msgs.rows.map((r) => ({ from: r[0], to: r[1], channel: r[2], write_id: r[3], read_id: r[4], wt: r[5] * 1000, rt: r[6] * 1000, lat: r[7], how: r[8] }));
+    const M = msgs.rows.map((r) => ({ from: r[0], to: r[1], channel: r[2], write_id: r[3], read_id: r[4], wt: r[5] * 1000, rt: r[6] * 1000, lat: r[7], how: r[8], merged: !!r[9] }));
     const types = [...new Set(P.map((p) => p.type))].sort((a, b) => P.filter((p) => p.type === b).length - P.filter((p) => p.type === a).length);
     const tcolor = Object.fromEntries(types.map((t, i) => [t, TYPE_COLORS[i % TYPE_COLORS.length]]));
     const D = { s, P, M, types, tcolor };
 
     const nMsg = P.filter((p) => p.messages).length, nNever = P.filter((p) => p.never).length, nRead = P.filter((p) => !p.writes).length;
     const byType = types.map((t) => [t, P.filter((p) => p.type === t).length]);
-    $("chLead").innerHTML = `${plural(P.length, "place")} where one actor could leave something for another: ${byType.map(([t, n]) => `${fmt(n)} ${esc(placeType(t))}${n === 1 ? "" : "s"}`).join(", ")}. ` +
+    const found = PLACEHOLDERS.filter(([rx]) => P.some((p) => rx.test(p.ch)));
+    $("chNames").innerHTML = found.length ? `Place names are redaction placeholders: ${found.map(([, t]) => esc(t)).join("; ")}. Merged places are flagged (${term("merged", "what merged means")}).` : "";
+    $("chLead").innerHTML = `${plural(P.length, "place")} where one actor could leave something for another: ${byType.map(([t, n]) => `${fmt(n)} ${esc(placeType(t, n))}`).join(", ")}. ` +
       `${fmt(nMsg)} of them carried at least one of the ${plural(M.length, "message")}; ${fmt(nNever)} were written and never read by another actor; ${fmt(nRead)} were only read.`;
 
     tiles(D);
@@ -77,15 +93,16 @@
       const top = ps.slice().sort((a, b) => b.messages - a.messages || (b.writes + b.reads) - (a.writes + a.reads))[0];
       return `<section class="card ch-tile" style="--tc:${tcolor[t]}">
         <header><h3>${esc(placeType(t))}</h3><span class="muted small">${esc(t)}</span></header>
-        <div class="ch-big"><b>${fmt(ps.length)}</b> place${ps.length === 1 ? "" : "s"}</div>
+        <div class="ch-big"><b>${fmt(ps.length)}</b> ${esc(placeType(t, ps.length))}</div>
         ${stackbar(cats, { legend: false, h: 9 })}
         <dl class="ch-dl">
           <div><dt>writes</dt><dd>${fmt(writes)}</dd></div><div><dt>reads</dt><dd>${fmt(reads)}</dd></div>
-          <div><dt>messages</dt><dd>${fmt(ms.length)}<span> ${M.length ? pct(ms.length / M.length) : ""}</span></dd></div>
+          <div><dt>messages</dt><dd>${fmt(ms.length)}<span> ${M.length ? share(ms.length / M.length) : ""}</span></dd></div>
           <div><dt>never read</dt><dd>${fmt(ps.filter((p) => p.never).length)}</dd></div>
           <div><dt>median wait</dt><dd>${med != null ? hoursWord(med) : "–"}</dd></div>
           <div><dt>in messages</dt><dd>${fmt(new Set(ms.flatMap((m) => [m.from, m.to])).size)}<span> actors</span></dd></div>
         </dl>
+        ${!ms.length && reads ? `<p class="small ch-why">No message here: ${writes ? "no read came after a write by a different actor" : "no write to these places was seen"}.</p>` : ""}
         ${top ? `<div class="small muted ch-top"><span>Busiest</span>${ent.place(top.ch)}</div>` : ""}
       </section>`;
     }).join("") + `<div class="legend ch-catkey">${CAT.map((c) => `<span><i style="background:${c.color}"></i>${esc(c.label)}</span>`).join("")}</div>`;
@@ -131,14 +148,17 @@
       const items = P.filter((p) => p.type === t).map((p) => ({ p, v: Math.sqrt(Math.max(1, p.writes + p.reads)) })).sort((a, b) => b.v - a.v);
       return { t, items, v: items.reduce((a, i) => a + i.v, 0) };
     });
-    // a kind with few places still gets a sliver of the map, so it can be seen and hovered
+    // kinds with a tiny share go in a thin strip along the bottom, so they stay visible without taking the map
     const sumV = groups.reduce((a, g) => a + g.v, 0);
-    groups.forEach((g) => { g.v = Math.max(g.v, sumV * 0.07); });
-    groups.sort((a, b) => b.v - a.v);
-    squarify(groups, 0, 0, W, H);
+    const minor = groups.filter((g) => g.v < sumV * 0.03 && groups.length > 1), major = groups.filter((g) => !minor.includes(g));
+    const stripH = minor.length ? 40 : 0;
+    major.sort((a, b) => b.v - a.v);
+    squarify(major, 0, 0, W, H - stripH - (stripH ? 3 : 0));
+    minor.sort((a, b) => b.v - a.v).forEach((g, i) => { const w = W / minor.length; Object.assign(g, { x: i * w, y: H - stripH, w, h: stripH, strip: true }); });
+    groups.sort((a, b) => (a.strip ? 1 : 0) - (b.strip ? 1 : 0));
     let svg = `<svg class="ch-tree" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Map of every place">`;
     groups.forEach((g) => {
-      const head = g.h > 40 && g.w > 60 ? 16 : 0;
+      const head = g.strip ? 15 : g.h > 40 && g.w > 60 ? 16 : 0;
       squarify(g.items, g.x + 1, g.y + 1 + head, g.w - 2, g.h - 2 - head);
       svg += `<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" fill="#fff"/>`;
       if (head) svg += `<rect x="${g.x + 1}" y="${g.y + 1}" width="${g.w - 2}" height="${head - 1}" fill="${tcolor[g.t]}" fill-opacity=".1"/><text x="${g.x + 6}" y="${g.y + 12}" font-size="11" font-weight="700" fill="${tcolor[g.t]}">${esc(fitName(`${placeType(g.t)} · ${fmt(g.items.length)}`, g.w - 12, "700 11px -apple-system, system-ui, sans-serif"))}</text>`;
@@ -152,8 +172,9 @@
       svg += `<g class="ch-cells">${cells}</g><rect x="${g.x + 0.5}" y="${g.y + 0.5}" width="${g.w - 1}" height="${g.h - 1}" fill="none" stroke="${tcolor[g.t]}" stroke-opacity=".5"/>`;
     });
     host.innerHTML = svg + "</svg>";
-    $("chMapKey").innerHTML = `<span><i style="background:linear-gradient(90deg,${msgColor(1)},${msgColor(maxM)})"></i>carried messages: 1 to ${fmt(maxM)}</span>` +
-      CAT.slice(1).map((c) => `<span><i style="background:${c.color}"></i>${esc(c.label)}</span>`).join("");
+    $("chMapKey").innerHTML = `<span><i style="background:linear-gradient(90deg,${msgColor(1)},${msgColor(maxM)})"></i>${esc(CAT[0].label)}: 1 to ${fmt(maxM)} messages</span>` +
+      CAT.slice(1).map((c) => `<span><i style="background:${c.color}"></i>${esc(c.label)}</span>`).join("") +
+      (minor.length ? `<span class="muted">bottom strip: ${minor.map((g) => `${fmt(g.items.length)} ${esc(placeType(g.t, g.items.length))}`).join(", ")}</span>` : "");
   }
 
   // ------------------------------------------------------------------ 3. busiest places, hour by hour
@@ -190,13 +211,18 @@
     rowsData.forEach(({ by }) => by.forEach((c) => { mw = Math.max(mw, (c.write || 0) + (c.post || 0)); mr = Math.max(mr, (c.read || 0) + (c.post || 0)); }));
     const shade = (n, mx, rgb) => (n ? `rgba(${rgb},${(0.18 + 0.82 * Math.log1p(n) / Math.log1p(mx)).toFixed(2)})` : null);
     const H = 22 + rowsData.length * RH + 6;
+    const kinds = new Set(rowsData.map(({ d }) => String(d.channel).split(":")[0])), mixed = kinds.size > 1;
     let svg = `<svg class="ch-heat" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Busiest places hour by hour">`;
-    timeTicks(T0, T1, Math.max(3, Math.floor((W - LW - R) / 80))).forEach((k) => { const x = LW + (k.t - T0) / HR * cw; svg += `<line x1="${x}" x2="${x}" y1="16" y2="${H - 4}" stroke="${GRID}"/><text x="${x}" y="11" text-anchor="middle" font-size="10.5" fill="${QUIET}">${esc(k.label)}</text>`; });
-    svg += `<text x="${W - R + 6}" y="11" font-size="10" fill="${QUIET}">msgs</text>`;
+    svg += `<defs><clipPath id="chNameClip"><rect x="0" y="0" width="${LW - 6}" height="${H}"/></clipPath></defs>`;
+    timeTicks(T0, T1, Math.max(5, Math.floor((W - LW - R) / 60))).forEach((k) => { const x = LW + (k.t - T0) / HR * cw; svg += `<line x1="${x}" x2="${x}" y1="16" y2="${H - 4}" stroke="${GRID}"/><text x="${x}" y="11" text-anchor="middle" font-size="10.5" fill="${QUIET}">${esc(k.label)}</text>`; });
+    svg += `<text x="${W - R + 6}" y="11" font-size="10" fill="${QUIET}"><title>messages through each place</title>msgs</text>`;
     rowsData.forEach(({ d, by }, i) => {
       const y = 20 + i * RH;
       if (i % 2 === 0) svg += `<rect x="0" y="${y}" width="${W}" height="${RH}" fill="#f8f9fb"/>`;
-      svg += `<text data-place="${esc(d.channel)}" x="4" y="${y + RH - 3.5}" font-size="10.5" fill="#4c2f94" class="ch-rowname">${esc(fitName(placeLabel(d.channel), LW - 10, "10.5px -apple-system, system-ui, sans-serif"))}</text>`;
+      // the name says which place it is; the kind is only spelled out when the rows mix kinds
+      const nm = placeLabel(d.channel).split(" · ").slice(1).join(" · ") || d.channel;
+      const lbl = mixed ? `${String(d.channel).split(":")[0].replace(/_/g, " ").replace("hf dataset", "dataset")} · ${nm}` : nm;
+      svg += `<text data-place="${esc(d.channel)}" x="4" y="${y + RH - 3.5}" font-size="10.5" fill="#4c2f94" class="ch-rowname" clip-path="url(#chNameClip)"><title>${esc(placeLabel(d.channel))}\n${esc(d.channel)}</title>${esc(endCut(lbl, LW - 12, "10.5px ui-monospace, SFMono-Regular, Menlo, monospace"))}</text>`;
       by.forEach((c, h) => {
         const t = toTime(h); if (t == null) return;
         const x = LW + (t - T0) / HR * cw, w = Math.max(1, cw - 0.4);
@@ -208,7 +234,7 @@
       });
       svg += `<text x="${W - R + 6}" y="${y + RH - 3.5}" font-size="10.5" fill="${QUIET}">${fmt(d.messages_total)}</text>`;
     });
-    host.innerHTML = svg + `</svg><div class="legend"><span><i style="background:rgba(194,65,12,.8)"></i>writes (top half)</span><span><i style="background:rgba(47,111,179,.8)"></i>reads (bottom half)</span><span><i style="background:${INK};border-radius:50%"></i>a message was read that hour</span></div>`;
+    host.innerHTML = svg + `</svg><div class="legend">${mixed ? "" : `<span class="muted">all ${esc(placeType([...kinds][0], 2))}</span>`}<span><i style="background:rgba(194,65,12,.8)"></i>writes (top half)</span><span><i style="background:rgba(47,111,179,.8)"></i>reads (bottom half)</span><span><i style="background:${INK};border-radius:50%"></i>a message was read that hour</span></div>`;
     host.querySelector("svg").addEventListener("click", (e) => {
       const g = e.target.closest(".ch-hc"); if (!g) return;
       const ch = g.dataset.ch;
@@ -227,7 +253,7 @@
     const named = (a) => !String(a).startsWith("run:");
     const bins = labels.map(() => ({ n: 0, run: 0 }));
     D.M.forEach((m) => { if (m.lat == null) return; const i = edges.findIndex((e, k) => m.lat >= e && m.lat < edges[k + 1]); if (i < 0) return; if (named(m.from) && named(m.to)) bins[i].n++; else bins[i].run++; });
-    const W = 360, H = 190, L = 34, Rr = 6, T = 10, B = 150;
+    const W = 430, H = 206, L = 44, Rr = 6, T = 10, B = 150;
     const mx = Math.max(1, ...bins.map((b) => b.n + b.run)), bw = (W - L - Rr) / bins.length;
     let svg = `<svg class="chart" width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Message waiting times">`;
     [0, 0.5, 1].forEach((f) => { const v = Math.round(mx * f), y = B - (v / mx) * (B - T); svg += `<line x1="${L}" x2="${W - Rr}" y1="${y}" y2="${y}" stroke="${GRID}"/><text x="${L - 5}" y="${y + 3.5}" text-anchor="end" font-size="10" fill="${QUIET}">${fmt(v)}</text>`; });
@@ -237,10 +263,16 @@
       svg += `<text x="${x + w / 2}" y="${B + 13}" text-anchor="middle" font-size="9.5" fill="${QUIET}">${labels[i]}</text>`;
       if (b.n + b.run) svg += `<text x="${x + w / 2}" y="${B - h1 - h2 - 3}" text-anchor="middle" font-size="9.5" fill="${INK}">${fmt(b.n + b.run)}</text>`;
     });
-    svg += `<line x1="${L}" x2="${W - Rr}" y1="${B}" y2="${B}" stroke="${AXIS}"/></svg>`;
+    svg += `<line x1="${L}" x2="${W - Rr}" y1="${B}" y2="${B}" stroke="${AXIS}"/>`;
+    svg += `<text x="${(L + W - Rr) / 2}" y="${H - 4}" text-anchor="middle" font-size="10.5" fill="${QUIET}">wait from the write to the read</text><text x="11" y="${(T + B) / 2}" font-size="10.5" fill="${QUIET}" transform="rotate(-90 11 ${(T + B) / 2})" text-anchor="middle">messages</text></svg>`;
     const sorted = lat.slice().sort((a, b) => a - b);
+    const longW = D.M.filter((m) => m.lat != null && m.lat >= 48), longMerged = longW.filter((m) => m.merged).length;
+    const longRuns = longW.filter((m) => !named(m.from) || !named(m.to)).length;
+    const longNote = longW.length ? ` ${fmt(longW.length)} waited 2 days or more` +
+      (longRuns ? `; ${fmt(longRuns)} of those involve an anonymous run, which may be a later run reading an old place rather than a reply` : "") +
+      (longMerged ? `; ${fmt(longMerged)} are on places the redaction may have ${term("merged", "merged")}, where the write and the read may be on two different places` : "") + "." : "";
     host.innerHTML = svg + `<div class="legend"><span><i style="background:${ACCENT}"></i>between named actors</span><span><i style="background:#b9cbe0"></i>involving an anonymous run</span></div>
-      <p class="small">Half of all ${fmt(sorted.length)} messages were read within <b>${hoursWord(sorted[Math.floor(sorted.length / 2)])}</b>; 90% within <b>${hoursWord(sorted[Math.floor(sorted.length * 0.9)])}</b>.</p>`;
+      <p class="small">Half of all ${fmt(sorted.length)} messages were read within <b>${hoursWord(sorted[Math.floor(sorted.length / 2)])}</b>; 90% within <b>${hoursWord(sorted[Math.floor(sorted.length * 0.9)])}</b>.${longNote}</p>`;
   }
 
   // ------------------------------------------------------------------ 4b. writers vs readers, binned
@@ -255,19 +287,26 @@
     });
     const all = [...bins.values()];
     const mxW = Math.max(1, ...all.map((b) => b.w)), mxR = Math.max(1, ...all.map((b) => b.r));
-    const W = 360, H = 220, L = 36, Rr = 10, T = 8, B = 186;
-    const X = (v) => L + Math.log1p(v) / Math.log1p(mxW) * (W - L - Rr), Y = (v) => B - Math.log1p(v) / Math.log1p(mxR) * (B - T);
+    const W = 360, H = 230, L = 40, Rr = 18, T = 18, B = 190, PAD = 14;   // padding keeps circles off the axis labels
+    const X = (v) => L + PAD + Math.log1p(v) / Math.log1p(mxW) * (W - L - Rr - PAD), Y = (v) => B - PAD - Math.log1p(v) / Math.log1p(mxR) * (B - T - PAD);
     const ticks = (mx) => [0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000].filter((v) => v <= mx);
     let svg = `<svg class="chart" width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Places by number of writers and readers">`;
     ticks(mxW).forEach((v) => { svg += `<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${B}" stroke="${GRID}"/><text x="${X(v)}" y="${B + 12}" text-anchor="middle" font-size="9.5" fill="${QUIET}">${v}</text>`; });
+    svg += `<line x1="${L}" x2="${W - Rr}" y1="${B}" y2="${B}" stroke="${AXIS}"/><line x1="${L}" x2="${L}" y1="${T}" y2="${B}" stroke="${AXIS}"/>`;
     ticks(mxR).forEach((v) => { svg += `<line x1="${L}" x2="${W - Rr}" y1="${Y(v)}" y2="${Y(v)}" stroke="${GRID}"/><text x="${L - 5}" y="${Y(v) + 3.5}" text-anchor="end" font-size="9.5" fill="${QUIET}">${v}</text>`; });
     svg += `<text x="${(L + W) / 2}" y="${H - 4}" text-anchor="middle" font-size="10.5" fill="${QUIET}">writers</text><text x="10" y="${(T + B) / 2}" font-size="10.5" fill="${QUIET}" transform="rotate(-90 10 ${(T + B) / 2})" text-anchor="middle">readers</text>`;
     all.sort((a, b) => b.n - a.n).forEach((b) => {
       const r = Math.min(16, 2.2 + 1.6 * Math.sqrt(b.n));
-      const share = b.msg / b.n;
-      const fillC = b.msg ? `rgba(107,70,193,${(0.35 + 0.6 * share).toFixed(2)})` : b.r === 0 ? "rgba(240,165,122,.75)" : "rgba(160,170,182,.45)";
+      const share = b.msg / b.n;   // eslint-disable-line no-shadow
+      const cat = b.msg ? CAT[0] : b.r === 0 ? CAT[2] : b.w === 0 ? CAT[3] : CAT[1];
+      const fillC = b.msg ? `rgba(107,70,193,${(0.35 + 0.6 * share).toFixed(2)})` : cat.color;
       svg += `<circle ${b.n === 1 ? `data-place="${esc(b.one)}"` : ""} cx="${X(b.w).toFixed(1)}" cy="${Y(b.r).toFixed(1)}" r="${r.toFixed(1)}" fill="${fillC}" stroke="#fff" stroke-width=".8"><title>${plural(b.n, "place")} with ${plural(b.w, "writer")} and ${plural(b.r, "reader")}${b.msg ? `; ${fmt(b.msg)} carried ${plural(b.msgs, "message")}` : "; none carried a message"}</title></circle>`;
     });
-    host.innerHTML = svg + `</svg><div class="legend"><span><i style="background:rgba(107,70,193,.8);border-radius:50%"></i>carried messages</span><span><i style="background:rgba(240,165,122,.75);border-radius:50%"></i>no reader</span><span><i style="background:rgba(160,170,182,.6);border-radius:50%"></i>read, no message</span></div>`;
+    const rOf = (n) => Math.min(16, 2.2 + 1.6 * Math.sqrt(n));
+    const sizes = [1, 10, 100, 1000].filter((n) => n <= Math.max(...all.map((b) => b.n)));
+    let kx = 2, kparts = "";
+    sizes.forEach((n) => { const r = rOf(n); kx += r + 1; kparts += `<circle cx="${kx}" cy="18" r="${r}" fill="none" stroke="#9aa5b1"/><text x="${kx + r + 3}" y="22" font-size="9.5" fill="${QUIET}">${fmt(n)}</text>`; kx += r + 3 + textWidth(fmt(n), "9.5px sans-serif") + 12; });
+    const key = `<svg width="${Math.ceil(kx)}" height="36" class="ch-sizekey">${kparts}</svg>`;
+    host.innerHTML = svg + `</svg><div class="legend">${CAT.map((c) => `<span><i style="background:${c.color};border-radius:50%"></i>${esc(c.label)}</span>`).join("")}</div><div class="small muted ch-sizekeyrow">circle size: places in it ${key}</div>`;
   }
 })();

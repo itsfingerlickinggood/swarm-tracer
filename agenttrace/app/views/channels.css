@@ -29,3 +29,8 @@
 #chScatter circle[data-place]{cursor:pointer}
 #chanList td:last-child,#chanList td:nth-last-child(2){white-space:nowrap}
 #chanList .ent{max-width:280px}
+.ch-what{margin:0 0 4px}
+#chNames{margin:-4px 0 10px}
+.ch-why{margin:4px 0 0;color:#6b5a2e;background:#fbf7ec;border-radius:6px;padding:3px 7px}
+.ch-sizekeyrow{display:flex;align-items:center;gap:6px;margin-top:2px}
+.ch-sizekey{display:block}

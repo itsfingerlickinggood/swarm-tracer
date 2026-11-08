@@ -10,9 +10,19 @@
     group: "linked group", two_way: "two-way exchange", program: "shared program", baseline: "volume" };
   const LEVEL = [{ name: "quiet", color: "#e6eaee" }, { name: "watch", color: "#f2c46d" }, { name: "alert", color: HARM }];
   const isRec = (r) => r && (/^[A-Za-z]\d{3,}$/.test(String(r)) || /[~@]/.test(String(r)));
-  const plain = (x) => String(x ?? "").replace(/\[CREDENTIAL (\d+)\]/g, "cred $1");
+  // sign texts come from the server with raw names; show them the way the rest of the app does
+  const placeRx = () => { const ks = Object.keys(S.summary?.flow?.channel_types || {}); return ks.length ? new RegExp(`\\b(?:${ks.map((k) => k.replace(/[^\w]/g, "")).join("|")}):(?:\\[[^\\]]+\\]|[\\w.\\-~@/])+`, "g") : null; };
+  const plain = (x) => {
+    let t = String(x ?? "");
+    const rx = placeRx();
+    if (rx) t = t.replace(rx, (m) => placeLabel(m));
+    return t.replace(/\[CREDENTIAL (\d+)\]/g, "cred $1").replace(/(\d+(?:\.\d+)?) h later/g, (m, h) => `${hoursWord(+h)} later`);
+  };
+  const recOf = (g) => g.record || (isRec(g.ref) ? g.ref : null);
+  const TOKEN_NOTE = "Filed as a single-actor sign: the token moved between identities, but the data does not show who passed it.";
+  const hourRange = (t) => `${when(t)}–${clock(t + HR * 1000)}`;
   const PHASE_WHY = { first: "the first dated action", stop: "after the busiest hour, the first hour with under 15% of its actions", last: "the last dated action" };
-  const refChip = (g) => (isRec(g.ref) ? ent.rec(g.ref) : g.ref ? `<code>${esc(short(g.ref))}</code>` : "");
+  const refChip = (g) => (recOf(g) ? ent.rec(recOf(g)) : g.ref ? `<code>${esc(short(g.ref))}</code>` : "");
 
   function stop() { clearInterval(ST.timer); ST.timer = null; ST.playing = false; const b = $("efPlay"); if (b) b.innerHTML = "▶ Play"; }
 
@@ -52,6 +62,8 @@
       named: msgs.rows.filter((r) => !String(r[0]).startsWith("run:") && !String(r[1]).startsWith("run:") && !r[9]),
       mergedNamed: msgs.rows.filter((r) => !String(r[0]).startsWith("run:") && !String(r[1]).startsWith("run:") && r[9]).map((r) => r[6]).sort((a, b) => a - b),
       anonMsgs: msgs.rows.filter((r) => String(r[0]).startsWith("run:") || String(r[1]).startsWith("run:")).map((r) => r[6]).sort((a, b) => a - b),
+      mergedAll: msgs.rows.filter((r) => r[9]).length,
+      allPairs: new Set(msgs.rows.filter((r) => !String(r[0]).startsWith("run:") && !String(r[1]).startsWith("run:")).map((r) => r[0] + "\u0000" + r[1])).size,
     };
     D.layout = netLayout(D.named);
     {   // named messages, pairs and the largest group linked by messages, hour by hour
@@ -74,15 +86,17 @@
     if (ST.i == null && dh) { const k = Math.floor((toTime(dh) / 1000 - sim.start_t) / HR); if (k >= 0 && k < n) ST.i = k; }
     if (ST.i == null || ST.i >= n) ST.i = n - 1;
 
+    const harmList = (s.harm_names || []).map((k) => human(k)).join(", ");
     el.innerHTML = `
     <h2>Could it have been flagged early?</h2>
+    <p class="small muted efdef">${term("harm", "Harmful actions")}: actions of the kinds in the pack's harm list${harmList ? ` (${esc(harmList)})` : ""}. ${term("harm_left", "Harm still to come")}: the share of the ${fmt(sim.harm_total)} dated harmful actions that came after a moment, so a higher share means an earlier warning. Times are UTC and, for most records, ${term("dated", "estimated")} from timestamps in the agents' code; each replay step is one hour (for example 13:00–14:00).</p>
     <div id="efLead"></div>
     ${card("Replay the incident", `
       <div class="efctl">
         <button type="button" id="efPlay" class="primary">▶ Play</button>
         <button type="button" id="efNext" title="Jump to the next warning sign">Next sign ⏭</button>
         <select id="efSpeed" title="Playback speed">${[[150, "fast"], [380, "normal"], [900, "slow"]].map(([v, l]) => `<option value="${v}"${ST.speed === v ? " selected" : ""}>${l}</option>`).join("")}</select>
-        <input type="range" id="efSlider" min="0" max="${n - 1}" step="1" value="${ST.i}">
+        <input type="range" id="efSlider" min="0" max="${n - 1}" step="1" value="${ST.i}" aria-label="replay time, one step per hour">
         <span id="efNow" class="efnow"></span>
       </div>
       <div id="efChart"></div>
@@ -91,13 +105,14 @@
         <div><h4>Warning signs</h4><div id="efBoard" class="efboard"></div></div>
         <div><h4>Who had read whom by now</h4><div id="efNet"></div><div id="efNetCap" class="small muted"></div></div>
       </div>
-      <h4 style="margin-top:12px">What the tracer would have said</h4>
+      <p id="efReconcile" class="small muted efrec"></p>
+      <h4 style="margin-top:12px">What the tracer would have said <span class="muted small">(newest first)</span></h4>
       <div id="efFeed" class="effeed"></div>`,
-      { sub: `Step through the ${plural(n, "hour")} of timed activity. The line is the share of all ${fmt(sim.harm_total)} timed harmful actions still to come; it is drawn solid up to the moment shown. Grey bars are actions per hour (orange: harmful). Numbered dots are warning signs, filled once they have fired. The band under the chart is the tracer's alert level.` })}
+      { sub: `Step through the ${plural(n, "hour")} of dated activity, or click the chart to jump to an hour. The line is the share of all ${fmt(sim.harm_total)} dated harmful actions still to come (left scale); it is drawn solid up to the moment shown. Grey bars are actions per hour, orange the harmful ones (their own scale, tallest bar marked). Numbered dots are ${term("sign", "warning signs")}, filled once they have fired. The band under the chart is the tracer's alert level.` })}
     ${card("The tracer's alert rule", `<div id="efRule"></div>`,
       { sub: "A deliberately simple rule. It was not tuned on this data or tested on any other swarm, so treat its timing as an illustration of what a coordination-aware monitor could see, not as a measured detector." })}
     ${card("The whole incident at a glance", `<div id="efWhole"></div>`,
-      { sub: "Every signal on one chart: the higher a dot, the more harm was still to come when it fired. Blue: actors working together. Dark grey: a single actor. Light grey: ordinary volume monitoring, for comparison. Numbers match the table." })}
+      { sub: "Every signal on one chart: the higher a dot, the more harm was still to come when it fired. Blue: actors working together. Dark grey: a single actor. Light grey: ordinary volume monitoring, for comparison. Each dot sits at its true height; dots that fired close together are spread sideways. The numbers match the table below." })}
     ${card("Every signal", `<div id="efTable"></div>`)}`;
 
     $("efPlay").addEventListener("click", () => {
@@ -124,6 +139,13 @@
     const whole = () => drawWhole($("efWhole"), D);
     whole(); onResize($("efWhole"), whole);
     onResize($("efChart"), () => update());
+    $("efChart").addEventListener("click", (e) => {
+      if (e.target.closest(".node")) return;
+      const svg = $("efChart").querySelector("svg"); if (!svg) return;
+      const b = svg.getBoundingClientRect(), W = b.width, f = chartFrame(W, 290);
+      const x = e.clientX - b.left; if (x < f.x0 || x > f.x1) return;
+      stop(); ST.i = Math.min(n - 1, Math.max(0, Math.floor((x - f.x0) / (f.x1 - f.x0) * n))); update();
+    });
     drawTable($("efTable"), sigs);
   }
 
@@ -155,18 +177,28 @@
     host.innerHTML = `
       <div class="efrule">
         <div><b>Watch</b> when the first single-actor harmful sign fires (the first action of a harmful kind).</div>
-        <div><b>Alert</b> when signs of at least <span class="efN">${[1, 2, 3].map((N) => `<button type="button" data-n="${N}" class="${N === ST.N ? "on" : ""}">${N}</button>`).join("")}</span> different kinds of coordination have fired: a message between named actors, a program reused by another actor, actors linked into a group, a two-way exchange, a carried token, or a shared place.</div>
+        <div><b>Alert</b> when signs of at least <span class="efN" role="group" aria-label="number of kinds of coordination needed for an alert">${[1, 2, 3].map((N) => `<button type="button" data-n="${N}" class="${N === ST.N ? "on" : ""}" aria-pressed="${N === ST.N}" aria-label="alert after ${N} kind${N === 1 ? "" : "s"} of coordination">${N}</button>`).join("")}</span> different kinds of coordination have fired: a message between named actors, a program reused by another actor, actors linked into a group, a two-way exchange, a carried token, or a shared place.</div>
       </div>
       <h4 style="margin-top:10px">Kinds of coordination, in the order they first showed</h4>
       ${kindsSeen.length ? `<div class="efkinds">${kindsSeen.map((g, k) => `<div class="efkind"><span class="efk">${k + 1}</span><div><b>${esc(KIND[g.kind] || g.kind)}</b><div class="small muted">${esc(when(g.t * 1000))} · ${pct(g.harm_share_after)} still to come</div></div></div>`).join('<span class="efarr">→</span>')}</div>` : '<p class="muted small">None showed.</p>'}
       <h4 style="margin-top:10px">How the setting changes the alert</h4>
       ${table(["alert after", "alert at", "on the sign", "harm still to come", "compared with the volume alarm"], rows.map(({ N, r, ahead }) => [
-        `<b>${plural(N, "kind")}</b>${N === ST.N ? ' <span class="badge">shown</span>' : ""}`,
+        `<b>${plural(N, "kind")}</b>${N === ST.N ? ' <span class="badge">current setting</span>' : ""}`,
         r.alert ? esc(when(r.alert.t * 1000)) : "never",
         r.alert ? esc(r.alert.name) : "–",
         r.alert ? `${meter(r.alert.harm_share_after, HARM, 70)} ${pct(r.alert.harm_share_after)}` : "–",
-        r.alert && r.baseline ? (ahead >= 0 ? `${hoursWord(ahead)} earlier` : `${hoursWord(-ahead)} later`) : "–"]))}`;
+        r.alert && r.baseline ? (ahead >= 0 ? `${hoursWord(ahead)} earlier` : `${hoursWord(-ahead)} later`) : "–"]))}
+      ${sameShare(rows)}`;
     host.querySelectorAll(".efN button").forEach((b) => b.addEventListener("click", () => { ST.N = +b.dataset.n; drawRule(); drawLead(); update(); }));
+  }
+
+  // settings that give the same harm share are worth saying out loud
+  function sameShare(rows) {
+    const groups = new Map();
+    rows.filter((x) => x.r.alert).forEach((x) => { const k = pct(x.r.alert.harm_share_after); (groups.get(k) || groups.set(k, []).get(k)).push(x.N); });
+    const same = [...groups.entries()].filter(([, Ns]) => Ns.length > 1);
+    if (!same.length) return "";
+    return `<p class="small muted">${same.map(([k, Ns]) => `${Ns.join(" or ")} kinds give the same ${k} of the harm still to come`).join("; ")}: requiring more kinds of coordination ${rows.some((x) => x.r.alert && !same.some(([, Ns]) => Ns.includes(x.N))) ? "costs little here, and only the strictest setting fires later" : "does not delay the alert here"}.</p>`;
   }
 
   // ------------------------------------------------------------------ the replay at hour ST.i
@@ -176,7 +208,7 @@
     const { sim, sigs, n } = D, i = ST.i, now = sim.start_t + (i + 1) * HR;
     $("efSlider").value = i;
     const r = rule(sigs, ST.N), lvl = levelAt(r, now);
-    $("efNow").innerHTML = `<b>${esc(when((now - HR) * 1000))}</b>–${esc(clock(now * 1000))} <span class="eflvl l${lvl}">${LEVEL[lvl].name}</span>`;
+    $("efNow").innerHTML = `<b>${esc(when((now - HR) * 1000))}</b>–${esc(clock(now * 1000))} UTC <span class="eflvl l${lvl}">${LEVEL[lvl].name}</span>`;
     drawChart($("efChart"), D, i, r);
     const fired = sigs.filter((g) => g.t < now);
     const harmLeft = D.hasHarm ? sim.harm_remaining[i] : null;
@@ -189,8 +221,13 @@
       ["named messages", fmt(D.cumMsgs[i]), `on exact places; +${fmt(merged)} on merged places, +${fmt(anon)} with anonymous runs`],
       ["sender-receiver pairs", fmt(D.pairs[i]), "between named actors"],
       ["largest linked group", fmt(D.group[i]), "actors joined by messages"],
-      ["signs fired", `${fired.length}/${sigs.length}`, `${fired.filter((g) => g.family === "joint").length} of actors together`],
+      ["signs fired", `${fired.length}/${sigs.length}`, `${fired.filter((g) => g.family === "joint").length} of them about actors working together`],
     ].map(([l, v, sub]) => kpi(l, v, esc(sub))).join("");
+    const rec = $("efReconcile");
+    if (rec) {
+      const all = D.named.length + D.mergedNamed.length;
+      rec.innerHTML = `The replay counts messages between named actors on exact places, the same set the warning signs use: by the end ${fmt(D.named.length)} of ${fmt(all)} messages and ${fmt(D.pairs[n - 1])} of ${fmt(D.allPairs)} sender-receiver pairs (Who talked to whom counts all ${fmt(all)} and ${fmt(D.allPairs)}). The other ${fmt(D.mergedNamed.length)} are on ${term("merged", "places the redaction may have merged")}; What's missing counts ${fmt(D.mergedAll)} such messages because it includes those with anonymous runs. Grey dots in the network are actors that have not yet exchanged a message.`;
+    }
     // signal board
     $("efBoard").innerHTML = sigs.map((g) => {
       const on = g.t < now, c = FAMILY[g.family]?.color || SINGLE;
@@ -204,6 +241,20 @@
     drawFeed($("efFeed"), D, now, r);
   }
 
+  // dots that would overlap are moved sideways, never up or down: the height is the value
+  function spreadX(pts, gap, xmin, xmax) {
+    const placed = [];
+    pts.forEach((p) => {
+      let x = p.x;
+      for (let k = 1; k < 24 && placed.some((q) => Math.abs(q.x - x) < gap && Math.abs(q.y - p.y) < gap); k++) {
+        x = p.x + Math.ceil(k / 2) * gap * (k % 2 ? 1 : -1);
+        if (x < xmin || x > xmax) x = p.x - Math.ceil(k / 2) * gap * (k % 2 ? 1 : -1);
+      }
+      p.dx = x; placed.push({ x, y: p.y });
+    });
+    return pts;
+  }
+
   function chartFrame(W, Hh) { return { x0: 44, x1: W - 14, yT: 22, yB: Hh - 52, band: Hh - 46, bandH: 10, axis: Hh - 30 }; }
 
   function drawChart(host, D, i, r) {
@@ -213,7 +264,7 @@
     const X = (t) => f.x0 + (t - t0) / (t1 - t0) * (f.x1 - f.x0), Y = (v) => f.yB - v * (f.yB - f.yT);
     const mxA = Math.max(1, ...sim.actions), Yb = (v) => f.yB - v / mxA * (f.yB - f.yT) * (D.hasHarm ? 0.3 : 0.9);
     const bw = Math.max(1, (f.x1 - f.x0) / n - 0.6);
-    let svg = `<svg class="chart" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Replay of harm still to come with warning signs">`;
+    let svg = `<svg class="chart efclick" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Replay of harm still to come with warning signs">`;
     if (D.hasHarm) [0, 0.25, 0.5, 0.75, 1].forEach((v) => { svg += `<line x1="${f.x0}" x2="${f.x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="${GRID}"/><text x="${f.x0 - 7}" y="${Y(v) + 4}" text-anchor="end" font-size="10.5" fill="${QUIET}">${v * 100}%</text>`; });
     // activity per hour
     sim.actions.forEach((a, k) => {
@@ -221,6 +272,7 @@
       const x = X(t0 + k * HR), past = k <= i, h = sim.harmful[k] || 0;
       svg += `<g opacity="${past ? 1 : 0.35}"><rect x="${x}" y="${Yb(a)}" width="${bw}" height="${f.yB - Yb(a)}" fill="#cfd6de"><title>${esc(when((t0 + k * HR) * 1000))}: ${fmt(a)} actions, ${fmt(h)} harmful</title></rect>${h ? `<rect x="${x}" y="${Yb(h)}" width="${bw}" height="${f.yB - Yb(h)}" fill="#f0a578" pointer-events="none"/>` : ""}</g>`;
     });
+    svg += `<line x1="${f.x1 - 6}" x2="${f.x1}" y1="${Yb(mxA)}" y2="${Yb(mxA)}" stroke="${QUIET}"/><text x="${f.x1 - 9}" y="${Yb(mxA) + 3.5}" text-anchor="end" font-size="9.5" fill="${QUIET}" paint-order="stroke" stroke="#fff" stroke-width="3">bars: tallest ${fmt(mxA)} actions/hour</text>`;
     // harm still to come: solid up to now, faint after
     if (D.hasHarm) {
       const pts = [[t0, 1], ...sim.harm_remaining.map((v, k) => [t0 + (k + 1) * HR, v])];
@@ -242,20 +294,12 @@
     const lbl = when(now * 1000), lw = textWidth(lbl, "600 11px -apple-system, system-ui, sans-serif") + 10;
     const lx = Math.min(f.x1 - lw, Math.max(f.x0, xn - lw / 2));
     svg += `<rect x="${lx}" y="${f.yT - 22}" width="${lw}" height="15" rx="4" fill="${ACCENT}"/><text x="${lx + lw / 2}" y="${f.yT - 11}" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">${esc(lbl)}</text>`;
-    // signal dots, numbered; stagger dots that share a spot
-    const placed = [];
-    sigs.forEach((g) => {
-      if (g.t < t0 || g.t > t1 + HR) return;
-      const x = X(Math.min(g.t, t1)), y0 = D.hasHarm && g.harm_share_after != null ? Y(g.harm_share_after) : f.yT + 8;
-      let y = y0;
-      for (let k = 1; k < 12 && placed.some((p) => Math.hypot(p[0] - x, p[1] - y) < 15); k++) {
-        const off = Math.ceil(k / 2) * 15 * (k % 2 ? -1 : 1);       // try above, then below, further each time
-        y = y0 + off;
-        if (y < f.yT - 4 || y > f.yB - 6) y = y0 - off;
-      }
-      placed.push([x, y]);
+    // signal dots, numbered, at their true height; dots that share a spot are spread sideways
+    const pts = sigs.filter((g) => g.t >= t0 && g.t <= t1 + HR).map((g) => ({ g, x: X(Math.min(g.t, t1)), y: D.hasHarm && g.harm_share_after != null ? Y(g.harm_share_after) : f.yT + 8 }));
+    spreadX(pts, 15, f.x0 + 4, f.x1 - 4).forEach(({ g, x, y, dx }) => {
       const on = g.t < now, c = FAMILY[g.family]?.color || SINGLE;
-      svg += `<g class="node"${isRec(g.ref) ? ` data-id="${esc(g.ref)}"` : ""}><circle cx="${x}" cy="${y}" r="7.5" fill="${on ? c : "#fff"}" stroke="${c}" stroke-width="1.5" opacity="${on ? 1 : 0.6}"/><text x="${x}" y="${y + 3.3}" text-anchor="middle" font-size="9" font-weight="700" fill="${on ? "#fff" : c}" pointer-events="none">${g.num}</text><title>${g.num}. ${esc(g.name)} · ${esc(g.time)} UTC${g.harm_share_after != null ? ` · ${pct(g.harm_share_after)} of harm still to come` : ""}</title></g>`;
+      if (Math.abs(dx - x) > 1) svg += `<line x1="${x}" x2="${dx}" y1="${y}" y2="${y}" stroke="${c}" stroke-opacity=".35"/>`;
+      svg += `<g class="node"${recOf(g) ? ` data-id="${esc(recOf(g))}"` : ""}><circle cx="${dx}" cy="${y}" r="7.5" fill="${on ? c : "#fff"}" stroke="${c}" stroke-width="1.5" opacity="${on ? 1 : 0.6}"/><text x="${dx}" y="${y + 3.3}" text-anchor="middle" font-size="9" font-weight="700" fill="${on ? "#fff" : c}" pointer-events="none">${g.num}</text><title>${g.num}. ${esc(g.name)} · ${esc(g.time)} UTC${g.harm_share_after != null ? ` · ${pct(g.harm_share_after)} of harm still to come` : ""}</title></g>`;
     });
     host.innerHTML = svg + "</svg>" + `<div class="legend"><span><i style="background:${ACCENT};border-radius:50%"></i>actors together</span><span><i style="background:${SINGLE};border-radius:50%"></i>single actor</span><span><i style="background:${BASE};border-radius:50%"></i>volume baseline</span><span><i style="background:#cfd6de"></i>actions per hour</span><span><i style="background:#f0a578"></i>harmful actions</span><span><i style="background:${LEVEL[1].color}"></i>watch</span><span><i style="background:${HARM}"></i>alert</span></div>`;
   }
@@ -328,15 +372,15 @@
       svg += `<text x="${x}" y="${y - r - 3}" text-anchor="${anchor}" font-size="10" fill="#3d4a58" pointer-events="none" paint-order="stroke" stroke="#fff" stroke-width="3">${esc(label)}</text>`;
     });
     host.innerHTML = svg + "</svg>";
-    $("efNetCap").innerHTML = `${plural(cnt.size, "named actor")}, ${plural(seen.length, "message")} in ${plural(edges.size, "pair")}. Blue arrows: read in the last 6 hours. Red ring: active in the last hour.`;
+    $("efNetCap").innerHTML = `${plural(cnt.size, "named actor")}, ${plural(seen.length, "message")} in ${plural(edges.size, "pair")} by now (exact places). Grey dots: actors not yet in a message. Blue arrows: read in the last 6 hours. Red ring: active in the last hour.`;
   }
 
   // ------------------------------------------------------------------ explanation feed
   function drawFeed(host, D, now, r) {
     if (!host) return;
     const items = [];
-    D.sigs.filter((g) => g.t < now).forEach((g) => items.push({ t: g.t, html: `<span class="efnum sm" style="background:${FAMILY[g.family]?.color};color:#fff">${g.num}</span><div><b>${esc(g.name)}</b> <span class="muted small">${esc(FAMILY[g.family]?.label || "")}</span><div class="small">${esc(plain(g.why))}${g.harm_share_after != null ? ` <b>${pct(g.harm_share_after)}</b> of the harm was still to come.` : ""}</div><div class="chips">${(g.actors || []).filter((a) => a && !/ carried /.test(a)).slice(0, 4).map((a) => ent.actor(a)).join(" ")} ${refChip(g)}</div></div>` }));
-    (D.sim.phases || []).forEach((p) => { const t = toTime(p.time) / 1000; if (t < now) items.push({ t, html: `<span class="efnum sm ph">◷</span><div><b>${esc(p.name)}</b><div class="small muted">${esc(p.why || PHASE_WHY[p.key] || "")}</div></div>` }); });
+    D.sigs.filter((g) => g.t < now).forEach((g) => items.push({ t: g.t, html: `<span class="efnum sm" style="background:${FAMILY[g.family]?.color};color:#fff">${g.num}</span><div><b>${esc(g.name)}</b> <span class="muted small">${esc(FAMILY[g.family]?.label || "")}</span><div class="small">${esc(plain(g.why))}.${g.harm_share_after != null ? ` <b>${pct(g.harm_share_after)}</b> of the harm was still to come.` : ""}${g.kind === "token" ? ` <span class="muted">${esc(TOKEN_NOTE)}</span>` : ""}</div><div class="chips">${(g.actors || []).filter((a) => a && !/ carried /.test(a)).slice(0, 4).map((a) => ent.actor(a)).join(" ")} ${refChip(g)}</div></div>` }));
+    (D.sim.phases || []).forEach((p) => { const t = toTime(p.time) / 1000; if (t < now) items.push({ t, range: true, html: `<span class="efnum sm ph">◷</span><div><b>${esc(p.name)}</b> <span class="muted small">(in the hour ${esc(hourRange(t * 1000))})</span><div class="small muted">${esc(p.why || PHASE_WHY[p.key] || "")}</div></div>` }); });
     if (r.watch && r.watch.t < now) items.push({ t: r.watch.t + 0.1, html: `<span class="efnum sm lv1">!</span><div><b>Tracer: watch</b><div class="small">A harmful action of a known kind appeared (${esc(r.watch.name.toLowerCase())}). One actor acting alone; keep watching for actors working together.</div></div>` });
     if (r.alert && r.alert.t < now) items.push({ t: r.alert.t + 0.2, html: `<span class="efnum sm lv2">!!</span><div><b>Tracer: alert</b><div class="small">${plural(r.alert.kinds.length, "kind")} of coordination now seen: ${esc(r.alert.kinds.map((k) => KIND[k] || k).join(", "))}. ${pct(r.alert.harm_share_after)} of the timed harm was still to come.</div></div>` });
     items.sort((a, b) => b.t - a.t);
@@ -348,43 +392,21 @@
     if (!host) return;
     const { sim, sigs, n } = D;
     if (!D.hasHarm) { host.innerHTML = '<p class="muted small">No harmful actions are defined or timed in this trace, so "harm still to come" cannot be drawn.</p>'; return; }
-    const W = Math.max(360, host.clientWidth || 700), Hh = Math.round(Math.min(540, Math.max(420, W * 0.7)));
+    const W = Math.max(360, host.clientWidth || 700), Hh = Math.round(Math.min(400, Math.max(300, W * 0.5)));
     const x0 = 46, x1 = W - 16, yT = 18, yB = Hh - 34;
     const t0 = sim.start_t - 1800, t1 = sim.start_t + n * HR;
     const X = (t) => x0 + (t - t0) / (t1 - t0) * (x1 - x0), Y = (v) => yB - v * (yB - yT);
     const pts = [[sim.start_t, 1], ...sim.harm_remaining.map((v, k) => [sim.start_t + (k + 1) * HR, v])].map(([t, v]) => ({ x: X(t), y: Y(v), t, v }));
-    const avoid = [];
-    pts.forEach((p, k) => { const q = pts[k + 1]; if (!q) return avoid.push(p); for (let j = 0; j < 6; j++) avoid.push({ x: p.x + (q.x - p.x) * j / 6, y: p.y + (q.y - p.y) * j / 6 }); });
-    const nameFont = '600 11.5px -apple-system, system-ui, "Segoe UI", sans-serif';
-    // every signal keeps its own numbered dot; dots that would overlap are nudged apart vertically
-    const dots = [];
-    sigs.filter((g) => g.harm_share_after != null).forEach((g) => {
-      const x = X(g.t), y0 = Y(g.harm_share_after); let y = y0;
-      for (let k = 1; k < 14 && dots.some((p) => Math.hypot(p.x - x, p.y - y) < 17); k++) {
-        const off = Math.ceil(k / 2) * 17 * (k % 2 ? -1 : 1); y = y0 + off;
-        if (y < yT - 4 || y > yB - 6) y = y0 - off;
-      }
-      dots.push({ g, x, y, y0, w: textWidth(`${g.num}. ${g.name}`, nameFont) + 6, h: 16 });
-    });
-    const items = dots.map((d) => ({ x: d.x, y: d.y, w: d.w, h: d.h, d }));
-    const order = [...items].sort((a, b) => ((b.d.g.family === "joint") - (a.d.g.family === "joint")) || (a.d.g.t - b.d.g.t));
-    placeLabels(order, { x0: x0 + 4, x1, y0: yT, y1: yB - 4 }, [...avoid.map((p) => ({ ...p, r: 3 })), ...dots.map((d) => ({ x: d.x, y: d.y, r: 13 }))], 200);
+    const dots = spreadX(sigs.filter((g) => g.harm_share_after != null).map((g) => ({ g, x: X(g.t), y: Y(g.harm_share_after) })), 18, x0 + 8, x1 - 8);
     let svg = `<svg class="chart" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Share of harmful activity still to come, with the first time each warning sign fired">`;
     [0, 0.25, 0.5, 0.75, 1].forEach((v) => { svg += `<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="${GRID}"/><text x="${x0 - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="${QUIET}">${v * 100}%</text>`; });
     svg += `<line x1="${x0}" x2="${x1}" y1="${yB}" y2="${yB}" stroke="${AXIS}"/>`;
     timeTicks(t0 * 1000, t1 * 1000, Math.max(3, Math.floor((x1 - x0) / 90))).forEach((k) => { const x = X(k.t / 1000); svg += `<line x1="${x}" x2="${x}" y1="${yB}" y2="${yB + 5}" stroke="${AXIS}"/><text x="${x}" y="${yB + 19}" text-anchor="middle" font-size="11" fill="${QUIET}">${esc(k.label)}</text>`; });
     svg += `<path d="${pts.map((p, k) => `${k ? "L" : "M"}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join("")}" fill="none" stroke="${CURVE}" stroke-width="2.5"/>`;
-    items.forEach((it) => {
-      const { g, x, y } = it.d, c = FAMILY[g.family]?.color || SINGLE, L = it.label;
-      if (Math.abs(y - it.d.y0) > 1) svg += `<line x1="${x}" y1="${it.d.y0}" x2="${x}" y2="${y}" stroke="${c}" stroke-opacity=".35"/><circle cx="${x}" cy="${it.d.y0}" r="2" fill="${c}"/>`;
-      if (!L) return;
-      const lx = Math.max(L.x, Math.min(x, L.x + L.w)), ly = Math.max(L.y, Math.min(y, L.y + L.h));
-      if (Math.hypot(lx - x, ly - y) > 10) svg += `<line x1="${x}" y1="${y}" x2="${lx}" y2="${ly}" stroke="${c}" stroke-opacity=".4" stroke-width="1.1"/>`;
-      svg += `<g><rect x="${L.x - 2}" y="${L.y}" width="${L.w + 2}" height="${L.h}" rx="3" fill="#fff" fill-opacity=".88"/><text x="${L.x}" y="${L.y + 12}" font-size="11.5" font-weight="600" fill="${g.family === "joint" ? INK : "#4a525a"}">${esc(`${g.num}. ${g.name}`)}</text></g>`;
-    });
-    items.forEach((it) => {
-      const { g, x, y } = it.d, c = FAMILY[g.family]?.color || SINGLE;
-      svg += `<g class="node"${isRec(g.ref) ? ` data-id="${esc(g.ref)}"` : ""}><circle cx="${x}" cy="${y}" r="8" fill="${c}" stroke="#fff" stroke-width="1.5"/><text x="${x}" y="${y + 3.3}" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" pointer-events="none">${g.num}</text><title>${g.num}. ${esc(g.name)}, ${esc(g.time)} UTC: ${pct(g.harm_share_after)} of the harm still to come</title></g>`;
+    dots.forEach(({ g, x, y, dx }) => {
+      const c = FAMILY[g.family]?.color || SINGLE;
+      if (Math.abs(dx - x) > 1) svg += `<line x1="${x}" x2="${dx}" y1="${y}" y2="${y}" stroke="${c}" stroke-opacity=".4"/><circle cx="${x}" cy="${y}" r="2" fill="${c}"/>`;
+      svg += `<g class="node"${recOf(g) ? ` data-id="${esc(recOf(g))}"` : ""}><circle cx="${dx}" cy="${y}" r="8.5" fill="${c}" stroke="#fff" stroke-width="1.5"/><text x="${dx}" y="${y + 3.4}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff" pointer-events="none">${g.num}</text><title>${g.num}. ${esc(g.name)}, ${esc(g.time)} UTC: ${pct(g.harm_share_after)} of the harm still to come</title></g>`;
     });
     host.innerHTML = svg + "</svg>" + `<div class="legend"><span><i style="background:${ACCENT};border-radius:50%"></i>actors together</span><span><i style="background:${SINGLE};border-radius:50%"></i>single actor</span><span><i style="background:${BASE};border-radius:50%"></i>volume baseline</span><span><i style="background:${CURVE}"></i>share of timed harmful actions still to come (${fmt(sim.harm_total)} in all)</span></div>`;
   }
@@ -396,7 +418,7 @@
       `<b>${esc(g.name)}</b><div class="small muted">${esc(FAMILY[g.family]?.label || g.family)} · ${esc(KIND[g.kind] || g.kind)}</div>${(g.actors || []).length ? `<div class="chips">${g.actors.filter((a) => a && !/ carried /.test(a)).slice(0, 3).map((a) => ent.actor(a)).join(" ")}</div>` : ""}`,
       `<span class="nowrap">${esc(when(g.t * 1000))}</span>`,
       g.harm_share_after != null ? `<span class="nowrap">${meter(g.harm_share_after, FAMILY[g.family]?.color, 46)} ${pct(g.harm_share_after)}</span>` : "–",
-      refChip(g), `<span class="small">${esc(plain(g.why))}</span>`]));
+      refChip(g), `<span class="small">${esc(plain(g.why))}${g.kind === "token" ? `. <span class="muted">${esc(TOKEN_NOTE)}</span>` : ""}</span>`]));
   }
 
   VIEWS.early = view;

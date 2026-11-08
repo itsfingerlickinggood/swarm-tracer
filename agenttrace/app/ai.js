@@ -174,11 +174,23 @@
     if (!S.summary) throw new Error("Load a dataset first.");
     if (!$("apiKey").value) { $("aisettings").hidden = false; throw new Error("Enter an API key in Settings first (it is the only thing the investigator needs)."); }
     const history = mode === "chat" ? S.chat.concat([{ role: "user", content: q }]) : [{ role: "user", content: q }];
+    const cur = INS.stack.at(-1);
+    const sel = $("useSel").checked && cur ? cur : null;
     const r = await api("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
-      messages: history, ...settings(), mode, selectedId: $("useSel").checked ? S.selected : null, conversation: S.conv || null, sessionId: S.aiSession }) });
+      messages: history, ...settings(), mode, selectedId: sel?.kind === "record" ? sel.key : null, selected: sel, conversation: S.conv || null, sessionId: S.aiSession }) });
     return r;
   }
-  async function ask(q) {
+  async function ask(q, fromBox = false) {
+    if (!$("apiKey").value) {
+      // keep the question where it was typed; say what is missing next to the box
+      if (fromBox) $("q").value = q;
+      $("aisettings").hidden = false; $("aiset").setAttribute("aria-expanded", "true");
+      $("aistatus").textContent = "Add an API key here first: it is the only thing the investigator needs. Your question is kept.";
+      $("aistatus").className = "small bad";
+      $("apiKey").focus();
+      return;
+    }
+    if (!S.summary) { addMsg("error", "Load a dataset first."); return; }
     S.chat.push({ role: "user", content: q });
     addMsg("user", esc(q).replace(/\n/g, "<br>"));
     const wait = addMsg("assistant", '<div class="aiwait"><i></i><i></i><i></i> Investigating: reading the brief and the records…</div>');
@@ -194,14 +206,23 @@
     finally { $("send").disabled = false; }
   }
   window.askAI = askAI;
+  // the question for whatever the Inspector shows: a record, an actor or a place
+  function selectedQuestion() {
+    const cur = INS.stack.at(-1);
+    if (!cur) return "Explain the most important finding in this swarm, with the records behind it.";
+    if (cur.kind === "actor") return `Profile the actor ${cur.key}: what it did, who it exchanged messages with, which programs it shared, which warning signs it fired, and what the data cannot show about it.`;
+    if (cur.kind === "place") return `Explain the place ${cur.key}: who wrote to it, who read it, which messages passed through it and in what order, and whether the redaction may have merged it.`;
+    return `Explain the record ${cur.key} step by step: what the code does, who ran it, what it touched, what it received or passed on, and how it connects to the rest of the swarm.`;
+  }
   window.askAbout = (id, q) => {
     if (id) { S.selected = id; $("useSel").checked = true; }
-    ask(q || "Explain the selected record step by step: what the code does, who ran it, what it touched, what it received or passed on, and how it connects to the rest of the swarm.");
+    ask(q || selectedQuestion());
   };
 
   // ---------------------------------------------------------------- settings
   $("aiwide").addEventListener("click", () => { document.body.classList.toggle("aiwide"); $("aiwide").textContent = document.body.classList.contains("aiwide") ? "Restore" : "Expand"; });
   $("aiset").addEventListener("click", () => { const h = $("aisettings").hidden; $("aisettings").hidden = !h; $("aiset").setAttribute("aria-expanded", String(h)); });
+  $("closeSet").addEventListener("click", () => { $("aisettings").hidden = true; $("aiset").setAttribute("aria-expanded", "false"); });
   function saveAI() {
     const keep = $("remember").checked;
     sessionStorage.setItem("st-ai", JSON.stringify({ baseUrl: $("baseUrl").value, model: $("model").value, ...(keep ? { apiKey: $("apiKey").value } : {}) }));
@@ -227,8 +248,8 @@
       st.textContent = `Connected: ${$("model").value} replied "${r.reply}".`; st.className = "small ok"; $("aiStateLine").className = "ok";
     } catch (e) { st.textContent = e.message; st.className = "small bad"; $("aiStateLine").className = "bad"; }
   });
-  $("quick").addEventListener("click", (e) => { const b = e.target.closest("button[data-q]"); if (b) ask(b.dataset.q); });
-  $("ask").addEventListener("submit", (e) => { e.preventDefault(); const q = $("q").value.trim(); if (q) { $("q").value = ""; ask(q); } });
+  $("quick").addEventListener("click", (e) => { const b = e.target.closest("button[data-q]"); if (b) ask(b.dataset.q === "@selected" ? selectedQuestion() : b.dataset.q); });
+  $("ask").addEventListener("submit", (e) => { e.preventDefault(); const q = $("q").value.trim(); if (q) { $("q").value = ""; ask(q, true); } });
   $("q").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) $("ask").requestSubmit(); });
 
   window.initAI = (d) => {

@@ -57,3 +57,12 @@ svg.tl-lanes.dim .msgend.hi{opacity:1}
 .tl-hours tr.quiet td{color:var(--faint)}
 .tl-hours th.n{text-align:right}
 .tl-hours td:first-child{white-space:nowrap}
+svg.tl-lanes .msg.merged{stroke-dasharray:3 2}
+.tl-keynote{margin-top:2px}
+.tl-lanekey .legend{margin:0 0 3px}
+.tl-key-harm{background:#fff!important;border-bottom:2.5px solid #c2410c;border-radius:0!important;height:7px!important}
+.tl-key-line{background:none!important;width:18px!important;height:0!important;border-top:1.6px solid #2f6fb3;border-radius:0!important;vertical-align:3px!important}
+.tl-key-line.dashed{border-top-style:dashed}
+.tl-warn{color:#b45309;cursor:help}
+.tl-warnt{color:#9a3412}
+.chrono .badge.sign{background:#e8f0fa;color:#1e4f86}

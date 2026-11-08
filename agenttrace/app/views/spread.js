@@ -30,8 +30,10 @@
     ]);
     if (my !== RUN || !el.isConnected || S.tab !== "spread") return;
     const progs = rows.map((x, i) => ({ ...x, i, reach: x.actors - 1, last: lastAfter(x), first: firstAfter(x), t: tOf(x.source_time) }));
-    const actors = new Set();
-    progs.forEach((x) => { actors.add(x.source); x.adopters.forEach((a) => actors.add(a.actor)); });
+    const actors = new Set(), adopterSet = new Set();
+    progs.forEach((x) => { actors.add(x.source); x.adopters.forEach((a) => { actors.add(a.actor); adopterSet.add(a.actor); }); });
+    const startOnly = [...actors].filter((a) => !adopterSet.has(a)).length;
+    const grid3 = new Set(); progs.filter((x) => x.actors >= 3).forEach((x) => { grid3.add(x.source); x.adopters.forEach((a) => grid3.add(a.actor)); });
     const adoptions = progs.reduce((a, x) => a + x.adopters.length, 0);
     const firsts = progs.map((x) => x.first).filter(Number.isFinite).sort((a, b) => a - b);
     const allAfter = progs.flatMap((x) => x.adopters.map((a) => a.hours_after_source)).filter((h) => h != null).sort((a, b) => a - b);
@@ -43,30 +45,32 @@
     const stuRows = stu.rows || [], carRows = car.rows || [];
     el.innerHTML = `
     <h2>How information spread</h2>
-    ${progs.length ? `<p class="lead">${plural(progs.length, "program")} ${progs.length === 1 ? "was" : "were"} run by more than one named actor, reaching ${plural(actors.size, "actor")} in ${plural(adoptions, "adoption")}. The widest, first run by ${ent.actor(widest.source)} (<i>${esc(lowFirst(whatLine(widest.what)))}</i>), reached ${plural(widest.reach, "more actor")} within ${hoursWord(widest.last)}.${quick ? ` ${plural(quick, "program")} reached two or more other actors within an hour of the first run.` : ""} Half of all later runs came within ${hoursWord(med(allAfter))} of the first.</p>`
+    ${progs.length ? `<p class="lead">${plural(progs.length, "program")} ${progs.length === 1 ? "was" : "were"} run by more than one named actor, with ${plural(adoptions, "adoption")} in all (a program reaching one more actor). The widest ran under ${plural(widest.actors, "actor")}: first ${ent.actor(widest.source)} (<i>${esc(lowFirst(whatLine(widest.what)))}</i>), then ${fmt(widest.reach)} who reused it within ${hoursWord(widest.last)}.${quick ? ` ${plural(quick, "program")} reached two or more other actors within an hour of the first run.` : ""} The median reuse came ${hoursWord(med(allAfter))} after its program's first run.</p>`
       : `<p class="lead">No program was run by more than one named actor, so no code is seen moving between actors.</p>`}
-    <p class="muted small">A program here is the same code, with ids, numbers and hashes masked, run under several named actors. The data shows the same program appearing later under another actor; it does not show who passed it to whom, so lines below join each later run to the first.</p>
+    <p class="muted small spdef">A ${term("program", "program")} is identical code once ids, numbers and hashes are masked (only actions count). It is listed here when two or more ${term("named", "named actors")} ran it; code that only ${term("run", "anonymous runs")} or a single named actor ran is not listed, so the Inspector, which counts every copy, can show more copies of some code. The data shows the same program appearing later under another actor; it does not show who passed it to whom, so the lines below join each later run to the first.</p>
     <div class="kpis">
-      ${kpi("programs reused", fmt(progs.length), "run by 2+ named actors")}
-      ${kpi("actors involved", fmt(actors.size), "ran a shared program")}
-      ${kpi("adoptions", fmt(adoptions), "a program reaching a new actor")}
-      ${kpi("median time to adopt", hoursWord(med(allAfter)), `first adopter: median ${hoursWord(med(firsts))}`)}
-      ${kpi("tokens seen, then used", fmt(stuRows.length), `${plural(carRows.length, "carried token")}`)}
+      ${kpi(term("program", "programs listed"), fmt(progs.length), "run by 2+ named actors")}
+      ${kpi(term("named", "named actors"), fmt(actors.size), `${fmt(adopterSet.size)} reused another's program; ${fmt(startOnly)} only started one`)}
+      ${kpi("adoptions", fmt(adoptions), "a program reaching one more actor")}
+      ${kpi("median time to reuse", hoursWord(med(allAfter)), `after the first run; the first reuse of each program: median ${hoursWord(med(firsts))}`)}
+      ${kpi(term("seen_used", "tokens seen, then used"), fmt(stuRows.length), `${plural(carRows.length, "carried token")}`)}
     </div>
     ${progs.length ? card("Program explorer", `
       <div class="spbar"><input id="spQ" placeholder="Filter by what it does, a host or an actor" value="${esc(ST.q)}">
         <label class="small muted">sort <select id="spSort">${[["reach", "widest reach"], ["early", "earliest first run"], ["fast", "fastest spread"], ["copies", "most copies"]].map(([v, l]) => `<option value="${v}"${ST.sort === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>
         <span id="spCount" class="small muted"></span></div>
+      <div id="spKey" class="legend spkey"></div>
+      <div class="sprow sphdr"><span></span><div>what it does · hosts it calls · first run by</div><div class="spreach">actors</div><div class="spafter" title="time from the first run to the last actor's first run">last reuse</div></div>
       <div id="spList" class="splist"></div>
-      <div id="spDetail" class="spdetail"></div>`, { sub: "Every program run by several actors. Pick one to see who ran it, in what order, and what the code does." }) : ""}
-    ${progs.length ? card("Adoption over time", `<div id="spCurve"></div><div class="grid2 spbusy"><div><h4>Whose programs were reused most</h4><div id="spSources"></div></div><div><h4>Who reused others' programs most</h4><div id="spAdopters"></div></div></div>`,
-      { sub: "Bars: programs reaching a new actor in each hour. Teal line: all adoptions so far. Amber line: distinct actors who have run someone else's program." }) : ""}
+      <div id="spDetail" class="spdetail"></div>`, { sub: "Every listed program. Pick one to see who ran it, in what order, and what the code does. Actors: the first + those who reused it." }) : ""}
+    ${progs.length ? card("Adoption over time", `<div id="spCurve"></div><div id="spReach"></div><div class="grid2 spbusy"><div><h4>Whose programs were reused most <span class="muted small">(adoptions of its programs)</span></h4><div id="spSources"></div></div><div><h4>Who reused others' programs most <span class="muted small">(programs reused)</span></h4><div id="spAdopters"></div></div></div><p id="spBusyNote" class="small muted"></p>`,
+      { sub: "An adoption is a program reaching one more named actor. Top: adoptions so far (line, left scale) and adoptions in each hour (bars, right scale). Below: how many different actors had reused someone else's program by then." }) : ""}
     ${progs.length ? card("Who ran which program", `<div class="small spmctl"><label><input type="checkbox" id="spAllProgs"${ST.matrixAll ? " checked" : ""}> all ${fmt(progs.length)} programs</label> <span class="muted">(otherwise the ${fmt(progs.filter((x) => x.actors >= 3).length)} run by 3 or more actors)</span></div><div id="spMatrix" class="spmatrix"></div>`,
-      { sub: "Rows are actors, columns are programs, ordered so actors that ran the same programs sit together. Dark square: the actor ran it first. Light square: it ran it later. Hover a square for the record." }) : ""}
+      { sub: `Rows are actors, columns are programs, ordered so actors that ran the same programs sit together. Dark square: the actor ran it first. Light square: it ran it later. Hover a square for the record. By default the grid shows the ${fmt(grid3.size)} named actors in programs run by three or more actors; of the ${fmt(actors.size)} named actors on this page, ${fmt(adopterSet.size)} reused someone else's program and ${fmt(startOnly)} only started one.` }) : ""}
     ${card("Tokens that moved", `<div id="spTokens"></div>
       <h4 style="margin-top:12px">One identity carrying another's token</h4><div id="spCarried"></div>
       <details class="spdet"><summary>Table of all ${fmt(stuRows.length)} tokens seen, then used</summary><div id="stuList"></div></details>`,
-      { sub: "A token that appears inside a record as data (hollow dot) before any record uses it to authenticate (solid dot): one way a credential moves between agents. The line is the lead time." })}`;
+      { sub: `${term("seen_used", "Seen, then used")}: a token appears inside a record as data (hollow dot) before any record uses it to authenticate (solid dot). The token moved, but the data does not show who passed it. ${term("carried", "Carried")}: one record authenticates as one identity and holds another's token, so the holder is known. The line is the lead time; "same minute" means seen and used within a minute.` })}`;
 
     if (progs.length) {
       const list = $("spList");
@@ -76,12 +80,14 @@
         const sorters = { reach: (a, b) => b.actors - a.actors || b.copies - a.copies, early: (a, b) => a.t - b.t, fast: (a, b) => (b.adopters.length >= 2) - (a.adopters.length >= 2) || a.last - b.last, copies: (a, b) => b.copies - a.copies };
         xs = xs.sort(sorters[ST.sort]);
         const maxA = Math.max(...progs.map((x) => x.actors));
+        const its = [...new Set(progs.map((x) => x.what?.intent || "other"))];
+        $("spKey").innerHTML = `<span class="muted small">square: what the code does</span>` + its.map((k) => `<span title="${esc(intentName(k))}"><i style="background:${intentColor(k)}"></i>${esc(human(k))}</span>`).join("");
         $("spCount").textContent = `${fmt(xs.length)} of ${fmt(progs.length)}`;
         list.innerHTML = xs.length ? xs.map((x) => `<div class="sprow${x.i === ST.sel ? " on" : ""}" data-i="${x.i}">
-            <span class="spdot" style="background:${intentColor(x.what?.intent)}"></span>
+            <span class="spdot" style="background:${intentColor(x.what?.intent)}" title="${esc(intentName(x.what?.intent || "other"))}"></span>
             <div class="spmain"><div class="spwhat" title="${esc(whatLine(x.what))}">${esc(whatLine(x.what))}</div>
-              <div class="spsub">${callLine(x.what) ? `<code>${esc(callLine(x.what))}</code> · ` : ""}first ${esc(short(x.source))} · ${esc(x.source_time || "")} · ${plural(x.copies, "copy", "copies")}</div></div>
-            <div class="spreach"><span class="meter" style="width:64px"><i style="width:${(100 * x.actors / maxA).toFixed(1)}%;background:${C.program}"></i></span> <b>${x.actors}</b></div>
+              <div class="spsub">${callLine(x.what) ? `<code>${esc(callLine(x.what))}</code> · ` : ""}first run by ${esc(short(x.source))} · ${esc(x.source_time ? when(tOf(x.source_time)) : "no time")} · ${plural(x.copies, "copy", "copies")}</div></div>
+            <div class="spreach" title="${esc(`${x.actors} actors: the first + ${x.reach} who reused it`)}"><span class="meter" style="width:64px"><i style="width:${(100 * x.actors / maxA).toFixed(1)}%;background:${C.program}"></i></span> <b>${x.actors}</b></div>
             <div class="spafter">${hoursWord(x.last)}</div></div>`).join("") : '<p class="muted small" style="padding:8px">No program matches.</p>';
         list.querySelectorAll(".sprow").forEach((r) => r.addEventListener("click", () => { ST.sel = +r.dataset.i; ST.selFamily = progs[ST.sel].family; list.querySelectorAll(".sprow").forEach((x) => x.classList.toggle("on", x === r)); drawDetail(progs[ST.sel]); }));
       };
@@ -101,8 +107,8 @@
     const tok = () => drawTokens($("spTokens"), stuRows);
     tok(); onResize($("spTokens"), tok);
     drawCarried($("spCarried"), carRows);
-    listView($("stuList"), "seen_then_used", ["item", "first seen", "record", "kind", "first used", "uses", "lead"],
-      (x) => [ent.actor(x.item), esc(x.first_seen), ent.rec(x.first_seen_id), esc(x.first_seen_kind), esc(x.first_used), fmt(x.uses), hoursWord(x.lead_hours)],
+    listView($("stuList"), "seen_then_used", ["token", "first seen as data", "in record", "record kind", "seen by", "first used to authenticate", "uses", "lead"],
+      (x) => [ent.actor(x.item), `<span class="nowrap">${esc(when(tOf(x.first_seen)))}</span>`, ent.rec(x.first_seen_id), esc(x.first_seen_kind), x.first_seen_actor ? ent.actor(x.first_seen_actor) : "–", `<span class="nowrap">${esc(when(tOf(x.first_used)))}</span>`, fmt(x.uses), x.lead_hours ? hoursWord(x.lead_hours) : '<span class="muted">same minute</span>'],
       stuRows, stuRows.length);
   }
 
@@ -118,11 +124,11 @@
           ${(w.calls || []).length ? `<div class="small muted">calls ${w.calls.map((c) => `<code>${esc(c)}</code>`).join(" ")}</div>` : ""}</div>
         <button type="button" class="primary small" id="spAsk">Ask the AI about this program</button>
       </div>
-      <div class="comp">${[["actors", x.actors], ["copies", x.copies], ["dated copies", x.dated_copies], ["first adopter after", null, hoursWord(x.first)], ["last adopter after", null, hoursWord(x.last)]].map(([k, v, txt]) => `<div><b>${txt ?? fmt(v)}</b><span>${k}</span></div>`).join("")}</div>
+      <div class="comp">${[[`actors: the first + ${x.reach} who reused it`, x.actors], ["copies in all (repeat and anonymous runs too)", x.copies], ["copies with a time", x.dated_copies], ["first reuse after", null, hoursWord(x.first)], ["last reuse after", null, hoursWord(x.last)]].map(([k, v, txt]) => `<div><b>${txt ?? fmt(v)}</b><span>${k}</span></div>`).join("")}</div>
       <div id="spCascade"></div>
       <div class="grid2 spsrc">
         <div><h4>The first run ${ent.rec(x.source_record)}</h4><div id="spSrc" class="muted small">Loading the record…</div></div>
-        <div><h4>Who ran it, in order</h4>${table(["#", "actor", "record", "time", "after"], [[0, ent.actor(x.source), ent.rec(x.source_record), esc(x.source_time || "–"), '<span class="muted">first</span>'], ...x.adopters.map((a, k) => [k + 1, ent.actor(a.actor), ent.rec(a.record), esc(a.time || "–"), hoursWord(a.hours_after_source)])])}</div>
+        <div><h4>Who ran it, in order</h4><p class="small muted">Each named actor's first run; the other ${fmt(Math.max(0, x.copies - x.actors))} of the ${plural(x.copies, "copy", "copies")} are repeat runs or anonymous runs.</p>${table(["#", "actor", "record", "time (UTC)", "after"], [[0, ent.actor(x.source), ent.rec(x.source_record), `<span class="nowrap">${esc(x.source_time ? when(tOf(x.source_time)) : "–")}</span>`, '<span class="muted">first</span>'], ...x.adopters.map((a, k) => [k + 1, ent.actor(a.actor), ent.rec(a.record), `<span class="nowrap">${esc(a.time ? when(tOf(a.time)) : "–")}</span>`, hoursWord(a.hours_after_source)])])}</div>
       </div>`;
     $("spAsk").addEventListener("click", () => askAbout(x.source_record, `Explain how the program first run in ${x.source_record} by ${x.source} spread to ${x.adopters.length} other actors (${x.adopters.map((a) => a.record).slice(0, 8).join(", ")}): what the code does, who ran it in what order, and what that suggests about how information moved. Cite record ids.`));
     const cas = () => drawCascade($("spCascade"), x);
@@ -173,43 +179,68 @@
   }
 
   // ------------------------------------------------------------------ adoption over time
+  // two charts on one time axis: adoptions (cumulative line, left scale; per hour, bars, right scale)
+  // and how many different actors had reused someone else's program by then
   function drawCurve(host, progs) {
     if (!host) return;
     const ev = [];
     progs.forEach((x) => x.adopters.forEach((a) => { const t = tOf(a.time); if (t != null) ev.push({ t, actor: a.actor }); }));
     const starts = progs.map((x) => x.t).filter((t) => t != null);
-    if (!ev.length) { host.innerHTML = '<p class="muted small">No dated adoptions.</p>'; return; }
+    if (!ev.length) { host.innerHTML = '<p class="muted small">No dated adoptions.</p>'; if ($("spReach")) $("spReach").innerHTML = ""; return; }
     ev.sort((a, b) => a.t - b.t);
-    const W = Math.max(360, host.clientWidth || 700), Hh = 210, x0 = 44, x1 = W - 44, yT = 14, yB = Hh - 28;
+    const W = Math.max(360, host.clientWidth || 700), Hh = 190, x0 = 48, x1 = W - 48, yT = 16, yB = Hh - 26;
     const t0 = Math.floor(Math.min(...starts, ev[0].t) / H) * H, t1 = Math.ceil((ev.at(-1).t + 1) / H) * H;
     const X = (t) => x0 + (t - t0) / (t1 - t0) * (x1 - x0);
     const perH = new Map(); ev.forEach((e) => { const k = Math.floor(e.t / H) * H; perH.set(k, (perH.get(k) || 0) + 1); });
     const mxH = Math.max(...perH.values());
     const cum = [], reached = [], seen = new Set();
     ev.forEach((e, i) => { seen.add(e.actor); cum.push([e.t, i + 1]); reached.push([e.t, seen.size]); });
-    const total = ev.length, Yc = (v) => yB - v / total * (yB - yT), Yb = (v) => yB - v / mxH * (yB - yT) * 0.45;
-    const nAct = seen.size, Ya = (v) => yB - v / nAct * (yB - yT);
+    const total = ev.length, nAct = seen.size;
+    const Yc = (v) => yB - v / total * (yB - yT), Yb = (v) => yB - v / mxH * (yB - yT);
     const bw = Math.max(1, (x1 - x0) / ((t1 - t0) / H) - 1);
-    let svg = `<svg class="chart" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Adoptions of shared programs over time">`;
-    [0, 0.5, 1].forEach((f) => { svg += `<line x1="${x0}" x2="${x1}" y1="${Yc(total * f)}" y2="${Yc(total * f)}" stroke="${GRID}"/><text x="${x0 - 6}" y="${Yc(total * f) + 4}" text-anchor="end" font-size="10.5" fill="${C.program}">${fmt(Math.round(total * f))}</text><text x="${x1 + 6}" y="${Ya(nAct * f) + 4}" font-size="10.5" fill="${C.actor}">${fmt(Math.round(nAct * f))}</text>`; });
-    perH.forEach((v, k) => { svg += `<rect x="${X(k)}" y="${Yb(v)}" width="${bw}" height="${yB - Yb(v)}" fill="${C.program}" opacity=".22"><title>${esc(when(k))}: ${plural(v, "adoption")}</title></rect>`; });
-    const step = (pts, Yf) => pts.map(([t, v], i) => `${i ? `L${X(t).toFixed(1)},${Yf(pts[i - 1][1]).toFixed(1)} ` : `M${X(t).toFixed(1)},${yB} `}L${X(t).toFixed(1)},${Yf(v).toFixed(1)}`).join(" ") + ` L${x1},${Yf(pts.at(-1)[1]).toFixed(1)}`;
-    svg += `<path d="${step(reached, Ya)}" fill="none" stroke="${C.actor}" stroke-width="1.8"/>`;
-    svg += `<path d="${step(cum, Yc)}" fill="none" stroke="${C.program}" stroke-width="2.2"/>`;
+    const ticks = () => timeTicks(t0, t1, Math.max(3, Math.floor((x1 - x0) / 90)));
+    const step = (pts, Yf, yBase) => pts.map(([t, v], i) => `${i ? `L${X(t).toFixed(1)},${Yf(pts[i - 1][1]).toFixed(1)} ` : `M${X(t).toFixed(1)},${yBase} `}L${X(t).toFixed(1)},${Yf(v).toFixed(1)}`).join(" ") + ` L${x1},${Yf(pts.at(-1)[1]).toFixed(1)}`;
+    let svg = `<svg class="chart" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Adoptions of listed programs over time">`;
+    svg += `<text x="${x0 - 6}" y="10" text-anchor="end" font-size="10" fill="${C.program}">so far</text><text x="${x1 + 6}" y="10" font-size="10" fill="${QUIET}">per hour</text>`;
+    [0, 0.5, 1].forEach((f) => { svg += `<line x1="${x0}" x2="${x1}" y1="${Yc(total * f)}" y2="${Yc(total * f)}" stroke="${GRID}"/><text x="${x0 - 6}" y="${Yc(total * f) + 4}" text-anchor="end" font-size="10.5" fill="${C.program}">${fmt(Math.round(total * f))}</text><text x="${x1 + 6}" y="${Yb(mxH * f) + 4}" font-size="10.5" fill="${QUIET}">${fmt(Math.round(mxH * f))}</text>`; });
+    perH.forEach((v, k) => { svg += `<rect x="${X(k)}" y="${Yb(v)}" width="${bw}" height="${yB - Yb(v)}" fill="#b9c4cf" opacity=".55"><title>${esc(when(k))}–${esc(clock(k + H))}: ${plural(v, "adoption")}</title></rect>`; });
+    svg += `<path d="${step(cum, Yc, yB)}" fill="none" stroke="${C.program}" stroke-width="2.2"/>`;
     svg += `<line x1="${x0}" x2="${x1}" y1="${yB}" y2="${yB}" stroke="${AXIS}"/>`;
-    timeTicks(t0, t1, Math.max(3, Math.floor((x1 - x0) / 90))).forEach((k) => { svg += `<line x1="${X(k.t)}" x2="${X(k.t)}" y1="${yB}" y2="${yB + 4}" stroke="${AXIS}"/><text x="${X(k.t)}" y="${yB + 17}" text-anchor="middle" font-size="10.5" fill="${QUIET}">${esc(k.label)}</text>`; });
-    // half-way mark: when half of all adoptions had happened
+    ticks().forEach((k) => { svg += `<line x1="${X(k.t)}" x2="${X(k.t)}" y1="${yB}" y2="${yB + 4}" stroke="${AXIS}"/><text x="${X(k.t)}" y="${yB + 17}" text-anchor="middle" font-size="10.5" fill="${QUIET}">${esc(k.label)}</text>`; });
+    // the moment half of all adoptions had happened, labelled on the side with more room
     const half = cum[Math.floor(total / 2)];
-    if (half) svg += `<line x1="${X(half[0])}" x2="${X(half[0])}" y1="${yT}" y2="${yB}" stroke="${C.program}" stroke-dasharray="3 3" stroke-opacity=".6"/><text x="${X(half[0]) - 5}" y="${yT + 10}" text-anchor="end" font-size="10.5" fill="${C.program}">half of all adoptions by ${esc(when(half[0]))}</text>`;
-    host.innerHTML = svg + `</svg><div class="legend"><span><i style="background:${C.program}"></i>adoptions so far <b>${fmt(total)}</b></span><span><i style="background:${C.actor}"></i>actors who ran another's program <b>${fmt(nAct)}</b></span><span><i style="background:${C.program};opacity:.3"></i>adoptions per hour</span></div>`;
+    if (half) {
+      const hx = X(half[0]), lbl = `half of all adoptions had happened by ${when(half[0])}`, lw = textWidth(lbl, "10.5px -apple-system, system-ui, sans-serif");
+      const right = hx + 6 + lw < x1;
+      svg += `<line x1="${hx}" x2="${hx}" y1="${yT}" y2="${yB}" stroke="${C.program}" stroke-dasharray="3 3" stroke-opacity=".6"/><text x="${right ? hx + 6 : hx - 6}" y="${yB - 8}" text-anchor="${right ? "start" : "end"}" font-size="10.5" fill="${C.program}" paint-order="stroke" stroke="#fff" stroke-width="3">${esc(lbl)}</text>`;
+    }
+    host.innerHTML = svg + `</svg><div class="legend"><span><i style="background:${C.program}"></i>adoptions so far <b>${fmt(total)}</b> (left scale)</span><span><i style="background:#b9c4cf"></i>adoptions in each hour (right scale, most ${fmt(mxH)})</span></div>`;
+    // second chart: different actors who had reused someone else's program
+    const rh = $("spReach");
+    if (!rh) return;
+    const H2 = 110, yT2 = 12, yB2 = H2 - 24, Ya = (v) => yB2 - v / nAct * (yB2 - yT2);
+    let s2 = `<svg class="chart" width="${W}" height="${H2}" viewBox="0 0 ${W} ${H2}" role="img" aria-label="Different actors who had reused another actor's program">`;
+    [0, 1].forEach((f) => { s2 += `<line x1="${x0}" x2="${x1}" y1="${Ya(nAct * f)}" y2="${Ya(nAct * f)}" stroke="${GRID}"/><text x="${x0 - 6}" y="${Ya(nAct * f) + 4}" text-anchor="end" font-size="10.5" fill="${C.actor}">${fmt(Math.round(nAct * f))}</text>`; });
+    s2 += `<path d="${step(reached, Ya, yB2)}" fill="none" stroke="${C.actor}" stroke-width="2"/><line x1="${x0}" x2="${x1}" y1="${yB2}" y2="${yB2}" stroke="${AXIS}"/>`;
+    ticks().forEach((k) => { s2 += `<text x="${X(k.t)}" y="${yB2 + 16}" text-anchor="middle" font-size="10.5" fill="${QUIET}">${esc(k.label)}</text>`; });
+    rh.innerHTML = s2 + `</svg><div class="legend"><span><i style="background:${C.actor}"></i>different named actors who had reused someone else's program <b>${fmt(nAct)}</b> by the end</span></div>`;
   }
 
   function drawBusy(progs) {
-    const src = new Map(), ad = new Map();
-    progs.forEach((x) => { src.set(x.source, (src.get(x.source) || 0) + x.adopters.length); x.adopters.forEach((a) => ad.set(a.actor, (ad.get(a.actor) || 0) + 1)); });
+    const src = new Map(), started = new Map(), ad = new Map();
+    progs.forEach((x) => {
+      src.set(x.source, (src.get(x.source) || 0) + x.adopters.length);
+      started.set(x.source, (started.get(x.source) || 0) + 1);
+      x.adopters.forEach((a) => ad.set(a.actor, (ad.get(a.actor) || 0) + 1));
+    });
     const top = (m) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
-    $("spSources").innerHTML = hbars(top(src).map(([a, n]) => ({ label: ent.actor(a), value: n, color: INK, title: `${n} later runs by other actors of programs ${short(a)} ran first` })));
-    $("spAdopters").innerHTML = hbars(top(ad).map(([a, n]) => ({ label: ent.actor(a), value: n, color: C.program, title: `${short(a)} ran ${n} programs another actor ran first` })));
+    const ts = top(src);
+    $("spSources").innerHTML = hbars(ts.map(([a, n]) => ({ label: ent.actor(a), value: n, color: INK, title: `${short(a)} first ran ${started.get(a)} listed programs; other actors adopted them ${n} times` })));
+    $("spAdopters").innerHTML = hbars(top(ad).map(([a, n]) => ({ label: ent.actor(a), value: n, color: C.program, title: `${short(a)} reused ${n} programs another actor ran first` })));
+    if (ts.length && $("spBusyNote")) {
+      const [a, n] = ts[0];
+      $("spBusyNote").innerHTML = `Left: adoptions, one per program and per other actor who ran it. For example ${ent.actor(a)} first ran ${plural(started.get(a), "listed program")}, and other actors adopted them ${plural(n, "time")}. Right: programs each actor reused after another actor ran them first.`;
+    }
   }
 
   // ------------------------------------------------------------------ actor x program matrix
@@ -264,23 +295,24 @@
     const t0 = Math.floor(Math.min(...xs.map((r) => r.a)) / H) * H, t1 = Math.ceil((Math.max(...xs.map((r) => r.b)) + 1) / H) * H;
     const X = (t) => L + (t - t0) / Math.max(1, t1 - t0) * (W - L - R);
     let svg = `<svg class="chart" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Tokens seen as data, then used as identities">`;
-    timeTicks(t0, t1, Math.max(3, Math.floor((W - L - R) / 95))).forEach((k) => { svg += `<line x1="${X(k.t)}" x2="${X(k.t)}" y1="${top}" y2="${Hh - 22}" stroke="${GRID}"/><text x="${X(k.t)}" y="${Hh - 8}" text-anchor="middle" font-size="10.5" fill="${QUIET}">${esc(k.label)}</text>`; });
+    const days = Math.ceil((t1 - t0) / (24 * H));
+    timeTicks(t0, t1, Math.min(Math.max(3, days + 1), Math.max(3, Math.floor((W - L - R) / 48)))).forEach((k) => { svg += `<line x1="${X(k.t)}" x2="${X(k.t)}" y1="${top}" y2="${Hh - 22}" stroke="${GRID}"/><text x="${X(k.t)}" y="${Hh - 8}" text-anchor="middle" font-size="10.5" fill="${QUIET}">${esc(k.label)}</text>`; });
     xs.forEach((r, i) => {
       const y = top + i * RH + RH / 2, xa = X(r.a), xb = X(r.b);
       svg += `<text class="node" data-actor="${esc(r.item)}" x="${L - 8}" y="${y + 3.5}" text-anchor="end" font-size="11" fill="#3d4a58">${esc(fitName(short(r.item), L - 12, "11px -apple-system, system-ui, sans-serif"))}</text>`;
       svg += `<line x1="${xa}" x2="${xb}" y1="${y}" y2="${y}" stroke="${C.place}" stroke-opacity=".5" stroke-width="2"/>`;
-      svg += `<circle class="node" data-id="${esc(r.first_seen_id)}" cx="${xa}" cy="${y}" r="4" fill="#fff" stroke="${C.place}" stroke-width="1.6"><title>${esc(short(r.item))} first seen as data in ${esc(r.first_seen_id)} (${esc(r.first_seen_kind)}), ${esc(r.first_seen)}</title></circle>`;
+      svg += `<circle class="node" data-id="${esc(r.first_seen_id)}" cx="${xa}" cy="${y}" r="4" fill="#fff" stroke="${C.place}" stroke-width="1.6"><title>${esc(short(r.item))} first seen as data in ${esc(r.first_seen_id)} (a ${esc(r.first_seen_kind)} record${r.first_seen_actor ? " by " + esc(short(r.first_seen_actor)) : ""}), ${esc(r.first_seen)} UTC</title></circle>`;
       svg += `<circle class="node" data-actor="${esc(r.item)}" cx="${xb}" cy="${y}" r="4.2" fill="${C.place}"><title>${esc(short(r.item))} first used as an identity ${esc(r.first_used)}; ${fmt(r.uses)} uses</title></circle>`;
-      svg += `<text x="${W - R + 8}" y="${y + 3.5}" font-size="10.5" fill="${QUIET}">${esc(hoursWord(r.lead_hours))} · ${plural(r.uses, "use")}</text>`;
+      svg += `<text x="${W - R + 8}" y="${y + 3.5}" font-size="10.5" fill="${QUIET}">${esc(r.lead_hours ? hoursWord(r.lead_hours) + " lead" : "same minute")} · ${plural(r.uses, "use")}</text>`;
     });
-    host.innerHTML = svg + `</svg><div class="legend"><span><i style="background:#fff;border:1.5px solid ${C.place};border-radius:50%"></i>first seen as data (hover for the record)</span><span><i style="background:${C.place};border-radius:50%"></i>first used as an identity</span></div>`;
+    host.innerHTML = svg + `</svg><div class="legend"><span><i style="background:#fff;border:1.5px solid ${C.place};border-radius:50%"></i>first seen as data (hover for the record)</span><span><i style="background:${C.place};border-radius:50%"></i>first used to authenticate</span><span class="muted">${fmt(xs.filter((r) => !r.lead_hours).length)} of ${fmt(xs.length)} were seen and used within the same minute</span></div>`;
   }
 
   function drawCarried(host, rows) {
     if (!host) return;
     if (!rows.length) { host.innerHTML = '<p class="muted small">No record authenticates as one identity while holding another identity\'s token before that token\'s first use.</p>'; return; }
-    host.innerHTML = `<p class="muted small">A record that authenticates as one identity and also holds another identity's token, before that token's own first use.</p>
-      <div class="spflows">${rows.map((c) => `<div class="spflow">${ent.actor(c.from)}<span class="sparrow"><span>carries</span></span>${ent.actor(c.to)}<span class="muted small">${plural(c.records, "record")}: ${(c.evidence || []).map(ent.rec).join(" ")}</span></div>`).join("")}</div>`;
+    host.innerHTML = `<p class="muted small">A record that authenticates as one identity and also holds another identity's token, before that token's own first use: the left actor is the holder.</p>
+      <div class="spflows">${rows.map((c) => `<div class="spflow">${ent.actor(c.from)}<span class="sparrow"><span>carries</span></span>${ent.actor(c.to)}<span class="muted small">${plural(c.records, "record")}: ${(c.evidence || []).map((id) => ent.rec(id)).join(" ")}</span></div>`).join("")}</div>`;
   }
 
   VIEWS.spread = view;

@@ -17,7 +17,7 @@
       <span id="evchips"></span>
     </div>
     <div class="grid2 evtop">
-      ${card("When", '<div id="evhist"></div>', { sub: "Matching events per hour. Click a bar to keep only that hour." })}
+      ${card("When", '<div id="evhist"></div>', { sub: "Matching records per hour (UTC; most times are estimated). Click a bar to keep only that hour." })}
       ${card("What they are", '<div id="evfacets"></div>', { sub: "Click a part to filter." })}
     </div>
     <div id="evlist" class="muted">Loading…</div>`;
@@ -52,7 +52,7 @@
       const rows = r.rows;
       host.className = "";
       host.innerHTML = rows.length ? `<div class="evrows">${rows.map((x, i) => `<div class="evrow" data-i="${i}">
-          <div class="c1"><span class="tm">${esc(x.time ? x.time.slice(5) : "no time")}</span>${ent.rec(x.id)}<span class="badge">${esc(x.kind)}</span></div>
+          <div class="c1"><span class="tm" title="${esc(x.time ? x.time + " UTC" : "no time")}">${esc(x.time ? when(toTime(x.time)) : "no time")}</span>${ent.rec(x.id)}<span class="badge">${esc(x.kind)}</span></div>
           <div class="c2">${ent.actor(x.actor)} ${ent.intent(x.intent)} ${x.tags.slice(0, 3).map((t) => `<span class="chip" title="${esc(tagName(t))}">${esc(human(t))}</span>`).join("")}${x.tags.length > 3 ? `<span class="muted small">+${x.tags.length - 3}</span>` : ""}
             <span class="io">${x.in ? `<span class="in" title="messages in: read what another actor wrote">↘ ${x.in}</span>` : ""}${x.out ? `<span class="out" title="messages out: another actor read what this wrote">↗ ${x.out}</span>` : ""}${x.ops ? `<span class="ops" title="places touched">◧ ${x.ops}</span>` : ""}</span></div>
           <div class="c3 mono">${esc(x.preview.slice(0, 160))}</div></div>`).join("")}</div>` : '<p class="muted">No event matches these filters.</p>';
@@ -85,9 +85,12 @@
     if (!host) return;
     const kc = ["#2f6fb3", "#6aa5dc", "#bcd3ec", "#9aa5b1"];
     const kinds = Object.entries(f.kind).map(([k, v], i) => ({ label: k, value: v, color: kc[i % kc.length] }));
-    host.innerHTML = `<div class="small muted">kind</div>${stackbar(kinds, { h: 10 })}
-      ${Object.keys(f.intent).length ? `<div class="small muted" style="margin-top:8px">what the code does</div>${hbars(Object.entries(f.intent).slice(0, 6).map(([k, v]) => ({ label: esc(human(k)), value: v, color: intentColor(k), attrs: `data-click data-fi="${esc(k)}"` })), { total })}` : ""}
-      <div class="small muted" style="margin-top:8px">busiest actors</div><div class="chips">${f.actor.slice(0, 8).map(([a, n]) => `<span class="fa">${ent.actor(a, ` <span class="muted">${fmt(n)}</span>`)}<button type="button" class="link small" data-fa="${esc(a)}" title="Keep only this actor's events">filter</button></span>`).join("")}</div>`;
+    const withIntent = Object.values(f.intent).reduce((a, b) => a + b, 0);
+    host.innerHTML = `<div class="small muted">${term("record", "kind of record")} <span class="faint">(click one to keep only that kind)</span></div>${stackbar(kinds, { h: 10 })}
+      <div class="chips">${kinds.map((k) => `<button type="button" class="link small" data-fk="${esc(k.label)}">${esc(k.label)}${S.ev.kind === k.label ? " ✓" : ""}</button>`).join("")}</div>
+      ${Object.keys(f.intent).length ? `<div class="small muted" style="margin-top:8px">what the code does (${term("intent")}; only ${term("action", "actions")} have one: ${fmt(withIntent)} of the ${fmt(total)})</div>${hbars(Object.entries(f.intent).map(([k, v]) => ({ label: `${esc(human(k))}${isHarm(k) ? ' <span class="harmtag">harm</span>' : ""}`, value: v, color: intentColor(k), attrs: `data-click data-fi="${esc(k)}"` })), { total: withIntent })}` : ""}
+      <div class="small muted" style="margin-top:8px">busiest ${term("actor", "actors")} <span class="faint">("run R…" is an ${term("run", "anonymous run")}: a thread with no token or name, credited to its first record)</span></div><div class="chips">${f.actor.slice(0, 8).map(([a, n]) => `<span class="fa">${ent.actor(a, ` <span class="muted">${fmt(n)}</span>`)}<button type="button" class="link small" data-fa="${esc(a)}" title="Keep only this actor's events">filter</button></span>`).join("")}</div>`;
+    host.querySelectorAll("[data-fk]").forEach((b) => b.addEventListener("click", () => { S.ev.kind = S.ev.kind === b.dataset.fk ? "" : b.dataset.fk; $("fk").value = S.ev.kind; S.ev.offset = 0; loadEvents(); }));
     host.querySelectorAll("[data-fi]").forEach((b) => b.addEventListener("click", () => { S.ev.intent = b.dataset.fi; $("fi").value = b.dataset.fi; S.ev.offset = 0; loadEvents(); }));
     host.querySelectorAll("[data-fa]").forEach((b) => b.addEventListener("click", () => { S.ev.actor = b.dataset.fa; S.ev.offset = 0; loadEvents(); }));
   }

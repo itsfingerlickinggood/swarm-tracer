@@ -7,15 +7,18 @@
   async function gaps(el, s) {
     el.innerHTML = '<p class="muted">Loading…</p>';
     const { rows } = await cached("/api/gaps");
-    const measured = rows.filter((r) => r.share != null).sort((a, b) => b.share - a.share);
+    if (S.tab !== "gaps") return;
+    const measured = rows.filter((r) => r.share != null && r.count > 0).sort((a, b) => b.share - a.share);
+    const none = rows.filter((r) => r.share != null && !r.count);
     const counted = rows.filter((r) => r.share == null && r.count != null);
     const open = rows.filter((r) => r.count == null);
     const f = s.flow;
     el.innerHTML = `
     <h2>What an investigator would still miss</h2>
-    <p class="lead">The tool reconstructs only what the records show. ${measured.length ? `The largest measured gap: <b>${esc(measured[0].gap.toLowerCase())}</b>, ${pct(measured[0].share)} of ${esc(measured[0].unit)}.` : ""} Each gap below says which of the three questions it limits.</p>
+    <p class="lead">The tool reconstructs only what the records show. ${measured.length ? `The largest measured gap: <b>${esc(measured[0].gap.toLowerCase())}</b>, ${pct(measured[0].share)} of ${esc(measured[0].unit)}.` : ""} Each gap below says which of the challenge's three questions it limits: who talked to whom, how information spread, and whether the coordination could have been flagged early.</p>
+    <p class="small muted">Words used here: ${term("action")}, ${term("named", "named actor")}, ${term("run", "anonymous run")}, ${term("merged", "merged place")}, ${term("pack")}. A parent link ties a record to the record that started it (its thread).</p>
     <div class="qkey">${Object.entries(Q).map(([k, v]) => `<span><i style="background:${v.c}"></i>${esc(k)}</span>`).join("")}</div>
-    ${card("Measured blind spots", `<div class="gaprows">${measured.map(row).join("")}</div>`, { sub: "Bar: share of the records, messages or places affected." })}
+    ${card("Measured blind spots", `<div class="gaprows">${measured.map(row).join("")}</div>${none.length ? `<p class="small muted">Measured and found empty in this dataset: ${none.map((r) => esc(r.gap.toLowerCase())).join("; ")}.</p>` : ""}`, { sub: "Bar: share of the records, actions, messages or places affected (the unit is given on each row)." })}
     ${counted.length || open.length ? `<div class="grid2">${[...counted, ...open].map(cardFor).join("")}</div>` : ""}
     ${card("AI gap audit", `<div id="gapai">${S.gapAudit || `<p class="small muted">The investigator reads these measured gaps, the analysis brief${s.pack ? "" : ""} and the incident reports (when linked), then ranks the blind spots for the three questions, with what each could hide and how to close it. Needs an API key in the investigator's Settings.</p>`}</div>`,
       { right: `<button type="button" class="primary" id="gapRun">${S.gapAudit ? "Run again" : "Run the AI gap audit"}</button>` })}

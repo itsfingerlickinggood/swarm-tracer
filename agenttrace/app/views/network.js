@@ -9,8 +9,9 @@ const ROLES = [
   { label: "sends and receives", fill: ACCENT },
   { label: "only receives", fill: "#8f9aa6" },
 ];
-const RUN_FILL = "#c3cad2", RUN_EDGE = "#aab3bc";
-const NW = { mode: "named", T: null, playing: false, raf: 0 };   // kept across redraws and tab switches
+const RUN_FILL = "#ffffff", RUN_STROKE = "#9aa5b1", RUN_EDGE = "#aab3bc";   // anonymous runs: hollow, so they never read as "only receives"
+const NW = { mode: "named", T: null, playing: false, raf: 0, noMerged: false, mergedByPair: new Map() };   // kept across redraws and tab switches
+const MERGED_TIP = "On a place the redaction may have merged: it kept only the owner's name, so the write and the read may be on two different repositories.";
 const CAP_LABELS = 70, CAP_MATRIX = 60;
 
 // ------------------------------------------------------------------ data
@@ -38,8 +39,8 @@ function buildGraph(msgs) {
     }
     const k = m.from + "\u0001" + m.to;
     let e = edges.get(k);
-    if (!e) { e = { a: m.from, b: m.to, n: 0, times: [], first: m.rt, ch: new Set(), key: k }; edges.set(k, e); }
-    e.n++; e.times.push(m.rt); e.ch.add(m.ch);
+    if (!e) { e = { a: m.from, b: m.to, n: 0, merged: 0, times: [], first: m.rt, ch: new Set(), key: k }; edges.set(k, e); }
+    e.n++; e.times.push(m.rt); e.ch.add(m.ch); if (m.merged) e.merged++;
   }
   for (const n of nodes.values()) {
     n.total = n.sent + n.recv;
@@ -122,40 +123,40 @@ function findings(G, all, named) {
   const more = (ids, k) => ids.slice(0, k).map(chip).join(" ") + (ids.length > k ? ` <span class="muted small">+${fmt(ids.length - k)} more</span>` : "");
   const hub = [...N].sort((a, b) => b.partners - a.partners || b.total - a.total)[0];
   cards.push({ big: fmt(hub.partners), unit: "partners", title: "Biggest hub",
-    text: `${chip(hub.id)} exchanged messages with ${plural(hub.partners, "other named actor")}: sent ${fmt(hub.sent)}, received ${fmt(hub.recv)}.` });
+    text: `${chip(hub.id)} exchanged messages with ${plural(hub.partners, "other named actor")}: sent ${fmt(hub.sent)} to them and received ${fmt(hub.recv)} from them.` });
   const br = [...N].sort((a, b) => b.btw - a.btw)[0];
   if (br && br.btw > 0) {
     const parts = splitWithout(G, br.id);
-    cards.push({ big: pct(br.btwShare), unit: "of routes", title: "Top broker",
-      text: `${chip(br.id)} sits on the shortest route between ${pct(br.btwShare)} of the other pairs of named actors.${parts > 1 ? ` Without it, its group falls into ${fmt(parts)} pieces.` : " Its group stays connected without it."}` });
+    cards.push({ big: pct(br.btwShare), unit: "of routes", title: "Top " + term("broker", "broker"),
+      text: `${chip(br.id)} sits on the shortest chain of messages between ${pct(br.btwShare)} of the other pairs of named actors (direction ignored).${parts > 1 ? ` Without it, its ${term("group", "group")} falls into ${fmt(parts)} pieces.` : ` Its ${term("group", "group")} stays connected without it.`}` });
   }
   const g0 = G.groups[0];
-  cards.push({ big: fmt(g0.length), unit: `of ${fmt(N.length)} actors`, title: "Largest group",
-    text: `${G.groups.length === 1 ? "Every named actor is linked to every other through a chain of messages." : `The biggest of ${fmt(G.groups.length)} separate groups.`} Busiest members: ${more(g0, 4)}` });
+  cards.push({ big: fmt(g0.length), unit: `of ${fmt(N.length)} actors in messages`, title: "Largest " + term("group", "group"),
+    text: `${G.groups.length === 1 ? `Every one of the ${fmt(N.length)} actors that exchanged messages is linked to every other through a chain of messages (in either direction).` : `The biggest of ${fmt(G.groups.length)} separate groups of actors linked by messages.`} Busiest members: ${more(g0, 4)}` });
   const two = [];
   for (const e of G.edges.values()) { const back = G.edges.get(e.b + "\u0001" + e.a); if (back && e.a < e.b) two.push([e, back]); }
   two.sort((p, q) => (q[0].n + q[1].n) - (p[0].n + p[1].n));
-  cards.push({ big: fmt(two.length), unit: `of ${fmt(G.edges.size)} pairs`, title: "Two-way pairs",
-    text: two.length ? `Pairs where each side read the other. Busiest: ${chip(two[0][0].a)} ⇄ ${chip(two[0][0].b)}, ${fmt(two[0][0].n)} and ${fmt(two[0][1].n)} messages.` : "No pair read each other: every exchange runs one way." });
+  cards.push({ big: fmt(two.length), unit: "pairs both ways", title: "Two-way pairs",
+    text: two.length ? `Pairs of actors where each side read the other at least once. They account for ${fmt(two.length * 2)} of the ${fmt(G.edges.size)} one-way sender→receiver pairs. Busiest: ${chip(two[0][0].a)} ⇄ ${chip(two[0][0].b)}, ${fmt(two[0][0].n)} and ${fmt(two[0][1].n)} messages.` : "No pair read each other: every exchange runs one way." });
   // places the redaction may have merged can join two different places, so prefer a relay on an exact place
   const exact = named.filter((m) => !m.merged);
   const fast = [...(exact.length ? exact : named)].sort((a, b) => a.lat - b.lat || a.rt - b.rt)[0];
-  if (fast) cards.push({ big: hoursWord(fast.lat) === "0 min" ? "<1 min" : hoursWord(fast.lat), unit: "from write to read", title: "Fastest relay",
+  if (fast) cards.push({ big: hoursWord(fast.lat) === "0 min" ? "<1 min" : hoursWord(fast.lat), unit: "from write to read", title: "Fastest relay" + (exact.length ? " (exact place)" : ""),
     text: `${chip(fast.to)} read what ${chip(fast.from)} wrote to ${ent.place(fast.ch)} ${fast.lat < 1 / 60 ? "within a minute" : hoursWord(fast.lat) + " later"} (${ent.rec(fast.w)} → ${ent.rec(fast.r)}).` });
   const how = {};
   all.forEach((m) => { const k = m.how.startsWith("kept ") ? "kept earlier content" : m.how; how[k] = (how[k] || 0) + 1; });
   const code = how["read in code"] || 0;
   const HOWC = { "read in code": ACCENT, "named the place": "#e3a43b", "posted after it": "#b8579a", "kept earlier content": "#0f766e" };
   cards.push({ big: pct(all.length ? code / all.length : 0), unit: "read in code", title: "Evidence behind each message",
-    text: (code === all.length ? `All ${fmt(all.length)} messages rest on a read in the code itself.` : `${fmt(code)} of ${fmt(all.length)} messages rest on a read in the code; the rest on weaker signs.`) +
+    text: (code === all.length ? `All ${fmt(all.length)} messages rest on a read in the reader's code: it names the place without write code nearby (see ${term("write", "write / read")}).` : `${fmt(code)} of ${fmt(all.length)} messages rest on a read in the reader's code; the rest on weaker signs (the place is only named, or posted to after the write).`) +
       stackbar(Object.entries(how).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ label: k, value: v, color: HOWC[k] || BASE })), { h: 7 }) });
-  return `<div class="nw-finds">${cards.map((c) => `<div class="nw-find"><div class="nw-ft">${esc(c.title)}</div><div class="nw-fb"><b>${c.big}</b><span>${esc(c.unit)}</span></div><div class="nw-fx">${c.text}</div></div>`).join("")}</div>`;
+  return `<div class="nw-finds">${cards.map((c) => `<div class="nw-find"><div class="nw-ft">${c.title.includes("<") ? c.title : esc(c.title)}</div><div class="nw-fb"><b>${c.big}</b><span>${esc(c.unit)}</span></div><div class="nw-fx">${c.text}</div></div>`).join("")}</div>`;
 }
 
 // ------------------------------------------------------------------ force layout, computed once per size and frozen
 // Groups of four or more actors are laid out by a force model; small groups that only talk among
 // themselves (often pairs of anonymous runs) are lined up in a strip below, so they do not shrink the rest.
-function layout(G, W, H, radius) {
+function layout(G, W, H, radius, gap = 3) {
   const big = G.groups.filter((g) => g.length >= 4);
   const major = big.length ? big : G.groups;
   const minor = big.length ? G.groups.filter((g) => g.length < 4) : [];
@@ -231,10 +232,11 @@ function layout(G, W, H, radius) {
   const px = new Float64Array(n), py = new Float64Array(n), r = ids.map((id) => radius(G.nodes.get(id)));
   for (let i = 0; i < n; i++) { px[i] = ox + (x[i] - x0) * sxx; py[i] = oy + (y[i] - y0) * syy; }
   if (n <= 900) {
-    for (let it = 0; it < 40; it++) {
+    for (let it = 0; it < 80; it++) {
       let moved = false;
       for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
-        const ux = px[i] - px[j], uy = py[i] - py[j], d = Math.sqrt(ux * ux + uy * uy) || 0.01, need = r[i] + r[j] + 3;
+        const ux = px[i] - px[j], uy = py[i] - py[j], d = Math.sqrt(ux * ux + uy * uy) || 0.01;
+        const need = r[i] + r[j] + (G.nodes.get(ids[i]).named && G.nodes.get(ids[j]).named ? gap : 3);
         if (d < need) { const m = (need - d) / 2, vx = ux / d, vy = uy / d; px[i] += vx * m; py[i] += vy * m; px[j] -= vx * m; py[j] -= vy * m; moved = true; }
       }
       if (!moved) break;
@@ -245,22 +247,26 @@ function layout(G, W, H, radius) {
 }
 
 // labels beside their dots, never on top of each other or of another dot
-function labelSpots(items, pos, W, H, blocked = []) {
+function labelSpots(items, pos, W, H, blocked = [], mustLabel = 12) {
   const placed = blocked.slice(), font = "11px -apple-system, system-ui, sans-serif";
   const dots = [...pos.values()];
-  const hit = (b) => placed.some((p) => b.x < p.x + p.w + 2 && p.x < b.x + b.w + 2 && b.y < p.y + p.h + 1 && p.y < b.y + b.h + 1) ||
-    dots.some((d) => d.x + d.r > b.x && d.x - d.r < b.x + b.w && d.y + d.r > b.y && d.y - d.r < b.y + b.h);
-  for (const it of items) {
-    const p = pos.get(it.id); if (!p) continue;
+  const overLabel = (b) => placed.some((p) => b.x < p.x + p.w + 2 && p.x < b.x + b.w + 2 && b.y < p.y + p.h + 1 && p.y < b.y + b.h + 1);
+  const overDot = (b) => dots.some((d) => d.x + d.r > b.x && d.x - d.r < b.x + b.w && d.y + d.r > b.y && d.y - d.r < b.y + b.h);
+  const spots = (p, w, h, g) => [[p.x + g, p.y - h / 2], [p.x - g - w, p.y - h / 2], [p.x - w / 2, p.y - g - h], [p.x - w / 2, p.y + g],
+    [p.x + g * 0.7, p.y - g * 0.7 - h], [p.x - g * 0.7 - w, p.y - g * 0.7 - h], [p.x + g * 0.7, p.y + g * 0.7], [p.x - g * 0.7 - w, p.y + g * 0.7]];
+  items.forEach((it, rank) => {
+    const p = pos.get(it.id); if (!p) return;
     const w = textWidth(it.text, font) + 2, h = 12, g = p.r + 3;
-    const cands = [[p.x + g, p.y - h / 2], [p.x - g - w, p.y - h / 2], [p.x - w / 2, p.y - g - h], [p.x - w / 2, p.y + g],
-      [p.x + g * 0.7, p.y - g * 0.7 - h], [p.x - g * 0.7 - w, p.y - g * 0.7 - h], [p.x + g * 0.7, p.y + g * 0.7], [p.x - g * 0.7 - w, p.y + g * 0.7]];
-    for (const [lx, ly] of cands) {
-      const b = { x: lx, y: ly, w, h };
-      if (b.x < 1 || b.y < 1 || b.x + w > W - 1 || b.y + h > H - 1 || hit(b)) continue;
-      placed.push(b); it.at = b; break;
+    const inside = (b) => b.x >= 1 && b.y >= 1 && b.x + w <= W - 1 && b.y + h <= H - 1;
+    // first a free spot beside the dot; for the busiest actors, then spots further out, then over other dots
+    // (the label's white halo keeps it readable), so the biggest dots are never left unnamed
+    const tries = [[spots(p, w, h, g), true]];
+    if (rank < mustLabel) tries.push([spots(p, w, h, g + 8).concat(spots(p, w, h, g + 18)), true], [spots(p, w, h, g).concat(spots(p, w, h, g + 8)), false]);
+    for (const [cands, avoidDots] of tries) {
+      const c = cands.map(([x, y]) => ({ x, y, w, h })).find((b) => inside(b) && !overLabel(b) && !(avoidDots && overDot(b)));
+      if (c) { placed.push(c); it.at = c; return; }
     }
-  }
+  });
 }
 
 function hull(points) {
@@ -281,7 +287,7 @@ function drawGraph(host, G, mode) {
   const H0 = Math.round(mode === "all" ? Math.min(900, Math.max(500, W * 0.85)) : Math.min(720, Math.max(440, W * 0.8 + nNamed * 1.5)));
   const maxT = Math.max(...[...G.nodes.values()].filter((x) => x.named).map((x) => x.total), 1);
   const radius = (x) => (x.named ? 4 + 10 * Math.sqrt(x.total / maxT) : 2.6);
-  const lay = layout(G, W, H0, radius), pos = lay.pos, H = lay.H;
+  const lay = layout(G, W, H0, radius, mode === "named" && nNamed <= 200 ? 16 : 3), pos = lay.pos, H = lay.H;
   const maxE = Math.max(...[...G.edges.values()].map((e) => e.n), 1);
   const ew = (n) => (0.9 + 3.4 * Math.log1p(n) / Math.log1p(maxE)).toFixed(2);
   const many = G.edges.size > 1500;
@@ -308,9 +314,10 @@ function drawGraph(host, G, mode) {
     const x1 = a.x + (sx0 / sl) * (a.r + 1), y1 = a.y + (sy0 / sl) * (a.r + 1), x2 = b.x - (ex / el) * (b.r + 2.5), y2 = b.y - (ey / el) * (b.r + 2.5);
     const d = `M${x1.toFixed(1)},${y1.toFixed(1)} Q${mx.toFixed(1)},${my.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}`;
     const nm = isNamed(e.a) && isNamed(e.b);
-    const tip = `${short(e.a)} → ${short(e.b)}: ${plural(e.n, "message")} over ${plural(e.ch.size, "place")}, first ${when(e.first * 1000)}. Click for the whole conversation.`;
+    const tip = `${short(e.a)} → ${short(e.b)}: ${plural(e.n, "message")} over ${plural(e.ch.size, "place")}, first ${when(e.first * 1000)}.` +
+      (e.merged ? ` ⚠ ${e.merged === e.n ? "All" : fmt(e.merged) + " of them"} on places the redaction may have merged (dashed line).` : "") + " Click for the whole conversation.";
     const tiny = len < 26;   // dots side by side in the strip: a plain link, no arrowhead
-    edgeSvg.push(`<path class="edge${nm ? "" : " run"}" data-k="${esc(e.key)}" data-a="${esc(e.a)}" data-b="${esc(e.b)}" d="${tiny ? `M${a.x.toFixed(1)},${a.y.toFixed(1)} L${b.x.toFixed(1)},${b.y.toFixed(1)}` : d}" fill="none" stroke="${nm ? ACCENT : RUN_EDGE}" stroke-width="${tiny ? 1.4 : ew(e.n)}"${tiny ? "" : ` marker-end="url(#nwah${nm ? "n" : "r"})"`}><title>${esc(tip)}</title></path>`);
+    edgeSvg.push(`<path class="edge${nm ? "" : " run"}" data-k="${esc(e.key)}" data-a="${esc(e.a)}" data-b="${esc(e.b)}" d="${tiny ? `M${a.x.toFixed(1)},${a.y.toFixed(1)} L${b.x.toFixed(1)},${b.y.toFixed(1)}` : d}" fill="none" stroke="${nm ? ACCENT : RUN_EDGE}" stroke-width="${tiny ? 1.4 : ew(e.n)}"${e.merged && e.merged === e.n ? ' stroke-dasharray="4 3"' : ""}${tiny ? "" : ` marker-end="url(#nwah${nm ? "n" : "r"})"`}><title>${esc(tip)}</title></path>`);
     if (!many) edgeSvg.push(`<path class="edgehit" data-k="${esc(e.key)}" data-a="${esc(e.a)}" data-b="${esc(e.b)}" d="${d}" fill="none" stroke="transparent" stroke-width="10"><title>${esc(tip)}</title></path>`);
   }
   if (lay.strip) svg += `<line x1="10" x2="${W - 10}" y1="${lay.strip.y + 4}" y2="${lay.strip.y + 4}" stroke="${GRID}"/><text x="10" y="${lay.strip.y + 16}" font-size="10.5" fill="${QUIET}">${plural(lay.strip.groups, "small group")} (${plural(lay.strip.actors, "actor")}) that only talk among themselves</text>`;
@@ -320,7 +327,7 @@ function drawGraph(host, G, mode) {
   for (const x of [...G.nodes.values()].sort((p, q) => p.total - q.total)) {
     const p = pos.get(x.id);
     const fill = x.named ? ROLES[x.role].fill : RUN_FILL;
-    nodeSvg.push(`<g class="node${x.named ? "" : " run"}" data-actor="${esc(x.id)}" data-nid="${esc(x.id)}"><circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${p.r.toFixed(1)}" fill="${fill}" stroke="#fff" stroke-width="${x.named ? 1.5 : 0.8}"/></g>`);
+    nodeSvg.push(`<g class="node${x.named ? "" : " run"}" data-actor="${esc(x.id)}" data-nid="${esc(x.id)}"><circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${p.r.toFixed(1)}" fill="${fill}" stroke="${x.named ? "#fff" : RUN_STROKE}" stroke-width="${x.named ? 1.5 : 1}"/></g>`);
   }
   svg += nodeSvg.join("");
   // names of the named actors (busiest first when there are too many to name)
@@ -406,7 +413,8 @@ function drawMatrix(host, G) {
   const cs = Math.max(9, Math.min(22, Math.floor((W - labW - totW - 10) / N)));
   const cf = Math.min(11, cs + 0.5), cfont = `${cf}px -apple-system, system-ui, sans-serif`;
   const topH = Math.round(Math.min(130, Math.max(...cn.map((t) => textWidth(t, cfont)))) + 12);
-  const gx = labW, gy = topH, Wd = gx + cs * N + totW, Hd = gy + cs * R + 34;
+  const recvNums = cs >= 11;
+  const gx = labW, gy = topH, Wd = gx + cs * N + totW, Hd = gy + cs * R + 34 + (recvNums ? 14 : 0);
   let mx = 1;
   const cell = (a, b) => G.edges.get(a + "\u0001" + b);
   rows.forEach((r) => cols.forEach((c) => { const e = cell(r.id, c.id); if (e) mx = Math.max(mx, e.n); }));
@@ -422,6 +430,7 @@ function drawMatrix(host, G) {
     svg += `<text class="nw-cl" data-j="${j}" data-actor="${esc(c.id)}" transform="translate(${gx + j * cs + cs / 2 + cf * 0.35},${gy - 5}) rotate(-90)" font-size="${cf}">${esc(fitName(cn[j], 128, cfont))}</text>`;
     const rh = (c.recv / maxRecv) * 22;
     svg += `<rect x="${gx + j * cs + cs * 0.2}" y="${gy + cs * R + 4}" width="${cs * 0.6}" height="${Math.max(1, rh)}" fill="${ACCENT}" opacity=".7"><title>${esc(short(c.id))} received ${fmt(c.recv)}</title></rect>`;
+    if (recvNums) svg += `<text x="${gx + j * cs + cs / 2}" y="${gy + cs * R + 4 + Math.max(1, rh) + 10}" text-anchor="middle" font-size="9" fill="${QUIET}" pointer-events="none">${c.recv}</text>`;
   });
   rows.forEach((r, i) => {
     svg += `<text class="nw-rl" data-i="${i}" data-actor="${esc(r.id)}" x="${gx - 6}" y="${gy + i * cs + cs / 2 + 4}" text-anchor="end" font-size="11">${esc(fitName(rn[i], labW - 14, font))}</text>`;
@@ -437,7 +446,10 @@ function drawMatrix(host, G) {
   });
   svg += `<text x="${gx + cs * N + 6}" y="${gy - 6}" font-size="10" fill="${QUIET}">sent</text><text x="${gx - 6}" y="${gy + cs * R + 18}" text-anchor="end" font-size="10" fill="${QUIET}">received</text>`;
   const cut = [senders.length > R ? `${fmt(R)} of ${fmt(senders.length)} senders` : "", receivers.length > N ? `${fmt(N)} of ${fmt(receivers.length)} receivers` : ""].filter(Boolean);
-  host.innerHTML = svg + "</svg>" + `<p class="small muted">${plural(R, "actor")} sent and ${plural(N, "actor")} received; ${fmt(all.length - senders.length)} only received${cut.length ? `. Showing the most active: ${cut.join(", ")}; every actor is in the table below` : ""}.</p>`;
+  // colour scale: the same log shading as the cells
+  const steps = [...new Set([1, Math.round(Math.sqrt(mx)), mx])].filter((v) => v >= 1);
+  const key = `<div class="nw-mkey"><span class="muted small">messages per cell</span>${steps.map((v) => `<span><i style="background:${shade(v)}"></i>${fmt(v)}</span>`).join("")}<span><i style="background:#e6e9ee"></i>itself</span></div>`;
+  host.innerHTML = key + svg + "</svg>" + `<p class="small muted">${plural(R, "actor")} sent and ${plural(N, "actor")} received; ${fmt(all.length - senders.length)} only received${cut.length ? `. Showing the most active: ${cut.join(", ")}; every actor is in the table below` : ""}.</p>`;
   const el = host.querySelector("svg"), xr = el.querySelector(".nw-xh-r"), xc = el.querySelector(".nw-xh-c");
   el.querySelectorAll(".nw-cell").forEach((c) => {
     c.addEventListener("mouseenter", () => {
@@ -457,9 +469,9 @@ function actorTable(host, G) {
   if (!rows.length) { host.innerHTML = '<p class="muted">None found.</p>'; return; }
   const cols = [
     ["actor", (x) => short(x.id), (x) => ent.actor(x.id)],
-    ["sent", (x) => x.sent, (x) => fmt(x.sent), 1],
-    ["received", (x) => x.recv, (x) => fmt(x.recv), 1],
-    ["partners", (x) => x.partners, (x) => fmt(x.partners), 1],
+    ["sent (to named)", (x) => x.sent, (x) => fmt(x.sent), 1],
+    ["received (from named)", (x) => x.recv, (x) => fmt(x.recv), 1],
+    ["named partners", (x) => x.partners, (x) => fmt(x.partners), 1],
     ["broker rank", (x) => x.btwRank ?? 1e9, (x) => (x.btwRank ? `#${x.btwRank}` : "–"), 1],
     ["group", (x) => x.group, (x) => fmt(x.group), 1],
     ["first message", (x) => x.first, (x) => esc(when(x.first * 1000))],
@@ -482,7 +494,9 @@ function actorTable(host, G) {
 // ------------------------------------------------------------------ the view
 async function network(el, s) {
   const T = s.list_totals || {};
+  const hasReplies = (T.reply_edges ?? (s.reply_edges || []).length) > 0;
   el.innerHTML = `<h2>Who talked to whom</h2><p class="lead muted" id="nwLead">Reading every message…</p>
+  <p class="small nw-opt" id="nwOpt"></p>
   <div id="nwFinds"></div>
   <section class="card nw-gcard"><header><h3>Every message, as a graph</h3><div class="nw-mode" id="nwMode"></div></header>
     <p class="sub" id="nwSub"></p>
@@ -492,66 +506,81 @@ async function network(el, s) {
   </section>
   <div id="conv"></div>
   <section class="card"><header><h3>Every sender and receiver</h3></header>
-    <p class="sub">One row per actor that sent, one column per actor that received; darker means more messages. Bars at the right count what each actor sent, bars below what it received; dashed lines split separate groups. Hover a cell to follow its row and column; click it for the conversation.</p>
+    <p class="sub" id="nwMatSub"></p>
     <div id="nwMatrix" class="nw-mwrap"></div></section>
-  <section class="card"><header><h3>Every named actor</h3></header>
-    <p class="sub">Click a column to sort. Broker rank orders actors by how often they sit on the shortest route between two others. Hover or click an actor for its profile.</p>
+  <section class="card"><header><h3>Every actor in a message</h3></header>
+    <p class="sub">Only messages between named actors count here, as in the graph's "Named actors" view. Click a column to sort. Broker rank orders actors by how often they sit on the shortest chain of messages between two others. Hover or click an actor for its full profile, which also counts messages with anonymous runs.</p>
     <div id="nwActors"></div></section>
   <section class="card"><header><h3>All sender-receiver pairs</h3></header>
-    <p class="small"><input id="pairQ" placeholder="Find an actor, e.g. cred 169" style="width:220px"> <label class="muted"><input type="checkbox" id="pairAll"> include anonymous runs</label> <span id="pairCount" class="muted"></span></p>
-    <p class="sub">Click a pair to open its conversation. "Back" is how many messages went the other way.</p>
+    <p class="small"><input id="pairQ" placeholder="Find an actor, e.g. cred 169" style="width:220px"> <label class="muted"><input type="checkbox" id="pairAll"> also show pairs with an anonymous run</label> <span id="pairCount" class="muted"></span></p>
+    <p class="sub">Click a pair to open its conversation. "Back" is how many messages went the other way. ⚠ marks pairs with messages on places the redaction may have merged.</p>
     <div id="pairs"></div></section>
   <section class="card"><header><h3>One identity carrying another's token</h3></header>
-    <p class="sub">A record that authenticates as one identity and also holds another identity's token, before that token's own first use.</p><div id="carriedList"></div></section>
-  <section class="card"><header><h3>Two identities using one place</h3></header>
-    <p class="sub">A named place (a controller, a command channel, a board) used by two identities. "Separately" means in different records.</p><div id="sharedList"></div></section>
-  <section class="card"><header><h3>Replies between actors</h3></header><div id="replyList"></div></section>`;
+    <p class="sub">A record that authenticates as one identity and also holds another identity's token, before that token's own first use (see ${term("carried", "carried token")}).</p><div id="carriedList"></div></section>
+  <section class="card"><header><h3>Two identities using one name</h3></header>
+    <p class="sub">A name the pack lists as one that runs can reuse (a controller, a command channel, a board name), written by two identities. "In different records" is yes when each identity used it in a record of its own; no when both appear in the same record.</p><div id="sharedList"></div></section>
+  ${hasReplies ? `<section class="card"><header><h3>Replies between actors</h3></header><p class="sub">A reply is a record whose parent record was written by a different actor.</p><div id="replyList"></div></section>` : ""}`;
   listView($("carriedList"), "carried_edges", ["carrier", "token carried", "records", "evidence"],
-    (e) => [ent.actor(e.from), ent.actor(e.to), fmt(e.records), (e.evidence || []).map(ent.rec).join(" ")], (s.carried_edges || []).slice(0, 10), T.carried_edges);
-  listView($("sharedList"), "shared_places", ["place", "identities", "first use", "second use", "separately"],
-    (p) => [`<code>${esc(p.place)}</code>`, p.identities.map((x) => ent.actor(x)).join(" "), `${esc(p.first)} ${ent.rec(p.first_id)}`, `${esc(p.second)} ${ent.rec(p.second_id)}`, p.same_record ? "no, same record" : "yes"], (s.shared_places || []).slice(0, 10), T.shared_places);
-  listView($("replyList"), "reply_edges", ["from", "to", "replies"],
+    (e) => [ent.actor(e.from), ent.actor(e.to), fmt(e.records), (e.evidence || []).map((id) => ent.rec(id)).join(" ")], (s.carried_edges || []).slice(0, 10), T.carried_edges);
+  listView($("sharedList"), "shared_places", ["name", "identities", "first use", "second use", "in different records"],
+    (p) => [`<code class="nw-name" title="a reusable name both identities wrote">${esc(p.place)}</code>`, p.identities.map((x) => ent.actor(x)).join(" "), `<span class="nowrap">${esc(when(toTime(p.first)))}</span> ${ent.rec(p.first_id)}`, `<span class="nowrap">${esc(when(toTime(p.second)))}</span> ${ent.rec(p.second_id)}`, p.same_record ? "no, both in one record" : "yes"], (s.shared_places || []).slice(0, 10), T.shared_places);
+  if (hasReplies) listView($("replyList"), "reply_edges", ["from", "to", "replies"],
     (r) => [ent.actor(r.from), ent.actor(r.to), fmt(r.replies)], (s.reply_edges || []).slice(0, 10).map((r) => ({ from: r[0], to: r[1], replies: r[2] })), T.reply_edges);
-  pairList();
   let qt = null;
   $("pairQ").addEventListener("input", () => { clearTimeout(qt); qt = setTimeout(() => pairList(), 200); });
   $("pairAll").addEventListener("change", () => pairList());
 
   const raw = await cached("/api/messages");
   if (S.tab !== "network" || !$("nwGraph")) return;
-  const { msgs, named } = prepare(raw);
-  const Gn = buildGraph(named), Ga = buildGraph(msgs);
-  betweenness(Gn);
-  const runs = [...Ga.nodes.values()].filter((x) => !x.named).length;
-  const withRuns = msgs.length - named.length;
-  if (!msgs.length) {
-    $("nwLead").innerHTML = "No messages found: no place was written by one actor and later read by a different one. The lists below still show tokens carried between identities and places two identities shared.";
+  const base = prepare(raw);
+  NW.mergedByPair = new Map();
+  base.msgs.forEach((m) => { if (m.merged) { const k = m.from + "\u0001" + m.to; NW.mergedByPair.set(k, (NW.mergedByPair.get(k) || 0) + 1); } });
+  pairList();
+  if (!base.msgs.length) {
+    $("nwLead").innerHTML = "No messages found: no place was written by one actor and later read by a different one. The lists below still show tokens carried between identities and names two identities shared.";
     ["nwFinds", "nwMatrix", "nwActors"].forEach((id) => ($(id).innerHTML = '<p class="muted">Nothing to show.</p>'));
     $("nwGraph").innerHTML = '<p class="muted nw-empty">No messages to draw.</p>';
     return;
   }
-  $("nwLead").innerHTML = `${plural(Gn.nodes.size, "named actor")} exchanged ${plural(named.length, "message")} in ${plural(Gn.edges.size, "sender-receiver pair")}` +
-    (withRuns ? `; ${plural(withRuns, "more message")} involve ${plural(runs, "anonymous run")} (records with no identity of their own).` : ".") +
-    ` A message is a read of a place after a different actor wrote to it, counted once per reader.`;
-  $("nwLead").classList.remove("muted");
-  $("nwFinds").innerHTML = Gn.nodes.size ? findings(Gn, msgs, named) : "";
-  if (!Gn.nodes.size && NW.mode === "named") NW.mode = "all";
+  const mergedAll = base.msgs.filter((m) => m.merged).length, mergedNamed = base.named.filter((m) => m.merged).length;
+  $("nwOpt").innerHTML = mergedAll ? `<label><input type="checkbox" id="nwNoMerged"${NW.noMerged ? " checked" : ""}> Leave out places the redaction may have merged</label> <span class="muted">⚠ ${plural(mergedNamed, "message")} between named actors (${fmt(mergedAll)} in all) sit on a ${term("merged", "merged place")}, where the write and the read may be on two different repositories.</span>` : "";
+  if ($("nwNoMerged")) $("nwNoMerged").addEventListener("change", (e) => { NW.noMerged = e.target.checked; NW.T = null; rebuild(); });
 
-  const t0 = msgs[0].rt, t1 = msgs.at(-1).rt;
-  let view = null;
-  const sources = () => (NW.mode === "named" ? named : msgs);
-  const graphOf = () => (NW.mode === "named" ? Gn : Ga);
+  const t0 = base.msgs[0].rt, t1 = base.msgs.at(-1).rt;
+  let view = null, D = null;
+  const compute = () => {
+    const keep = (m) => !(NW.noMerged && m.merged);
+    const msgs = base.msgs.filter(keep), named = base.named.filter(keep);
+    const Gn = buildGraph(named), Ga = buildGraph(msgs);
+    betweenness(Gn);
+    D = { msgs, named, Gn, Ga, runs: [...Ga.nodes.values()].filter((x) => !x.named).length, withRuns: msgs.length - named.length };
+    if (!Gn.nodes.size && NW.mode === "named") NW.mode = "all";
+  };
+  const sources = () => (NW.mode === "named" ? D.named : D.msgs);
+  const graphOf = () => (NW.mode === "named" ? D.Gn : D.Ga);
+  const lead = () => {
+    const tot = s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((x, [, v]) => x + v, 0);
+    const left = NW.noMerged ? ` Leaving out ${plural(mergedAll, "message")} on merged places.` : (mergedNamed ? ` ⚠ ${fmt(mergedNamed)} of the ${fmt(D.named.length)} sit on places the redaction may have merged.` : "");
+    $("nwLead").innerHTML = `${fmt(D.Gn.nodes.size)} of the ${fmt(tot)} ${term("named", "named actors")} exchanged ${plural(D.named.length, term("message", "message"))} in ${plural(D.Gn.edges.size, "sender-receiver pair")}` +
+      (D.withRuns ? `; ${plural(D.withRuns, "more message")} involve ${plural(D.runs, term("run", "anonymous run"))}.` : ".") + left +
+      ` An ${term("actor", "actor")} is an identity token or a self-chosen name seen in the code, not an agent: one agent may hold several tokens, so a message can be one agent talking to itself.`;
+    $("nwLead").classList.remove("muted");
+  };
   const drawMode = () => {
+    const { Gn, Ga } = D;
     $("nwMode").innerHTML = [["named", `Named actors <span>${fmt(Gn.nodes.size)}</span>`], ["all", `Everyone <span>${fmt(Ga.nodes.size)}</span>`]]
       .map(([k, label]) => `<button type="button" data-m="${k}" class="${NW.mode === k ? "on" : ""}"${k === "named" && !Gn.nodes.size ? " disabled" : ""}>${label}</button>`).join("");
     $("nwMode").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { NW.mode = b.dataset.m; drawMode(); redraw(); }));
     const G = graphOf();
     $("nwSub").innerHTML = NW.mode === "named"
-      ? `All ${plural(G.edges.size, "pair")} between ${plural(G.nodes.size, "named actor")}. Each arrow runs from the writer to the reader; thicker means more messages. Dot size is an actor's messages. Hover a dot to pick out its messages, click it for its profile; click an arrow for the whole conversation, with every record id.`
-      : `Everything: ${plural(G.edges.size, "pair")} among ${plural(G.nodes.size, "actor")}, including ${plural(runs, "anonymous run")} as small grey dots. Small groups that only talk among themselves are lined up at the bottom.`;
-    $("nwLegend").innerHTML = ROLES.map((r) => `<span><i style="background:${r.fill}"></i>${r.label}</span>`).join("") +
-      (NW.mode === "all" ? `<span><i style="background:${RUN_FILL};border-radius:50%"></i>anonymous run</span>` : "") +
-      `<span class="muted">line thickness: messages · dot size: messages</span>`;
+      ? `All ${plural(G.edges.size, "sender-receiver pair")} between ${plural(G.nodes.size, "named actor")}. Each arrow runs from the writer to the reader; thicker means more messages, dashed means every message on it sits on a merged place. Dot size is an actor's messages. Hover a dot to pick out its messages, click it for its profile; click an arrow for the whole conversation, with every record id.`
+      : `Everything: ${plural(G.edges.size, "pair")} among ${plural(G.nodes.size, "actor")}, including ${plural(D.runs, "anonymous run")} as small hollow dots. Small groups that only talk among themselves are lined up at the bottom.`;
+    const roles = new Set([...G.nodes.values()].filter((x) => x.named).map((x) => x.role));
+    const anyMerged = [...G.edges.values()].some((e) => e.merged && e.merged === e.n);
+    $("nwLegend").innerHTML = ROLES.map((r, i) => (roles.has(i) ? `<span><i style="background:${r.fill}"></i>${r.label}</span>` : "")).join("") +
+      (NW.mode === "all" && D.runs ? `<span><i style="background:${RUN_FILL};border:1.2px solid ${RUN_STROKE}"></i>anonymous run</span>` : "") +
+      (anyMerged ? `<span><svg width="22" height="8"><line x1="0" x2="22" y1="4" y2="4" stroke="${ACCENT}" stroke-width="2" stroke-dasharray="4 3"/></svg>only on merged places</span>` : "") +
+      `<span class="muted">line thickness and dot size: messages</span>`;
   };
   const redraw = () => {
     const host = $("nwGraph"); if (!host) return;
@@ -562,17 +591,18 @@ async function network(el, s) {
   // the time scrubber
   const scrub = $("nwScrub");
   scrub.innerHTML = `<button type="button" id="nwPlay" class="nw-play" title="Play the messages in time order">▶</button>
-    <div class="nw-track">${histogram(msgs, t0, t1)}<input type="range" id="nwT" min="0" max="1000" value="1000" aria-label="Show messages up to this time"></div>
+    <div class="nw-track"><div id="nwHist"></div><input type="range" id="nwT" min="0" max="1000" value="1000" aria-label="Show messages up to this time"></div>
     <div class="nw-now"><b id="nwWhen"></b><span id="nwStats"></span></div>`;
   const slider = $("nwT");
   function setT(T, fromRedraw) {
     NW.T = T >= t1 ? null : T;
     const t = Math.min(T, t1);
     if (!fromRedraw) slider.value = Math.round(((t - t0) / Math.max(1, t1 - t0)) * 1000);
+    else slider.value = Math.round(((t - t0) / Math.max(1, t1 - t0)) * 1000);
     applyTime(view, t);
     const st = scrubStats(sources(), t);
     $("nwWhen").textContent = T >= t1 ? `All, to ${when(t1 * 1000)}` : when(t * 1000);
-    $("nwStats").textContent = `${plural(st.n, "message")} · ${plural(st.pairs, "pair")} · ${plural(st.actors, "actor")} · largest group ${fmt(st.big)}`;
+    $("nwStats").textContent = `${plural(st.n, "message")} · ${plural(st.pairs, "pair")} · ${plural(st.actors, NW.mode === "named" ? "named actor" : "actor")} · largest group ${fmt(st.big)}`;
   }
   slider.addEventListener("input", () => { stop(); setT(t0 + (slider.value / 1000) * (t1 - t0)); });
   const stop = () => { NW.playing = false; cancelAnimationFrame(NW.raf); const b = $("nwPlay"); if (b) b.textContent = "▶"; };
@@ -590,12 +620,24 @@ async function network(el, s) {
     };
     NW.raf = requestAnimationFrame(step);
   });
-  drawMode();
-  redraw();
+  const matrix = () => {
+    $("nwMatSub").innerHTML = `One row per named actor that sent, one column per named actor that received; darker means more messages. Bars at the right count what each actor sent, bars below what it received${D.Gn.groups.length > 1 ? "; dashed lines split separate groups" : ""}. Hover a cell to follow its row and column; click it for the conversation.`;
+    drawMatrix($("nwMatrix"), D.Gn);
+  };
+  function rebuild() {
+    stop();
+    compute();
+    lead();
+    $("nwFinds").innerHTML = D.Gn.nodes.size ? findings(D.Gn, D.msgs, D.named) : "";
+    $("nwHist").innerHTML = histogram(D.msgs, t0, t1);
+    drawMode();
+    redraw();
+    matrix();
+    actorTable($("nwActors"), D.Gn);
+  }
+  rebuild();
   onResize($("nwGraph"), redraw);
-  drawMatrix($("nwMatrix"), Gn);
-  onResize($("nwMatrix"), () => drawMatrix($("nwMatrix"), Gn));
-  actorTable($("nwActors"), Gn);
+  onResize($("nwMatrix"), matrix);
   if (S.conv) openConversation(S.conv.a, S.conv.b, false);
 }
 
@@ -606,10 +648,11 @@ async function pairList(offset = 0) {
   const q = $("pairQ").value.trim(), all = $("pairAll").checked;
   const r = await api(`/api/pairs?q=${encodeURIComponent(q)}${all ? "&all=1" : ""}&offset=${offset}&limit=50`);
   if (!$("pairQ") || $("pairQ").value.trim() !== q) return;
-  $("pairCount").textContent = plural(r.total, "pair");
-  const rows = r.rows.map((p) => `<tr class="click" data-a="${esc(p.from)}" data-b="${esc(p.to)}"><td>${ent.actor(p.from)}</td><td>${ent.actor(p.to)}</td><td class="n">${fmt(p.messages)}</td><td class="n">${fmt(p.back)}</td><td class="n">${fmt(p.channels)}</td><td>${esc(p.first)}</td><td>${esc(p.last)}</td></tr>`).join("");
-  const head = '<tr><th>sender</th><th>receiver</th><th style="text-align:right">messages</th><th style="text-align:right">back</th><th style="text-align:right">places</th><th>first</th><th>last</th></tr>';
-  if (offset === 0) box.innerHTML = r.total ? `<table><thead>${head}</thead><tbody>${rows}</tbody></table><p id="pairMore"></p>` : '<p class="muted">None found.</p>';
+  $("pairCount").textContent = `${plural(r.total, "pair")}${all ? ", anonymous runs included" : " between named actors"}${q ? " matching" : ""}`;
+  const badge = (p) => { const n = NW.mergedByPair.get(p.from + "\u0001" + p.to); return n ? ` <span class="nw-warn" title="${esc(`${fmt(n)} of these ${fmt(p.messages)} messages are on places the redaction may have merged. ${MERGED_TIP}`)}">⚠ ${fmt(n)}</span>` : ""; };
+  const rows = r.rows.map((p) => `<tr class="click" data-a="${esc(p.from)}" data-b="${esc(p.to)}"><td>${ent.actor(p.from)}</td><td>${ent.actor(p.to)}</td><td class="n">${fmt(p.messages)}${badge(p)}</td><td class="n">${fmt(p.back)}</td><td class="n">${fmt(p.channels)}</td><td class="nowrap">${esc(when(toTime(p.first)))}</td><td class="nowrap">${esc(when(toTime(p.last)))}</td></tr>`).join("");
+  const head = '<tr><th>sender</th><th>receiver</th><th style="text-align:right">messages</th><th style="text-align:right">back</th><th style="text-align:right">places</th><th>first read</th><th>last read</th></tr>';
+  if (offset === 0) box.innerHTML = r.total ? `<div class="nw-atwrap"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div><p id="pairMore"></p>` : '<p class="muted">None found.</p>';
   else box.querySelector("tbody").insertAdjacentHTML("beforeend", rows);
   box.querySelectorAll("tr.click:not([data-bound])").forEach((tr) => { tr.dataset.bound = 1; tr.addEventListener("click", (e) => { if (e.target.closest(".ent")) return; openConversation(tr.dataset.a, tr.dataset.b); }); });
   const shown = offset + r.rows.length, more = $("pairMore");
@@ -630,7 +673,7 @@ async function openConversation(a, b, scroll = true) {
     const side = it.kind === "overwrite" ? "over" : it.from === a ? "left" : "right";
     const lines = it.lines.length ? `<ul class="lines">${it.lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "";
     return `<div class="msg ${side}">
-      <div class="mhead">${ent.actor(it.from)} → ${ent.actor(it.to)}${it.kind === "overwrite" ? ' <span class="tag">overwrite, not a message</span>' : ""}${it.merged_place ? ' <span class="tag" title="The redaction kept only the owner of this place, so it may join several places: the write and the read may not be the same message.">place may be merged by redaction</span>' : ""} · ${ent.place(it.channel)} · <span class="muted">${esc(it.how || "")}</span></div>
+      <div class="mhead">${ent.actor(it.from)} → ${ent.actor(it.to)}${it.kind === "overwrite" ? ' <span class="tag">overwrite, not a message</span>' : ""}${it.merged_place ? ` <span class="tag nw-warn" title="${esc(MERGED_TIP)}">⚠ place may be merged by redaction</span>` : ""} · ${ent.place(it.channel)} · <span class="muted">${esc(it.how || "")}</span></div>
       <div class="mrow"><span class="lab">wrote</span> ${ent.rec(it.write_id)} <span class="muted">${esc(it.write_time || "time unknown")}</span></div>
       <div class="snip">${esc(it.write_text)}</div>
       <div class="mrow"><span class="lab">${it.kind === "overwrite" ? "replaced in" : "read in"}</span> ${ent.rec(it.read_id)} <span class="muted">${esc(it.read_time || "time unknown")}${it.latency_h != null ? ` · ${it.latency_h < 1 / 60 ? "under a minute later" : esc(hoursWord(it.latency_h)) + " later"}` : ""}</span></div>
@@ -653,7 +696,7 @@ async function openConversation(a, b, scroll = true) {
       <div class="convbtns"><button id="convAsk">Ask the AI about this</button> <button id="convCopy">Copy ${fmt(c.record_ids.length)} record ids</button> <button id="convClose">Close</button></div>
     </div>
     ${strip}
-    <details class="convids"><summary>All ${fmt(c.record_ids.length)} record ids, in order</summary><div>${c.record_ids.map(ent.rec).join(" ")}</div></details>
+    <details class="convids"><summary>All ${fmt(c.record_ids.length)} record ids, in order</summary><div>${c.record_ids.map((id) => ent.rec(id)).join(" ")}</div></details>
     <details class="convids"><summary>${plural(c.places.length, "place")}</summary><div>${c.places.map((p) => ent.place(p)).join(" ")}</div></details>
     <div class="thread" id="thread">${c.items.slice(0, PAGE).map(item).join("")}</div>
     ${c.items.length > PAGE ? `<button id="convMore">Show all ${fmt(c.items.length)}</button>` : ""}
