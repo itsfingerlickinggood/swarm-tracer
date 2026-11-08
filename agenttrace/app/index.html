@@ -30,8 +30,8 @@
   <div id="loadpanel" class="loadpanel" hidden>
     <form id="upload" autocomplete="off">
       <h3>Analyze a trace</h3>
-      <p class="muted small">Any agent trace: JSONL, JSON, CSV, or a folder of linked files. Files stay on this machine.</p>
-      <label class="file">Trace files <input type="file" id="file" accept=".csv,.jsonl,.json,.tsv,.txt" multiple></label>
+      <p class="muted small">Any agent trace: JSONL, JSON, CSV/TSV, a plain-text log (one record per line), or a folder of them. Other files in a folder are left out. Analyzing replaces the dataset now loaded. Files stay on this machine.</p>
+      <label class="file">Trace files <input type="file" id="file" accept=".csv,.jsonl,.json,.tsv,.txt,.log" multiple></label>
       <label class="file">or a folder <input type="file" id="folder" webkitdirectory directory multiple></label>
       <label>Pack <select id="pack"></select></label>
       <details class="map"><summary>Columns (optional)</summary>

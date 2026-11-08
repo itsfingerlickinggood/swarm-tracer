@@ -414,8 +414,10 @@ def simulate(s):
         return cached
     times, intents = s.rec["_times"], s.rec["_intents"]
     acts = sorted((times[e.id], e.id) for e in s.events if e.id in times and intents.get(e.id))
-    if not acts:
-        s._sim = {"start": None, "hours": [], "signals": [], "phases": []}
+    if not acts:   # nothing dated: the same shape, empty, so every view can say so plainly
+        s._sim = {"start": None, "start_t": None, "hours": 0, "actions": [], "harmful": [], "harm_remaining": [],
+                  "active_actors": [], "new_actors": [], "messages": [], "pairs": [], "largest_group": [],
+                  "harm_total": len(s.harm_sorted), "actions_total": 0, "signals": [], "phases": []}
         return s._sim
     h0, h1 = _hour(acts[0][0]), _hour(acts[-1][0])
     n = h1 - h0 + 1

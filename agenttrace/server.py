@@ -191,13 +191,13 @@ class Handler(BaseHTTPRequestHandler):
             STATE["error"] = None
             name = os.path.basename(q.get("filename", "upload.csv")) or "upload.csv"
             ext = os.path.splitext(name)[1].lower()
-            if ext not in (".csv", ".jsonl", ".json", ".tsv", ".txt"):
-                raise ValueError("Upload a .csv or .jsonl file.")
+            data = self.read_body()      # read it all first, so an error reply never resets the connection
+            if ext not in (".csv", ".jsonl", ".json", ".tsv", ".txt", ".log"):
+                raise ValueError("Upload a trace file: .jsonl, .json, .csv, .tsv, or a plain-text log (.txt, .log).")
             # keep the file's own name, so the overview's read report names the file that was uploaded
             safe = "".join(ch if ch.isalnum() or ch in "._-" else "_" for ch in os.path.splitext(name)[0])[:80] or "data"
             d = tempfile.mkdtemp(dir=UPLOAD_DIR)
-            path = os.path.join(d, safe + (".jsonl" if ext in (".jsonl", ".json") else ".csv"))
-            data = self.read_body()
+            path = os.path.join(d, safe + (ext if ext in (".jsonl", ".json", ".tsv", ".txt", ".log") else ".csv"))
             with open(path, "wb") as f:
                 f.write(data)
             mapping = json.loads(q["map"]) if q.get("map") else {}
@@ -221,11 +221,12 @@ class Handler(BaseHTTPRequestHandler):
         if not batch:
             raise ValueError("missing batch id")
         name = os.path.basename(q.get("filename", ""))
-        if os.path.splitext(name)[1].lower() not in (".csv", ".jsonl", ".json", ".tsv"):
-            return self.send_json({"skipped": name, "reason": "not a .csv, .tsv, .json or .jsonl file"})
+        # always read the whole body before answering: replying first resets the browser's connection
+        data = self.read_body()
+        if os.path.splitext(name)[1].lower() not in (".csv", ".jsonl", ".json", ".tsv", ".txt", ".log") or name.startswith("."):
+            return self.send_json({"skipped": name, "reason": "not a trace file (.jsonl, .json, .csv, .tsv, .txt, .log)"})
         d = os.path.join(UPLOAD_DIR, "batch-" + batch)
         os.makedirs(d, exist_ok=True)
-        data = self.read_body()
         with open(os.path.join(d, name), "wb") as f:
             f.write(data)
         self.send_json({"staged": name, "bytes": len(data)})

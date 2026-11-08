@@ -211,3 +211,64 @@ class StructuredAppPathTests(unittest.TestCase):
                      "/api/context", "/api/search?q=agent", "/api/actor?a=agent-0"):
             with urllib.request.urlopen(self.url + path) as r:
                 self.assertEqual(r.status, 200, path)
+
+
+class PlainTextAndFolderUploadTests(unittest.TestCase):
+    """A folder of the user's own files: plain-text logs are read one record per line, files that are
+    not traces are skipped with a clear answer (and the request body is always read first, so the
+    browser's connection is never reset)."""
+
+    @classmethod
+    def setUpClass(cls):
+        import threading
+        from http.server import ThreadingHTTPServer
+        from agenttrace import server
+        cls.app = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+        threading.Thread(target=cls.app.serve_forever, daemon=True).start()
+        cls.url = f"http://127.0.0.1:{cls.app.server_address[1]}"
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.app.shutdown()
+
+    def test_plain_text_is_one_record_per_line(self):
+        import os
+        from agenttrace import model
+        d = tempfile.mkdtemp()
+        p = os.path.join(d, "all-report-links.txt")
+        with open(p, "w") as f:
+            f.write("https://metr.org/report.pdf\n\nhttps://huggingface.co/blog/x\nagent-7 posted to the board\n")
+        evs = model.load(p)
+        self.assertEqual([e.text for e in evs], ["https://metr.org/report.pdf", "https://huggingface.co/blog/x", "agent-7 posted to the board"])
+        q = os.path.join(d, "more.txt")
+        with open(q, "w") as f:
+            f.write("second file line\n")
+        from agenttrace.session import Session
+        sess = Session()
+        sess.load(p, "auto")
+        sim = insight.simulate(sess)               # no times at all: an empty replay of the same shape
+        self.assertEqual((sim["hours"], sim["actions"], sim["signals"]), (0, [], []))
+        evs = model.load(d)                       # a folder of plain logs only: nothing set aside
+        self.assertEqual(len(evs), 4)
+        self.assertEqual(model.LAST_REPORT["skipped_files"], [])
+
+    def post(self, path, body):
+        import urllib.request
+        req = urllib.request.Request(self.url + path, data=body, method="POST")
+        with urllib.request.urlopen(req) as r:
+            return json.loads(r.read())
+
+    def test_folder_upload_with_files_that_are_not_traces(self):
+        big = b"x" * 300_000                       # large enough that replying unread would reset the connection
+        out = self.post("/api/stage?batch=t1&filename=notes.md", big)
+        self.assertEqual(out["skipped"], "notes.md")
+        out = self.post("/api/stage?batch=t1&filename=all-report-links.txt", b"https://metr.org/a\nhttps://openai.com/b\n")
+        self.assertEqual(out["staged"], "all-report-links.txt")
+        with open(write_trace(tempfile.mkdtemp()), "rb") as f:
+            out = self.post("/api/stage?batch=t1&filename=trace.csv", f.read())
+        self.assertEqual(out["staged"], "trace.csv")
+        out = self.post("/api/analyze?batch=t1&pack=generic.json&name=mine", b"")
+        s = out["summary"]
+        self.assertTrue(out["loaded"])
+        self.assertEqual(s["records"], 30)        # the trace; the link list has no time or parent, so it is set aside
+        self.assertEqual([f["file"] for f in s["read_report"]["skipped_files"]], ["all-report-links.txt"])

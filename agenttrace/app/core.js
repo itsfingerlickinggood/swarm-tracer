@@ -691,52 +691,54 @@ document.addEventListener("click", (e) => {
   if (!e.target.closest("#loadpanel,#loadbtn") && $("loadpanel")) $("loadpanel").hidden = true;
   if (!e.target.closest("#glossary,#glossbtn,[data-term]") && $("glossary")) $("glossary").hidden = true;
 });
+const DATA_FILE = /\.(csv|tsv|jsonl|json|txt|log)$/i;
 $("upload").addEventListener("submit", async (ev) => {
   ev.preventDefault();
-  const files = [...$("folder").files, ...$("file").files].filter((f) => /\.(csv|tsv|jsonl|json|txt)$/i.test(f.name));
-  if (!files.length) { status("Choose a file or a folder first.", true); return; }
+  const chosen = [...$("folder").files, ...$("file").files];
+  // a folder can hold anything: send only trace files, and say what was left out
+  const files = chosen.filter((f) => DATA_FILE.test(f.name) && !f.name.startsWith("."));
+  const left = chosen.filter((f) => !files.includes(f) && !f.name.startsWith("."));
+  const leftNote = left.length ? ` Left out ${plural(left.length, "file")} that are not traces (${left.slice(0, 4).map((f) => f.name).join(", ")}${left.length > 4 ? ", …" : ""}).` : "";
+  if (!files.length) {
+    status(chosen.length ? `No trace files here: use .jsonl, .json, .csv, .tsv, or a plain-text log (.txt, .log).${leftNote}` : "Choose a file or a folder first.", true);
+    return;
+  }
   const map = {};
   document.querySelectorAll(".mapgrid input").forEach((i) => { if (i.value.trim()) map[i.dataset.role] = i.value.trim(); });
   $("analyze").disabled = true;
   const t0 = performance.now();
+  let current = "";
   try {
     let r;
     if (files.length === 1) {
       const f = files[0];
+      current = f.name;
       status(`Uploading and analyzing ${f.name} (${(f.size / 1e6).toFixed(1)} MB). Large files take a minute…`);
       r = await api("/api/upload?" + new URLSearchParams({ filename: f.name, pack: $("pack").value, map: JSON.stringify(map) }), { method: "POST", body: f });
     } else {
       const batch = Math.random().toString(36).slice(2, 12);
+      const skipped = [];
       for (const [i, f] of files.entries()) {
+        current = f.name;
         status(`Uploading ${i + 1} of ${files.length}: ${f.name} (${(f.size / 1e6).toFixed(1)} MB)…`);
-        await api("/api/stage?" + new URLSearchParams({ batch, filename: f.name }), { method: "POST", body: f });
+        const res = await api("/api/stage?" + new URLSearchParams({ batch, filename: f.name }), { method: "POST", body: f });
+        if (res.skipped) skipped.push(res.skipped);
       }
-      status(`Analyzing ${files.length} files together…`);
+      current = "";
+      status(`Analyzing ${files.length - skipped.length} files together…`);
       const folder = files[0].webkitRelativePath ? files[0].webkitRelativePath.split("/")[0] : `${files.length} files`;
       r = await api("/api/analyze?" + new URLSearchParams({ batch, pack: $("pack").value, map: JSON.stringify(map), name: folder }), { method: "POST" });
     }
     setSummary(r.summary);
-    status(`Analyzed in ${((performance.now() - t0) / 1000).toFixed(0)} s.`);
-    setTimeout(() => status(""), 6000);
-  } catch (e) { status(e.message, true); }
+    const sk = r.summary.read_report?.skipped_files || [];
+    status(`Analyzed in ${((performance.now() - t0) / 1000).toFixed(0)} s.${leftNote}${sk.length ? ` Set aside ${plural(sk.length, "reference table")} (rows with no time and no parent): see the overview.` : ""}`);
+    setTimeout(() => status(""), 12000);
+  } catch (e) {
+    const net = /fetch|network|reset/i.test(e.message);
+    status(`${current ? `Could not upload ${current}: ` : ""}${net ? "the connection to the app dropped. Is the app still running (python3 -m agenttrace serve)?" : e.message}`, true);
+  }
   finally { $("analyze").disabled = false; }
 });
-
-// deep links: #tab=early&hour=2026-07-11T06&rec=R0006786&actor=...&place=...&scroll=600&ai=wide
-// open a view, a record, an actor or a place straight from the address (also used to capture figures)
-function deepLink() {
-  const h = new URLSearchParams(location.hash.replace(/^#/, ""));
-  return Object.fromEntries(h.entries());
-}
-function openDeepLink() {
-  const d = deepLink();
-  if (d.ai === "wide") document.body.classList.add("aiwide");
-  if (d.tab && VIEWS[d.tab]) goTab(d.tab);
-  if (d.rec) selectEvent(d.rec);
-  else if (d.actor) inspectActor(d.actor);
-  else if (d.place) inspectPlace(d.place);
-  if (d.scroll) setTimeout(() => { $("left").scrollTop = +d.scroll; }, 2500);
-}
 
 async function init() {
   const p = await api("/api/packs");

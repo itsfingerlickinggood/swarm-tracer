@@ -220,16 +220,22 @@ def _read_rows(path):
                 lists = [v for v in data.values() if isinstance(v, list) and v and isinstance(v[0], dict)]
                 data = max(lists, key=len) if lists else [data]
             return [r for r in data if isinstance(r, dict)]
-        rows = []
-        for line in f:
+        rows, plain = [], []
+        for n, line in enumerate(f, start=1):
             line = line.strip()
             if line:
                 try:
                     obj = json.loads(line)
                 except json.JSONDecodeError:
+                    plain.append({"line": n, "text": line})
                     continue
                 if isinstance(obj, dict):
                     rows.append(obj)
+                else:
+                    plain.append({"line": n, "text": line})
+        # a plain text log (.txt or .log): when most lines are not JSON objects, each line is one record
+        if ext in (".txt", ".log") and len(plain) > len(rows):
+            return plain + [{"line": 0, "text": json.dumps(r, ensure_ascii=False)} for r in rows]
         return rows
 
 
@@ -250,6 +256,9 @@ def _is_event_table(info):
     return info["rows"] and (info["with_time"] >= 0.5 * info["rows"] or info["with_parent"] >= 0.5 * info["rows"])
 
 
+DATA_EXTS = (".jsonl", ".json", ".csv", ".tsv", ".txt", ".log")
+
+
 def load(path_or_paths, mapping=None):
     """Load one file, a list of files, or a folder. Returns events in file order, files in
     the order given (folders: event tables only, sorted by name)."""
@@ -259,14 +268,17 @@ def load(path_or_paths, mapping=None):
         paths, from_folder = list(path_or_paths), False
     elif os.path.isdir(path_or_paths):
         paths = sorted(os.path.join(path_or_paths, f) for f in os.listdir(path_or_paths)
-                       if os.path.splitext(f)[1].lower() in (".jsonl", ".json", ".csv", ".tsv") and not f.startswith("."))
+                       if os.path.splitext(f)[1].lower() in DATA_EXTS and not f.startswith("."))
         from_folder = True
     else:
         paths, from_folder = [path_or_paths], False
+    read = [load_file(p, mapping) for p in paths]
+    # in a folder, files whose rows have no time and no parent are reference tables, set aside, but
+    # only when some file does look like an event log; a folder of plain logs is kept whole
+    tables = [_is_event_table(info) for _, info in read]
     loaded = []
-    for p in paths:
-        evs, info = load_file(p, mapping)
-        if from_folder and len(paths) > 1 and not _is_event_table(info):
+    for (evs, info), is_table in zip(read, tables):
+        if from_folder and len(paths) > 1 and any(tables) and not is_table:
             LAST_REPORT["skipped_files"].append({**info, "reason": "reference table: rows have no time and no parent"})
             continue
         loaded.append((evs, info))
