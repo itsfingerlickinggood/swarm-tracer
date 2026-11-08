@@ -24,6 +24,7 @@
       { right: `<button type="button" class="primary" id="gapRun">${S.gapAudit ? "Run again" : "Run the AI gap audit"}</button>` })}
     ${f.overwrites ? card("Every overwrite", '<div id="overList"></div>', { sub: "Edits that replaced another actor's edit without keeping any line it added. Not counted as messages. Click a row to inspect the replacing edit." }) : ""}`;
     el.querySelectorAll("[data-gotab]").forEach((b) => b.addEventListener("click", () => goTab(b.dataset.gotab)));
+    el.querySelectorAll("[data-gapex]").forEach((b) => b.addEventListener("click", (e) => { if (e.target.closest(".ent,[data-gotab],a")) return; toggleExamples(b.closest("[data-gap]"), rows.find((r) => r.key === b.closest("[data-gap]").dataset.gap)); }));
     $("gapRun").addEventListener("click", runAudit);
     if (f.overwrites) {
       const lv = listView($("overList"), "overwrites", ["replaced", "by", "place", "earlier edit", "replacing edit", "what happened"],
@@ -35,14 +36,48 @@
   const qtag = (q) => { const v = Q[q] || Q.all; return `<span class="qtag" style="--c:${v.c}"${v.tab ? ` data-gotab="${v.tab}"` : ""}>${esc(q)}</span>`; };
   function row(r) {
     const c = (Q[r.question] || Q.all).c;
-    return `<div class="gaprow"><div class="gl"><b>${esc(r.gap)}</b>${qtag(r.question)}</div>
-      <div class="gb"><span class="gbar"><i style="width:${(r.share * 100).toFixed(2)}%;background:${c}"></i></span><b>${pct(r.share)}</b><span class="muted small">${fmt(r.count)} of ${fmt(r.of)} ${esc(r.unit)}</span></div>
-      <div class="gt"><span>Hides</span>${esc(r.hides)}</div><div class="gt"><span>To close it</span>${esc(r.close)}</div></div>`;
+    const ex = EX[r.key];
+    return `<div class="gaprow" data-gap="${esc(r.key)}"><div class="gl"><b>${esc(r.gap)}</b>${qtag(r.question)}</div>
+      <div class="gb"${ex ? ` data-gapex="1" style="cursor:pointer" title="Click to see examples"` : ""}><span class="gbar"><i style="width:${(r.share * 100).toFixed(2)}%;background:${c}"></i></span><b>${pct(r.share)}</b><span class="muted small">${fmt(r.count)} of ${fmt(r.of)} ${esc(r.unit)}</span>${ex ? ` <button type="button" class="link small">see examples ▾</button>` : ""}</div>
+      <div class="gt"><span>Hides</span>${esc(r.hides)}</div><div class="gt"><span>To close it</span>${esc(r.close)}</div><div class="gapex" hidden></div></div>`;
   }
   function cardFor(r) {
-    return `<section class="card gapcard2"><header><h3>${esc(r.gap)}</h3>${qtag(r.question)}</header>
+    const ex = EX[r.key] && r.count;
+    return `<section class="card gapcard2" data-gap="${esc(r.key)}"><header><h3>${esc(r.gap)}</h3>${qtag(r.question)}${ex ? ` <button type="button" class="link small" data-gapex="1">see examples ▾</button>` : ""}</header>
       ${r.count != null ? `<div class="gbig">${fmt(r.count)} <span class="muted small">${esc(r.unit)}</span></div>` : '<div class="gbig muted small">not measurable from these records</div>'}
-      <div class="gt"><span>Hides</span>${esc(r.hides)}</div><div class="gt"><span>To close it</span>${esc(r.close)}</div></section>`;
+      <div class="gt"><span>Hides</span>${esc(r.hides)}</div><div class="gt"><span>To close it</span>${esc(r.close)}</div><div class="gapex" hidden></div></section>`;
+  }
+  // ---------------------------------------------------------------- examples behind each gap, from existing endpoints
+  const isRun = (a) => String(a || "").startsWith("run:");
+  // the events endpoint pages at most 500 rows: read the first four pages
+  const sample = async () => { const ps = await Promise.all([0, 500, 1000, 1500].map((o) => cached(`/api/events?offset=${o}&limit=500`))); return { rows: ps.flatMap((p) => p.rows) }; };
+  const msgRows = async (keep) => { const m = await cached("/api/messages"); return m.rows.filter(keep); };
+  const recChips = (ids) => ids.map((id) => ent.rec(id)).join(" ");
+  // each returns {html, scope}; scope says how the examples were found
+  const EX = {
+    time: async () => { const r = await sample(); const xs = r.rows.filter((x) => !x.time); return { html: recChips(xs.slice(0, 16).map((x) => x.id)), n: xs.length, scope: `among the first ${fmt(r.rows.length)} records in file order` }; },
+    actor: async () => { const r = await sample(); const xs = r.rows.filter((x) => isRun(x.actor) && x.intent); return { html: xs.slice(0, 16).map((x) => `${ent.rec(x.id)} <span class="muted small">${esc(short(x.actor))}</span>`).join(" · "), n: xs.length, scope: `actions with an intent among the first ${fmt(r.rows.length)} records in file order` }; },
+    weak: async () => { const xs = await msgRows((r) => r[8] === "named the place" || r[8] === "posted after it"); return { html: msgList(xs), n: xs.length, scope: "every such message, earliest first" }; },
+    merged: async () => { const xs = await msgRows((r) => r[9]); return { html: msgList(xs), n: xs.length, scope: "every such message, earliest first" }; },
+    never_read: async () => { const m = await cached("/api/places_map"); const xs = m.rows.filter((r) => r[7]).sort((a, b) => b[1] - a[1]); return { html: xs.slice(0, 16).map((r) => `${ent.place(r[0])} <span class="muted small">${plural(r[1], "write")}</span>`).join(" · "), n: xs.length, scope: "most-written first" }; },
+    identity: async () => ({ html: `<button type="button" class="link" data-gotab="agents">Open the Agents tab</button> to see which tokens and names may be one agent.`, n: null, scope: "" }),
+    overwrites: async () => ({ html: "Every overwrite is listed in the card at the bottom of this page.", n: null, scope: "" }),
+  };
+  function msgList(xs) {
+    return `<table class="small"><tbody>${xs.slice(0, 16).map((r) => `<tr><td>${ent.actor(r[0])} → ${ent.actor(r[1])}</td><td>${ent.place(r[2])}</td><td>${ent.rec(r[3])} → ${ent.rec(r[4])}</td><td class="muted">${esc(r[8] || "")}</td></tr>`).join("")}</tbody></table>`;
+  }
+  async function toggleExamples(host, r) {
+    const box = host && host.querySelector(".gapex");
+    if (!box || !r || !EX[r.key]) return;
+    if (!box.hidden) { box.hidden = true; return; }
+    box.hidden = false;
+    box.innerHTML = '<p class="small muted">Finding examples…</p>';
+    try {
+      const x = await EX[r.key]();
+      box.innerHTML = x.n === 0 ? `<p class="small muted">None found ${esc(x.scope)}.</p>`
+        : `<div class="small">${x.n != null ? `<span class="muted">Examples (${fmt(Math.min(x.n, 16))} of ${fmt(x.n)} ${esc(x.scope)}):</span> ` : ""}${x.html}</div>`;
+      box.querySelectorAll("[data-gotab]").forEach((b) => b.addEventListener("click", () => goTab(b.dataset.gotab)));
+    } catch (e) { box.innerHTML = `<p class="small warn">${esc(e.message)}</p>`; }
   }
   async function runAudit() {
     const box = $("gapai"), btn = $("gapRun");

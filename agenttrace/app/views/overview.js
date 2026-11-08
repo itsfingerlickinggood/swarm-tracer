@@ -97,7 +97,7 @@
       <div class="bnums">${nums.map((n) => `<div title="${esc(n.source || "")}"><b>${esc(n.value)}</b><span>${esc(n.label)}</span></div>`).join("")}</div>
       <p class="bsum">${esc(ctx.summary)}</p>
       ${ctx.swarm ? `<details class="bmore"><summary>The swarm: what it was, its agents, their task, how they coordinated</summary><div class="bswarm">${[["The swarm", ctx.swarm.what], ["Agents", ctx.swarm.agents], ["Their task", ctx.swarm.task], ["How they coordinated", ctx.swarm.setup]].filter(([, v]) => v).map(([k, v]) => `<div><span>${esc(k)}</span>${esc(v)}</div>`).join("")}</div></details>` : ""}
-      <p class="small muted bsrc">Sources: ${(ctx.sources || []).map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(String(x.name).split(" - ")[0].split(",")[0])}</a>`).join(" · ")}</p>
+      <p class="small muted bsrc">Sources: ${(ctx.sources || []).map((x) => `<a href="${/^https?:\/\//.test(x.url) ? esc(x.url) : "#"}" target="_blank" rel="noopener">${esc(String(x.name).split(" - ")[0].split(",")[0])}</a>`).join(" · ")}</p>
     </section>`;
   }
   // a name from the reports that is also an actor in the data (self-chosen names survive the redaction)

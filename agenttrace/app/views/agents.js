@@ -33,10 +33,12 @@
         ${card("Agent groups", '<div id="aggroups"></div>', { sub: `Named actors joined by high-confidence or accepted proposals: each group counts as one ${term("estimated_agent", "estimated agent")}.` })}
         ${card("Numbered names", '<div id="agnames"></div>', { sub: "Self-chosen names that differ only by trailing digits (Helper12, Helper57): one agent may make a new name per run. Large families are more likely a shared template." })}
       </div>
+      ${card("Why not merged?", '<div id="agwhy"></div>', { sub: "Pick two named actors you expect to be one agent: the score they got, what pushed it down, which kinds of evidence were not found for them, and how far they are from a merge." })}
       ${card(`${term("role", "Roles")}`, '<div id="agrolesum"></div><div id="agroles"></div>', { sub: `Each named actor's role in the messages between named actors (${fmt(roles.messages_between_named)} messages), with the numbers behind it. Click a role to filter.`, right: '<button class="link" id="agrolerules">Rules</button>' })}
       <div id="agrolerulebox" hidden></div>`;
     const draw = (r) => { estimate(r, ctxR.context, s); proposals(r); groups(r); names(r); };
     draw(idr);
+    whyNot(idr, roles);
     rules(idr, roles);
     roleView(roles);
     host.querySelector("#agrules").addEventListener("click", () => { const b = $("agrulebox"); b.hidden = !b.hidden; });
@@ -119,7 +121,72 @@
   function groups(r) {
     const box = $("aggroups");
     if (!r.groups.length) { box.innerHTML = '<p class="muted small">No group yet: no high-confidence or accepted proposal. Every named actor counts as its own agent.</p>'; return; }
-    box.innerHTML = `<div class="aggrp">${r.groups.slice(0, 40).map((g, i) => `<div class="agg"><div class="small"><b>Agent ${i + 1}</b> <span class="muted">${plural(g.actors.length, "named actor")} · ${plural(g.records, "record")} · ${plural(g.links.length, "link")}${g.links.some((l) => l.decision === "accept") ? " · includes accepted" : ""}</span></div><div class="agchips">${g.actors.slice(0, 30).map((a) => ent.actor(a)).join(" ")}${g.actors.length > 30 ? ` <span class="muted small">+${g.actors.length - 30}</span>` : ""}</div></div>`).join("")}</div>${more(Math.min(40, r.groups.length), r.groups_total, "groups")}`;
+    box.innerHTML = `<div class="aggrp">${r.groups.slice(0, 40).map((g, i) => `<div class="agg">${i < 12 ? groupGraph(g) : ""}<div class="small"><b>Agent ${i + 1}</b> <span class="muted">${plural(g.actors.length, "named actor")} · ${plural(g.records, "record")} · ${plural(g.links.length, "link")}${g.links.some((l) => l.decision === "accept") ? " · includes accepted" : ""}</span></div><div class="agchips">${g.actors.slice(0, 30).map((a) => ent.actor(a)).join(" ")}${g.actors.length > 30 ? ` <span class="muted small">+${g.actors.length - 30}</span>` : ""}</div></div>`).join("")}</div>${more(Math.min(40, r.groups.length), r.groups_total, "groups")}`;
+  }
+
+  // one merge group as a small graph: each line is a link that joins the group (high or accepted),
+  // thicker for more points; dashed when the investigator accepted it without a high score
+  function groupGraph(g) {
+    const n = g.actors.length;
+    if (n < 2 || n > 40) return "";
+    const W = 260, Hh = n <= 3 ? 90 : n <= 8 ? 150 : 200, cx = W / 2, cy = Hh / 2, rad = Math.min(cx, cy) - 26;
+    const pos = new Map(g.actors.map((a, k) => { const ang = -Math.PI / 2 + (2 * Math.PI * k) / n; return [a, [cx + rad * Math.cos(ang) * (n === 2 ? 1.6 : 1.25), cy + rad * Math.sin(ang)]]; }));
+    const deg = new Map(); g.links.forEach((l) => { deg.set(l.a, (deg.get(l.a) || 0) + 1); deg.set(l.b, (deg.get(l.b) || 0) + 1); });
+    let svg = `<svg class="aggraph" width="100%" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Links that join this group">`;
+    g.links.forEach((l) => {
+      const [x1, y1] = pos.get(l.a) || [0, 0], [x2, y2] = pos.get(l.b) || [0, 0];
+      const acc = l.decision === "accept";
+      svg += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${acc ? "#2f6fb3" : CONF_COLOR[l.confidence] || "#9aa5b1"}" stroke-width="${(0.8 + Math.min(8, l.score || 0) * 0.35).toFixed(2)}" stroke-opacity=".75"${acc && l.confidence !== "high" ? ' stroke-dasharray="4 3"' : ""}><title>${esc(short(l.a))} + ${esc(short(l.b))}: ${fmt(l.score)} points${l.confidence ? `, ${l.confidence}` : ""}${acc ? ", accepted" : ""}</title></line>`;
+    });
+    g.actors.forEach((a) => {
+      const [x, y] = pos.get(a), r = 4 + Math.min(5, deg.get(a) || 0);
+      svg += `<circle class="node" data-actor="${esc(a)}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${C.actorBg}" stroke="${C.actor}" stroke-width="1.4"/>`;
+      if (n <= 12) svg += `<text x="${x.toFixed(1)}" y="${(y + (y < cy ? -r - 3 : r + 11)).toFixed(1)}" text-anchor="middle" font-size="9.5" fill="#3d4a58" paint-order="stroke" stroke="#fff" stroke-width="3" pointer-events="none">${esc(fitName(short(a), 80, "9.5px -apple-system, system-ui, sans-serif"))}</text>`;
+    });
+    return svg + "</svg>";
+  }
+
+  // ---------------------------------------------------------------- why not merged
+  function whyNot(r, roles) {
+    const box = $("agwhy");
+    if (!box) return;
+    const names = [...new Set((roles.rows || []).map((x) => x.actor).concat(r.proposals.flatMap((x) => [x.a, x.b])))].sort((a, b) => short(a).localeCompare(short(b)));
+    if (names.length < 2) { box.innerHTML = '<p class="muted small">Fewer than two named actors.</p>'; return; }
+    box.innerHTML = `<div class="agwhyctl"><input id="agwa" list="agwlist" placeholder="first actor" value="${esc(ST.wa || "")}"> + <input id="agwb" list="agwlist" placeholder="second actor" value="${esc(ST.wb || "")}"> <button type="button" id="agwgo">Explain</button></div>
+      <datalist id="agwlist">${names.slice(0, 3000).map((a) => `<option value="${esc(a)}">${esc(short(a))}</option>`).join("")}</datalist><div id="agwout"></div>`;
+    const resolve = (v) => names.find((a) => a === v) || names.find((a) => short(a) === v) || null;
+    $("agwgo").addEventListener("click", async () => {
+      const a = resolve($("agwa").value.trim()), b = resolve($("agwb").value.trim()), out = $("agwout");
+      ST.wa = $("agwa").value.trim(); ST.wb = $("agwb").value.trim();
+      if (!a || !b) { out.innerHTML = '<p class="small warn">Pick two named actors from the list.</p>'; return; }
+      if (a === b) { out.innerHTML = '<p class="small warn">Pick two different actors.</p>'; return; }
+      out.innerHTML = '<p class="small muted">Counting…</p>';
+      try { out.innerHTML = await explainPair(r, a, b); } catch (e) { out.innerHTML = `<p class="small warn">${esc(e.message)}</p>`; }
+    });
+  }
+  async function explainPair(r, a, b) {
+    const th = r.thresholds;
+    const find = (list) => (list || []).find((x) => (x.a === a && x.b === b) || (x.a === b && x.b === a));
+    let x = find(r.proposals), ra = null, rb = null;
+    if (!x) { ra = await api(`/api/x/identity?actor=${encodeURIComponent(a)}`); x = find(ra.proposals); }
+    if (!x) { rb = await api(`/api/x/identity?actor=${encodeURIComponent(b)}`); x = find(rb.proposals); }
+    const grpA = r.groups.findIndex((g) => g.actors.includes(a)), grpB = r.groups.findIndex((g) => g.actors.includes(b));
+    const same = grpA >= 0 && grpA === grpB;
+    const head = `<div class="agpair">${ent.actor(a)} <span class="muted">+</span> ${ent.actor(b)}</div>`;
+    let verdict;
+    if (same) verdict = `<p><b>They are already counted as one agent</b> (Agent ${grpA + 1})${x && !(x.decision === "accept" || x.confidence === "high") ? ", joined through other members of the group rather than directly" : ""}.</p>`;
+    else if (x && x.decision === "reject") verdict = `<p><b>Not merged because the pair was rejected</b> by an investigator's decision (score ${fmt(x.score)}).</p>`;
+    else if (x) verdict = `<p><b>Not merged: ${fmt(x.score)} points, ${x.confidence} confidence.</b> A merge needs ${th.high}+ points (high) or an accepted decision; ${th.high - x.score > 0 ? `${plural(th.high - x.score, "more point")} would make it high.` : ""} Medium pairs only count in the low end of the estimate's range.</p>`;
+    else {
+      const totals = [ra?.proposals_total, rb?.proposals_total].filter((v) => v != null);
+      verdict = `<p><b>Not merged: under ${th.low} points.</b> No rule found enough evidence that one agent held both, so the pair is not even proposed.${totals.some((v) => v > 20) ? " (Each actor's list is cut at its top 20 pairs, so a weak score just below that cut is not shown.)" : ""}</p>`;
+    }
+    const got = new Set((x?.evidence || []).map((v) => v.key));
+    const missing = r.rules.filter((rule) => rule.points.trim().startsWith("+") && !got.has(rule.key));
+    const ev = x ? `${x.evidence.length ? `<div class="agagh">Evidence for</div><ul class="agev">${x.evidence.map((v) => evidenceRow(v, false)).join("")}</ul>` : ""}
+      ${x.against.length ? `<div class="agagh">Evidence against (subtracted)</div><ul class="agev">${x.against.map((v) => evidenceRow(v, true)).join("")}</ul>` : '<div class="small faint">No evidence against.</div>'}` : "";
+    const miss = missing.length ? `<div class="agagh">Not found for this pair</div><ul class="agev agmiss">${missing.map((m) => `<li><span class="agpts">${esc(m.points.split(" ")[0])}</span> ${esc(m.what)}</li>`).join("")}</ul>` : "";
+    return `<div class="agprop">${head}${verdict}${ev}${miss}${!same && !(x && x.decision === "reject") ? `<div class="agbtns">If you know they are one agent: <button type="button" class="primary" data-dec="accept" data-a="${esc(a)}" data-b="${esc(b)}">Accept as one agent</button></div>` : ""}</div>`;
   }
 
   function names(r) {

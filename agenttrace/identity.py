@@ -29,7 +29,10 @@ Scoring rule (additive; every item lists the record ids behind it):
       shorter one's active time) and never inside one record              -2
       both write self-chosen names in their code, none in common          -1
 
-Confidence: high at 6+, medium at 4-5, low at 2-3. Pairs under 2 are not proposed.
+Confidence: high at 6+, medium at 4-5, low at 2-3. Pairs under 2 are not proposed. High and medium
+also need direct evidence: the same record, a small shared thread, or a carried token. Without it a
+pair stays low, because shared places, handoffs, shared programs and names also happen between
+different agents that coordinate (see docs/validation.md).
 Agent groups join every pair that is high or accepted (and never a rejected pair). The estimate
 range: low end also joins medium pairs; high end joins only accepted pairs.
 """
@@ -71,6 +74,9 @@ RULES = [
 
 
 # ------------------------------------------------------------------ helpers
+
+DIRECT = {"same_record", "same_thread", "carried"}
+
 
 def _need(state):
     s = state["session"]
@@ -351,6 +357,12 @@ def _score(s, base, a, b, p):
             base["actor_names"][a][sorted(na)[0]][:1] + base["actor_names"][b][sorted(nb)[0]][:1])
     score = sum(x["points"] for x in ev) + sum(x["points"] for x in against)
     conf = "high" if score >= HIGH else "medium" if score >= MEDIUM else "low" if score >= LOW else None
+    # Measured on simulated swarms with known agents (agenttrace.validation): pairs resting only on
+    # coordination evidence (a shared place, handoffs, shared programs, names) were the same agent about
+    # 4% of the time, while pairs with direct evidence were right in every case. So without direct
+    # evidence a pair is never more than "low".
+    if conf in ("high", "medium") and not any(x["key"] in DIRECT for x in ev):
+        conf = "low"
     return {"a": a, "b": b, "score": score, "confidence": conf, "evidence": ev, "against": against,
             "kinds": len(ev)}
 

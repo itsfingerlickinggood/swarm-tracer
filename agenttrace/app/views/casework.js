@@ -54,7 +54,7 @@ function pin(kind, key, note) {
   if (!CW.case) return;
   const have = find(kind, key);
   if (have) { if (note != null) have.note = note; }
-  else CW.case.items.push({ kind, key, note: note || "", added: new Date().toISOString().slice(0, 16).replace("T", " ") + " UTC", tab: S.tab });
+  else CW.case.items.push({ kind, key, note: note || "", added: new Date().toISOString().slice(0, 19).replace("T", " ") + " UTC", tab: S.tab, ...(CW.case.investigator ? { by: CW.case.investigator } : {}) });
   save(true); drawerRefresh();
 }
 function unpin(kind, key) {
@@ -234,17 +234,21 @@ function drawRender() {
   el.innerHTML = `<div class="cw-head"><input class="cw-title" value="${esc(c.title || "")}" aria-label="Case title"><button type="button" class="link cw-close">Close</button></div>
     <div class="cw-body">
       <p class="small muted">${term("case_file", "Case file")} for <b>${esc(S.summary.name)}</b> · ${plural(c.items.length, "pinned item")}${c.updated ? ` · saved ${esc(c.updated)}` : ""}</p>
+      <label class="cw-lab">Investigator <span class="muted">(optional; recorded on each pin and in the export)</span><input class="cw-inv" value="${esc(c.investigator || "")}" placeholder="Your name or initials" maxlength="200"></label>
       <label class="cw-lab">Your notes<textarea class="cw-notes" rows="4" placeholder="What you think happened, open questions, next steps…">${esc(c.notes || "")}</textarea></label>
       <div class="cw-btns"><button type="button" class="cw-vlink">Copy link to this view</button> <button type="button" class="primary cw-exh">Export case file (HTML)</button> <button type="button" class="cw-exj">(JSON)</button></div>
       ${groups.length ? groups.map(([k, l]) => `<h4 class="cw-gh">${KIND_TITLE[k]} <span class="muted">${fmt(l.length)}</span></h4>${l.map((it) => itemRow(it)).join("")}`).join("")
         : '<p class="muted cw-empty">Nothing pinned yet. Open any record, actor or place in the Inspector and press <b>Pin to case file</b>; a conversation has its own pin button.</p>'}
+      <p class="small muted cw-cust">${term("custody", "Chain of custody")}: input hashes, build and pack go into the export. <button type="button" class="link cw-custlink">See it</button></p>
       <div id="cwLabels"></div>
       <div id="cwTruth"></div>
     </div>`;
   el.querySelector(".cw-close").addEventListener("click", () => { el.hidden = true; });
   el.querySelector(".cw-title").addEventListener("input", (e) => { c.title = e.target.value; save(); });
   el.querySelector(".cw-notes").addEventListener("input", (e) => { c.notes = e.target.value; save(); });
+  el.querySelector(".cw-inv").addEventListener("input", (e) => { c.investigator = e.target.value.trim(); try { localStorage.setItem("swarm-tracer-investigator", c.investigator); } catch { /* blocked */ } save(); });
   el.querySelector(".cw-vlink").addEventListener("click", (e) => copy(viewLink(), e.target));
+  el.querySelector(".cw-custlink").addEventListener("click", () => { location.hash = "tab=forensics&fx=custody"; goTab("forensics"); });
   el.querySelector(".cw-exh").addEventListener("click", (e) => exportCase("html", e.target));
   el.querySelector(".cw-exj").addEventListener("click", (e) => exportCase("json", e.target));
   el.querySelectorAll(".cw-item").forEach((row) => {
@@ -269,7 +273,7 @@ function itemRow(it) {
   const i = CW.case.items.indexOf(it);
   return `<div class="cw-item" data-i="${i}"><div class="cw-irow"><span class="cw-chip">${chip(it.kind, it.key)}</span>
     <span class="cw-ibtns"><button type="button" class="link" data-act="open">open</button><button type="button" class="link" data-act="link">copy link</button><button type="button" data-act="up" title="Move up">↑</button><button type="button" data-act="down" title="Move down">↓</button><button type="button" data-act="rm" title="Remove from the case file">✕</button></span></div>
-    <textarea class="cw-inote" rows="2" placeholder="Note">${esc(it.note || "")}</textarea><div class="small faint">pinned ${esc(it.added || "")}</div></div>`;
+    <textarea class="cw-inote" rows="2" placeholder="Note">${esc(it.note || "")}</textarea><div class="small faint">pinned ${esc(it.added || "")}${it.by ? ` by ${esc(it.by)}` : ""}</div></div>`;
 }
 async function exportCase(format, btn) {
   const old = btn.textContent;

@@ -22,3 +22,7 @@ svg.evh{cursor:crosshair;user-select:none}
 svg.evh .hhit:hover{fill:rgba(47,111,179,.10)}
 .evleg .lk{cursor:pointer} .evleg .lk:hover{text-decoration:underline}
 .evhnote{margin:4px 0 0}
+.evsaved{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 0 10px;color:var(--muted)}
+.evsaved label{display:inline-flex;align-items:center;gap:5px}
+.evsaved .sep{flex:1}
+.evfirst{font-size:10.5px;background:#fff4e0;color:#8a4b00;border:1px solid #f2c46d;border-radius:4px;padding:0 5px;white-space:nowrap}

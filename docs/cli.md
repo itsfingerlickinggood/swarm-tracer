@@ -21,8 +21,11 @@ Other tools:
 
 ```bash
 # a simulated swarm with known message links, then score the tool against it
-python3 -m agenttrace.groundtruth make out/ --agents 40 --seed 1
+python3 -m agenttrace.groundtruth make out/ --agents 40 --seed 1 [--mode benign] [--mention-share 0.3] [--own-writes 0.5]
 python3 -m agenttrace.groundtruth score out/
+
+# the validation suite: many simulated swarms (and benign ones), scored with ranges
+python3 -m agenttrace.validation run --out reports/validation --seeds 1 2 3 4 5 [--quick]
 
 # replay a recorded trace into a growing file, to try live mode
 python3 -m agenttrace.tools.replay_feed redacted.jsonl /tmp/feed.jsonl --rate 2000

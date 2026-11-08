@@ -2,6 +2,7 @@
 // every sender-receiver pair, a table of every actor, and the conversation behind any pair.
 (() => {
 "use strict";
+GLOSSARY.community = GLOSSARY.community || ["Community", "A set of actors that exchanged more messages with each other than with the rest, found by label propagation: each actor repeatedly takes the label most of its message partners hold, until nothing changes. Direction is ignored. It is a grouping by message pattern, not proof that the actors were one team."];
 const isNamed = (a) => !String(a).startsWith("run:");
 const isoHour = (sec) => new Date(sec * 1000).toISOString().slice(0, 13).replace("T", " ");
 const ROLES = [
@@ -10,7 +11,7 @@ const ROLES = [
   { label: "only receives", fill: "#8f9aa6" },
 ];
 const RUN_FILL = "#ffffff", RUN_STROKE = "#9aa5b1", RUN_EDGE = "#aab3bc";   // anonymous runs: hollow, so they never read as "only receives"
-const NW = { mode: "named", T: null, playing: false, raf: 0, noMerged: false, mergedByPair: new Map() };   // kept across redraws and tab switches
+const NW = { mode: "named", T: null, F: null, playing: false, raf: 0, noMerged: false, mergedByPair: new Map(), colour: "role", focus: null, hops: 1, clickFocus: false };   // kept across redraws and tab switches
 const MERGED_TIP = "On a place the redaction may have merged: it kept only the owner's name, so the write and the read may be on two different repositories.";
 const CAP_LABELS = 70, CAP_MATRIX = 60;
 
@@ -112,6 +113,95 @@ function splitWithout(G, id) {
 
 function rng(seed) {
   return () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+
+// named communities: label propagation over messages (direction ignored, weighted by count),
+// each named after its busiest member; deterministic for a given graph
+const COMM_COLORS = ["#2f6fb3", "#e3a43b", "#2e7d32", "#b8579a", "#0f766e", "#c2410c", "#6d28d9", "#a16207", "#be123c", "#0369a1"];
+function communities(G) {
+  const ids = [...G.nodes.keys()].sort(), adj = new Map(ids.map((id) => [id, new Map()]));
+  for (const e of G.edges.values()) {
+    if (e.a === e.b) continue;
+    adj.get(e.a).set(e.b, (adj.get(e.a).get(e.b) || 0) + e.n);
+    adj.get(e.b).set(e.a, (adj.get(e.b).get(e.a) || 0) + e.n);
+  }
+  const lab = new Map(ids.map((id) => [id, id])), rnd = rng(11);
+  for (let it = 0; it < 30; it++) {
+    let changed = 0;
+    const order = ids.map((id) => [rnd(), id]).sort((p, q) => p[0] - q[0]).map((p) => p[1]);
+    for (const id of order) {
+      const score = new Map();
+      for (const [nb, w] of adj.get(id)) score.set(lab.get(nb), (score.get(lab.get(nb)) || 0) + Math.log1p(w));
+      if (!score.size) continue;
+      let best = lab.get(id), bs = score.get(best) ?? -1;
+      for (const [l, v] of score) if (v > bs + 1e-9 || (Math.abs(v - bs) < 1e-9 && l < best)) { best = l; bs = v; }
+      if (best !== lab.get(id)) { lab.set(id, best); changed++; }
+    }
+    if (!changed) break;
+  }
+  const by = new Map();
+  ids.forEach((id) => { const l = lab.get(id); if (!by.has(l)) by.set(l, []); by.get(l).push(id); });
+  const list = [...by.values()].map((m) => {
+    m.sort((a, b) => G.nodes.get(b).total - G.nodes.get(a).total || (a < b ? -1 : 1));
+    const inside = new Set(m);
+    let msgs = 0;
+    for (const e of G.edges.values()) if (inside.has(e.a) && inside.has(e.b)) msgs += e.n;
+    return { members: m, msgs, lead: m[0] };
+  }).sort((a, b) => b.members.length - a.members.length || b.msgs - a.msgs);
+  list.forEach((c, i) => {
+    c.n = i + 1;
+    c.name = c.members.length > 1 ? `${short(c.lead)}'s circle` : short(c.lead) + " (alone)";
+    c.color = c.members.length > 1 ? COMM_COLORS[i % COMM_COLORS.length] : "#c3cad2";
+    c.members.forEach((id) => (G.nodes.get(id).comm = c));
+  });
+  return list;
+}
+
+// the actors within `hops` messages of one actor (direction ignored)
+function neighbourhood(G, id, hops) {
+  const adj = new Map();
+  for (const e of G.edges.values()) {
+    if (!adj.has(e.a)) adj.set(e.a, new Set());
+    if (!adj.has(e.b)) adj.set(e.b, new Set());
+    adj.get(e.a).add(e.b); adj.get(e.b).add(e.a);
+  }
+  const keep = new Set([id]);
+  let front = [id];
+  for (let h = 0; h < hops; h++) {
+    const next = [];
+    for (const v of front) for (const w of adj.get(v) || []) if (!keep.has(w)) { keep.add(w); next.push(w); }
+    front = next;
+  }
+  return keep;
+}
+
+// the drawn graph as a standalone SVG file, with the styles it needs inlined
+function exportSvg(host, title) {
+  const svg = host.querySelector("svg.nw-graph");
+  if (!svg) return;
+  const c = svg.cloneNode(true);
+  c.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  c.classList.remove("dim");
+  c.querySelectorAll(".hi").forEach((x) => x.classList.remove("hi"));
+  c.querySelectorAll(".edgehit").forEach((x) => x.remove());
+  const W = +c.getAttribute("width"), H = +c.getAttribute("height");
+  const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+  style.textContent = `text{font-family:-apple-system,system-ui,sans-serif}.edge{stroke-opacity:.5}.edge.run{stroke-opacity:.45}.off{display:none}g.node.off,text.nwlab.off{display:inline;opacity:.13}text.nwlab{fill:#2b3542;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}`;
+  c.insertBefore(style, c.firstChild);
+  const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  bg.setAttribute("width", W); bg.setAttribute("height", H + 22); bg.setAttribute("fill", "#fff");
+  c.insertBefore(bg, style.nextSibling);
+  c.setAttribute("height", H + 22); c.setAttribute("viewBox", `0 0 ${W} ${H + 22}`);
+  const cap = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  cap.setAttribute("x", 8); cap.setAttribute("y", H + 15); cap.setAttribute("font-size", "11"); cap.setAttribute("fill", "#5b6672");
+  cap.textContent = title;
+  c.appendChild(cap);
+  const blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(c)], { type: "image/svg+xml" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `who-talked-to-whom-${(S.summary?.name || "trace").replace(/[^\w.-]+/g, "_")}.svg`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
 // ------------------------------------------------------------------ findings
@@ -280,7 +370,7 @@ function hull(points) {
 }
 
 // ------------------------------------------------------------------ the graph
-function drawGraph(host, G, mode) {
+function drawGraph(host, G, mode, opts = {}) {
   if (!G.nodes.size) { host.innerHTML = '<p class="muted nw-empty">No messages to draw.</p>'; return null; }
   const W = Math.max(340, host.clientWidth || 720);
   const nNamed = [...G.nodes.values()].filter((x) => x.named).length;
@@ -295,7 +385,7 @@ function drawGraph(host, G, mode) {
   <defs>${[["n", ACCENT], ["r", RUN_EDGE], ["h", "#1e4f86"]].map(([k, c]) => `<marker id="nwah${k}" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,1L10,5L0,9z" fill="${c}"/></marker>`).join("")}</defs>`;
   // a soft shape behind each group of named actors, when there is more than one group
   const namedGroups = G.groups.map((ids) => ids.filter(isNamed)).filter((ids) => ids.length >= 3);
-  if (mode === "named" && namedGroups.length > 1) {
+  if (mode === "named" && namedGroups.length > 1 && opts.colour !== "community" && !opts.focus) {
     namedGroups.forEach((ids, gi) => {
       const pts = hull(ids.map((id) => [pos.get(id).x, pos.get(id).y]));
       svg += `<path d="M${pts.map((p) => p.map((v) => v.toFixed(1)).join(",")).join("L")}Z" fill="${gi % 2 ? "#f3eefb" : "#eef4fb"}" stroke="${gi % 2 ? "#f3eefb" : "#eef4fb"}" stroke-width="34" stroke-linejoin="round" opacity=".9"/>`;
@@ -326,12 +416,14 @@ function drawGraph(host, G, mode) {
   const nodeSvg = [];
   for (const x of [...G.nodes.values()].sort((p, q) => p.total - q.total)) {
     const p = pos.get(x.id);
-    const fill = x.named ? ROLES[x.role].fill : RUN_FILL;
-    nodeSvg.push(`<g class="node${x.named ? "" : " run"}" data-actor="${esc(x.id)}" data-nid="${esc(x.id)}"><circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${p.r.toFixed(1)}" fill="${fill}" stroke="${x.named ? "#fff" : RUN_STROKE}" stroke-width="${x.named ? 1.5 : 1}"/></g>`);
+    const comm = opts.colour === "community" && x.comm;
+    const fill = comm ? x.comm.color : x.named ? ROLES[x.role].fill : RUN_FILL;
+    const ring = opts.focus === x.id ? ' stroke="#1b2430" stroke-width="2.6"' : ` stroke="${x.named || comm ? "#fff" : RUN_STROKE}" stroke-width="${x.named ? 1.5 : 1}"`;
+    nodeSvg.push(`<g class="node${x.named ? "" : " run"}" data-actor="${esc(x.id)}" data-nid="${esc(x.id)}"><circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${p.r.toFixed(1)}" fill="${fill}"${ring}/>${comm ? `<title>${esc(short(x.id))} · ${esc(x.comm.name)}</title>` : ""}</g>`);
   }
   svg += nodeSvg.join("");
   // names of the named actors (busiest first when there are too many to name)
-  const toLabel = [...G.nodes.values()].filter((x) => x.named).sort((p, q) => q.total - p.total).slice(0, CAP_LABELS).map((x) => ({ id: x.id, text: short(x.id) }));
+  const toLabel = [...G.nodes.values()].filter((x) => x.named || opts.focus).sort((p, q) => (q.id === opts.focus) - (p.id === opts.focus) || q.total - p.total).slice(0, CAP_LABELS).map((x) => ({ id: x.id, text: short(x.id) }));
   labelSpots(toLabel, pos, W, H, lay.strip ? [{ x: 0, y: lay.strip.y, w: W, h: 20 }] : []);
   svg += toLabel.filter((l) => l.at).map((l) => `<text class="nwlab" data-nid="${esc(l.id)}" data-actor="${esc(l.id)}" x="${(l.at.x + 1).toFixed(1)}" y="${(l.at.y + 9.5).toFixed(1)}" font-size="11">${esc(l.text)}</text>`).join("");
   host.innerHTML = svg + "</svg>";
@@ -359,7 +451,7 @@ function drawGraph(host, G, mode) {
 }
 
 // show the graph as it stood at time T (seconds): lines and dots appear as messages are read
-function applyTime(view, T) {
+function applyTime(view, T, F = -Infinity) {
   if (!view) return;
   const { el, G } = view;
   const active = new Set();
@@ -367,20 +459,21 @@ function applyTime(view, T) {
   el.querySelectorAll(".edge,.edgehit").forEach((p) => {
     const e = G.edges.get(p.dataset.k);
     let n = 0;
-    if (e) for (const t of e.times) { if (t <= T) n++; else break; }
+    if (e) for (const t of e.times) { if (t > T) break; if (t >= F) n++; }
     p.classList.toggle("off", n === 0);
     if (n && p.classList.contains("edge")) { if (p.hasAttribute("marker-end")) p.setAttribute("stroke-width", (0.9 + 3.4 * Math.log1p(n) / Math.log1p(maxE)).toFixed(2)); active.add(e.a); active.add(e.b); }
   });
   el.querySelectorAll("[data-nid]").forEach((g) => g.classList.toggle("off", !active.has(g.dataset.nid)));
 }
 
-function scrubStats(msgs, T) {
+function scrubStats(msgs, T, F = -Infinity) {
   let n = 0;
   const pairs = new Set(), root = new Map();
   const find = (x) => { if (!root.has(x)) root.set(x, x); while (root.get(x) !== x) { root.set(x, root.get(root.get(x))); x = root.get(x); } return x; };
   const size = new Map(); let big = 0;
   for (const m of msgs) {
     if (m.rt > T) break;
+    if (m.rt < F) continue;
     n++; pairs.add(m.from + "\u0001" + m.to);
     const a = find(m.from), b = find(m.to);
     if (!size.has(a)) size.set(a, 1);
@@ -500,6 +593,7 @@ async function network(el, s) {
   <div id="nwFinds"></div>
   <section class="card nw-gcard"><header><h3>Every message, as a graph</h3><div class="nw-mode" id="nwMode"></div></header>
     <p class="sub" id="nwSub"></p>
+    <div class="nw-tools" id="nwTools"></div>
     <div id="nwGraph" class="nw-ghost"></div>
     <div class="nw-legend" id="nwLegend"></div>
     <div class="nw-scrub" id="nwScrub"></div>
@@ -553,7 +647,7 @@ async function network(el, s) {
     const msgs = base.msgs.filter(keep), named = base.named.filter(keep);
     const Gn = buildGraph(named), Ga = buildGraph(msgs);
     betweenness(Gn);
-    D = { msgs, named, Gn, Ga, runs: [...Ga.nodes.values()].filter((x) => !x.named).length, withRuns: msgs.length - named.length };
+    D = { msgs, named, Gn, Ga, commN: communities(Gn), commA: communities(Ga), runs: [...Ga.nodes.values()].filter((x) => !x.named).length, withRuns: msgs.length - named.length };
     if (!Gn.nodes.size && NW.mode === "named") NW.mode = "all";
   };
   const sources = () => (NW.mode === "named" ? D.named : D.msgs);
@@ -570,46 +664,116 @@ async function network(el, s) {
     const { Gn, Ga } = D;
     $("nwMode").innerHTML = [["named", `Named actors <span>${fmt(Gn.nodes.size)}</span>`], ["all", `Everyone <span>${fmt(Ga.nodes.size)}</span>`]]
       .map(([k, label]) => `<button type="button" data-m="${k}" class="${NW.mode === k ? "on" : ""}"${k === "named" && !Gn.nodes.size ? " disabled" : ""}>${label}</button>`).join("");
-    $("nwMode").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { NW.mode = b.dataset.m; drawMode(); redraw(); }));
+    $("nwMode").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { NW.mode = b.dataset.m; drawMode(); tools(); redraw(); }));
     const G = graphOf();
     $("nwSub").innerHTML = NW.mode === "named"
       ? `All ${plural(G.edges.size, "sender-receiver pair")} between ${plural(G.nodes.size, "named actor")}. Each arrow runs from the writer to the reader; thicker means more messages, dashed means every message on it sits on a merged place. Dot size is an actor's messages. Hover a dot to pick out its messages, click it for its profile; click an arrow for the whole conversation, with every record id.`
       : `Everything: ${plural(G.edges.size, "pair")} among ${plural(G.nodes.size, "actor")}, including ${plural(D.runs, "anonymous run")} as small hollow dots. Small groups that only talk among themselves are lined up at the bottom.`;
     const roles = new Set([...G.nodes.values()].filter((x) => x.named).map((x) => x.role));
     const anyMerged = [...G.edges.values()].some((e) => e.merged && e.merged === e.n);
+    const comms = (NW.mode === "named" ? D.commN : D.commA).filter((c) => c.members.length > 1);
+    if (NW.colour === "community") {
+      const shown = comms.slice(0, 10);
+      $("nwLegend").innerHTML = (shown.length ? shown.map((c) => `<span class="nw-comm" data-c="${c.n}" title="${esc(c.members.slice(0, 12).map(short).join(", "))}${c.members.length > 12 ? " …" : ""}"><i style="background:${c.color}"></i>${esc(c.name)} <span class="muted">${fmt(c.members.length)} actors · ${plural(c.msgs, "message")} inside</span></span>`).join("") : '<span class="muted">No community of two or more actors.</span>') +
+        (comms.length > shown.length ? `<span class="muted">+${fmt(comms.length - shown.length)} smaller communities (grey dots: actors alone)</span>` : "") +
+        `<span class="muted">${fmt(comms.length)} ${term("community", comms.length === 1 ? "community" : "communities")} found by label propagation; each is named after its busiest member. Hover a name to pick it out.</span>`;
+      $("nwLegend").querySelectorAll(".nw-comm").forEach((sp) => {
+        const c = comms.find((x) => x.n === +sp.dataset.c), set = new Set(c.members);
+        sp.addEventListener("mouseenter", () => { const el = $("nwGraph").querySelector("svg"); if (!el) return; el.classList.add("dim"); el.querySelectorAll("[data-nid]").forEach((g) => g.classList.toggle("hi", set.has(g.dataset.nid))); el.querySelectorAll(".edge").forEach((p) => p.classList.toggle("hi", set.has(p.dataset.a) && set.has(p.dataset.b))); });
+        sp.addEventListener("mouseleave", () => { const el = $("nwGraph").querySelector("svg"); if (!el) return; el.classList.remove("dim"); el.querySelectorAll(".hi").forEach((x) => x.classList.remove("hi")); });
+      });
+      return;
+    }
     $("nwLegend").innerHTML = ROLES.map((r, i) => (roles.has(i) ? `<span><i style="background:${r.fill}"></i>${r.label}</span>` : "")).join("") +
       (NW.mode === "all" && D.runs ? `<span><i style="background:${RUN_FILL};border:1.2px solid ${RUN_STROKE}"></i>anonymous run</span>` : "") +
       (anyMerged ? `<span><svg width="22" height="8"><line x1="0" x2="22" y1="4" y2="4" stroke="${ACCENT}" stroke-width="2" stroke-dasharray="4 3"/></svg>only on merged places</span>` : "") +
       `<span class="muted">line thickness and dot size: messages</span>`;
   };
+  // focus: the chosen actor and everyone within 1 or 2 hops, drawn on their own
+  const shownGraph = () => {
+    const G = graphOf();
+    if (!NW.focus || !G.nodes.has(NW.focus)) return G;
+    const keep = neighbourhood(G, NW.focus, NW.hops);
+    const Gf = buildGraph(sources().filter((m) => keep.has(m.from) && keep.has(m.to)));
+    for (const [id, x] of Gf.nodes) x.comm = G.nodes.get(id)?.comm;
+    return Gf;
+  };
+  const tools = () => {
+    const G = graphOf(), host = $("nwTools");
+    if (!host) return;
+    if (NW.focus && !G.nodes.has(NW.focus)) NW.focus = null;
+    const names = [...G.nodes.values()].sort((a, b) => b.total - a.total).slice(0, 400).map((x) => x.id);
+    host.innerHTML = `<label>Colour <select id="nwColour"><option value="role"${NW.colour === "role" ? " selected" : ""}>by role</option><option value="community"${NW.colour === "community" ? " selected" : ""}>by named community</option></select></label>
+      <label>Focus on <input id="nwFocus" list="nwActorList" placeholder="an actor" value="${esc(NW.focus || "")}" style="width:170px"></label><datalist id="nwActorList">${names.map((a) => `<option value="${esc(a)}">${esc(short(a))}</option>`).join("")}</datalist>
+      <select id="nwHops" aria-label="how far from the actor">${[1, 2].map((h) => `<option value="${h}"${NW.hops === h ? " selected" : ""}>${h} hop${h > 1 ? "s" : ""}</option>`).join("")}</select>
+      ${NW.focus ? `<button type="button" id="nwFocusClear">Show everyone</button>` : ""}
+      <label class="muted"><input type="checkbox" id="nwClickFocus"${NW.clickFocus ? " checked" : ""}> clicking a dot focuses on it</label>
+      <span class="nw-sp"></span><button type="button" id="nwSvg" title="Download the graph as drawn (window, focus and colours included)">Export SVG</button>`;
+    $("nwColour").addEventListener("change", (e) => { NW.colour = e.target.value; drawMode(); redraw(); });
+    const setFocus = (v) => { const id = G.nodes.has(v) ? v : [...G.nodes.keys()].find((k) => short(k) === v) || null; NW.focus = id; tools(); redraw(); };
+    $("nwFocus").addEventListener("change", (e) => setFocus(e.target.value.trim()));
+    $("nwHops").addEventListener("change", (e) => { NW.hops = +e.target.value; if (NW.focus) redraw(); });
+    if ($("nwFocusClear")) $("nwFocusClear").addEventListener("click", () => setFocus(""));
+    $("nwClickFocus").addEventListener("change", (e) => { NW.clickFocus = e.target.checked; });
+    $("nwSvg").addEventListener("click", () => {
+      const win = NW.F != null || NW.T != null ? `messages read ${when((NW.F ?? t0) * 1000)} to ${when((NW.T ?? t1) * 1000)}` : "every message";
+      exportSvg($("nwGraph"), `Who talked to whom · ${S.summary?.name || ""} · ${NW.mode === "named" ? "named actors" : "everyone"} · ${win}${NW.focus ? ` · within ${NW.hops} hop${NW.hops > 1 ? "s" : ""} of ${short(NW.focus)}` : ""} · Swarm Tracer`);
+    });
+  };
   const redraw = () => {
     const host = $("nwGraph"); if (!host) return;
     host.classList.remove("nw-ghost");
-    view = drawGraph(host, graphOf(), NW.mode);
+    const G = shownGraph();
+    view = drawGraph(host, G, NW.mode, { colour: NW.colour, focus: NW.focus && G.nodes.has(NW.focus) ? NW.focus : null });
+    if (view && NW.focus) host.insertAdjacentHTML("afterbegin", `<p class="small nw-focusnote">Showing ${ent.actor(NW.focus)} and the ${plural(G.nodes.size - 1, "actor")} within ${NW.hops} hop${NW.hops > 1 ? "s" : ""} of it (${plural([...G.edges.values()].reduce((a, e) => a + e.n, 0), "message")} among them). <button type="button" class="link" id="nwFocusClear2">Show everyone</button></p>`);
+    if ($("nwFocusClear2")) $("nwFocusClear2").addEventListener("click", () => { NW.focus = null; tools(); redraw(); });
+    if (view) view.el.addEventListener("click", (e) => {
+      if (!NW.clickFocus) return;
+      const g = e.target.closest("g.node, text.nwlab"); if (!g) return;
+      e.stopPropagation(); NW.focus = g.dataset.nid; tools(); redraw();
+    });
     setT(NW.T ?? t1, true);
   };
   // the time scrubber
   const scrub = $("nwScrub");
   scrub.innerHTML = `<button type="button" id="nwPlay" class="nw-play" title="Play the messages in time order">▶</button>
-    <div class="nw-track"><div id="nwHist"></div><input type="range" id="nwT" min="0" max="1000" value="1000" aria-label="Show messages up to this time"></div>
-    <div class="nw-now"><b id="nwWhen"></b><span id="nwStats"></span></div>`;
-  const slider = $("nwT");
+    <div class="nw-track"><div id="nwHist"></div><div id="nwWin" class="nw-win"></div><input type="range" id="nwT" min="0" max="1000" value="1000" aria-label="Show messages up to this time"></div>
+    <div class="nw-now"><b id="nwWhen"></b><span id="nwStats"></span></div>
+    <span class="small muted nw-froml">from</span><div class="nw-from"><input type="range" id="nwF" min="0" max="1000" value="0" aria-label="Show messages from this time"></div><span class="small muted" id="nwFromWhen"></span>`;
+  const slider = $("nwT"), fslider = $("nwF");
+  const posOf = (t) => Math.round(((t - t0) / Math.max(1, t1 - t0)) * 1000);
   function setT(T, fromRedraw) {
     NW.T = T >= t1 ? null : T;
     const t = Math.min(T, t1);
-    if (!fromRedraw) slider.value = Math.round(((t - t0) / Math.max(1, t1 - t0)) * 1000);
-    else slider.value = Math.round(((t - t0) / Math.max(1, t1 - t0)) * 1000);
-    applyTime(view, t);
-    const st = scrubStats(sources(), t);
-    $("nwWhen").textContent = T >= t1 ? `All, to ${when(t1 * 1000)}` : when(t * 1000);
+    const F = NW.F ?? -Infinity;
+    slider.value = posOf(t);
+    fslider.value = NW.F == null ? 0 : posOf(NW.F);
+    $("nwWin").style.left = `${(NW.F == null ? 0 : posOf(NW.F)) / 10}%`;
+    $("nwWin").style.width = `${Math.max(0, posOf(t) - (NW.F == null ? 0 : posOf(NW.F))) / 10}%`;
+    applyTime(view, t, F);
+    const st = scrubStats(sources(), t, F);
+    $("nwFromWhen").textContent = NW.F == null ? "the start" : when(NW.F * 1000);
+    $("nwWhen").textContent = NW.F != null ? `${when(NW.F * 1000)} → ${when(t * 1000)}` : T >= t1 ? `All, to ${when(t1 * 1000)}` : when(t * 1000);
     $("nwStats").textContent = `${plural(st.n, "message")} · ${plural(st.pairs, "pair")} · ${plural(st.actors, NW.mode === "named" ? "named actor" : "actor")} · largest group ${fmt(st.big)}`;
   }
-  slider.addEventListener("input", () => { stop(); setT(t0 + (slider.value / 1000) * (t1 - t0)); });
+  slider.addEventListener("input", () => {
+    stop();
+    if (NW.F != null && +slider.value < +fslider.value) { NW.F = t0 + (slider.value / 1000) * (t1 - t0); if (+slider.value === 0) NW.F = null; }
+    setT(t0 + (slider.value / 1000) * (t1 - t0));
+  });
+  fslider.addEventListener("input", () => {
+    stop();
+    const v = +fslider.value;
+    NW.F = v <= 0 ? null : t0 + (v / 1000) * (t1 - t0);
+    const T = NW.T ?? t1;
+    if (NW.F != null && NW.F > T) NW.T = NW.F >= t1 ? null : NW.F;
+    setT(NW.T ?? t1);
+  });
   const stop = () => { NW.playing = false; cancelAnimationFrame(NW.raf); const b = $("nwPlay"); if (b) b.textContent = "▶"; };
   $("nwPlay").addEventListener("click", () => {
     if (NW.playing) { stop(); return; }
     NW.playing = true; $("nwPlay").textContent = "❚❚";
-    let cur = +slider.value >= 1000 ? 0 : +slider.value;
+    let cur = +slider.value >= 1000 ? (+fslider.value || 0) : +slider.value;
     let last = performance.now();
     const step = (now) => {
       if (!NW.playing || !$("nwT")) return;
@@ -631,6 +795,7 @@ async function network(el, s) {
     $("nwFinds").innerHTML = D.Gn.nodes.size ? findings(D.Gn, D.msgs, D.named) : "";
     $("nwHist").innerHTML = histogram(D.msgs, t0, t1);
     drawMode();
+    tools();
     redraw();
     matrix();
     actorTable($("nwActors"), D.Gn);

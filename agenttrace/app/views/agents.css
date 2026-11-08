@@ -37,3 +37,7 @@
 .agrolebtns button{display:inline-flex;gap:5px;align-items:center}
 .agins .agirow{margin:3px 0;font-size:12.5px}
 #agroles td:last-child{min-width:240px}
+.aggraph{display:block;max-width:300px;margin:2px 0 4px}
+.agwhyctl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+.agwhyctl input{width:190px}
+.agmiss li{color:var(--muted)}

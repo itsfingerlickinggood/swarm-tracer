@@ -7,7 +7,7 @@
   const HR = 3600e3;
   const RUNS = "(anonymous runs)";
   const dl = typeof deepLink === "function" ? deepLink() : {};   // #tab=timeline&order=messages&rows=messages
-  const st = { z: null, sort: dl.order || "messages", show: dl.rows || "messages", lines: "named", off: new Set() };
+  const st = { z: null, sort: dl.order || "messages", show: dl.rows || "messages", lines: "named", off: new Set(), group: false, one: null, groups: null };
   let seq = 0;
   const hourKey = (t) => new Date(t).toISOString().slice(0, 13).replace("T", " ");
   const WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -72,6 +72,10 @@
       })() : "");
 
     drawOverview(D);
+    // the Agents tab's estimated agents (merge groups); optional, the lanes work without them
+    D.groups = [];
+    try { const idn = await cached("/api/x/identity"); D.groups = (idn.groups || []).filter((g) => (g.actors || []).length > 1); } catch { D.groups = []; }
+    if (my !== seq || S.tab !== "timeline") return;
     controls(D);
     drawLanes(D);
     chronology(D);
@@ -209,15 +213,34 @@
       <label>Order <select id="tlSort"><option value="first">first seen</option><option value="activity">most active</option><option value="messages">most messages</option></select></label>
       <label>Rows <select id="tlShow"><option value="all">every actor</option><option value="messages">actors in messages</option><option value="window">active in the zoomed window</option></select></label>
       <label>Message lines <select id="tlLines"><option value="named">between named actors</option>${hasRuns ? '<option value="all">all, anonymous runs on the bottom row</option>' : ""}<option value="none">none</option></select></label>
-      ${D.namedMsgs.length ? '<button type="button" id="tlFit">Zoom to the messages</button>' : ""}`;
+      ${D.namedMsgs.length ? '<button type="button" id="tlFit">Zoom to the messages</button>' : ""}
+      ${D.groups.length ? `<label title="The Agents tab's estimated agents: identities its evidence suggests one agent holds"><input type="checkbox" id="tlGroup"${st.group ? " checked" : ""}> group by estimated agent (${plural(D.groups.length, "group")})</label>` : ""}
+      <label>One lane <input id="tlOne" list="tlOneList" placeholder="an actor" value="${esc(st.one || "")}" style="width:150px"></label><datalist id="tlOneList">${D.lanes.actors.filter((a) => a.kind !== "runs").sort((a, b) => b.total - a.total).slice(0, 500).map((a) => `<option value="${esc(a.actor)}">${esc(short(a.actor))} · ${fmt(a.total)} actions</option>`).join("")}</datalist>
+      ${st.one ? '<button type="button" id="tlOneClear">All lanes</button>' : ""}`;
     $("tlSort").value = st.sort; $("tlShow").value = st.show; $("tlLines").value = hasRuns || st.lines !== "all" ? st.lines : "named";
     $("tlSort").addEventListener("change", (e) => { st.sort = e.target.value; drawLanes(D); });
     $("tlShow").addEventListener("change", (e) => { st.show = e.target.value; drawLanes(D); });
     $("tlLines").addEventListener("change", (e) => { st.lines = e.target.value; drawLanes(D); });
+    if ($("tlGroup")) $("tlGroup").addEventListener("change", (e) => { st.group = e.target.checked; drawLanes(D); });
+    $("tlOne").addEventListener("change", (e) => setOne(D, e.target.value.trim()));
+    if ($("tlOneClear")) $("tlOneClear").addEventListener("click", () => setOne(D, null));
     if ($("tlFit")) $("tlFit").addEventListener("click", () => {
       const ts = D.namedMsgs.flatMap((m) => [m.wt, m.rt]);
       setZoom(D, [Math.max(D.T0, Math.floor(Math.min(...ts) / HR) * HR - HR), Math.min(D.T1, Math.ceil(Math.max(...ts) / HR) * HR + HR)]);
     });
+  }
+
+  // zoom to one lane: that actor, the actors it exchanged messages with, and its own active span
+  function setOne(D, v) {
+    const a = v ? D.lanes.actors.find((x) => x.kind !== "runs" && (x.actor === v || short(x.actor) === v)) : null;
+    st.one = a ? a.actor : null;
+    if (a) {
+      const t0 = Math.floor(toTime(a.first) / HR) * HR, t1 = Math.ceil(toTime(a.last) / HR) * HR + HR;
+      st.z = t0 > D.T0 || t1 < D.T1 ? [Math.max(D.T0, t0 - HR), Math.min(D.T1, Math.max(t1 + HR, t0 + 3 * HR))] : null;
+    } else st.z = null;
+    controls(D);
+    drawOverview(D);
+    drawLanes(D);
   }
 
   function drawLanes(D) {
@@ -235,10 +258,30 @@
     if (st.sort === "activity") rows.sort((a, b) => b.total - a.total);
     else if (st.sort === "messages") rows.sort((a, b) => (b.sent + b.received) - (a.sent + a.received) || b.total - a.total);
     else rows.sort((a, b) => (a.first < b.first ? -1 : a.first > b.first ? 1 : 0));
-    if (runs && (st.show === "all" || st.lines === "all")) rows.push(runs);
+    if (st.one) {
+      const me = lanes.actors.find((a) => a.actor === st.one);
+      const partners = new Set();
+      M.forEach((m) => { if (m.from === st.one && named(m.to)) partners.add(m.to); if (m.to === st.one && named(m.from)) partners.add(m.from); });
+      rows = me ? [me, ...lanes.actors.filter((a) => a.kind !== "runs" && a.actor !== st.one && partners.has(a.actor)).sort((a, b) => (b.sent + b.received) - (a.sent + a.received))] : rows;
+    } else if (runs && (st.show === "all" || st.lines === "all")) rows.push(runs);
+    // group lanes by the Agents tab's estimated agents: members of one group sit together under a header
+    const gOf = new Map();
+    if (st.group && !st.one) (D.groups || []).forEach((g, i) => g.actors.forEach((a) => gOf.set(a, i)));
+    if (gOf.size) {
+      const out = [], done = new Set();
+      rows.forEach((r) => {
+        if (done.has(r.actor)) return;
+        const gi = gOf.get(r.actor);
+        if (gi == null) { out.push(r); done.add(r.actor); return; }
+        const members = rows.filter((x) => gOf.get(x.actor) === gi);
+        out.push({ header: true, actor: "\u0000g" + gi, label: `estimated agent ${gi + 1}: ${plural(members.length, "identity", "identities")} shown of ${fmt(D.groups[gi].actors.length)}` });
+        members.forEach((x) => { out.push({ ...x, inGroup: gi }); done.add(x.actor); });
+      });
+      rows = out;
+    }
 
     const H = rows.length * LH + 4;
-    const yOf = new Map(rows.map((r, i) => [r.actor, 2 + i * LH + LH / 2]));
+    const yOf = new Map(rows.filter((r) => !r.header).map((r) => [r.actor, 2 + rows.indexOf(r) * LH + LH / 2]));
     let mxCell = 1;
     lanes.actors.forEach((a) => a.bins.forEach((b) => { let n = 0; for (let k = 1; k < b.length; k++) n += b[k]; if (n > mxCell) mxCell = n; }));
     const nameFont = "11px ui-monospace, SFMono-Regular, Menlo, monospace";
@@ -248,10 +291,16 @@
     (s.phases || []).forEach((p) => { const t = toTime(p.time); if (t != null && t >= z0 && t <= z1) svg += `<line x1="${X(t)}" x2="${X(t)}" y1="0" y2="${H}" stroke="#7d8790" stroke-dasharray="2 4" stroke-opacity=".45"/>`; });
     rows.forEach((r, i) => {
       const y = 2 + i * LH, isRuns = r.kind === "runs";
+      if (r.header) {
+        svg += `<g class="lane tl-ghead"><rect x="0" y="${y}" width="${W}" height="${LH}" fill="#eef3fa"/><text x="4" y="${y + LH - 3}" font-size="10" font-weight="600" fill="${ACCENT}">${esc(r.label)}</text></g>`;
+        return;
+      }
+      const mine = st.one === r.actor;
       const label = fitName(isRuns ? RUNS : short(r.actor), LW - 16 - textWidth(fmt(r.total), "10px -apple-system, system-ui, sans-serif"), nameFont);
       const harm = new Map(r.harm_bins.map(([hi, n]) => [hi, n]));
-      svg += `<g class="lane" data-lane="${esc(r.actor)}">${i % 2 ? "" : `<rect x="0" y="${y}" width="${W}" height="${LH}" fill="#f7f9fb"/>`}
-        <text class="lname" ${isRuns ? "" : `data-actor="${esc(r.actor)}"`} x="6" y="${y + LH - 3}" font-size="11" fill="${isRuns ? QUIET : "#7a4d0c"}">${esc(label)}</text>
+      svg += `<g class="lane" data-lane="${esc(r.actor)}">${mine ? `<rect x="0" y="${y}" width="${W}" height="${LH}" fill="#fff4e0"/>` : i % 2 ? "" : `<rect x="0" y="${y}" width="${W}" height="${LH}" fill="#f7f9fb"/>`}
+        ${r.inGroup != null ? `<rect x="0" y="${y}" width="2.5" height="${LH}" fill="${ACCENT}"/>` : ""}
+        <text class="lname" ${isRuns ? "" : `data-actor="${esc(r.actor)}" data-one="${esc(r.actor)}"`} x="6" y="${y + LH - 3}" font-size="11" fill="${isRuns ? QUIET : "#7a4d0c"}"${mine ? ' font-weight="700"' : ""}><title>${esc(isRuns ? RUNS : r.actor)}${isRuns ? "" : " · click for its profile, double-click to zoom to this lane"}</title>${esc(label)}</text>
         <text x="${LW - 6}" y="${y + LH - 3}" font-size="10" fill="${QUIET}" text-anchor="end">${fmt(r.total)}</text><g clip-path="url(#tlClip)">`;
       r.bins.forEach((b) => {
         const t = start + b[0] * HR;
@@ -269,7 +318,7 @@
     });
     // message lines from the writer's row at write time to the reader's row at read time
     const laneOf = (a) => (named(a) ? a : RUNS);
-    const lines = st.lines === "none" ? [] : M.filter((m) => (st.lines === "all" || (named(m.from) && named(m.to))) && yOf.has(laneOf(m.from)) && yOf.has(laneOf(m.to)) && m.rt >= z0 && m.wt <= z1);
+    const lines = st.lines === "none" ? [] : M.filter((m) => (st.lines === "all" || (named(m.from) && named(m.to))) && yOf.has(laneOf(m.from)) && yOf.has(laneOf(m.to)) && m.rt >= z0 && m.wt <= z1 && (!st.one || m.from === st.one || m.to === st.one));
     svg += `<g clip-path="url(#tlClip)">`;
     lines.forEach((m) => {
       const x1 = X(m.wt), x2 = X(m.rt), y1 = yOf.get(laneOf(m.from)), y2 = yOf.get(laneOf(m.to));
@@ -284,11 +333,15 @@
     let ax = `<svg width="${W}" height="24" viewBox="0 0 ${W} 24"><text x="6" y="16" font-size="10" fill="${QUIET}">actor</text><text x="${LW - 6}" y="16" font-size="10" fill="${QUIET}" text-anchor="end"><title>Dated actions by each actor, over the whole span</title>actions</text>`;
     timeTicks(z0, z1, Math.max(3, Math.floor((W - LW - R) / 80))).forEach((k) => { ax += `<line x1="${X(k.t)}" x2="${X(k.t)}" y1="18" y2="24" stroke="${AXIS}"/><text x="${X(k.t)}" y="14" text-anchor="middle" font-size="10.5" fill="${QUIET}">${esc(k.label)}</text>`; });
     $("tlAxis").innerHTML = ax + "</svg>";
-    $("tlZoom").innerHTML = `${plural(rows.length, "row")}${rows.some((r) => r.kind === "runs") ? " (the last is every anonymous run together)" : ""}; the number after each name is its dated actions. ` +
+    const nRows = rows.filter((r) => !r.header).length;
+    $("tlZoom").innerHTML = (st.one ? `One lane: ${ent.actor(st.one)} (highlighted) and the ${plural(nRows - 1, "actor")} it exchanged messages with; only its messages are drawn. <button type="button" class="link" id="tlOneClear2">All lanes</button> ` : "") +
+      (gOf.size ? `Grouped by the Agents tab's estimated agents (a blue edge marks a member); ungrouped actors in between. ` : "") +
+      `${plural(nRows, "row")}${rows.some((r) => r.kind === "runs") ? " (the last is every anonymous run together)" : ""}; the number after each name is its dated actions. ` +
       (st.z ? `Zoomed to <b>${esc(when(z0))}</b> – <b>${esc(when(z1))}</b> (${hoursWord((z1 - z0) / HR)}). <button type="button" class="link" id="tlReset">Show everything</button>` : `Showing the whole span. Drag across the chart above to zoom.`);
     if ($("tlReset")) $("tlReset").addEventListener("click", () => setZoom(D, null));
+    if ($("tlOneClear2")) $("tlOneClear2").addEventListener("click", () => setOne(D, null));
     const shown = new Set();
-    rows.forEach((r) => r.bins.forEach((b) => { let best = 1; for (let k = 1; k < b.length; k++) if (b[k] > b[best]) best = k; shown.add(lanes.intents[best - 1]); }));
+    rows.filter((r) => !r.header).forEach((r) => r.bins.forEach((b) => { let best = 1; for (let k = 1; k < b.length; k++) if (b[k] > b[best]) best = k; shown.add(lanes.intents[best - 1]); }));
     const nMerged = lines.filter((m) => m.merged).length;
     $("tlLaneKey").innerHTML = `<div class="legend">${lanes.intents.filter((k) => shown.has(k)).map((k) => `<span title="${esc(intentName(k))}"><i style="background:${intentColor(k)}"></i>${esc(human(k))}</span>`).join("")}
         <span><i style="background:linear-gradient(90deg,${ACCENT}44,${ACCENT})"></i>darker: more actions that hour</span>
@@ -316,10 +369,12 @@
       light(g ? g.dataset.lane : null);
     });
     el.addEventListener("mouseleave", () => light(null));
+    el.addEventListener("dblclick", (e) => { const t = e.target.closest("[data-one]"); if (t) setOne(D, t.dataset.one); });
     el.addEventListener("click", (e) => {
       const c = e.target.closest("rect.cell");
       if (!c) return;
       const lane = c.closest(".lane").dataset.lane;
+      if (!lane) return;
       goEvents({ actor: lane === RUNS ? "" : lane, hour: c.dataset.h });
     });
   }

@@ -106,7 +106,7 @@ def cmd_flow(a):
 
 def cmd_serve(a):
     from . import server
-    server.serve(a.port, a.input, a.pack, parse_map(a.map))
+    server.serve(a.port, a.input, a.pack, parse_map(a.map), allow_paths=a.allow_path or [])
 
 
 SAMPLES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "samples")
@@ -255,6 +255,9 @@ def main(argv=None):
     sv.add_argument("--input", help="a file to analyze at start (optional; you can upload in the app)")
     sv.add_argument("--pack", default="auto", help="pack file name in agenttrace/packs, a path, or auto (pick from the data)")
     sv.add_argument("--map", action="append")
+    sv.add_argument("--allow-path", action="append", metavar="DIR",
+                    help="a folder whose files live mode and Compare may read (repeatable); also allowed: "
+                         "SWARM_TRACER_DATA, the package and project folders, the current folder, and the --input folder")
     sv.set_defaults(fn=cmd_serve)
 
     fl = sub.add_parser("flow", help="message flow: who wrote to which channel, who read it, how content spread")

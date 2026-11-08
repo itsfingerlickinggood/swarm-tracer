@@ -1,0 +1,17 @@
+/* fx_validation: range bars (min–max over seeds, dot at the median) */
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px 22px}
+.vm h4{margin:2px 0 6px;font-size:12px;font-weight:600;color:#333}
+.vrc{font-size:12px}
+.vr{display:grid;grid-template-columns:minmax(120px,36%) 1fr 156px;gap:8px;align-items:center;padding:2px 0}
+.vr.all{border-top:1px solid #e4e7eb;margin-top:3px;padding-top:4px;font-weight:600}
+.vl{color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vt{position:relative;height:12px;background:#f2f4f6;border-radius:3px}
+.vb{position:absolute;top:3px;height:6px;background:#9dbbe0;border-radius:3px}
+.vr.all .vb{background:#2f6fb3;opacity:.55}
+.vd{position:absolute;top:1px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#2f6fb3;border:1px solid #fff}
+.vz{position:absolute;top:-2px;bottom:-2px;width:1px;background:#8a94a0}
+.vv{text-align:right;color:#444;white-space:nowrap;font-variant-numeric:tabular-nums}
+.vax{display:grid;grid-template-columns:minmax(120px,36%) 1fr 156px;gap:8px;color:#8a94a0;font-size:11px}
+.vaxin{display:flex;justify-content:space-between}
+.vaxin em{font-style:normal}
+.vlist{margin:8px 0 0;padding-left:18px;font-size:12px;color:#555}

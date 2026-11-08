@@ -287,8 +287,10 @@ def load(path_or_paths, mapping=None):
     if isinstance(path_or_paths, (list, tuple)):
         paths, from_folder = list(path_or_paths), False
     elif os.path.isdir(path_or_paths):
+        # regular files only: a pipe or device named like a trace file would block or never end
         paths = sorted(os.path.join(path_or_paths, f) for f in os.listdir(path_or_paths)
-                       if os.path.splitext(f)[1].lower() in DATA_EXTS and not f.startswith("."))
+                       if os.path.splitext(f)[1].lower() in DATA_EXTS and not f.startswith(".")
+                       and os.path.isfile(os.path.join(path_or_paths, f)))
         from_folder = True
     else:
         paths, from_folder = [path_or_paths], False

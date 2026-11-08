@@ -11,7 +11,7 @@
     { key: "never", label: "written, never read by another actor", color: "#f0a57a" },
     { key: "readonly", label: "only read (no write seen)", color: "#d9dee4" },
   ];
-  const st = { rank: "ops", top: 40 };
+  const st = { rank: "ops", top: 40, noMerged: false };
   let seq = 0;
   const catOf = (p) => (p.messages ? "msg" : p.never ? "never" : !p.writes ? "readonly" : "quiet");
   const hourKey = (t) => new Date(t).toISOString().slice(0, 13).replace("T", " ");
@@ -33,7 +33,7 @@
     const my = ++seq;
     el.innerHTML = `<h2>Places and how messages moved through them</h2>
       <p class="small muted ch-what">A ${term("place", "place")} (a channel) is anywhere one actor can leave something for another: a repository, a board folder, a webhook, a command file. Each mention of a place in code is judged a ${term("write", "write or a read")}, and a ${term("message", "message")} is a read after a different actor's write.</p>
-      <p class="lead" id="chLead">Loading every place…</p><p class="small muted" id="chNames"></p>
+      <p class="lead" id="chLead">Loading every place…</p><p class="small muted" id="chNames"></p><p class="small ch-opt" id="chOpt"></p>
       <div id="chTiles" class="grid3"></div>
       ${card("Every place", `<div id="chMapKey" class="legend"></div><div id="chMap" class="ch-map"></div>`,
         { sub: "Each tile is one place, grouped by kind. Its size grows with the reads and writes on it (square root, so small places stay visible). Kinds with very few places sit in a thin strip along the bottom. Its colour says what happened there. Hover a tile for its card; click it to inspect every write and read." })}
@@ -49,13 +49,22 @@
     catch (e) { $("chLead").textContent = e.message; return; }
     if (my !== seq || S.tab !== "channels") return;
 
-    const P = map.rows.map((r) => ({ ch: r[0], type: String(r[0]).split(":")[0], writes: r[1], reads: r[2], writers: r[3], readers: r[4], messages: r[5], overwrites: r[6], never: !!r[7], first: r[8] }));
+    // places the redaction may have merged: the places of any message flagged as on a merged place
+    const mergedSet = new Set(msgs.rows.filter((r) => r[9]).map((r) => r[2]));
+    const optHost = $("chOpt");
+    if (mergedSet.size) {
+      const nm = msgs.rows.filter((r) => r[9]).length;
+      optHost.innerHTML = `<label><input type="checkbox" id="chNoMerged"${st.noMerged ? " checked" : ""}> Leave out places the redaction may have merged</label> <span class="muted">${plural(mergedSet.size, "place")} carrying ${plural(nm, "message")} may each join several real places (${term("merged", "merged place")}); leaving them out keeps only places known exactly.</span>`;
+      $("chNoMerged").addEventListener("change", (e) => { st.noMerged = e.target.checked; VIEWS.channels(el, s); });
+    } else st.noMerged = false;
+    const keepP = (ch) => !(st.noMerged && mergedSet.has(ch));
+    const P = map.rows.filter((r) => keepP(r[0])).map((r) => ({ ch: r[0], type: String(r[0]).split(":")[0], writes: r[1], reads: r[2], writers: r[3], readers: r[4], messages: r[5], overwrites: r[6], never: !!r[7], first: r[8] }));
     if (!P.length) {
       $("chLead").textContent = "No places found. The pack describes no place (a repository, folder, page or thread), or no record names one, so messages between actors cannot be traced here.";
       ["chTiles"].forEach((id) => ($(id).innerHTML = ""));
       return;
     }
-    const M = msgs.rows.map((r) => ({ from: r[0], to: r[1], channel: r[2], write_id: r[3], read_id: r[4], wt: r[5] * 1000, rt: r[6] * 1000, lat: r[7], how: r[8], merged: !!r[9] }));
+    const M = msgs.rows.filter((r) => !(st.noMerged && r[9])).map((r) => ({ from: r[0], to: r[1], channel: r[2], write_id: r[3], read_id: r[4], wt: r[5] * 1000, rt: r[6] * 1000, lat: r[7], how: r[8], merged: !!r[9] }));
     const types = [...new Set(P.map((p) => p.type))].sort((a, b) => P.filter((p) => p.type === b).length - P.filter((p) => p.type === a).length);
     const tcolor = Object.fromEntries(types.map((t, i) => [t, TYPE_COLORS[i % TYPE_COLORS.length]]));
     const D = { s, P, M, types, tcolor };
@@ -65,7 +74,8 @@
     const found = PLACEHOLDERS.filter(([rx]) => P.some((p) => rx.test(p.ch)));
     $("chNames").innerHTML = found.length ? `Place names are redaction placeholders: ${found.map(([, t]) => esc(t)).join("; ")}. Merged places are flagged (${term("merged", "what merged means")}).` : "";
     $("chLead").innerHTML = `${plural(P.length, "place")} where one actor could leave something for another: ${byType.map(([t, n]) => `${fmt(n)} ${esc(placeType(t, n))}`).join(", ")}. ` +
-      `${fmt(nMsg)} of them carried at least one of the ${plural(M.length, "message")}; ${fmt(nNever)} were written and never read by another actor; ${fmt(nRead)} were only read.`;
+      `${fmt(nMsg)} of them carried at least one of the ${plural(M.length, "message")}; ${fmt(nNever)} were written and never read by another actor; ${fmt(nRead)} were only read.` +
+      (st.noMerged ? ` <span class="muted">Leaving out ${plural(mergedSet.size, "merged place")} and their messages.</span>` : "");
 
     tiles(D);
     drawMap(D);
@@ -73,12 +83,44 @@
     drawHeat(D);
     drawLatency(D);
     drawScatter(D);
+    if (st.noMerged) $("chanList").insertAdjacentHTML("beforebegin", '<p class="small muted">This full list still includes merged places (it is read page by page from the server).</p>');
     listView($("chanList"), "channels", ["place", "writes", "reads", "writers", "readers", "messages", "overwrites", "median wait", "first write"],
       (c) => [ent.place(c.channel), fmt(c.writes), fmt(c.reads), fmt(c.writers), fmt(c.readers), fmt(c.deliveries), fmt(c.overwrites || 0), c.median_latency_h != null ? hoursWord(c.median_latency_h) : "–", esc(c.first_write || "–")],
       s.top_channels.slice(0, 15), s.list_totals?.channels, (c) => inspectPlace(c.channel));
     onResize($("chMap"), () => drawMap(D));
     onResize($("chHeat"), () => drawHeat(D));
   };
+
+  // ------------------------------------------------------------------ a place's life, in the Inspector
+  // created (first dated write or read), busiest hour, last read; from the place's own operations
+  function lifecycle(p) {
+    if (!p || !p.ops) return "";
+    const timed = p.ops.filter((o) => o.time);
+    if (!timed.length && !(p.hourly || []).length) return "";
+    const first = timed[0];
+    const hourly = (p.hourly || []).map(([h, c]) => ({ h, w: (c.write || 0) + (c.post || 0), r: (c.read || 0) + (c.post || 0) }));
+    const busiest = hourly.slice().sort((a, b) => (b.w + b.r) - (a.w + a.r) || (a.h < b.h ? -1 : 1))[0];
+    const complete = p.ops.length >= (p.ops_total || 0);
+    const reads = timed.filter((o) => o.op === "read" || o.op === "post");
+    const lastReadOp = complete && reads.length ? reads[reads.length - 1] : null;
+    const lastReadHour = hourly.filter((x) => x.r).map((x) => x.h).sort().pop();
+    const lastAny = hourly.map((x) => x.h).sort().pop();
+    const t0 = first ? toTime(first.time) : toTime(hourly[0]?.h), t1 = lastAny ? toTime(lastAny) + HR : null;
+    let strip = "";
+    if (t0 != null && t1 != null && hourly.length > 1) {
+      const W = 300, H = 26, mx = Math.max(1, ...hourly.map((x) => x.w + x.r));
+      const X = (t) => 2 + (t - t0) / Math.max(HR, t1 - t0) * (W - 4);
+      strip = `<svg width="100%" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" height="${H}" class="ch-life" role="img" aria-label="Writes and reads on this place over its life">${hourly.map((x) => { const t = toTime(x.h); if (t == null) return ""; const x0 = X(t), w = Math.max(1, X(t + HR) - x0), hw = (x.w / mx) * 11, hr = (x.r / mx) * 11; return `<rect x="${x0.toFixed(1)}" y="${13 - hw}" width="${w.toFixed(1)}" height="${hw}" fill="#c2410c" opacity=".75"/><rect x="${x0.toFixed(1)}" y="13" width="${w.toFixed(1)}" height="${hr}" fill="#2f6fb3" opacity=".75"/>`; }).join("")}<line x1="0" x2="${W}" y1="13" y2="13" stroke="#dde2e8"/></svg>`;
+    }
+    const cell = (lab, main, sub) => `<div><div class="muted small">${lab}</div><b>${main}</b>${sub ? `<div class="small">${sub}</div>` : ""}</div>`;
+    return `<div class="dsec ch-lifesec"><h4>Life of this place</h4><div class="ch-lifegrid">
+      ${cell(first && first.op !== "read" ? "created (first write)" : "first seen", first ? esc(when(toTime(first.time))) : "time unknown", first ? `${esc(first.op)} by ${ent.actor(first.actor)} in ${ent.rec(first.record)}` : "")}
+      ${cell("busiest hour", busiest ? esc(when(toTime(busiest.h))) : "–", busiest ? `${plural(busiest.w, "write")}, ${plural(busiest.r, "read")}` : "")}
+      ${cell("last read", lastReadOp ? esc(when(toTime(lastReadOp.time))) : lastReadHour ? `in the hour ${esc(when(toTime(lastReadHour)))}` : "never read", lastReadOp ? `by ${ent.actor(lastReadOp.actor)} in ${ent.rec(lastReadOp.record)}` : "")}
+    </div>${strip}${strip ? '<div class="small muted">Writes above the line, reads below, hour by hour from creation to the last operation (dated operations only).</div>' : ""}</div>`;
+  }
+  window.INSPECTOR_EXTRAS = window.INSPECTOR_EXTRAS || [];
+  window.INSPECTOR_EXTRAS.push((kind, key, data) => (kind === "place" ? lifecycle(data) : ""));
 
   // ------------------------------------------------------------------ 1. one tile per kind of place
   function tiles(D) {

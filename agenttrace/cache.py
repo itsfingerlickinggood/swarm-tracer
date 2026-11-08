@@ -96,6 +96,20 @@ def _skip(path, size):
     return real.startswith(tmp) and os.sep + "swarmtracer-" in real
 
 
+def _trusted(f):
+    """Unpickling runs code, so only read entries this user wrote, in a folder only this user can change."""
+    if not hasattr(os, "getuid"):
+        return True
+    try:
+        for p in (f, os.path.dirname(f)):
+            st = os.lstat(p)
+            if st.st_uid != os.getuid() or st.st_mode & 0o022 or (p == f and not os.path.isfile(p)) or os.path.islink(p):
+                return False
+    except OSError:
+        return False
+    return True
+
+
 def restore(session, path, pack_file, mapping=None, name=None):
     """Fill session from the cache. True if it did; False (and nothing changed) otherwise."""
     LAST.update(hit=False, key=None, seconds=None, error=None)
@@ -108,6 +122,9 @@ def restore(session, path, pack_file, mapping=None, name=None):
     LAST["key"] = k
     f = os.path.join(cache_dir(), k + ".pickle")
     if not os.path.isfile(f):
+        return False
+    if not _trusted(f):
+        LAST["error"] = "cache entry not written by this user (or writable by others); ignored"
         return False
     t0 = time.time()
     try:
@@ -145,7 +162,7 @@ def store(session, path, pack_file, mapping=None):
         if _skip(path, size):
             return None
         d = cache_dir()
-        os.makedirs(d, exist_ok=True)
+        os.makedirs(d, mode=0o700, exist_ok=True)
         state = dict(session.__dict__)
         state["_cache_version"] = VERSION
         f = os.path.join(d, k + ".pickle")

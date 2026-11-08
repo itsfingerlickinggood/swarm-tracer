@@ -920,9 +920,11 @@ def _pack_suggest(state, q, body):
         raise ValueError("send a sample file as the request body")
     if len(body) > 200 * 1024 * 1024:
         raise ValueError("sample is too large; use a smaller sample (a few thousand records is plenty)")
-    name = os.path.basename(q.get("filename") or "sample.jsonl") or "sample.jsonl"
-    if not os.path.splitext(name)[1]:
-        name += ".jsonl"
+    raw = re.split(r"[\\/]", str(q.get("filename") or "sample.jsonl"))[-1]
+    stem, ext = os.path.splitext(raw)
+    name = (re.sub(r"[^A-Za-z0-9._-]", "_", stem).lstrip(".")[:80] or "sample") + ext.lower()
+    if os.path.splitext(name)[1].lower() not in model.DATA_EXTS:
+        name = os.path.splitext(name)[0] + ".jsonl"
     d = tempfile.mkdtemp(prefix="packsample_")
     saved = json.loads(json.dumps(model.LAST_REPORT, default=str))
     try:
@@ -944,10 +946,27 @@ def _pack_suggest(state, q, body):
 
 
 BUILTIN = {"generic.json", "chat.json", "code_traces.json", "wiki_swarm.json"}
+MAX_PACK_BYTES = 1_000_000
+PACK_FILE_RX = re.compile(r"[a-z0-9][a-z0-9_-]{0,47}")
+
+
+def _pack_file(raw):
+    """The file name a pack is saved under: a strict slug. An explicit `file` must already be one;
+    a name is slugged (it is only a display name)."""
+    f = raw.get("file")
+    if f not in (None, ""):
+        f = str(f).strip()
+        if f.lower().endswith(".json"):
+            f = f[:-5]
+        if not PACK_FILE_RX.fullmatch(f):
+            raise ValueError("the pack's file name may use only lower-case letters, digits, '_' and '-' "
+                             "(at most 48, no folders, no '..')")
+        return f + ".json"
+    return _slug(raw.get("name")) + ".json"
 
 
 def save_pack(raw, overwrite=False, pack_dir=None):
-    """Validate a pack (as packs.load_pack would read it) and save it as packs/<name>.json."""
+    """Validate a pack (as packs.load_pack would read it) and save it as packs/<name>.json, atomically."""
     from . import packs
     from .session import PACK_DIR
     pack_dir = pack_dir or PACK_DIR
@@ -956,31 +975,43 @@ def save_pack(raw, overwrite=False, pack_dir=None):
     name = str(raw.get("name") or "").strip()
     if not name:
         raise ValueError("the pack needs a name")
-    fname = _slug(raw.get("file") or name) + ".json"
+    if len(name) > 120:
+        raise ValueError("the pack's name is too long (120 characters at most)")
+    fname = _pack_file(raw)
     raw = {k: v for k, v in raw.items() if k != "file"}
+    text = json.dumps(raw, indent=2, ensure_ascii=False)
+    if len(text.encode("utf-8")) > MAX_PACK_BYTES:
+        raise ValueError(f"the pack is larger than {MAX_PACK_BYTES:,} bytes")
     path = os.path.join(pack_dir, fname)
+    if os.path.dirname(os.path.abspath(path)) != os.path.abspath(pack_dir):
+        raise ValueError("the pack's file name may not contain a folder")
     if fname in BUILTIN:
         raise ValueError(f"{fname} is a shipped pack; pick another name")
-    if os.path.exists(path) and not overwrite:
+    if os.path.lexists(path) and not overwrite:
         raise ValueError(f"a pack named {fname} already exists; pick another name or overwrite it")
-    tmp = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8")
+    if os.path.islink(path) or (os.path.exists(path) and not os.path.isfile(path)):
+        raise ValueError(f"{fname} exists and is not a plain pack file; pick another name")
+    # written next to the target (same disk, so the final rename is atomic) under a name list_packs ignores
+    fd, tmp = tempfile.mkstemp(prefix=".pack-", suffix=".part", dir=pack_dir)
     try:
-        json.dump(raw, tmp, indent=2, ensure_ascii=False)
-        tmp.close()
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(text)
         try:
-            p = packs.load_pack(tmp.name)
+            p = packs.load_pack(tmp)
         except SystemExit as e:
             raise ValueError(f"invalid pack: {e}")
-        except (KeyError, TypeError, AttributeError, re.error) as e:
+        except (KeyError, TypeError, AttributeError, ValueError, re.error) as e:
             raise ValueError(f"invalid pack: missing or malformed field {e}")
-        shutil.move(tmp.name, path)
+        os.replace(tmp, path)
     finally:
-        if os.path.exists(tmp.name):
-            os.unlink(tmp.name)
+        if os.path.exists(tmp):
+            os.unlink(tmp)
     return {"file": fname, "name": p.name, "description": p.description, "path": path}
 
 
 def _pack_save(state, q, body):
+    if len(body or b"") > MAX_PACK_BYTES:
+        raise ValueError(f"the pack is larger than {MAX_PACK_BYTES:,} bytes")
     try:
         raw = json.loads(body.decode("utf-8") if isinstance(body, bytes) else body)
     except ValueError as e:

@@ -42,8 +42,23 @@ def _iso(t):
 # ------------------------------------------------------------------ make
 
 def make(out_dir, agents=40, seed=1, hours=36, time_mode="embedded", two_token_share=0.12,
-         hidden_share=0.08, mention_share=0.06, start="2026-07-03", name="trace.jsonl"):
-    """Write <name> (default trace.jsonl) and <name>.truth into out_dir. Returns the truth dict."""
+         hidden_share=0.08, mention_share=0.06, start="2026-07-03", name="trace.jsonl", mode="coordinated",
+         own_writes=0.5):
+    """Write <name> (default trace.jsonl) and <name>.truth into out_dir. Returns the truth dict.
+
+    mode "coordinated" (default) is the swarm described above. mode "benign" is a baseline with no
+    coordination at all: agents work in parallel on their own tasks, may read public datasets nobody in
+    the swarm writes, and (a share own_writes of them) save results to a dataset of their own and read
+    them back. No agent reads what another wrote, no token is carried, and the only program shared by
+    several agents is the common submit boilerplate. Its truth has no messages and no harmful records.
+    """
+    if mode not in ("coordinated", "benign"):
+        raise ValueError("mode must be coordinated or benign")
+    if time_mode not in ("embedded", "field"):
+        raise ValueError("time_mode must be embedded or field")
+    if mode == "benign":
+        return _make_benign(out_dir, agents, seed, hours, time_mode, two_token_share, mention_share, start, name,
+                            own_writes)
     rng = random.Random(seed)
     t_start = dt.datetime.strptime(start, "%Y-%m-%d").replace(tzinfo=UTC).timestamp()
     span = hours * 3600.0
@@ -83,7 +98,7 @@ def make(out_dir, agents=40, seed=1, hours=36, time_mode="embedded", two_token_s
                     plan.append((t, a, "read", p))
             # the first act of a joining agent is a write, so every coordinator leaves a message
             plan.append((join, a, "write", home[0]))
-        for _ in range(max(0, int(round(rng.gauss(mention_share * 20, 1))))):
+        for _ in range(max(0, int(round(rng.gauss(mention_share * 20, 1)))) if mention_share > 0 else 0):
             plan.append((rng.uniform(0, span), a, "mention", rng.choice(places)))
     plan.sort(key=lambda x: x[0])
 
@@ -119,7 +134,29 @@ def make(out_dir, agents=40, seed=1, hours=36, time_mode="embedded", two_token_s
         truth_records[r] = info
         payloads.append({"id": r, "kind": "payload", "parent": last, "text": text, "_t": ts, "_a": a})
 
-    # responses: what came back, as children of their payload (not actions)
+    responses = _responses(rng, payloads, truth_records, rid)
+    path = _write_rows(out_dir, name, payloads, responses, time_mode)
+    truth = {
+        "about": "Ground truth for a simulated agent swarm written by agenttrace.groundtruth. "
+                 "messages: [write record, read record, place]; records: each record's agent and true time.",
+        "version": 1, "pack": "code_traces.json", "mode": "coordinated",
+        "params": {"agents": n, "seed": seed, "hours": hours, "time_mode": time_mode, "two_token_share": two_token_share,
+                   "hidden_share": hidden_share, "mention_share": mention_share, "start": start, "mode": "coordinated"},
+        "trace": name,
+        "agents": tokens,
+        "places": [f"{k}:{v}" for k, v in places],
+        "coordination_from": _iso(t_start + t_coord), "harm_from": _iso(t_start + t_harm),
+        "records": truth_records,
+        "messages": messages,
+        "harm": harm,
+    }
+    with open(path + TRUTH_EXT, "w", encoding="utf-8") as f:
+        json.dump(truth, f, indent=0)
+    return truth
+
+
+def _responses(rng, payloads, truth_records, rid):
+    """What came back, as children of their payload (not actions)."""
     responses = []
     for pl in payloads:
         if rng.random() < 0.55:
@@ -130,7 +167,10 @@ def make(out_dir, agents=40, seed=1, hours=36, time_mode="embedded", two_token_s
             r = rid()
             responses.append({"id": r, "kind": "response", "parent": pl["id"], "text": json.dumps(body), "_t": pl["_t"] + 2})
             truth_records[r] = {"agent": pl["_a"], "t": round(pl["_t"] + 2, 1), "do": "response"}
+    return responses
 
+
+def _write_rows(out_dir, name, payloads, responses, time_mode):
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, name)
     with open(path, "w", encoding="utf-8") as f:
@@ -148,19 +188,115 @@ def make(out_dir, agents=40, seed=1, hours=36, time_mode="embedded", two_token_s
             if time_mode == "field":
                 out["time_utc"] = _iso(x["_t"])
             f.write(json.dumps(out) + "\n")
+    return path
+
+
+def _make_benign(out_dir, agents, seed, hours, time_mode, two_token_share, mention_share, start, name, own_writes):
+    """A swarm that never coordinates (see make). Same record shapes as the coordinated swarm."""
+    rng = random.Random(seed)
+    t_start = dt.datetime.strptime(start, "%Y-%m-%d").replace(tzinfo=UTC).timestamp()
+    span = hours * 3600.0
+    n = max(2, int(agents))
+    creds = list(range(2, 2 + 3 * n))
+    rng.shuffle(creds)
+    names = [f"agent-{i + 1:02d}" for i in range(n)]
+    tokens = {}
+    for a in names:
+        k = 2 if rng.random() < two_token_share else 1
+        tokens[a] = [f"[CREDENTIAL {creds.pop()}]" for _ in range(k)]
+    public = [f"openbench/{WORDS[i % len(WORDS)]}-reference{'' if i < len(WORDS) else i}" for i in range(max(2, n // 10))]
+    own = {a: f"results-{a}/{WORDS[i % len(WORDS)]}-runs" for i, a in enumerate(names) if rng.random() < own_writes}
+
+    plan = []
+    for a in names:
+        for _ in range(rng.randint(2, 4)):              # work sessions spread over the whole span, in parallel
+            s0 = rng.uniform(0, span * 0.9)
+            for _ in range(rng.randint(4, 9)):
+                t = min(span, s0 + rng.uniform(0, 2.5 * 3600))
+                r = rng.random()
+                if r < 0.15:
+                    plan.append((t, a, "public_read", rng.choice(public)))
+                elif a in own and r < 0.30:
+                    plan.append((t, a, "own_write", own[a]))
+                elif a in own and r < 0.40:
+                    plan.append((t, a, "own_read", own[a]))
+                else:
+                    plan.append((t, a, "solo", None))
+        for _ in range(max(0, int(round(rng.gauss(mention_share * 20, 1)))) if mention_share > 0 else 0):
+            plan.append((rng.uniform(0, span), a, "mention", rng.choice(public + ([own[a]] if a in own else []))))
+    plan.sort(key=lambda x: x[0])
+
+    rid_n = [1000000]
+
+    def rid():      # B, not R: a benign truth file must never match a coordinated swarm's record ids
+        rid_n[0] += 1
+        return f"B{rid_n[0]}"
+
+    posted = defaultdict(list)
+    session = {}
+    payloads, truth_records, self_msgs = [], {}, []
+    for t, a, what, p in plan:
+        tok = rng.choice(tokens[a])
+        r = rid()
+        root, last, left = session.get(a, (None, None, 0))
+        if left <= 0:
+            root, last, left = r, None, rng.randint(4, 9)
+        session[a] = (root, r, left - 1)
+        ts = t_start + t
+        info = {"agent": a, "t": round(ts, 1), "token": tok, "do": what}
+        stamp = f"const startedAt = {int(ts)};\n" if time_mode == "embedded" and rng.random() < 0.6 else ""
+        auth = f"'Authorization': 'Bearer {tok}'"
+        v, nn = rng.choice(VERBS), rng.choice(NOUNS)
+        if what == "solo":
+            text = _payload(rng, "solo", None, tok, ts, a, posted, r, info, 0, "field")   # no stamp from there
+            text = stamp + text
+        elif what == "mention":
+            info["place"] = "dataset:" + p
+            text = (f"{stamp}// reference: huggingface.co/datasets/{p} has the baseline numbers; not needed for this step\n"
+                    f"const res = await fetch('https://eval.example.org/api/status', {{headers: {{{auth}}}}});\nconsole.log(res.status);")
+        elif what == "public_read":
+            info["place"] = "dataset:" + p
+            text = (f"{stamp}const ref = await fetch('https://huggingface.co/datasets/{p}/resolve/main/{rng.choice(NOUNS)}.json', "
+                    f"{{headers: {{{auth}}}}});\nconsole.log('{v}', (await ref.json()).length);")
+        elif what == "own_write":
+            info["place"] = "dataset:" + p
+            mid = f"run_{r[1:]}"
+            posted[p].append((r, a, mid))
+            info["wrote"] = mid
+            text = (f"{stamp}await fetch('https://huggingface.co/api/datasets/{p}/commit/main', {{method: 'POST', headers: {{{auth}, "
+                    f"'Content-Type': 'application/x-ndjson'}}, body: JSON.stringify({{operation: 'upload', path: '{mid}.json', "
+                    f"content: '{v} {nn} score'}})}});")
+        else:   # own_read: the agent reads back its own latest result
+            info["place"] = "dataset:" + p
+            mine = posted[p][-1] if posted[p] else None
+            mid = mine[2] if mine else "README"
+            if mine:
+                info["got_own"] = mine[0]
+                self_msgs.append([mine[0], r, "dataset:" + p])
+            text = (f"{stamp}const prev = await fetch('https://huggingface.co/datasets/{p}/resolve/main/{mid}.json', "
+                    f"{{headers: {{{auth}}}}});\nconsole.log('{nn}', await prev.json());")
+        truth_records[r] = info
+        payloads.append({"id": r, "kind": "payload", "parent": last, "text": text, "_t": ts, "_a": a})
+    responses = _responses(rng, payloads, truth_records, rid)
+    path = _write_rows(out_dir, name, payloads, responses, time_mode)
     truth = {
-        "about": "Ground truth for a simulated agent swarm written by agenttrace.groundtruth. "
-                 "messages: [write record, read record, place]; records: each record's agent and true time.",
-        "version": 1, "pack": "code_traces.json",
+        "about": "Ground truth for a BENIGN simulated agent swarm written by agenttrace.groundtruth: agents work in "
+                 "parallel on their own tasks and never coordinate, so there are no true messages between agents and "
+                 "no harmful records. self_messages: an agent reading back what it wrote itself (not a message).",
+        "version": 1, "pack": "code_traces.json", "mode": "benign",
         "params": {"agents": n, "seed": seed, "hours": hours, "time_mode": time_mode, "two_token_share": two_token_share,
-                   "hidden_share": hidden_share, "mention_share": mention_share, "start": start},
+                   "hidden_share": 0, "mention_share": mention_share, "start": start, "mode": "benign",
+                   "own_writes": own_writes},
         "trace": name,
         "agents": tokens,
-        "places": [f"{k}:{v}" for k, v in places],
-        "coordination_from": _iso(t_start + t_coord), "harm_from": _iso(t_start + t_harm),
+        "places": ["dataset:" + p for p in public] + ["dataset:" + p for p in own.values()],
+        "public_places": ["dataset:" + p for p in public],
+        "own_places": {a: "dataset:" + p for a, p in own.items()},
+        "coordination_from": None, "harm_from": None,
         "records": truth_records,
-        "messages": messages,
-        "harm": harm,
+        "messages": [],
+        "self_messages": self_msgs,
+        "harm": [],
     }
     with open(path + TRUTH_EXT, "w", encoding="utf-8") as f:
         json.dump(truth, f, indent=0)
@@ -298,6 +434,8 @@ def score(s, truth):
             why = "one agent under two tokens talking to itself"
         elif true_by_read.get(r):
             why = "right read, wrong message picked (an older one was fetched)"
+        elif info.get("do") == "public_read":
+            why = "read a public place that others also read (nobody in the swarm wrote there)"
         elif info.get("do") == "read" and not info.get("got"):
             why = "read a place where nothing from another agent was there yet"
         elif info.get("do") == "read":
@@ -403,19 +541,7 @@ def score(s, truth):
     # ---- identity: which tokens are one agent
     ident = {"agents": len(truth["agents"]), "agents_with_two_tokens": sum(1 for ts in truth["agents"].values() if len(ts) > 1),
              "tool_actors": len({a for a, _ in s.actor.values()})}
-    props = _identity_proposals(s)
-    if props is None:
-        ident["merges"] = None
-        ident["note"] = "no merge proposals available (agenttrace.identity offers none); every token counts as its own actor"
-    else:
-        prop_pairs = set()
-        for group in props:
-            g = sorted(set(group))
-            for i in range(len(g)):
-                for j in range(i + 1, len(g)):
-                    prop_pairs.add((g[i], g[j]))
-        true_all = {tuple(sorted((a, b))) for ts in truth["agents"].values() for a in ts for b in ts if a < b}
-        ident["merges"] = _pr(len(prop_pairs & true_all), len(prop_pairs), len(true_all))
+    ident.update(identity_score(s, truth))
 
     return {"dataset": s.name, "truth_params": truth.get("params", {}),
             "records": len(s.events), "true_messages": len(true_msgs),
@@ -480,33 +606,66 @@ def _true_signs(truth, true_msgs, recs, s):
     return out
 
 
-def _identity_proposals(s):
-    """Groups of identities agenttrace.identity proposes to merge, if it offers any. None when it does not."""
+BANDS = ("high", "medium", "low")
+
+
+def identity_score(s, truth):
+    """Score agenttrace.identity's merge proposals against the truth (which tokens are one agent).
+
+    Precision per confidence band (of the pairs proposed at that band, how many are two tokens of one
+    agent), and cumulative precision/recall at "high only", "high or medium" and "any band". The
+    investigator's saved accept/reject decisions are ignored: this scores the rule alone.
+    merges (any band) keeps the shape the case-file view reads."""
     try:
-        from . import identity
-    except Exception:
-        return None
-    for name in ("merge_proposals", "proposals", "merges", "propose_merges"):
-        fn = getattr(identity, name, None)
-        if not callable(fn):
-            continue
-        try:
-            res = fn(s)
-        except Exception:
-            continue
-        if isinstance(res, dict):
-            res = res.get("proposals") or res.get("merges") or res.get("rows") or []
-        groups = []
-        for p in res or []:
-            if isinstance(p, dict):
-                g = p.get("members") or p.get("identities") or p.get("tokens") or p.get("actors") \
-                    or [x for x in (p.get("a"), p.get("b")) if x]
-            else:
-                g = list(p)
-            if len(g) >= 2:
-                groups.append([str(x) for x in g])
-        return groups
-    return None
+        from . import identity as idm
+    except Exception:       # pragma: no cover
+        return {"merges": None, "note": "agenttrace.identity is not available"}
+    tok_agent = {t: a for a, ts in truth["agents"].items() for t in ts}
+    true_all = {tuple(sorted((a, b))) for ts in truth["agents"].values() for a in ts for b in ts if a < b}
+    saved = getattr(s, "_id_decisions", None)
+    s._id_decisions = {}
+    try:
+        res = idm.identity(s, limit=10 ** 6)
+    except Exception as e:  # pragma: no cover
+        return {"merges": None, "note": f"identity merging failed: {e}"}
+    finally:
+        if saved is not None:
+            s._id_decisions = saved
+        else:
+            try:
+                del s._id_decisions
+            except AttributeError:
+                pass
+    named = set(idm._named_actors(s))
+    visible = {p for p in true_all if p[0] in named and p[1] in named}
+    by_band = {b: [] for b in BANDS}
+    for x in res["proposals"]:
+        if x.get("confidence") in by_band:
+            pair = tuple(sorted((x["a"], x["b"])))
+            by_band[x["confidence"]].append((pair, x))
+    bands = {}
+    for b in BANDS:
+        rows = by_band[b]
+        ok = sum(1 for pair, _ in rows if pair in true_all)
+        wrong = Counter()
+        for pair, x in rows:
+            if pair not in true_all:
+                for ev in x["evidence"]:
+                    wrong[ev["key"]] += 1
+        bands[b] = {"proposed": len(rows), "correct": ok,
+                    "precision": round(ok / len(rows), 4) if rows else None,
+                    "precision_ci": _wilson(ok, len(rows)),
+                    "wrong_pairs_evidence": dict(wrong.most_common())}
+    cumulative = {}
+    for name, levels in (("high", ("high",)), ("high_or_medium", ("high", "medium")), ("any", BANDS)):
+        pairs = {pair for b in levels for pair, _ in by_band[b]}
+        cumulative[name] = _pr(len(pairs & true_all), len(pairs), len(true_all))
+    est = res.get("estimate", {})
+    agents_seen = {tok_agent[a] for a in named if a in tok_agent}
+    return {"merges": cumulative["any"], "bands": bands, "cumulative": cumulative,
+            "true_pairs": len(true_all), "true_pairs_both_named": len(visible),
+            "estimated_agents": est.get("estimated_agents"), "estimated_agents_range": [est.get("low"), est.get("high")],
+            "true_agents_seen": len(agents_seen), "named_actors": len(named)}
 
 
 def load_and_score(folder_or_trace, pack=None):
@@ -558,6 +717,10 @@ def report_text(sc):
     lines.append(f"Identity: {i['agents']} agents, {i['agents_with_two_tokens']} with two tokens; the tool sees {i['tool_actors']} actors")
     if i.get("merges"):
         lines.append("  merge proposals: " + _fmt_pr(i["merges"]))
+        for b in BANDS:
+            x = i["bands"][b]
+            if x["proposed"]:
+                lines.append(f"    {b:<6} {x['correct']}/{x['proposed']} right ({100 * x['precision']:.0f}%)")
     elif i.get("note"):
         lines.append("  " + i["note"])
     return "\n".join(lines)
@@ -574,7 +737,11 @@ def main(argv=None):
     mk.add_argument("--time", choices=["embedded", "field"], default="embedded",
                     help="timestamps embedded in some of the code (the rest estimated), or a time field on every record")
     mk.add_argument("--two-token-share", type=float, default=0.12)
-    mk.add_argument("--hidden-share", type=float, default=0.08)
+    mk.add_argument("--hidden-share", type=float, default=0.08, help="share of reads whose address the patterns cannot see")
+    mk.add_argument("--mention-share", type=float, default=0.06, help="how many notes name a place without reading it")
+    mk.add_argument("--mode", choices=["coordinated", "benign"], default="coordinated",
+                    help="benign: agents work in parallel and never coordinate (no true messages, no harm)")
+    mk.add_argument("--own-writes", type=float, default=0.5, help="benign mode: share of agents saving results to their own dataset")
     mk.add_argument("--name", default="trace.jsonl", help="file name of the trace (the truth file adds .truth)")
     sc = sub.add_parser("score", help="load a generated trace with the tool and score it against its truth")
     sc.add_argument("path", help="the folder from make, or the trace file")
@@ -583,7 +750,8 @@ def main(argv=None):
     a = ap.parse_args(argv)
     if a.cmd == "make":
         t = make(a.out, agents=a.agents, seed=a.seed, hours=a.hours, time_mode=a.time,
-                 two_token_share=a.two_token_share, hidden_share=a.hidden_share, name=a.name)
+                 two_token_share=a.two_token_share, hidden_share=a.hidden_share, mention_share=a.mention_share,
+                 name=a.name, mode=a.mode, own_writes=a.own_writes)
         print(f"wrote {os.path.join(a.out, a.name)}: {len(t['records']):,} records, {len(t['agents'])} agents, "
               f"{len(t['messages']):,} true messages; truth in {a.name}{TRUTH_EXT}")
         return 0

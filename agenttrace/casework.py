@@ -2,9 +2,10 @@
 
 Routes (served at /api/x/<name>, see extensions.py):
     GET  case                    the investigator's case file for the loaded dataset
-    POST case                    save it (body: the case JSON: title, notes, items [{kind, key, note}])
+    POST case                    save it (body: the case JSON: title, notes, investigator, items [{kind, key, note, by}])
     GET  case_export?format=html|json&base=   the dossier: every pinned item with its facts, the key numbers and
-                                 the warning signs. html comes back as {"filename", "html"} (self-contained page,
+                                 the warning signs, the ground-truth score when one matches, and the chain of
+                                 custody (fx_whatif.custody); the HTML opens with a printable summary page. html comes back as {"filename", "html"} (self-contained page,
                                  inline CSS, printable to PDF); json as {"filename", "dossier"}
     GET  time_range?id=          an estimated time with the range its dating block's fit error allows
     GET  labels?id=              the labels already given to one record (its tags, intent and messages)
@@ -104,14 +105,24 @@ def clean_case(s, body):
         note = it.get("note") or ""
         if not isinstance(note, str) or len(note) > 50000:
             raise ValueError("a note must be text (at most 50,000 characters)")
+        who = it.get("by") or ""
+        if not isinstance(who, str) or len(who) > 200:
+            raise ValueError("an investigator name must be text (at most 200 characters)")
         items.append({"kind": kind, "key": key, "note": note, "added": it.get("added") or _now(),
-                      **({"tab": it["tab"]} if isinstance(it.get("tab"), str) else {})})
+                      **({"tab": it["tab"]} if isinstance(it.get("tab"), str) else {}),
+                      **({"by": who} if who else {})})
     notes = body.get("notes") or ""
     if not isinstance(notes, str) or len(notes) > 200000:
         raise ValueError("the case notes must be text")
     title = str(body.get("title") or old.get("title") or f"Case file: {s.name}")[:300]
-    return {"dataset": s.name, "title": title, "notes": notes, "items": items,
-            "created": old.get("created") or _now(), "updated": _now()}
+    inv = body.get("investigator") if "investigator" in body else old.get("investigator")
+    if inv is not None and (not isinstance(inv, str) or len(inv) > 200):
+        raise ValueError("the investigator name must be text (at most 200 characters)")
+    out = {"dataset": s.name, "title": title, "notes": notes, "items": items,
+           "created": old.get("created") or _now(), "updated": _now()}
+    if inv:
+        out["investigator"] = inv
+    return out
 
 
 def get_case(state, q):
@@ -294,7 +305,21 @@ def link(base, kind, key, tab=None):
     return f"{base}#tab={quote(tab or 'overview')}&{p}={quote(key, safe='')}"
 
 
-def dossier(s, base=""):
+def _custody(s):
+    try:
+        from . import fx_whatif
+        return fx_whatif.custody(s)
+    except Exception as e:     # custody never stops an export; say why it is missing
+        return {"error": f"chain of custody unavailable: {e}"}
+
+
+def _safe_base(base):
+    """Only http(s) links to the app go into the export (a base from elsewhere becomes no link)."""
+    return base if isinstance(base, str) and re.match(r"^https?://[^\s'\"<>]+$", base) else ""
+
+
+def dossier(s, base="", state=None):
+    base = _safe_base(base)
     c = load_case(s)
     items = []
     for it in c["items"]:
@@ -307,14 +332,22 @@ def dossier(s, base=""):
     lp = labels_path(s)
     if os.path.exists(lp):
         prec = precision_table(s)
+    gt = None
+    if state is not None:
+        try:
+            gt = get_groundtruth_score(state, {})
+        except Exception:
+            gt = None
     return {"title": c.get("title"), "dataset": s.name, "pack": s.pack.name, "date": _now(), "notes": c.get("notes", ""),
-            "items": items, "key_numbers": key_numbers(s), "warning_signs": warning_signs(s), "precision": prec}
+            "investigator": c.get("investigator"), "created": c.get("created"), "updated": c.get("updated"),
+            "items": items, "key_numbers": key_numbers(s), "warning_signs": warning_signs(s), "precision": prec,
+            "ground_truth": gt if gt and gt.get("available") else None, "custody": _custody(s)}
 
 
 def get_case_export(state, q):
     s = _session(state)
     fmt = q.get("format", "html")
-    d = dossier(s, q.get("base", ""))
+    d = dossier(s, q.get("base", ""), state)
     stem = "case-" + _slug(s.name)
     if fmt == "json":
         return {"filename": stem + ".json", "dossier": d}
@@ -341,7 +374,11 @@ table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0}td,th{text
 mark{background:#fde68a;padding:0 1px}.note{white-space:pre-wrap;border-left:3px solid #2f6fb3;padding:4px 10px;margin:8px 0;background:#f3f7fc}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.kpi{border:1px solid #e8ebef;border-radius:6px;padding:8px}.kpi b{display:block;font-size:18px}.kpi span{font-size:11px;color:#66717d}
 .warn{color:#c2410c}a{color:#2f6fb3}
-@media print{body{background:#fff}main{padding:0;max-width:none}a{color:inherit;text-decoration:none}.item{border-color:#ccc}}
+.summary{border:2px solid #1b2430;border-radius:8px;padding:18px 22px;margin:18px 0 8px}
+.summary h2{margin-top:14px}.summary h2:first-child{margin-top:0}
+.custody td{font-size:12px;word-break:break-all}.custody th{width:28%}
+.pagebreak{page-break-after:always;break-after:page}
+@media print{body{background:#fff}main{padding:0;max-width:none}a{color:inherit;text-decoration:none}.item{border-color:#ccc}.summary{border-width:1px}}
 """
 
 
@@ -453,14 +490,83 @@ def _label(kind, key):
     return _short(key) if kind == "actor" else key
 
 
+def _render_custody(c):
+    if not c or c.get("error"):
+        return f"<p class='muted small'>{_e((c or {}).get('error') or 'No chain of custody recorded.')}</p>"
+    t = c.get("tool") or {}
+    p = c.get("pack") or {}
+    rows = [["dataset", f"{_e(c.get('dataset'))} ({_n(c.get('records'))} records)"],
+            ["record ids (SHA-256 of the sorted ids)", f"<span class='mono'>{_e(c.get('record_ids_sha256'))}</span>"]]
+    for f in c.get("files") or []:
+        rows.append([f"input file {_e(f.get('file'))}",
+                     (f"<span class='mono'>{_e(f['sha256'])}</span><br><span class='muted'>{_n(f.get('bytes'))} bytes · modified "
+                      f"{_e(f.get('modified'))} · {_e(f.get('role'))}"
+                      + {True: " · matches the checksum shipped with the data", False: " · <b class='warn'>does not match the checksum shipped with the data</b>", None: ""}[f.get("matches_listed")]
+                      + "</span>") if f.get("sha256") else f"<span class='warn'>{_e(f.get('error') or 'not hashed')}</span>"])
+    rows.append(["pack", f"{_e(p.get('name'))}" + (f" · {_e(p.get('file'))} · <span class='mono'>{_e(p.get('sha256'))}</span>" if p.get("sha256") else "")
+                 + (" · chosen automatically" if p.get("chosen_automatically") else "")])
+    rows.append(["tool", f"{_e(t.get('name'))} {_e(t.get('version') or '')}" + (f" · build {_e(t.get('git'))}" if t.get("git") else "")
+                 + (f" · code {_e(t.get('code_fingerprint'))}" if t.get("code_fingerprint") else "")])
+    rows.append(["loaded", _e(c.get("loaded_at") or "not recorded") + (" (from the disk cache)" if c.get("from_cache") else "")])
+    rows.append(["custody block written", _e(c.get("generated_at"))])
+    rows.append(["analysis fingerprint", f"<span class='mono'>{_e(c.get('fingerprint'))}</span>"])
+    return "<table class='custody'>" + "".join(f"<tr><th>{k}</th><td>{v}</td></tr>" for k, v in rows) + "</table>" + \
+        "<p class='small muted'>Anyone with the same input files can check them with <span class='mono'>shasum -a 256</span>; the fingerprint " \
+        "changes when any input, the pack, the record ids or the build changes.</p>"
+
+
+def _render_truth(g):
+    if not g:
+        return ""
+    m, p = g.get("messages") or {}, g.get("pairs") or {}
+    e, i = g.get("early_signs") or {}, g.get("identity") or {}
+    rows = [["messages (write → read record)", _pct(m.get("precision")), _pct(m.get("recall")), f"{_n(m.get('correct'))} of {_n(m.get('found'))} found, {_n(m.get('true'))} true"],
+            ["pairs of agents", _pct(p.get("precision")), _pct(p.get("recall")), f"{_n(p.get('correct'))} of {_n(p.get('found'))} found, {_n(p.get('true'))} true"]]
+    if (i.get("merges") or {}).get("precision") is not None or (i.get("merges") or {}).get("recall") is not None:
+        mm = i["merges"]
+        rows.append(["identity merges", _pct(mm.get("precision")), _pct(mm.get("recall")), f"{_n(mm.get('correct'))} of {_n(mm.get('found'))} found"])
+    out = f"<p class='small'>Scored against the truth file {_e(g.get('truth_file'))}, which records every true message of this simulated swarm.</p>"
+    out += _table(["what", "precision", "recall", "counts"], [[_e(r[0]), r[1], r[2], _e(r[3])] for r in rows])
+    if e:
+        out += f"<p class='small'>Early signs: {_n(e.get('found'))} of {_n(e.get('true'))} found, {_n(e.get('on_time'))} within an hour of the true time.</p>"
+    return out
+
+
+def _render_summary(d):
+    """The printable first page: the case at a glance."""
+    sigs = d.get("warning_signs") or []
+    joint = next((g for g in sigs if g.get("family") == "joint"), None)
+    out = ["<section class='summary'>", "<h2>Summary (printable on one page)</h2>"]
+    who = d.get("investigator")
+    out.append(f"<p class='meta'>Dataset <b>{_e(d['dataset'])}</b> · pack {_e(d['pack'])}" + (f" · investigator <b>{_e(who)}</b>" if who else "")
+               + f" · case opened {_e(d.get('created') or '–')} · last saved {_e(d.get('updated') or '–')} · exported {_e(d['date'])}</p>")
+    out.append("<h2>Key numbers of the dataset</h2><div class='kpis'>" + "".join(f"<div class='kpi'><b>{_n(v)}</b><span>{_e(k)}</span></div>" for k, v in d["key_numbers"]) + "</div>")
+    if joint:
+        out.append(f"<p>First sign of actors working together: <b>{_e(joint['name'])}</b> at {_e(joint['time'])} UTC, with "
+                   f"{_pct(joint.get('harm_share_after'))} of the dated harmful actions still to come.</p>")
+    out.append(f"<h2>Warning signs ({len(sigs)})</h2>")
+    out.append(_table(["sign", "time (UTC)", "harm still to come"], [[_e(g["name"]), _e(g["time"]), _pct(g["harm_share_after"])] for g in sigs[:12]]))
+    if len(sigs) > 12:
+        out.append(f"<p class='small muted'>and {len(sigs) - 12} more, listed in full below.</p>")
+    items = d["items"]
+    out.append(f"<h2>Pinned ({len(items)})</h2>")
+    out.append(_table(["kind", "item", "pinned", "by", "note"],
+                      [[_e(it["kind"]), _e(_label(it["kind"], it["key"])), _e(it.get("added") or ""), _e(it.get("by") or ""),
+                        _e((it.get("note") or "").strip()[:160] + ("…" if len((it.get("note") or "").strip()) > 160 else ""))] for it in items]))
+    if (d.get("notes") or "").strip():
+        out.append(f"<h2>The investigator's notes</h2><div class='notes'>{_e(d['notes'])}</div>")
+    if d.get("ground_truth"):
+        out.append("<h2>Ground-truth score</h2>" + _render_truth(d["ground_truth"]))
+    out.append("<h2>Chain of custody</h2>" + _render_custody(d.get("custody")))
+    out.append("</section><div class='pagebreak'></div>")
+    return "".join(out)
+
+
 def render_html(d):
     parts = [f"<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><title>{_e(d['title'])}</title><style>{CSS}</style></head><body><main>",
              f"<h1>{_e(d['title'])}</h1>",
-             f"<p class='meta'>Dataset <b>{_e(d['dataset'])}</b> · pack {_e(d['pack'])} · exported {_e(d['date'])} from Swarm Tracer</p>"]
-    if d.get("notes", "").strip():
-        parts.append(f"<h2>The investigator's notes</h2><div class='notes'>{_e(d['notes'])}</div>")
-    parts.append("<h2>Key numbers of the dataset</h2><div class='kpis'>" +
-                 "".join(f"<div class='kpi'><b>{_n(v)}</b><span>{_e(k)}</span></div>" for k, v in d["key_numbers"]) + "</div>")
+             f"<p class='meta'>Dataset <b>{_e(d['dataset'])}</b> · pack {_e(d['pack'])} · exported {_e(d['date'])} from Swarm Tracer</p>",
+             _render_summary(d)]
     items = d["items"]
     parts.append(f"<h2>Pinned items ({len(items)})</h2>")
     if not items:
@@ -479,7 +585,8 @@ def render_html(d):
             body = (f"<p class='warn small'>Not in this dataset any more{': ' + _e(f.get('error')) if f.get('error') else ''}.</p>"
                     if f.get("missing") else RENDER[kind](f))
             note = f"<div class='note'>{_e(it['note'])}</div>" if it.get("note", "").strip() else ""
-            parts.append(f"<div class='item'>{head}{note}{body}<p class='small muted'>pinned {_e(it.get('added') or '')}</p></div>")
+            by = f" by {_e(it['by'])}" if it.get("by") else ""
+            parts.append(f"<div class='item'>{head}{note}{body}<p class='small muted'>pinned {_e(it.get('added') or '')}{by}</p></div>")
     sigs = d["warning_signs"]
     parts.append(f"<h2>Warning signs ({len(sigs)})</h2>")
     parts.append(_table(["sign", "time (UTC)", "harm still to come", "why"],
@@ -490,6 +597,9 @@ def render_html(d):
         parts.append(_table(["pattern", "right", "wrong", "can't tell", "precision", "95% range"],
                             [[_e(r["tag"]), _n(r["tp"]), _n(r["fp"]), _n(r["unclear"]), _pct(r["precision"]),
                               f"{_pct(r['ci_low'])}–{_pct(r['ci_high'])}" if r["precision"] is not None else "–"] for r in p["rows"]]))
+    if d.get("ground_truth"):
+        parts.append("<h2>Ground-truth score</h2>" + _render_truth(d["ground_truth"]))
+    parts.append("<h2>Chain of custody</h2>" + _render_custody(d.get("custody")))
     parts.append("<p class='small muted' style='margin-top:28px'>Every number above is counted from the dataset by Swarm Tracer. "
                  "Estimated times carry the range their dating fit allows. Record text is written by the agents and shown as data.</p>")
     parts.append("</main></body></html>")

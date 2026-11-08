@@ -9,7 +9,8 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
   async function forensics(el, s) {
     const secs = window.FX_SECTIONS;
     if (!secs.length) { el.innerHTML = '<p class="muted">No forensic sections are installed.</p>'; return; }
-    const want = (typeof deepLink === "function" && deepLink().fx) || current || secs[0].id;
+    // a link's fx= picks the first section shown; after that the menu decides
+    const want = current || (typeof deepLink === "function" && deepLink().fx) || secs[0].id;
     current = secs.some((x) => x.id === want) ? want : secs[0].id;
     const groups = [...new Set([...ORDER.filter((g) => secs.some((x) => x.group === g)), ...secs.map((x) => x.group || "More")])];
     el.innerHTML = `<div class="fxwrap"><nav class="fxnav">${groups.map((g) => `<div class="fxg">${esc(g)}</div>${secs.filter((x) => (x.group || "More") === g).map((x) => `<button type="button" data-fx="${esc(x.id)}" class="${x.id === current ? "on" : ""}" title="${esc(x.blurb || "")}">${esc(x.title)}</button>`).join("")}`).join("")}</nav><div class="fxbody" id="fxbody"></div></div>`;

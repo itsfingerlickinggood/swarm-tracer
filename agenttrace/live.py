@@ -322,7 +322,7 @@ LIVE_LOCK = threading.Lock()          # one load at a time
 LIVE = {"thread": None, "stop": None, "path": None, "pack": "auto", "mapping": {}, "interval": 2.0, "watching": False,
         "started": None, "last_check": None, "last_load": None, "load_s": None, "loading": False, "loads": 0,
         "records": 0, "actors": 0, "messages": 0, "signs": 0, "error": None, "note": None,
-        "events": [], "seq": 0, "session": None, "sig": None, "pending": None}
+        "events": [], "seq": 0, "session": None, "sig": None, "pending": None, "guard": None}
 MAX_EVENTS = 2000
 
 
@@ -471,6 +471,18 @@ def check(state):
         LIVE["watching"] = False
         return False
     LIVE["last_check"] = _now()
+    if not os.path.lexists(path):
+        LIVE["note"] = "the path does not exist yet; waiting for it"
+        return False
+    if LIVE.get("guard"):
+        # checked again on every tick: the file may have appeared since, or been replaced by a link or a pipe
+        try:
+            LIVE["guard"](path)
+        except ValueError as e:
+            if LIVE["error"] != str(e):
+                LIVE["error"] = str(e)
+                _log("error", f"Not reading the trace: {e}", severity="alert")
+            return False
     try:
         sig = _signature(path)
     except OSError:
@@ -502,18 +514,34 @@ def _run(state, stop):
 
 
 def live_start(state, q, body):
-    b = json.loads(body or b"{}")
-    path = os.path.abspath(os.path.expanduser(str(b.get("path") or "").strip()))
-    if not b.get("path"):
+    try:
+        b = json.loads(body or b"{}")
+    except ValueError:
+        raise ValueError("send JSON: {\"path\": ..., \"pack\": ..., \"interval_s\": ...}")
+    if not isinstance(b, dict):
+        raise ValueError("send a JSON object: {\"path\": ..., \"pack\": ...}")
+    if not b.get("path") or not isinstance(b.get("path"), str):
         raise ValueError("give the path of a trace file or folder on this machine")
-    if not os.path.exists(path) and not os.path.isdir(os.path.dirname(path)):
-        raise ValueError(f"no such file or folder: {path}")
-    interval = float(b.get("interval_s") or 2)
+    guard, pack_guard = state.get("path_guard"), state.get("pack_guard")
+    if guard:   # the server's policy: allowed folders only, regular files, no links out (server.check_data_path)
+        path = guard(b["path"], allow_missing=True)
+    else:
+        path = os.path.abspath(os.path.expanduser(b["path"].strip()))
+        if not os.path.exists(path) and not os.path.isdir(os.path.dirname(path)):
+            raise ValueError(f"no such file or folder: {path}")
+    pack = pack_guard(b.get("pack")) if pack_guard else (b.get("pack") or "auto")
+    try:
+        interval = float(b.get("interval_s") or 2)
+    except (TypeError, ValueError):
+        raise ValueError("interval_s must be a number of seconds")
     if not 0.2 <= interval <= 3600:
         raise ValueError("interval_s must be between 0.2 and 3600 seconds")
+    mapping = b.get("map") or {}
+    if not isinstance(mapping, dict):
+        raise ValueError("map must be an object: {\"role\": \"column\"}")
     live_stop(state, {}, b"", quiet=True)
     stop = threading.Event()
-    LIVE.update({"path": path, "pack": b.get("pack") or "auto", "mapping": {k: v for k, v in (b.get("map") or {}).items() if v},
+    LIVE.update({"path": path, "pack": pack, "mapping": {str(k): str(v) for k, v in mapping.items() if v}, "guard": guard,
                  "interval": interval, "watching": True, "started": _now(), "stop": stop, "session": None,
                  "sig": None, "pending": None, "error": None, "note": None, "loads": 0, "records": 0,
                  "actors": 0, "messages": 0, "signs": 0, "last_load": None, "load_s": None})
@@ -564,13 +592,16 @@ def insight_families():
 
 
 def rules_post(state, q, body):
-    b = json.loads(body or b"{}")
-    if b.get("reset"):
+    try:
+        b = json.loads(body or b"{}")
+    except ValueError:
+        raise ValueError("send JSON: {\"rules\": [...]} or {\"reset\": true}")
+    if isinstance(b, dict) and b.get("reset"):
         p = rules_path()
         if os.path.isfile(p):
             os.remove(p)
         return rules_get(state, q)
-    rules = b.get("rules", b if isinstance(b, list) else None)
+    rules = b if isinstance(b, list) else b.get("rules") if isinstance(b, dict) else None
     if rules is None:
         raise ValueError("send {rules: [...]}")
     s = state["session"]

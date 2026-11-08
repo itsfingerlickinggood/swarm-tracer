@@ -27,7 +27,7 @@
     const rows = entries.map((e) => `<div class="cmplib">
         <div class="cmplibt"><b>${esc(e.title)}</b> <span class="muted small">${esc(e.kind || "")}${e.pack ? " · pack " + esc(e.pack) : ""}</span></div>
         <div class="small">${esc(e.description || "")}</div>
-        <div class="small muted">${e.available ? `On this machine: <code>${esc(e.available)}</code>` : `Not on this machine. ${esc(e.get_it || "")} ${e.source_url ? `<a href="${esc(e.source_url)}" target="_blank" rel="noopener">${esc(e.source_url)}</a>` : ""}`}${e.context_available ? " · incident context included" : ""}</div>
+        <div class="small muted">${e.available ? `On this machine: <code>${esc(e.available)}</code>` : `Not on this machine. ${esc(e.get_it || "")} ${e.source_url ? `<a href="${/^https?:\/\//.test(e.source_url) ? esc(e.source_url) : "#"}" target="_blank" rel="noopener">${esc(e.source_url)}</a>` : ""}`}${e.context_available ? " · incident context included" : ""}</div>
         ${e.available ? `<button type="button" class="primary small" data-lib="${esc(e.id)}">Load to compare</button>` : ""}
       </div>`).join("");
     const opts = packs.map((p) => `<option value="${esc(p.file)}">${esc(p.name)}</option>`).join("");

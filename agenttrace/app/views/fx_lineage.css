@@ -1,1 +1,55 @@
-/* fx_lineage */
+/* fx_lineage: trace anything, credential lifecycle, command and control, dead drops, search */
+.fxq{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0 6px}
+.fxq>input{flex:1 1 320px;min-width:200px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+.fxsearch .fxfilters{flex-basis:100%;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.fxsearch .fxfilters input{width:210px}
+.fxfirst{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+pre.fxsnip{white-space:pre-wrap;word-break:break-word;font-size:12px;background:#f7f9fb;border:1px solid var(--line2);border-radius:6px;padding:8px;margin:0;max-height:140px;overflow:auto}
+.fxsn{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:#3d4a58;word-break:break-word;display:inline-block;max-width:520px}
+.fxsn mark,pre.fxsnip mark{background:#ffe8a3;color:inherit;border-radius:2px;padding:0 1px}
+.fxchart{width:100%;overflow-x:auto}
+.fxscroll{overflow-x:auto}
+table.fxcred td{vertical-align:middle;white-space:nowrap}
+table.fxcred td:nth-child(3),table.fxcred td:nth-child(7),table.fxcred td:nth-child(8),table.fxcred td:nth-child(9){white-space:normal;min-width:120px}
+th.fxsort{cursor:pointer;user-select:none}
+th.fxsort:hover{color:var(--accent)}
+th.fxsort.on{color:#1e4f86}
+svg.fxlife{display:block}
+.fxkey{display:inline-block;width:14px;height:8px;border-radius:2px;vertical-align:middle;margin:0 2px}
+.fxkey.seen{width:8px;height:8px;transform:rotate(45deg);background:#b7791f;border-radius:1px}
+.fxkey.used{background:var(--accent)}
+.fxkey.quiet{background:repeating-linear-gradient(90deg,#cfd5dc 0 2px,transparent 2px 4px);height:3px}
+.fxkey.w{background:var(--harm);width:8px;height:8px;border-radius:1px}
+.fxkey.r{background:var(--accent);width:8px;height:8px;border-radius:50%}
+table.fxmat td.fxcell{text-align:center;font-variant-numeric:tabular-nums;min-width:70px}
+.fxc2{display:flex;flex-direction:column;gap:10px}
+.fxc2list{padding:8px 10px;margin:0}
+.fxc2list .listbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 6px}
+.fxc2list .listbar input[type=text],.fxc2list .listbar input:not([type]){flex:1 1 220px}
+.fxc2list input[type=checkbox]{width:auto;margin:0 4px 0 0;vertical-align:middle}
+.fxplist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px 8px;max-height:210px;overflow:auto}
+.fxpl{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1px solid transparent;background:none;padding:4px 7px;border-radius:6px;min-width:0}
+.fxpl:hover{background:#f6f3fd}
+.fxpl.on{background:#f1ebfb;border-color:#d8c9f3}
+.fxpn{font-size:12px;color:#4c2f99;word-break:break-all}
+.fxcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.fxwc{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fcfdfe}
+.fxwch{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding-bottom:6px;border-bottom:1px solid var(--line2);margin-bottom:6px}
+.fxrd{padding:5px 0;border-bottom:1px dashed var(--line2);display:flex;flex-direction:column;gap:3px}
+.fxrd:last-child{border-bottom:none}
+.fxba{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center}
+.fxba .fxbab{width:60px}
+.fxbab{display:inline-block;height:7px;background:#eef1f5;border-radius:3px;overflow:hidden}
+.fxbab i{display:block;height:100%;background:#9aa6b2}
+.fxbab.after i{background:var(--accent)}
+.fxst.on{background:var(--accent-bg);border-color:var(--accent);color:#1e4f86}
+.fxfacets{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:4px 0}
+.fxpage{display:flex;gap:8px;align-items:center;margin-top:6px}
+.fxsaved{cursor:pointer}
+.fxsaved .fxrm{padding:0 2px;margin-left:2px}
+.fxins .chips{align-items:center}
+.fxins button.chip{cursor:pointer;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
+.fxlike .mline .small{margin-top:2px}
+.fxsn{min-width:240px}
+button.fxlk{white-space:nowrap}
+#srout td:first-child,#trrows td:first-child{white-space:nowrap}

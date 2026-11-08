@@ -148,7 +148,7 @@ def measures(s):
         "hours": sim.get("hours", 0),
         "named_actors": acts.get("named_actors", 0),
         "actions": acts.get("total", 0),
-        "unattributed_share": round(acts["unattributed"] / acts["total"], 4) if acts.get("total") else None,
+        "unattributed_share": round(acts.get("unattributed", 0) / acts["total"], 4) if acts.get("total") else None,
         "places": f.get("channels", 0), "places_by_type": types,
         "messages": f.get("deliveries", 0),
         "messages_named": len(named), "messages_named_exact": len(named) - merged, "messages_named_merged": merged,
@@ -345,18 +345,36 @@ def api_load(state, q, body):
         req = json.loads(body or b"{}")
     except ValueError:
         raise ValueError("send JSON: {\"path\": ..., \"pack\": ...} or {\"library\": id}")
+    if not isinstance(req, dict):
+        raise ValueError("send a JSON object: {\"path\": ..., \"pack\": ...} or {\"library\": id}")
+    guard, pack_guard = state.get("path_guard"), state.get("pack_guard")
     pack, name = req.get("pack") or "auto", req.get("name")
+    if name is not None:
+        name = str(name)[:200]
     if req.get("library"):
-        e = library_entry(req["library"])
+        e = library_entry(str(req["library"]))
         if not e["available"]:
             raise ValueError(f"{e['title']} is not on this machine. Get it from {e.get('source_url') or 'its source'} "
                              f"and put it at one of: {', '.join(e['paths'])}.")
         path, pack, name = e["available"], req.get("pack") or e.get("pack") or "auto", name or e["title"]
+        if guard:   # the shipped library names its own paths: still a regular file or folder, no device
+            path = guard(path, trusted=True)
     else:
-        path = os.path.abspath(os.path.expanduser(str(req.get("path") or "").strip()))
-        if not req.get("path") or not os.path.exists(path):
-            raise ValueError(f"No file or folder at {req.get('path')!r} on this machine.")
-    sess = load_compare(state, path, pack, name, req.get("map") or {})
+        raw = req.get("path")
+        if not raw or not isinstance(raw, str):
+            raise ValueError("give the path of a trace file or folder on this machine")
+        if guard:   # the server's policy: allowed folders only, regular files, no links out (server.check_data_path)
+            path = guard(raw)
+        else:
+            path = os.path.abspath(os.path.expanduser(raw.strip()))
+            if not os.path.exists(path):
+                raise ValueError(f"No file or folder at {raw!r} on this machine.")
+    if pack_guard:
+        pack = pack_guard(pack)
+    mapping = req.get("map") or {}
+    if not isinstance(mapping, dict):
+        raise ValueError("map must be an object: {\"role\": \"column\"}")
+    sess = load_compare(state, path, pack, name, mapping)
     out = measures(sess)
     return {"loaded": True, "name": sess.name, "records": out["records"], "pack": out["pack"],
             "seconds": state["compare_source"]["seconds"]}
@@ -368,5 +386,12 @@ def api_clear(state, q, body):
     return {"loaded": False}
 
 
-GET = {"compare": api_compare, "compare_state": api_state, "library": lambda state, q: library()}
+def api_library(state, q):
+    try:
+        return library()
+    except (OSError, ValueError) as e:
+        return {"about": None, "entries": [], "error": f"the library file could not be read: {e}"}
+
+
+GET = {"compare": api_compare, "compare_state": api_state, "library": api_library}
 POST = {"compare_load": api_load, "compare_clear": api_clear}

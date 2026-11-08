@@ -34,3 +34,8 @@
 .ch-why{margin:4px 0 0;color:#6b5a2e;background:#fbf7ec;border-radius:6px;padding:3px 7px}
 .ch-sizekeyrow{display:flex;align-items:center;gap:6px;margin-top:2px}
 .ch-sizekey{display:block}
+.ch-lifegrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:6px}
+.ch-lifegrid b{font-size:13px}
+.ch-life{display:block;background:#fbfcfd;border-radius:4px}
+.ch-opt{margin:-4px 0 10px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.ch-opt label{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--ink)}

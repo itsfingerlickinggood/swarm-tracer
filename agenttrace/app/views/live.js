@@ -140,10 +140,10 @@
     if (st.path && !$("lvPath").value) $("lvPath").value = st.path;
     if (st.watching) $("lvInt").value = st.interval_s;
     const bits = [];
-    if (st.watching) bits.push(`<b class="lvlive"><i class="lvdot"></i>watching</b> <code>${esc(st.path)}</code> every ${st.interval_s} s${st.pack_name ? ` · pack: ${esc(st.pack_name)}` : ""}`);
+    if (st.watching) bits.push(`<b class="lvlive"><i class="lvdot"></i>watching</b> <code>${esc(st.path)}</code> every ${fmt(st.interval_s)} s${st.pack_name ? ` · pack: ${esc(st.pack_name)}` : ""}`);
     else bits.push(st.path ? `Stopped. Last watched <code>${esc(st.path)}</code>.` : "Not watching.");
     if (st.loading) bits.push("analyzing the new records…");
-    if (st.last_load) bits.push(`${plural(st.loads, "load")}, the last at ${esc(st.last_load.slice(11, 19))} UTC (${st.load_s} s): ${plural(st.records, "record")}, ${plural(st.actors, "named actor")}, ${plural(st.messages, "message")}, ${plural(st.signs, "warning sign")}`);
+    if (st.last_load) bits.push(`${plural(st.loads, "load")}, the last at ${esc(st.last_load.slice(11, 19))} UTC (${fmt(st.load_s)} s): ${plural(st.records, "record")}, ${plural(st.actors, "named actor")}, ${plural(st.messages, "message")}, ${plural(st.signs, "warning sign")}`);
     if (st.note) bits.push(esc(st.note));
     if (st.watching && st.last_load && !st.dataset_is_live) bits.push("another dataset is loaded in the app now");
     $("lvStatus").innerHTML = bits.join(" · ") + (st.error ? `<div class="lverr">${esc(st.error)}</div>` : "");

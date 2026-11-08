@@ -38,6 +38,7 @@ The app talks to its own server on `127.0.0.1` only. Everything returns JSON; er
 | `GET rules` · `POST rules` · `GET rules_eval` | alert rules |
 | `GET case` · `POST case` · `GET case_export?format=html\|json` | the case file |
 | `POST label` · `GET labels` · `GET precision` | labels from the Inspector, and live precision |
+| `GET validation_summary[?which=quick]` · `POST validation_run` | the latest validation suite results; run a quick one |
 | `GET groundtruth_score` · `POST groundtruth_truth` · `GET time_range?id=` | scores against a truth file; a record's likely time range |
 | `POST compare_load {path, pack} \| {library}` · `GET compare` · `GET compare_state` · `POST compare_clear` · `GET library` | comparing two swarms |
 

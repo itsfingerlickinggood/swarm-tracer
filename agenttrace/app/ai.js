@@ -15,7 +15,11 @@
   // ---------------------------------------------------------------- one renderer per block type
   const R = {
     stats(b) {
-      return `<div class="aistats">${(b.items || []).map((it) => `<div class="aistat"><b>${esc(it.value)}</b><span>${esc(it.label)}</span>${(it.ids || []).length ? `<div class="ids">${idChips(it)}</div>` : ""}</div>`).join("")}</div>`;
+      // _check: the server recounted this number from the data (only counts it can recount exactly)
+      const chk = (it) => !it._check ? "" : it._check.ok
+        ? `<span class="small" style="color:#2e7d32" title="Recounted from the data: ${esc(it._check.what)}">✓ recounted</span>`
+        : `<span class="small" style="color:#b42318;display:block" title="${esc(it._check.what)}">✗ the data says ${esc(fmt(it._check.data))}</span>`;
+      return `<div class="aistats">${(b.items || []).map((it) => `<div class="aistat"${it._check && !it._check.ok ? ' style="outline:1px solid #f1b8b2"' : ""}><b>${esc(it.value)}</b><span>${esc(it.label)}</span> ${chk(it)}${(it.ids || []).length ? `<div class="ids">${idChips(it)}</div>` : ""}</div>`).join("")}</div>`;
     },
     timeline(b) {
       const items = (b.items || []).map((it) => ({ ...it, t: toTime(it._data_time || it.time) })).sort((a, c) => (a.t ?? Infinity) - (c.t ?? Infinity));
@@ -120,7 +124,34 @@
     });
     const bad = (ck.ids_missing || []).length + (ck.names_missing || []).length;
     h += `<div class="aicheck ${bad ? "bad" : "ok"}">${bad ? `Checked against the data: ${fmt(ck.ids_found)} record id${ck.ids_found === 1 ? "" : "s"} found; <b>not found</b>: ${[...(ck.ids_missing || []), ...(ck.names_missing || [])].slice(0, 8).map(esc).join(", ")}${bad > 8 ? " …" : ""}. Treat claims that rest on them as unsupported.` : `Checked against the data: all ${fmt(ck.ids_found)} record ids and every name found.`}</div>`;
+    h += numbersLine(ck) + factsList(o._facts, ck);
     return h;
+  }
+  // the "verify numbers" pass: counts in stats blocks the server could recount
+  function numbersLine(ck) {
+    if (!ck.numbers_checked) return "";
+    const w = ck.numbers_mismatch || [];
+    return `<div class="aicheck ${w.length ? "bad" : "ok"}">${w.length
+      ? `Numbers recounted: ${fmt(ck.numbers_checked)}; <b>${fmt(w.length)} differ from the data</b>: ${w.slice(0, 5).map((m) => `${esc(m.label)} said ${esc(m.said)}, the data has ${esc(fmt(m.data))}`).join("; ")}.`
+      : `Numbers recounted: all ${fmt(ck.numbers_checked)} count${ck.numbers_checked === 1 ? "" : "s"} the tool can recount match the data.`}</div>`;
+  }
+  // what the model fetched with the read-only tools before answering
+  const TOOLNAME = { actor_profile: "Actor profile", place_detail: "Place", conversation: "Conversation", search_records: "Search", record_trace: "Record", trace_string: "Trace a string" };
+  function factsList(facts, ck) {
+    const notes = [ck.repaired ? "the first reply was not in the answer format and was re-asked once" : "",
+      ck.tools && ck.tools !== "offered" ? "tools " + ck.tools + ", so it answered from the brief alone" : ""].filter(Boolean);
+    const note = notes.length ? `<div class="small muted" style="margin-top:4px">Note: ${esc(notes.join("; "))}.</div>` : "";
+    if (!facts || !facts.length) return ck.tools === "offered" ? `<div class="small muted" style="margin-top:4px">The investigator fetched no extra facts: it answered from the brief.</div>${note}` : note;
+    const chip = (f) => {
+      const a = f.args || {};
+      if (f.tool === "actor_profile" && f.ok) return ent.actor(a.actor);
+      if (f.tool === "place_detail" && f.ok) return ent.place(a.place);
+      if (f.tool === "record_trace" && f.ok) return ent.rec(a.id);
+      if (f.tool === "conversation" && f.ok) return ent.actor(a.a) + " ↔ " + ent.actor(a.b);
+      return "";
+    };
+    return `<details class="aifacts" style="margin-top:6px;font-size:12px"><summary style="cursor:pointer">Facts the investigator fetched (${fmt(facts.length)}, in ${fmt(ck.tool_rounds || 1)} round${(ck.tool_rounds || 1) === 1 ? "" : "s"})</summary>
+      <ol style="margin:4px 0 0 18px;padding:0">${facts.map((f) => `<li style="margin:2px 0"><b>${esc(TOOLNAME[f.tool] || f.tool)}</b> ${chip(f)} <span class="${f.ok ? "muted" : "warnc"}">${esc(f.summary || "")}</span></li>`).join("")}</ol></details>${note}`;
   }
   const SEV = { high: "#b42318", medium: "#c58a00", low: "#5b6672" };
   function renderGaps(gaps) {
@@ -198,7 +229,7 @@
     if (!S.summary) { addMsg("error", "Load a dataset first."); return; }
     S.chat.push({ role: "user", content: q });
     addMsg("user", esc(q).replace(/\n/g, "<br>"));
-    const wait = addMsg("assistant", '<div class="aiwait"><i></i><i></i><i></i> Investigating: reading the brief and the records…</div>');
+    const wait = addMsg("assistant", '<div class="aiwait"><i></i><i></i><i></i> Investigating: reading the brief, fetching facts it needs…</div>');
     $("send").disabled = true;
     try {
       const r = await askAI(q);

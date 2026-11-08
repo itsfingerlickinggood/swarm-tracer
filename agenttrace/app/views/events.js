@@ -16,6 +16,7 @@
       <label class="chk"><input type="checkbox" id="fc"${S.ev.channels ? " checked" : ""}> touches a place</label>
       <span id="evchips"></span>
     </div>
+    <div class="evsaved small" id="evsaved"></div>
     <div class="evtop">
       ${card("When", '<div id="evhist"></div>', { sub: `Matching records per hour, stacked by what they do (UTC; most times are ${term("dated", "estimated")}). Hover an hour for its breakdown; click it to keep only that hour, or drag across hours to keep a range.` })}
       ${card("What they are", '<div id="evfacets"></div>', { sub: "Click a part to filter." })}
@@ -27,7 +28,97 @@
     $("fi").addEventListener("change", (e) => { S.ev.intent = e.target.value; reload(); });
     $("ft").addEventListener("change", (e) => { S.ev.tag = e.target.value; reload(); });
     $("fc").addEventListener("change", (e) => { S.ev.channels = e.target.checked; reload(); });
+    savedBar();
     loadEvents();
+  }
+
+  // ---------------------------------------------------------------- saved filters (this browser only)
+  const SAVE_KEY = "swarmtracer.events.saved";
+  const FKEYS = ["q", "kind", "intent", "tag", "actor", "hour", "channels"];
+  const loadSaved = () => { try { const v = JSON.parse(localStorage.getItem(SAVE_KEY) || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } };
+  const storeSaved = (v) => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(v.slice(0, 50))); } catch { /* storage full or off */ } };
+  const current = () => Object.fromEntries(FKEYS.map((k) => [k, S.ev[k] || (k === "channels" ? false : "")]));
+  const describe = (f) => [f.q && `"${f.q}"`, f.kind && `kind ${f.kind}`, f.intent && human(f.intent), f.tag && human(f.tag), f.actor && short(f.actor), f.hour && `hour ${f.hour}`, f.channels && "touches a place"].filter(Boolean).join(", ") || "no filter";
+  function savedBar() {
+    const box = $("evsaved"); if (!box) return;
+    const list = loadSaved();
+    box.innerHTML = `<label>Saved filters <select id="evSavedSel"><option value="">${list.length ? "choose…" : "none yet"}</option>${list.map((x, i) => `<option value="${i}" title="${esc(describe(x.f))}">${esc(x.name)}</option>`).join("")}</select></label>
+      <button type="button" class="link" id="evSavedDel"${list.length ? "" : " hidden"}>delete</button>
+      <input id="evSaveName" placeholder="name for the current filters" style="width:190px"> <button type="button" id="evSave">Save</button>
+      <span class="sep"></span><button type="button" id="evCsv" title="Download every matching record (up to 5,000) as a CSV file">Export CSV</button> <span id="evCsvMsg" class="muted"></span>`;
+    $("evSavedSel").addEventListener("change", (e) => {
+      const x = list[+e.target.value]; if (!x) return;
+      const v = e.target.value;
+      goEvents(x.f);
+      const vi = $("evSavedSel"); if (vi) vi.value = v;
+    });
+    $("evSavedDel").addEventListener("click", () => { const i = +$("evSavedSel").value; if ($("evSavedSel").value === "") return; list.splice(i, 1); storeSaved(list); savedBar(); });
+    $("evSave").addEventListener("click", () => {
+      const name = $("evSaveName").value.trim() || describe(current());
+      const rest = list.filter((x) => x.name !== name);
+      rest.unshift({ name, f: current(), dataset: S.summary?.name || "" });
+      storeSaved(rest); savedBar();
+    });
+    $("evCsv").addEventListener("click", exportCsv);
+  }
+
+  // ---------------------------------------------------------------- the filtered set as CSV
+  async function exportCsv() {
+    const msg = $("evCsvMsg"), btn = $("evCsv");
+    btn.disabled = true; msg.textContent = "Collecting…";
+    try {
+      const rows = []; let total = 0;
+      for (let off = 0; off < 5000; off += 500) {
+        const p = new URLSearchParams({ q: S.ev.q || "", hour: S.ev.hour || "", kind: S.ev.kind, intent: S.ev.intent, tag: S.ev.tag, actor: S.ev.actor, channels: S.ev.channels ? "1" : "", offset: off, limit: 500 });
+        const r = await api("/api/events?" + p);
+        total = r.total; rows.push(...r.rows);
+        if (off + 500 >= r.total) break;
+      }
+      const q = (v) => { const t = String(v ?? ""); return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+      const head = ["id", "time_utc", "actor", "actor_kind", "kind", "intent", "tags", "messages_in", "messages_out", "places_touched", "preview"];
+      const lines = [head.join(",")].concat(rows.map((x) => [x.id, x.time, x.actor, x.actor_kind, x.kind, x.intent, (x.tags || []).join(" "), x.in, x.out, x.ops, x.preview].map(q).join(",")));
+      const blob = new Blob([lines.join("\n") + "\n"], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = `events-${(S.summary?.name || "trace").replace(/[^\w.-]+/g, "_")}.csv`;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      msg.textContent = rows.length < total ? `${fmt(rows.length)} of ${fmt(total)} rows exported (the first 5,000).` : `${fmt(rows.length)} rows exported.`;
+    } catch (e) { msg.textContent = e.message; }
+    finally { btn.disabled = false; }
+  }
+
+  // ---------------------------------------------------------------- "first time this actor did X"
+  // candidates come from the swimlanes (the first hour each actor did each thing); the exact first
+  // record in that hour is then looked up, so a mark is exact, by time
+  async function firstMarks(rows) {
+    let L;
+    try { L = await cached("/api/lanes"); } catch { return; }
+    if (!L || !L.start_t || !$("evlist")) return;
+    const byActor = new Map(L.actors.map((a) => [a.actor, a]));
+    const firstHour = new Map();
+    const fh = (a, k) => {
+      const key = a.actor + "\u0000" + k;
+      if (!firstHour.has(key)) { const b = a.bins.find((x) => x[1 + k] > 0); firstHour.set(key, b ? b[0] : null); }
+      return firstHour.get(key);
+    };
+    const want = new Map();
+    rows.forEach((x) => {
+      const a = byActor.get(x.actor), k = L.intents.indexOf(x.intent);
+      if (!a || k < 0 || !x.time) return;
+      const h = Math.floor((toTime(x.time) / 1000 - L.start_t) / 3600);
+      if (h === fh(a, k)) want.set(x.actor + "\u0000" + x.intent, { actor: x.actor, intent: x.intent, hour: x.time.slice(0, 13) });
+    });
+    const firsts = new Set();
+    await Promise.all([...want.values()].slice(0, 25).map(async (w) => {
+      const r = await api(`/api/events?${new URLSearchParams({ actor: w.actor, intent: w.intent, hour: w.hour, limit: 500 })}`);
+      let best = null;
+      r.rows.forEach((x) => { if (x.time && (!best || x.time < best.time)) best = x; });
+      if (best) firsts.add(best.id);
+    }));
+    document.querySelectorAll("#evlist .evrow").forEach((row) => {
+      const x = rows[+row.dataset.i];
+      if (!x || !firsts.has(x.id) || row.querySelector(".evfirst")) return;
+      row.querySelector(".c2").insertAdjacentHTML("afterbegin", `<span class="evfirst" title="The first time ${esc(short(x.actor))} did this (${esc(human(x.intent))}), by time">first ${esc(human(x.intent))}</span>`);
+    });
   }
 
   function chips() {
@@ -63,6 +154,7 @@
       host.querySelectorAll(".evrow").forEach((row) => row.addEventListener("click", (e) => { if (e.target.closest(".ent")) return; selectEvent(rows[+row.dataset.i].id); host.querySelectorAll(".evrow.on").forEach((x) => x.classList.remove("on")); row.classList.add("on"); }));
       $("pv").onclick = () => { S.ev.offset = Math.max(0, S.ev.offset - PAGE); loadEvents(); };
       $("nx").onclick = () => { S.ev.offset += PAGE; loadEvents(); };
+      firstMarks(rows).catch(() => {});
     } catch (e) { host.innerHTML = `<p class="warn">${esc(e.message)}</p>`; }
   }
 

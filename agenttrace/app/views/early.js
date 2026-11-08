@@ -111,6 +111,10 @@
       { sub: `Step through the ${plural(n, "hour")} of dated activity, or click the chart to jump to an hour. The line is the share of all ${fmt(sim.harm_total)} dated harmful actions still to come (left scale); it is drawn solid up to the moment shown. Grey bars are actions per hour, orange the harmful ones (their own scale, tallest bar marked). Numbered dots are ${term("sign", "warning signs")}, filled once they have fired. The band under the chart is the tracer's alert level.` })}
     ${card("The tracer's alert rule", `<div id="efRule"></div>`,
       { sub: "A deliberately simple rule. It was not tuned on this data or tested on any other swarm, so treat its timing as an illustration of what a coordination-aware monitor could see, not as a measured detector." })}
+    ${card("Several rules side by side", `<div id="efRules"><p class="muted small">Loading the saved alert rules…</p></div>`,
+      { sub: "Each row is one rule: the dot is when it first fires on this dataset, and its height on the right is the share of the timed harm still to come at that moment (higher is earlier). The saved rules come from Live mode's rule editor; the tracer's own settings and the volume alarm are drawn for comparison." })}
+    ${card("What if one place type were not watched", `<div id="efWhatIf"></div>`,
+      { sub: "Drop every message on one type of place and recompute the signs that rest on messages (first message, two-way exchange, groups linked by messages) and the shared-place signs on that type. Computed in the page from the message list; the harm share for a moved sign is read at the start of its hour, so it is approximate." })}
     ${card("The whole incident at a glance", `<div id="efWhole"></div>`,
       { sub: "Every signal on one chart: the higher a dot, the more harm was still to come when it fired. Blue: actors working together. Dark grey: a single actor. Light grey: ordinary volume monitoring, for comparison. Each dot sits at its true height; dots that fired close together are spread sideways. The numbers match the table below." })}
     ${card("Every signal", `<div id="efTable"></div>`)}`;
@@ -135,6 +139,8 @@
       update();
     });
     drawRule(); drawLead();
+    drawWhatIf($("efWhatIf"), D);
+    drawRules($("efRules"), D, my);
     update();
     const whole = () => drawWhole($("efWhole"), D);
     whole(); onResize($("efWhole"), whole);
@@ -189,7 +195,7 @@
         r.alert ? `${meter(r.alert.harm_share_after, HARM, 70)} ${pct(r.alert.harm_share_after)}` : "–",
         r.alert && r.baseline ? (ahead >= 0 ? `${hoursWord(ahead)} earlier` : `${hoursWord(-ahead)} later`) : "–"]))}
       ${sameShare(rows)}`;
-    host.querySelectorAll(".efN button").forEach((b) => b.addEventListener("click", () => { ST.N = +b.dataset.n; drawRule(); drawLead(); update(); }));
+    host.querySelectorAll(".efN button").forEach((b) => b.addEventListener("click", () => { ST.N = +b.dataset.n; drawRule(); drawLead(); drawWhatIf($("efWhatIf"), ST.data); update(); }));
   }
 
   // settings that give the same harm share are worth saying out loud
@@ -409,6 +415,105 @@
       svg += `<g class="node"${recOf(g) ? ` data-id="${esc(recOf(g))}"` : ""}><circle cx="${dx}" cy="${y}" r="8.5" fill="${c}" stroke="#fff" stroke-width="1.5"/><text x="${dx}" y="${y + 3.4}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff" pointer-events="none">${g.num}</text><title>${g.num}. ${esc(g.name)}, ${esc(g.time)} UTC: ${pct(g.harm_share_after)} of the harm still to come</title></g>`;
     });
     host.innerHTML = svg + "</svg>" + `<div class="legend"><span><i style="background:${ACCENT};border-radius:50%"></i>actors together</span><span><i style="background:${SINGLE};border-radius:50%"></i>single actor</span><span><i style="background:${BASE};border-radius:50%"></i>volume baseline</span><span><i style="background:${CURVE}"></i>share of timed harmful actions still to come (${fmt(sim.harm_total)} in all)</span></div>`;
+  }
+
+  // ------------------------------------------------------------------ several rules on one chart
+  async function drawRules(host, D, my) {
+    if (!host) return;
+    let ev = null;
+    try { ev = await cached("/api/x/rules_eval"); } catch (e) { ev = null; }
+    if (my !== RUN || !host.isConnected) return;
+    const { sim, n } = D;
+    const t0 = sim.start_t, t1 = sim.start_t + n * HR;
+    const rows = [];
+    ((ev && ev.rules) || []).filter((r) => r.enabled !== false).forEach((r) => rows.push({
+      name: r.name, sev: r.severity, t: r.fired && r.time ? toTime(r.time) / 1000 : null, share: r.fired ? r.harm_share_after : null,
+      rec: r.record, saved: true, hind: r.hindsight }));
+    [1, 2, 3].forEach((N) => { const a = rule(D.sigs, N).alert; rows.push({ name: `Tracer: alert after ${plural(N, "kind")} of coordination`, sev: "alert", t: a ? a.t : null, share: a ? a.harm_share_after : null, rec: a ? recOf(a) : null, tracer: true }); });
+    const b = rule(D.sigs, 1).baseline;
+    rows.push({ name: "Volume alarm (baseline)", sev: "base", t: b ? b.t : null, share: b ? b.harm_share_after : null, rec: b ? recOf(b) : null });
+    const SEVC = { alert: HARM, watch: "#d39b2c", info: "#6b7785", base: BASE };
+    const W = Math.max(380, host.clientWidth || 700), rowH = 24, nameW = Math.min(260, W * 0.36), x0 = nameW + 8, x1 = W - 110, top = 8;
+    const Hh = top + rows.length * rowH + 30;
+    const X = (t) => x0 + (Math.min(t1, Math.max(t0, t)) - t0) / Math.max(1, t1 - t0) * (x1 - x0);
+    let svg = `<svg class="chart" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="When each alert rule first fires and the harm still to come then">`;
+    timeTicks(t0 * 1000, t1 * 1000, Math.max(3, Math.floor((x1 - x0) / 90))).forEach((k) => { const x = X(k.t / 1000); svg += `<line x1="${x}" x2="${x}" y1="${top}" y2="${Hh - 24}" stroke="${GRID}"/><text x="${x}" y="${Hh - 10}" text-anchor="middle" font-size="10.5" fill="${QUIET}">${esc(k.label)}</text>`; });
+    svg += `<text x="${W - 4}" y="${Hh - 10}" text-anchor="end" font-size="10" fill="${QUIET}">harm still to come</text>`;
+    rows.forEach((r, k) => {
+      const y = top + k * rowH + rowH / 2, c = SEVC[r.sev] || SINGLE;
+      const label = fitName(r.name, nameW - 4, "11px -apple-system, system-ui, sans-serif");
+      svg += `<text x="${nameW}" y="${y + 4}" text-anchor="end" font-size="11" fill="${r.tracer ? "#5b6672" : "#2b3440"}"${r.saved ? ' font-weight="600"' : ""}>${esc(label)}<title>${esc(r.name)}</title></text>`;
+      svg += `<line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" stroke="#eef1f4" stroke-width="6" stroke-linecap="round"/>`;
+      if (r.t != null) {
+        svg += `<line x1="${x0}" x2="${X(r.t)}" y1="${y}" y2="${y}" stroke="${c}" stroke-opacity=".25" stroke-width="6" stroke-linecap="round"/>`;
+        svg += `<g class="node"${r.rec && isRec(r.rec) ? ` data-id="${esc(r.rec)}"` : ""}><circle cx="${X(r.t)}" cy="${y}" r="6" fill="${c}" stroke="#fff" stroke-width="1.5"/><title>${esc(r.name)}: fires ${esc(when(r.t * 1000))}${r.share != null ? `, ${pct(r.share)} of the harm still to come` : ""}${r.hind ? " (hindsight: written on this data)" : ""}</title></g>`;
+        if (r.share != null && D.hasHarm) svg += `<rect x="${x1 + 12}" y="${y - 5}" width="${Math.max(1, r.share * 52)}" height="10" rx="2" fill="${c}"/><text x="${x1 + 70}" y="${y + 4}" font-size="11" fill="#2b3440">${pct(r.share)}</text>`;
+      } else svg += `<text x="${x0 + 6}" y="${y + 4}" font-size="10.5" fill="${QUIET}">never fires</text>`;
+    });
+    const saved = rows.filter((r) => r.saved);
+    const hind = saved.filter((r) => r.hind).length;
+    host.innerHTML = svg + "</svg>" + `<div class="legend"><span><i style="background:${HARM};border-radius:50%"></i>alert rule</span><span><i style="background:#d39b2c;border-radius:50%"></i>watch rule</span><span><i style="background:#6b7785;border-radius:50%"></i>info rule</span><span><i style="background:${BASE};border-radius:50%"></i>volume baseline</span></div>
+      <p class="small muted">${ev ? `${plural(saved.length, "saved rule")} (bold; edit them in Live mode)${hind ? `; ${fmt(hind)} of them ${hind === 1 ? "was" : "were"} written while looking at this data, so their timing is hindsight, not a test` : ""}.` : "The saved rules could not be read, so only the tracer's own settings are shown."} Click a dot to open the record it fired on.</p>`;
+  }
+
+  // ------------------------------------------------------------------ what if one place type were not watched
+  function jointFrom(D, rows) {
+    // the same logic as the server's replay for message-based signs, on a subset of exact named messages
+    const out = [];
+    const sorted = rows.slice().sort((a, b) => a[6] - b[6]);
+    if (sorted.length) out.push({ kind: "message", name: "First message between named actors", t: sorted[0][6], ref: sorted[0][4] });
+    const seen = new Set(), parent = new Map(), size = new Map();
+    const find = (x) => { if (!parent.has(x)) { parent.set(x, x); size.set(x, 1); } while (parent.get(x) !== x) { parent.set(x, parent.get(parent.get(x))); x = parent.get(x); } return x; };
+    let two = null, big = 0; const th = [3, 5, 10, 20];
+    sorted.forEach((r) => {
+      if (!two && seen.has(r[1] + "\u0000" + r[0])) two = r;
+      seen.add(r[0] + "\u0000" + r[1]);
+      let a = find(r[0]), b = find(r[1]);
+      if (a !== b) { parent.set(a, b); size.set(b, size.get(a) + size.get(b)); }
+      const sz = size.get(find(r[1]));
+      if (sz > big) { big = sz; while (th.length && big >= th[0]) { const k = th.shift(); out.push({ kind: "group", key: "group" + k, name: `A group of ${k}+ actors linked by messages`, t: r[6], ref: r[4] }); } }
+    });
+    if (two) out.push({ kind: "two_way", name: "First two-way exchange", t: two[6], ref: two[4] });
+    return out;
+  }
+  function shareAt(D, t) {
+    const k = Math.floor((t - D.sim.start_t) / HR);
+    return k <= 0 ? 1 : D.sim.harm_remaining[Math.min(k, D.sim.harm_remaining.length) - 1];
+  }
+  function drawWhatIf(host, D) {
+    if (!host) return;
+    const types = [...new Set(D.named.map((r) => String(r[2]).split(":")[0]).concat(Object.keys(S.summary?.flow?.channel_types || {})))].sort();
+    if (!types.length) { host.innerHTML = '<p class="muted small">No message between named actors on an exact place, so no sign rests on a place type.</p>'; return; }
+    const cnt = (ty) => D.named.filter((r) => String(r[2]).split(":")[0] === ty).length;
+    const cur = ST.drop && types.includes(ST.drop) ? ST.drop : types.sort((a, b) => cnt(b) - cnt(a))[0];
+    ST.drop = cur;
+    const kept = D.named.filter((r) => String(r[2]).split(":")[0] !== cur);
+    const msgKinds = new Set(["message", "two_way", "group"]);
+    const base = D.sigs.filter((g) => !msgKinds.has(g.kind));
+    const dropPlace = (g) => g.kind === "place" && String(g.why || "").includes(cur + ":");
+    const after = base.filter((g) => !dropPlace(g)).map((g) => ({ ...g }))
+      .concat(jointFrom(D, kept).map((x) => {
+        const same = D.sigs.find((g) => g.kind === x.kind && (x.key ? g.key === x.key : true) && g.t === x.t);
+        return { ...x, family: "joint", approx: !same, harm_share_after: same ? same.harm_share_after : (D.hasHarm ? shareAt(D, x.t) : null), record: x.ref };
+      })).sort((a, b) => a.t - b.t);
+    const before = D.sigs.filter((g) => g.family === "joint");
+    const keyOf = (g) => g.kind === "group" ? (g.key || g.name) : g.kind === "place" ? "place:" + g.t : g.kind;
+    const keys = [...new Set(before.map(keyOf).concat(after.filter((g) => g.family === "joint").map(keyOf)))];
+    const fmtSig = (g) => !g ? '<span class="muted">does not fire</span>' : `<span class="nowrap">${esc(when(g.t * 1000))}</span>${g.harm_share_after != null ? ` · ${g.approx ? "≈" : ""}${pct(g.harm_share_after)}` : ""}`;
+    const rowsT = keys.map((k) => {
+      const a = before.find((g) => keyOf(g) === k), b = after.find((g) => g.family === "joint" && keyOf(g) === k);
+      const nm = (a || b).name;
+      const moved = !a || !b || a.t !== b.t;
+      return [`${esc(nm)}${moved ? ' <span class="badge">changes</span>' : ""}`, fmtSig(a), fmtSig(b)];
+    });
+    const ra = rule(D.sigs, ST.N), rb = rule(after, ST.N);
+    const alertTxt = (r) => r.alert ? `${esc(when(r.alert.t * 1000))}${r.alert.harm_share_after != null ? ` (${r.alert.approx ? "≈" : ""}${pct(r.alert.harm_share_after)} still to come)` : ""}` : "never";
+    host.innerHTML = `<div class="efctl"><label class="small">Not watched: <select id="efDrop">${types.map((t) => `<option value="${esc(t)}"${t === cur ? " selected" : ""}>${esc(t)} (${plural(cnt(t), "message")})</option>`).join("")}</select></label>
+      <span class="small muted">${fmt(D.named.length - kept.length)} of ${fmt(D.named.length)} exact named messages dropped.${types.length === 1 ? " This dataset has one place type only, so leaving it out removes every message." : !cnt(cur) ? " No message between named actors on an exact place uses this type, so only shared-place signs on it can change." : ""}</span></div>
+      <p class="small">The tracer's rule (alert after ${plural(ST.N, "kind")} of coordination) alerts <b>${alertTxt(ra)}</b> as counted, and <b>${alertTxt(rb)}</b> without ${esc(cur)}.</p>
+      ${table(["sign of actors working together", "as counted", `without ${esc(cur)}`], rowsT)}
+      <p class="small muted">≈: approximate harm share (read at the start of the hour the sign moved to). Signs that do not rest on messages (program reuse, carried tokens, harmful actions, volume) are unchanged.</p>`;
+    $("efDrop").addEventListener("change", (e) => { ST.drop = e.target.value; drawWhatIf(host, D); });
   }
 
   function drawTable(host, sigs) {

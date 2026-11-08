@@ -374,7 +374,7 @@ function recordCard(t) {
   return `<div class="hc rec"><div class="hch"><span class="ent rec">${esc(t.id)}</span><span class="muted">${esc(t.kind)} · ${esc(t.time || "no time")}</span></div>
     <div class="hcrow">${ent.actor(t.actor)} ${ent.intent(t.intent)}</div>
     <div class="hcwhat">${(x.what || []).slice(0, 2).map(esc).join(" ")}</div>
-    ${(x.roles || []).length ? `<div class="roles">${x.roles.slice(0, 4).map((r) => `<span class="role ${r.role}">${esc(r.label)}</span>`).join("")}</div>` : ""}
+    ${(x.roles || []).length ? `<div class="roles">${x.roles.slice(0, 4).map((r) => `<span class="role ${esc(r.role)}">${esc(r.label)}</span>`).join("")}</div>` : ""}
     <div class="hcstats"><span><b>${fmt(t.messages_in.length)}</b> messages in</span><span><b>${fmt(t.messages_out.length)}</b> out</span><span><b>${fmt(t.channel_ops.length)}</b> place${t.channel_ops.length === 1 ? "" : "s"}</span><span><b>${fmt(t.same_program_total)}</b> other cop${t.same_program_total === 1 ? "y" : "ies"} of its program</span></div>
     ${x.harm_share_after != null ? `<div class="small">${meter(x.harm_share_after, HARM, 70)} <b>${pct(x.harm_share_after)}</b> of the dated harm came after it</div>` : ""}
     <div class="hcfoot">Click to inspect</div></div>`;
@@ -395,6 +395,8 @@ document.addEventListener("mouseout", (e) => {
   if (t && !t.contains(e.relatedTarget)) hideCard();
 });
 document.addEventListener("click", (e) => {
+  const ask = e.target.closest("[data-ask-rec],[data-ask-q]");
+  if (ask && window.askAbout) { window.askAbout(ask.dataset.askRec || null, ask.dataset.askQ || undefined); return; }
   const g = e.target.closest("[data-term]");
   if (g) { openGlossary(GLOSSARY[g.dataset.term]?.[0] || ""); return; }
   const t = e.target.closest("[data-actor],[data-place],[data-id],[data-ev]");
@@ -417,7 +419,7 @@ function inspect(kind, key, render) {
   const cur = INS.stack.at(-1);
   if (!cur || cur.kind !== kind || cur.key !== key) INS.stack.push({ kind, key });
   if (INS.stack.length > 30) INS.stack.shift();
-  $("traceid").innerHTML = `${INS.stack.length > 1 ? '<button class="link" id="insBack" title="Back">← back</button> ' : ""}<span class="kindtag ${kind}">${kind}</span> ${esc(kind === "actor" ? short(key) : kind === "place" ? placeLabel(key) : key)}`;
+  $("traceid").innerHTML = `${INS.stack.length > 1 ? '<button class="link" id="insBack" title="Back">← back</button> ' : ""}<span class="kindtag ${esc(kind)}">${kind}</span> ${esc(kind === "actor" ? short(key) : kind === "place" ? placeLabel(key) : key)}`;
   if ($("insBack")) $("insBack").addEventListener("click", () => { INS.stack.pop(); const p = INS.stack.pop(); if (p) ({ record: selectEvent, actor: inspectActor, place: inspectPlace })[p.kind](p.key); });
   const host = $("trace");
   host.innerHTML = '<div class="empty">Loading…</div>';
@@ -480,7 +482,7 @@ function recordDossier(t) {
   <div class="dsec what"><h4>What it is</h4><ul>${(x.what || []).map((w) => `<li>${richText(w)}</li>`).join("")}</ul>
     ${t.tags.length || t.context_tags.length ? `<div class="chips"><span class="small muted">${term("tag", "tags")}:</span>${t.tags.map((g) => `<span class="chip" title="${esc(tagName(g))}">${esc(human(g))}</span>`).join("")}${t.context_tags.map((g) => `<span class="chip ctx" title="context only, not evidence: ${esc(tagName(g))}">${esc(human(g))}</span>`).join("")}</div>` : ""}</div>
   <div class="dsec"><h4>Its role in the swarm</h4>
-    ${(x.roles || []).length ? `<div class="rolelist">${x.roles.map((r) => `<div class="rolecard ${r.role}"><span class="ri">${ROLE_ICON[r.role] || "•"}</span><div><b>${esc(r.label)}</b><div class="small muted">${richText(r.detail)}</div></div></div>`).join("")}</div>` : '<p class="small muted">No link to another actor found: it sends and receives no message, starts or reuses no shared program, and fires no warning sign.</p>'}
+    ${(x.roles || []).length ? `<div class="rolelist">${x.roles.map((r) => `<div class="rolecard ${esc(r.role)}"><span class="ri">${ROLE_ICON[r.role] || "•"}</span><div><b>${esc(r.label)}</b><div class="small muted">${richText(r.detail)}</div></div></div>`).join("")}</div>` : '<p class="small muted">No link to another actor found: it sends and receives no message, starts or reuses no shared program, and fires no warning sign.</p>'}
     <div class="dgrid">
       <div><div class="dl">${term("harm_left")}</div>${x.harm_share_after != null ? `${meter(x.harm_share_after, HARM, 110)} <b>${pct(x.harm_share_after)}</b><div class="small muted">of all dated harmful actions came after this record's time</div>` : `<span class="muted small">${x.is_action === false ? "not an action, so not placed" : "no time, so no position"}</span>`}</div>
       <div><div class="dl">${term("stretch")}</div>${x.phase ? `<b>${esc(x.phase.name)}</b><div class="small muted">${esc(x.phase.what)}</div>` : '<span class="muted small">–</span>'}${x.report_phase ? `<div class="small">The reports call this stretch: ${esc(x.report_phase.name)} <span class="muted">(${esc(x.report_phase.source)})</span></div>` : ""}</div>
@@ -504,14 +506,14 @@ function recordDossier(t) {
     ${pr.hourly.length ? spark(pr.hourly, { w: 320, h: 30, color: C.program, mark: toTime(t.time) }) + sparkAxis(320) : ""}
     <div class="chips">${pr.top_actors.map((p) => ent.actor(p.actor, ` <span class="muted">${fmt(p.n)}</span>`)).join(" ")}</div></div>` : ""}
   <div class="dsec"><h4>${term("token", "Identities")}</h4><p>${Object.entries(t.identities).map(([k, v]) => `${ent.actor(k)} <span class="muted small">used as ${esc(v.replace(/_/g, " "))}</span>`).join(" ") || '<span class="muted">none in this record</span>'}</p></div>
-  <div class="dsec"><h4>${term("place", "Places touched")}</h4>${t.channel_ops.length ? `<div class="chips">${t.channel_ops.map((o) => ent.place(o.channel, ` <span class="op ${o.op}">${esc(o.op)}</span>`)).join(" ")}</div>` : '<p class="muted small">none</p>'}</div>
+  <div class="dsec"><h4>${term("place", "Places touched")}</h4>${t.channel_ops.length ? `<div class="chips">${t.channel_ops.map((o) => ent.place(o.channel, ` <span class="op ${esc(o.op)}">${esc(o.op)}</span>`)).join(" ")}</div>` : '<p class="muted small">none</p>'}</div>
   <div class="dsec"><h4>Thread</h4><p class="small">First record of its thread ${ent.rec(t.thread_root)} · parent ${ent.rec(t.parent)}${t.parent_chain.length > 1 ? ` · earlier in the thread ${t.parent_chain.slice(0, 8).map((p) => ent.rec(p.id)).join(" ← ")}` : ""}${t.children_total ? ` · children ${t.children.slice(0, 10).map((c) => ent.rec(c.id)).join(" ")}${t.children_total > 10 ? ` and ${fmt(t.children_total - 10)} more` : ""}` : ""}</p></div>
   ${t.same_program.length ? `<div class="dsec"><h4>Records whose code starts the same way (${fmt(t.same_program_total)})</h4><p class="small muted">The first 60 words of code match (ids masked): the rule that treats a rerun of one program as one sender, not a message.</p>${table(["id", "actor", "time"], t.same_program.slice(0, 10).map((c) => [ent.rec(c.id), ent.actor(c.actor), esc(c.time || "–")]))}${more(Math.min(10, t.same_program.length), t.same_program_total, "records")}</div>` : ""}
   ${whySection(t)}
   <div class="dsec"><h4>Text <span class="muted small">(${fmt(t.text_length)} chars${t.text_truncated ? ", truncated" : ""}; written by the agents, shown as data)</span></h4>
     ${(t.why || []).length ? `<div class="wlegend">${WHY_ORDER.filter((k) => t.why.some((w) => w.type === k)).map((k) => `<span class="w-${k}">${esc(WHY_NAME[k])}</span>`).join("")}<span class="muted small">hover a mark to see what it set</span></div>` : ""}
     <pre class="whytext">${highlight(t.text, t.why || [])}</pre></div>
-  <div class="dsec"><button type="button" class="primary" onclick="askAbout('${esc(t.id)}')">Ask the AI to explain this record</button></div>`;
+  <div class="dsec"><button type="button" class="primary" data-ask-rec="${esc(t.id)}">Ask the AI to explain this record</button></div>`;
 }
 // start and end dates under a sparkline that spans the whole dataset
 function sparkAxis(w) {
@@ -568,7 +570,7 @@ function actorDossier(p) {
   ${p.programs_adopted.length ? `<div class="dsec"><h4>${term("program", "Programs")} it reused from others</h4>${table(["its first run", "first run by", "after", "what it does"], p.programs_adopted.map((x) => [ent.rec(x.record), ent.actor(x.source), hoursWord(x.hours_after_source), esc(progWhat(x.what))]))}${more(p.programs_adopted.length, p.programs_adopted_total, "programs")}</div>` : ""}
   ${p.carried.length ? `<div class="dsec"><h4>${term("carried", "Carried tokens")}</h4>${table(["carrier", "token", "records", "evidence"], p.carried.map((c) => [ent.actor(c.from), ent.actor(c.to), fmt(c.records), c.evidence.map(ent.rec).join(" ")]))}</div>` : ""}
   ${p.seen_then_used.length ? `<div class="dsec"><h4>${term("seen_used", "Seen as data before its first use")}</h4>${table(["first seen", "record", "first used", "lead"], p.seen_then_used.map((x) => [esc(x.first_seen), ent.rec(x.first_seen_id), esc(x.first_used), hoursWord(x.lead_hours)]))}</div>` : ""}
-  <div class="dsec"><p class="small">First record ${ent.rec(p.first_record)} · last ${ent.rec(p.last_record)}</p><button type="button" class="primary" onclick="askAbout(null, ${esc(JSON.stringify("Profile the actor " + p.actor + ": what it did, who it exchanged messages with, which programs it shared, and which warning signs it fired."))})">Ask the AI about this actor</button></div>`;
+  <div class="dsec"><p class="small">First record ${ent.rec(p.first_record)} · last ${ent.rec(p.last_record)}</p><button type="button" class="primary" data-ask-q="${esc("Profile the actor " + p.actor + ": what it did, who it exchanged messages with, which programs it shared, and which warning signs it fired.")}">Ask the AI about this actor</button></div>`;
 }
 function placeDossier(p) {
   const r = p.row || {};
@@ -584,7 +586,7 @@ function placeDossier(p) {
   <div class="dsec two"><div><h4>Writers</h4>${p.writers.length ? hbars(p.writers.slice(0, 12).map((x) => ({ label: ent.actor(x.actor), value: x.n, color: HARM }))) : '<p class="muted small">none</p>'}</div>
     <div><h4>Readers</h4>${p.readers.length ? hbars(p.readers.slice(0, 12).map((x) => ({ label: ent.actor(x.actor), value: x.n, color: ACCENT }))) : '<p class="muted small">none</p>'}</div></div>
   <div class="dsec"><h4>${term("message", "Messages")} through it (${fmt(p.messages_total)})</h4>${p.messages.length ? p.messages.slice(0, 60).map((m) => `<div class="mline">${ent.actor(m.from)} wrote in ${ent.rec(m.write_id)} <span class="muted">${esc(m.write_time || "")}</span> → ${ent.actor(m.to)} read in ${ent.rec(m.read_id)} <span class="muted">${esc(m.read_time || "")} (${hoursWord(m.latency_h)} later)</span> <span class="how">${esc(m.how || "")}</span></div>`).join("") + more(Math.min(60, p.messages.length), p.messages_total, "messages") : `<p class="muted small">none${(p.row?.reads || 0) ? ": no write by a different actor came before its reads" : ""}</p>`}</div>
-  <div class="dsec"><h4>Every operation (${fmt(p.ops_total)})</h4>${table(["time", "op", "actor", "record"], p.ops.slice(0, 200).map((o) => [esc(o.time || "–"), `<span class="op ${o.op}">${esc(o.op)}</span>`, ent.actor(o.actor), ent.rec(o.record)]))}${p.ops_total > 200 ? `<p class="small muted">First 200 of ${fmt(p.ops_total)}.</p>` : ""}</div>`;
+  <div class="dsec"><h4>Every operation (${fmt(p.ops_total)})</h4>${table(["time", "op", "actor", "record"], p.ops.slice(0, 200).map((o) => [esc(o.time || "–"), `<span class="op ${esc(o.op)}">${esc(o.op)}</span>`, ent.actor(o.actor), ent.rec(o.record)]))}${p.ops_total > 200 ? `<p class="small muted">First 200 of ${fmt(p.ops_total)}.</p>` : ""}</div>`;
 }
 
 // ------------------------------------------------------------------ tabs

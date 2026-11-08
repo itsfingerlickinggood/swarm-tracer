@@ -11,8 +11,9 @@ The **What's missing** tab measures these for each dataset. In general:
 - **Whether a message was read.** A read in code is an attempt; the data rarely shows whether it worked. Messages that rest only on naming a place show the place was known, not that its content was read.
 - **Merged places.** Redaction that keeps only an owner's name can join several repositories.
 - **Unlisted channels.** Messages through places no pack describes, or with no shared place at all, are invisible. Much coordination is never written down.
+- **Identity merges.** On simulated swarms with known agents, merge proposals resting only on coordination evidence (shared places, handoffs, shared programs) were almost always wrong (about 1% right), so the tool now keeps those at low confidence; high and medium need direct evidence and were right in every simulated case. See [validation](validation.md).
 - **Patterns.** Intents and tags are pattern matches. Label records in the Inspector to measure their precision on your data.
-- **Hindsight.** The warning signs and the harm list were written knowing how one incident unfolded; without a benign baseline there are no false-positive rates. The ground-truth mode and the Compare tab help test on other swarms.
+- **Hindsight.** The warning signs and the harm list were written knowing how one incident unfolded. On simulated benign swarms (no coordination) some signs still fire, mainly program reuse from shared boilerplate and the pack counting every dataset commit as harm: see [How accurate is the tool?](validation.md). Simulated swarms are ours, so these are estimates, not field false-positive rates.
 
 ## Dual use
 

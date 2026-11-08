@@ -3,7 +3,7 @@
 // run is its source. Tokens move too: seen inside a record as data, then used as an identity.
 "use strict";
 (() => {
-  const ST = { sel: null, q: "", sort: "reach", matrixAll: false };
+  const ST = { sel: null, q: "", sort: "reach", matrixAll: false, tree: true, heard: null };
   let RUN = 0;
   const H = 3600e3;
   const tOf = (s) => toTime(s);
@@ -28,6 +28,13 @@
       cached("/api/list?name=seen_then_used&limit=1000"),
       cached("/api/list?name=carried_edges&limit=1000"),
     ]);
+    // who had read whom, and when: reader -> writer -> read times (seconds), for the "who copied whom" tree
+    try {
+      const m = await cached("/api/messages");
+      const heard = new Map();
+      m.rows.forEach((r) => { if (!heard.has(r[1])) heard.set(r[1], new Map()); const w = heard.get(r[1]); if (!w.has(r[0])) w.set(r[0], []); w.get(r[0]).push(r[6] * 1000); });
+      ST.heard = heard;
+    } catch { ST.heard = null; }
     if (my !== RUN || !el.isConnected || S.tab !== "spread") return;
     const progs = rows.map((x, i) => ({ ...x, i, reach: x.actors - 1, last: lastAfter(x), first: firstAfter(x), t: tOf(x.source_time) }));
     const actors = new Set(), adopterSet = new Set();
@@ -47,7 +54,7 @@
     <h2>How information spread</h2>
     ${progs.length ? `<p class="lead">${plural(progs.length, "program")} ${progs.length === 1 ? "was" : "were"} run by more than one named actor, with ${plural(adoptions, "adoption")} in all (a program reaching one more actor). The widest ran under ${plural(widest.actors, "actor")}: first ${ent.actor(widest.source)} (<i>${esc(lowFirst(whatLine(widest.what)))}</i>), then ${fmt(widest.reach)} who reused it within ${hoursWord(widest.last)}.${quick ? ` ${plural(quick, "program")} reached two or more other actors within an hour of the first run.` : ""} The median reuse came ${hoursWord(med(allAfter))} after its program's first run.</p>`
       : `<p class="lead">No program was run by more than one named actor, so no code is seen moving between actors.</p>`}
-    <p class="muted small spdef">A ${term("program", "program")} is identical code once ids, numbers and hashes are masked (only actions count). It is listed here when two or more ${term("named", "named actors")} ran it; code that only ${term("run", "anonymous runs")} or a single named actor ran is not listed, so the Inspector, which counts every copy, can show more copies of some code. The data shows the same program appearing later under another actor; it does not show who passed it to whom, so the lines below join each later run to the first.</p>
+    <p class="muted small spdef">A ${term("program", "program")} is identical code once ids, numbers and hashes are masked (only actions count). It is listed here when two or more ${term("named", "named actors")} ran it; code that only ${term("run", "anonymous runs")} or a single named actor ran is not listed, so the Inspector, which counts every copy, can show more copies of some code. The data shows the same program appearing later under another actor; it does not show who passed it to whom. The cascade below joins each later run to the earlier runner it had read a message from, when there is one (a likely path, not proof), or you can join every run to the first.</p>
     <div class="kpis">
       ${kpi(term("program", "programs listed"), fmt(progs.length), "run by 2+ named actors")}
       ${kpi(term("named", "named actors"), fmt(actors.size), `${fmt(adopterSet.size)} reused another's program; ${fmt(startOnly)} only started one`)}
@@ -63,6 +70,7 @@
       <div class="sprow sphdr"><span></span><div>what it does · hosts it calls · first run by</div><div class="spreach">actors</div><div class="spafter" title="time from the first run to the last actor's first run">last reuse</div></div>
       <div id="spList" class="splist"></div>
       <div id="spDetail" class="spdetail"></div>`, { sub: "Every listed program. Pick one to see who ran it, in what order, and what the code does. Actors: the first + those who reused it." }) : ""}
+    ${progs.length ? card("How fast programs were reused", `<div id="spSpeed"></div>`, { sub: "Every adoption (a named actor's first run of another actor's program) by how long after the program's first run it came; the darker part of each bar is the first reuse of each program. Log-spaced bins, so a minute and a day both fit." }) : ""}
     ${progs.length ? card("Adoption over time", `<div id="spCurve"></div><div id="spReach"></div><div class="grid2 spbusy"><div><h4>Whose programs were reused most <span class="muted small">(adoptions of its programs)</span></h4><div id="spSources"></div></div><div><h4>Who reused others' programs most <span class="muted small">(programs reused)</span></h4><div id="spAdopters"></div></div></div><p id="spBusyNote" class="small muted"></p>`,
       { sub: "An adoption is a program reaching one more named actor. Top: adoptions so far (line, left scale) and adoptions in each hour (bars, right scale). Below: how many different actors had reused someone else's program by then." }) : ""}
     ${progs.length ? card("Who ran which program", `<div class="small spmctl"><label><input type="checkbox" id="spAllProgs"${ST.matrixAll ? " checked" : ""}> all ${fmt(progs.length)} programs</label> <span class="muted">(otherwise the ${fmt(progs.filter((x) => x.actors >= 3).length)} run by 3 or more actors)</span></div><div id="spMatrix" class="spmatrix"></div>`,
@@ -97,6 +105,7 @@
       drawList();
       const on = list.querySelector(".sprow.on"); if (on) list.scrollTop = Math.max(0, on.offsetTop - list.offsetTop - 40);
       drawDetail(progs[ST.sel]);
+      drawSpeed($("spSpeed"), progs);
       const curve = () => drawCurve($("spCurve"), progs);
       curve(); onResize($("spCurve"), curve);
       drawBusy(progs);
@@ -146,9 +155,31 @@
     } catch (e) { const src = $("spSrc"); if (src) src.textContent = e.message; }
   }
 
+  // who likely copied whom: each adopter is joined to the earlier runner it had read a message from
+  // before its own first run (the latest such message), or, failing that, to the runner just before it
+  function copiedFrom(rows) {
+    rows.forEach((r, i) => {
+      if (r.src) return;
+      const t = tOf(r.time);
+      const earlier = rows.slice(0, i).filter((q) => { const tq = tOf(q.time); return tq != null && t != null && tq <= t; });
+      let best = null, how = "time";
+      const heard = ST.heard && ST.heard.get(r.actor);
+      if (heard && t != null) {
+        earlier.forEach((q) => {
+          const ts = (heard.get(q.actor) || []).filter((rt) => rt <= t);
+          if (ts.length) { const last = Math.max(...ts); if (!best || last > best.last) best = { q, last }; }
+        });
+      }
+      if (best) { r.parent = rows.indexOf(best.q); how = "message"; r.heardAt = best.last; }
+      else r.parent = earlier.length ? rows.indexOf(earlier[earlier.length - 1]) : 0;
+      r.how = how;
+    });
+  }
+
   function drawCascade(host, x) {
     if (!host) return;
     const rows = [{ actor: x.source, record: x.source_record, time: x.source_time, h: 0, src: true }, ...x.adopters.map((a) => ({ ...a, h: a.hours_after_source }))];
+    copiedFrom(rows);
     const W = Math.max(360, host.clientWidth || 700), RH = 24, top = 26, L = 128, R = 64;
     const Hh = top + rows.length * RH + 26;
     const ts = rows.map((r) => tOf(r.time)).filter((t) => t != null);
@@ -169,13 +200,47 @@
       if (t == null) { svg += `<text x="${L}" y="${y + 4}" font-size="10.5" fill="${QUIET}">no time</text>`; return; }
       const xx = X(t);
       if (!r.src) {
-        const d = xx - sx > 8 ? `M${sx},${sy + 6} L${sx},${y - 6} Q${sx},${y} ${sx + 6},${y} L${xx},${y}` : `M${sx},${sy + 6} L${xx},${y}`;
-        svg += `<path d="${d}" fill="none" stroke="${C.program}" stroke-opacity=".45" stroke-width="1.4"/>`;
+        const p = ST.tree ? rows[r.parent] : rows[0], pt = tOf(p.time);
+        const px = pt != null ? X(pt) : sx, py = Y(rows.indexOf(p));
+        const d = xx - px > 8 ? `M${px},${py + 6} L${px},${y - 6} Q${px},${y} ${px + 6},${y} L${xx},${y}` : `M${px},${py + 6} L${xx},${y}`;
+        const viaMsg = ST.tree && r.how === "message";
+        svg += `<path d="${d}" fill="none" stroke="${C.program}" stroke-opacity="${viaMsg ? 0.8 : 0.45}" stroke-width="${viaMsg ? 1.8 : 1.4}"${ST.tree && !viaMsg ? ' stroke-dasharray="3 3"' : ""}><title>${esc(short(r.actor))} ${ST.tree ? (viaMsg ? `had read a message from ${esc(short(p.actor))} (${esc(when(r.heardAt))}) before its first run` : `ran it after ${esc(short(p.actor))}, the closest earlier run; no message between them seen first`) : `ran it ${esc(hoursWord(r.h))} after the first run`}</title></path>`;
         svg += `<text x="${W - 4}" y="${y + 4}" font-size="11" fill="${QUIET}" text-anchor="end">+${esc(hoursWord(r.h))}</text>`;
       }
       svg += `<circle class="node" data-id="${esc(r.record)}" cx="${xx}" cy="${y}" r="${r.src ? 6.5 : 5}" fill="${r.src ? INK : C.program}" stroke="#fff" stroke-width="1.5"/>`;
     });
-    host.innerHTML = svg + "</svg>";
+    const nMsg = rows.filter((r) => r.how === "message").length;
+    host.innerHTML = `<div class="small spmctl"><label><input type="radio" name="spTree" value="tree"${ST.tree ? " checked" : ""}> who likely copied whom</label> <label><input type="radio" name="spTree" value="src"${ST.tree ? "" : " checked"}> each run joined to the first</label></div>` + svg + "</svg>" +
+      (ST.tree ? `<p class="small muted">Solid line: the adopter had read a message from that earlier runner before its own first run (${fmt(nMsg)} of ${fmt(rows.length - 1)}). Dashed: no such message, so it is joined to the closest earlier run by time. Either way it is a likely path, not proof of copying.</p>` : "");
+    host.querySelectorAll('input[name="spTree"]').forEach((b) => b.addEventListener("change", () => { ST.tree = b.value === "tree"; drawCascade(host, x); }));
+  }
+
+  // ------------------------------------------------------------------ adoption speed, as a distribution
+  function drawSpeed(host, progs) {
+    if (!host) return;
+    const all = progs.flatMap((x) => x.adopters.map((a) => a.hours_after_source)).filter((h) => h != null);
+    if (!all.length) { host.innerHTML = '<p class="muted small">No dated adoptions.</p>'; return; }
+    const firsts = progs.map((x) => x.first).filter(Number.isFinite);
+    const edges = [0, 5 / 60, 0.25, 1, 3, 6, 12, 24, 48, Infinity];
+    const labels = ["<5m", "5–15m", "15–60m", "1–3h", "3–6h", "6–12h", "12–24h", "1–2d", "2d+"];
+    const bin = (h) => edges.findIndex((e, k) => h >= e && h < edges[k + 1]);
+    const n = labels.map(() => 0), f = labels.map(() => 0);
+    all.forEach((h) => { const i = bin(h); if (i >= 0) n[i]++; });
+    firsts.forEach((h) => { const i = bin(h); if (i >= 0) f[i]++; });
+    const W = Math.max(360, host.clientWidth || 640), Hh = 190, L = 44, R = 10, T = 14, B = 150;
+    const mx = Math.max(1, ...n), bw = (W - L - R) / labels.length;
+    const q = (xs, p) => { const a = xs.slice().sort((u, v) => u - v); return a[Math.min(a.length - 1, Math.floor(a.length * p))]; };
+    let svg = `<svg class="chart" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="How long after a program's first run each reuse came">`;
+    [0, 0.5, 1].forEach((fr) => { const v = Math.round(mx * fr), y = B - (v / mx) * (B - T); svg += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="${GRID}"/><text x="${L - 5}" y="${y + 3.5}" text-anchor="end" font-size="10" fill="${QUIET}">${fmt(v)}</text>`; });
+    labels.forEach((lb, i) => {
+      const x = L + i * bw + 4, w = bw - 8, h = (n[i] / mx) * (B - T), hf = (f[i] / mx) * (B - T);
+      svg += `<g><title>${lb}: ${plural(n[i], "adoption")}, of which ${fmt(f[i])} the first reuse of a program</title><rect x="${x}" y="${B - h}" width="${w}" height="${h}" fill="${C.program}" opacity=".35"/><rect x="${x}" y="${B - hf}" width="${w}" height="${hf}" fill="${C.program}"/></g>`;
+      svg += `<text x="${x + w / 2}" y="${B + 13}" text-anchor="middle" font-size="9.5" fill="${QUIET}">${lb}</text>`;
+      if (n[i]) svg += `<text x="${x + w / 2}" y="${B - h - 3}" text-anchor="middle" font-size="9.5" fill="${INK}">${fmt(n[i])}</text>`;
+    });
+    svg += `<line x1="${L}" x2="${W - R}" y1="${B}" y2="${B}" stroke="${AXIS}"/><text x="${(L + W - R) / 2}" y="${Hh - 6}" text-anchor="middle" font-size="10.5" fill="${QUIET}">time from the program's first run to the reuse</text></svg>`;
+    host.innerHTML = svg + `<div class="legend"><span><i style="background:${C.program};opacity:.35"></i>every adoption (${fmt(all.length)})</span><span><i style="background:${C.program}"></i>first reuse of each program (${fmt(firsts.length)})</span></div>
+      <p class="small">A quarter of all reuses came within <b>${hoursWord(q(all, 0.25))}</b>, half within <b>${hoursWord(q(all, 0.5))}</b>, 90% within <b>${hoursWord(q(all, 0.9))}</b>. The first reuse of a program: half within <b>${hoursWord(q(firsts, 0.5))}</b>.</p>`;
   }
 
   // ------------------------------------------------------------------ adoption over time

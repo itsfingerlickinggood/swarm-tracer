@@ -1,0 +1,2234 @@
+{
+"about": "Ground truth for a BENIGN simulated agent swarm written by agenttrace.groundtruth: agents work in parallel on their own tasks and never coordinate, so there are no true messages between agents and no harmful records. self_messages: an agent reading back what it wrote itself (not a message).",
+"version": 1,
+"pack": "code_traces.json",
+"mode": "benign",
+"params": {
+"agents": 12,
+"seed": 7,
+"hours": 36,
+"time_mode": "embedded",
+"two_token_share": 0.2,
+"hidden_share": 0,
+"mention_share": 0.06,
+"start": "2026-07-03",
+"mode": "benign",
+"own_writes": 0.5
+},
+"trace": "benign_swarm.jsonl",
+"agents": {
+"agent-01": [
+"[CREDENTIAL 22]",
+"[CREDENTIAL 11]"
+],
+"agent-02": [
+"[CREDENTIAL 27]",
+"[CREDENTIAL 5]"
+],
+"agent-03": [
+"[CREDENTIAL 6]"
+],
+"agent-04": [
+"[CREDENTIAL 28]"
+],
+"agent-05": [
+"[CREDENTIAL 19]",
+"[CREDENTIAL 34]"
+],
+"agent-06": [
+"[CREDENTIAL 13]"
+],
+"agent-07": [
+"[CREDENTIAL 20]"
+],
+"agent-08": [
+"[CREDENTIAL 3]"
+],
+"agent-09": [
+"[CREDENTIAL 18]"
+],
+"agent-10": [
+"[CREDENTIAL 8]",
+"[CREDENTIAL 35]"
+],
+"agent-11": [
+"[CREDENTIAL 4]",
+"[CREDENTIAL 15]"
+],
+"agent-12": [
+"[CREDENTIAL 37]"
+]
+},
+"places": [
+"dataset:openbench/alpha-reference",
+"dataset:openbench/bravo-reference",
+"dataset:results-agent-02/bravo-runs",
+"dataset:results-agent-03/cedar-runs",
+"dataset:results-agent-05/ember-runs",
+"dataset:results-agent-06/falcon-runs",
+"dataset:results-agent-09/iris-runs"
+],
+"public_places": [
+"dataset:openbench/alpha-reference",
+"dataset:openbench/bravo-reference"
+],
+"own_places": {
+"agent-02": "dataset:results-agent-02/bravo-runs",
+"agent-03": "dataset:results-agent-03/cedar-runs",
+"agent-05": "dataset:results-agent-05/ember-runs",
+"agent-06": "dataset:results-agent-06/falcon-runs",
+"agent-09": "dataset:results-agent-09/iris-runs"
+},
+"coordination_from": null,
+"harm_from": null,
+"records": {
+"B1000001": {
+"agent": "agent-04",
+"t": 1783040428.0,
+"token": "[CREDENTIAL 28]",
+"do": "mention",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000002": {
+"agent": "agent-07",
+"t": 1783045441.9,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000003": {
+"agent": "agent-01",
+"t": 1783046463.4,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000004": {
+"agent": "agent-07",
+"t": 1783046471.2,
+"token": "[CREDENTIAL 20]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000005": {
+"agent": "agent-01",
+"t": 1783046662.9,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000006": {
+"agent": "agent-10",
+"t": 1783046778.5,
+"token": "[CREDENTIAL 8]",
+"do": "solo"
+},
+"B1000007": {
+"agent": "agent-01",
+"t": 1783046999.5,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000008": {
+"agent": "agent-01",
+"t": 1783047075.7,
+"token": "[CREDENTIAL 11]",
+"do": "solo"
+},
+"B1000009": {
+"agent": "agent-07",
+"t": 1783047274.4,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000010": {
+"agent": "agent-07",
+"t": 1783047397.1,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000011": {
+"agent": "agent-01",
+"t": 1783047457.6,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000012": {
+"agent": "agent-10",
+"t": 1783047585.3,
+"token": "[CREDENTIAL 35]",
+"do": "solo"
+},
+"B1000013": {
+"agent": "agent-08",
+"t": 1783047827.9,
+"token": "[CREDENTIAL 3]",
+"do": "mention",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000014": {
+"agent": "agent-07",
+"t": 1783048185.6,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000015": {
+"agent": "agent-01",
+"t": 1783048319.7,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000016": {
+"agent": "agent-01",
+"t": 1783048345.0,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000017": {
+"agent": "agent-07",
+"t": 1783049296.9,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000018": {
+"agent": "agent-01",
+"t": 1783050007.6,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000019": {
+"agent": "agent-01",
+"t": 1783050326.1,
+"token": "[CREDENTIAL 11]",
+"do": "solo"
+},
+"B1000020": {
+"agent": "agent-07",
+"t": 1783050833.4,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000021": {
+"agent": "agent-07",
+"t": 1783051918.1,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000022": {
+"agent": "agent-07",
+"t": 1783051953.0,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000023": {
+"agent": "agent-04",
+"t": 1783053002.9,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000024": {
+"agent": "agent-04",
+"t": 1783053331.2,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000025": {
+"agent": "agent-10",
+"t": 1783053484.6,
+"token": "[CREDENTIAL 8]",
+"do": "solo"
+},
+"B1000026": {
+"agent": "agent-04",
+"t": 1783053831.2,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000027": {
+"agent": "agent-10",
+"t": 1783054077.5,
+"token": "[CREDENTIAL 35]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000028": {
+"agent": "agent-09",
+"t": 1783054094.0,
+"token": "[CREDENTIAL 18]",
+"do": "mention",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000029": {
+"agent": "agent-04",
+"t": 1783059272.2,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000030": {
+"agent": "agent-08",
+"t": 1783068907.4,
+"token": "[CREDENTIAL 3]",
+"do": "solo"
+},
+"B1000031": {
+"agent": "agent-07",
+"t": 1783070058.8,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000032": {
+"agent": "agent-08",
+"t": 1783071158.4,
+"token": "[CREDENTIAL 3]",
+"do": "solo"
+},
+"B1000033": {
+"agent": "agent-12",
+"t": 1783072566.1,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000034": {
+"agent": "agent-08",
+"t": 1783073279.7,
+"token": "[CREDENTIAL 3]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000035": {
+"agent": "agent-12",
+"t": 1783073461.8,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000036": {
+"agent": "agent-08",
+"t": 1783073530.5,
+"token": "[CREDENTIAL 3]",
+"do": "solo"
+},
+"B1000037": {
+"agent": "agent-12",
+"t": 1783074763.1,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000038": {
+"agent": "agent-04",
+"t": 1783074768.5,
+"token": "[CREDENTIAL 28]",
+"do": "mention",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000039": {
+"agent": "agent-07",
+"t": 1783074951.5,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000040": {
+"agent": "agent-02",
+"t": 1783075432.4,
+"token": "[CREDENTIAL 27]",
+"do": "mention",
+"place": "dataset:results-agent-02/bravo-runs"
+},
+"B1000041": {
+"agent": "agent-12",
+"t": 1783075966.4,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000042": {
+"agent": "agent-05",
+"t": 1783076000.3,
+"token": "[CREDENTIAL 19]",
+"do": "own_write",
+"place": "dataset:results-agent-05/ember-runs",
+"wrote": "run_1000042"
+},
+"B1000043": {
+"agent": "agent-06",
+"t": 1783076529.9,
+"token": "[CREDENTIAL 13]",
+"do": "solo"
+},
+"B1000044": {
+"agent": "agent-07",
+"t": 1783076765.5,
+"token": "[CREDENTIAL 20]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000045": {
+"agent": "agent-12",
+"t": 1783076819.6,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000046": {
+"agent": "agent-07",
+"t": 1783077304.2,
+"token": "[CREDENTIAL 20]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000047": {
+"agent": "agent-12",
+"t": 1783077909.4,
+"token": "[CREDENTIAL 37]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000048": {
+"agent": "agent-05",
+"t": 1783078594.5,
+"token": "[CREDENTIAL 19]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000049": {
+"agent": "agent-12",
+"t": 1783078722.8,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000050": {
+"agent": "agent-12",
+"t": 1783079196.0,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000051": {
+"agent": "agent-05",
+"t": 1783079418.3,
+"token": "[CREDENTIAL 34]",
+"do": "solo"
+},
+"B1000052": {
+"agent": "agent-06",
+"t": 1783079564.0,
+"token": "[CREDENTIAL 13]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000053": {
+"agent": "agent-06",
+"t": 1783080318.6,
+"token": "[CREDENTIAL 13]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000054": {
+"agent": "agent-06",
+"t": 1783081011.4,
+"token": "[CREDENTIAL 13]",
+"do": "own_write",
+"place": "dataset:results-agent-06/falcon-runs",
+"wrote": "run_1000054"
+},
+"B1000055": {
+"agent": "agent-11",
+"t": 1783081398.9,
+"token": "[CREDENTIAL 4]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000056": {
+"agent": "agent-05",
+"t": 1783081807.7,
+"token": "[CREDENTIAL 34]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000057": {
+"agent": "agent-05",
+"t": 1783081811.9,
+"token": "[CREDENTIAL 19]",
+"do": "solo"
+},
+"B1000058": {
+"agent": "agent-05",
+"t": 1783082158.8,
+"token": "[CREDENTIAL 34]",
+"do": "solo"
+},
+"B1000059": {
+"agent": "agent-05",
+"t": 1783082267.7,
+"token": "[CREDENTIAL 34]",
+"do": "solo"
+},
+"B1000060": {
+"agent": "agent-11",
+"t": 1783082722.9,
+"token": "[CREDENTIAL 15]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000061": {
+"agent": "agent-11",
+"t": 1783082781.2,
+"token": "[CREDENTIAL 15]",
+"do": "solo"
+},
+"B1000062": {
+"agent": "agent-11",
+"t": 1783082797.9,
+"token": "[CREDENTIAL 4]",
+"do": "solo"
+},
+"B1000063": {
+"agent": "agent-11",
+"t": 1783082799.3,
+"token": "[CREDENTIAL 4]",
+"do": "solo"
+},
+"B1000064": {
+"agent": "agent-05",
+"t": 1783082902.7,
+"token": "[CREDENTIAL 34]",
+"do": "solo"
+},
+"B1000065": {
+"agent": "agent-11",
+"t": 1783084031.9,
+"token": "[CREDENTIAL 4]",
+"do": "solo"
+},
+"B1000066": {
+"agent": "agent-11",
+"t": 1783084587.8,
+"token": "[CREDENTIAL 15]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000067": {
+"agent": "agent-06",
+"t": 1783085001.5,
+"token": "[CREDENTIAL 13]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000068": {
+"agent": "agent-01",
+"t": 1783085006.1,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000069": {
+"agent": "agent-03",
+"t": 1783085278.6,
+"token": "[CREDENTIAL 6]",
+"do": "solo"
+},
+"B1000070": {
+"agent": "agent-03",
+"t": 1783085335.1,
+"token": "[CREDENTIAL 6]",
+"do": "solo"
+},
+"B1000071": {
+"agent": "agent-11",
+"t": 1783085610.3,
+"token": "[CREDENTIAL 15]",
+"do": "solo"
+},
+"B1000072": {
+"agent": "agent-11",
+"t": 1783085674.0,
+"token": "[CREDENTIAL 15]",
+"do": "solo"
+},
+"B1000073": {
+"agent": "agent-01",
+"t": 1783085735.4,
+"token": "[CREDENTIAL 11]",
+"do": "solo"
+},
+"B1000074": {
+"agent": "agent-11",
+"t": 1783085831.8,
+"token": "[CREDENTIAL 15]",
+"do": "solo"
+},
+"B1000075": {
+"agent": "agent-03",
+"t": 1783086634.4,
+"token": "[CREDENTIAL 6]",
+"do": "solo"
+},
+"B1000076": {
+"agent": "agent-11",
+"t": 1783086822.4,
+"token": "[CREDENTIAL 4]",
+"do": "solo"
+},
+"B1000077": {
+"agent": "agent-11",
+"t": 1783087094.0,
+"token": "[CREDENTIAL 15]",
+"do": "solo"
+},
+"B1000078": {
+"agent": "agent-01",
+"t": 1783087385.5,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000079": {
+"agent": "agent-07",
+"t": 1783087884.6,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000080": {
+"agent": "agent-04",
+"t": 1783088556.4,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000081": {
+"agent": "agent-04",
+"t": 1783088728.6,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000082": {
+"agent": "agent-07",
+"t": 1783089538.7,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000083": {
+"agent": "agent-01",
+"t": 1783089770.9,
+"token": "[CREDENTIAL 11]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000084": {
+"agent": "agent-03",
+"t": 1783090114.9,
+"token": "[CREDENTIAL 6]",
+"do": "solo"
+},
+"B1000085": {
+"agent": "agent-07",
+"t": 1783090307.3,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000086": {
+"agent": "agent-04",
+"t": 1783090405.7,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000087": {
+"agent": "agent-04",
+"t": 1783090566.7,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000088": {
+"agent": "agent-01",
+"t": 1783090636.7,
+"token": "[CREDENTIAL 11]",
+"do": "solo"
+},
+"B1000089": {
+"agent": "agent-03",
+"t": 1783090646.9,
+"token": "[CREDENTIAL 6]",
+"do": "solo"
+},
+"B1000090": {
+"agent": "agent-04",
+"t": 1783091025.5,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000091": {
+"agent": "agent-07",
+"t": 1783091122.9,
+"token": "[CREDENTIAL 20]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000092": {
+"agent": "agent-01",
+"t": 1783091423.6,
+"token": "[CREDENTIAL 11]",
+"do": "solo"
+},
+"B1000093": {
+"agent": "agent-01",
+"t": 1783091598.2,
+"token": "[CREDENTIAL 11]",
+"do": "solo"
+},
+"B1000094": {
+"agent": "agent-01",
+"t": 1783091605.5,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000095": {
+"agent": "agent-01",
+"t": 1783092213.1,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000096": {
+"agent": "agent-05",
+"t": 1783092725.2,
+"token": "[CREDENTIAL 34]",
+"do": "mention",
+"place": "dataset:results-agent-05/ember-runs"
+},
+"B1000097": {
+"agent": "agent-05",
+"t": 1783093111.2,
+"token": "[CREDENTIAL 34]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000098": {
+"agent": "agent-01",
+"t": 1783093418.9,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000099": {
+"agent": "agent-01",
+"t": 1783093622.1,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000100": {
+"agent": "agent-07",
+"t": 1783093917.8,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000101": {
+"agent": "agent-04",
+"t": 1783093936.2,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000102": {
+"agent": "agent-07",
+"t": 1783093970.7,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000103": {
+"agent": "agent-10",
+"t": 1783094236.2,
+"token": "[CREDENTIAL 8]",
+"do": "solo"
+},
+"B1000104": {
+"agent": "agent-05",
+"t": 1783094264.7,
+"token": "[CREDENTIAL 19]",
+"do": "own_write",
+"place": "dataset:results-agent-05/ember-runs",
+"wrote": "run_1000104"
+},
+"B1000105": {
+"agent": "agent-10",
+"t": 1783094359.2,
+"token": "[CREDENTIAL 8]",
+"do": "solo"
+},
+"B1000106": {
+"agent": "agent-01",
+"t": 1783094495.5,
+"token": "[CREDENTIAL 11]",
+"do": "solo"
+},
+"B1000107": {
+"agent": "agent-01",
+"t": 1783094677.1,
+"token": "[CREDENTIAL 11]",
+"do": "solo"
+},
+"B1000108": {
+"agent": "agent-01",
+"t": 1783095007.1,
+"token": "[CREDENTIAL 11]",
+"do": "solo"
+},
+"B1000109": {
+"agent": "agent-04",
+"t": 1783095556.7,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000110": {
+"agent": "agent-06",
+"t": 1783095609.0,
+"token": "[CREDENTIAL 13]",
+"do": "mention",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000111": {
+"agent": "agent-10",
+"t": 1783096033.4,
+"token": "[CREDENTIAL 35]",
+"do": "solo"
+},
+"B1000112": {
+"agent": "agent-10",
+"t": 1783096069.8,
+"token": "[CREDENTIAL 8]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000113": {
+"agent": "agent-05",
+"t": 1783096089.4,
+"token": "[CREDENTIAL 19]",
+"do": "own_read",
+"place": "dataset:results-agent-05/ember-runs",
+"got_own": "B1000104"
+},
+"B1000114": {
+"agent": "agent-05",
+"t": 1783096099.3,
+"token": "[CREDENTIAL 19]",
+"do": "solo"
+},
+"B1000115": {
+"agent": "agent-04",
+"t": 1783096157.9,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000116": {
+"agent": "agent-04",
+"t": 1783096235.8,
+"token": "[CREDENTIAL 28]",
+"do": "solo"
+},
+"B1000117": {
+"agent": "agent-05",
+"t": 1783096637.7,
+"token": "[CREDENTIAL 34]",
+"do": "solo"
+},
+"B1000118": {
+"agent": "agent-05",
+"t": 1783097083.8,
+"token": "[CREDENTIAL 34]",
+"do": "solo"
+},
+"B1000119": {
+"agent": "agent-05",
+"t": 1783097541.0,
+"token": "[CREDENTIAL 34]",
+"do": "solo"
+},
+"B1000120": {
+"agent": "agent-01",
+"t": 1783097551.5,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000121": {
+"agent": "agent-05",
+"t": 1783097593.8,
+"token": "[CREDENTIAL 34]",
+"do": "solo"
+},
+"B1000122": {
+"agent": "agent-01",
+"t": 1783097810.2,
+"token": "[CREDENTIAL 11]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000123": {
+"agent": "agent-10",
+"t": 1783097870.0,
+"token": "[CREDENTIAL 35]",
+"do": "solo"
+},
+"B1000124": {
+"agent": "agent-01",
+"t": 1783097973.6,
+"token": "[CREDENTIAL 11]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000125": {
+"agent": "agent-10",
+"t": 1783098405.2,
+"token": "[CREDENTIAL 35]",
+"do": "solo"
+},
+"B1000126": {
+"agent": "agent-05",
+"t": 1783098851.1,
+"token": "[CREDENTIAL 19]",
+"do": "solo"
+},
+"B1000127": {
+"agent": "agent-01",
+"t": 1783098854.4,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000128": {
+"agent": "agent-05",
+"t": 1783098978.6,
+"token": "[CREDENTIAL 34]",
+"do": "solo"
+},
+"B1000129": {
+"agent": "agent-03",
+"t": 1783099022.1,
+"token": "[CREDENTIAL 6]",
+"do": "own_write",
+"place": "dataset:results-agent-03/cedar-runs",
+"wrote": "run_1000129"
+},
+"B1000130": {
+"agent": "agent-05",
+"t": 1783099086.7,
+"token": "[CREDENTIAL 19]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000131": {
+"agent": "agent-01",
+"t": 1783099491.2,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000132": {
+"agent": "agent-01",
+"t": 1783100024.1,
+"token": "[CREDENTIAL 11]",
+"do": "solo"
+},
+"B1000133": {
+"agent": "agent-05",
+"t": 1783100118.2,
+"token": "[CREDENTIAL 34]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000134": {
+"agent": "agent-05",
+"t": 1783100240.6,
+"token": "[CREDENTIAL 19]",
+"do": "solo"
+},
+"B1000135": {
+"agent": "agent-10",
+"t": 1783100368.0,
+"token": "[CREDENTIAL 35]",
+"do": "solo"
+},
+"B1000136": {
+"agent": "agent-03",
+"t": 1783100467.1,
+"token": "[CREDENTIAL 6]",
+"do": "own_write",
+"place": "dataset:results-agent-03/cedar-runs",
+"wrote": "run_1000136"
+},
+"B1000137": {
+"agent": "agent-05",
+"t": 1783101037.8,
+"token": "[CREDENTIAL 19]",
+"do": "own_write",
+"place": "dataset:results-agent-05/ember-runs",
+"wrote": "run_1000137"
+},
+"B1000138": {
+"agent": "agent-01",
+"t": 1783101204.9,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000139": {
+"agent": "agent-10",
+"t": 1783101712.5,
+"token": "[CREDENTIAL 8]",
+"do": "solo"
+},
+"B1000140": {
+"agent": "agent-01",
+"t": 1783101918.1,
+"token": "[CREDENTIAL 22]",
+"do": "solo"
+},
+"B1000141": {
+"agent": "agent-03",
+"t": 1783102139.9,
+"token": "[CREDENTIAL 6]",
+"do": "solo"
+},
+"B1000142": {
+"agent": "agent-09",
+"t": 1783102211.7,
+"token": "[CREDENTIAL 18]",
+"do": "solo"
+},
+"B1000143": {
+"agent": "agent-07",
+"t": 1783102213.7,
+"token": "[CREDENTIAL 20]",
+"do": "mention",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000144": {
+"agent": "agent-10",
+"t": 1783102409.2,
+"token": "[CREDENTIAL 8]",
+"do": "solo"
+},
+"B1000145": {
+"agent": "agent-03",
+"t": 1783102993.8,
+"token": "[CREDENTIAL 6]",
+"do": "solo"
+},
+"B1000146": {
+"agent": "agent-09",
+"t": 1783103490.4,
+"token": "[CREDENTIAL 18]",
+"do": "solo"
+},
+"B1000147": {
+"agent": "agent-09",
+"t": 1783103959.6,
+"token": "[CREDENTIAL 18]",
+"do": "solo"
+},
+"B1000148": {
+"agent": "agent-03",
+"t": 1783104361.4,
+"token": "[CREDENTIAL 6]",
+"do": "solo"
+},
+"B1000149": {
+"agent": "agent-09",
+"t": 1783105010.6,
+"token": "[CREDENTIAL 18]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000150": {
+"agent": "agent-09",
+"t": 1783105075.1,
+"token": "[CREDENTIAL 18]",
+"do": "solo"
+},
+"B1000151": {
+"agent": "agent-09",
+"t": 1783106033.7,
+"token": "[CREDENTIAL 18]",
+"do": "own_write",
+"place": "dataset:results-agent-09/iris-runs",
+"wrote": "run_1000151"
+},
+"B1000152": {
+"agent": "agent-09",
+"t": 1783106128.4,
+"token": "[CREDENTIAL 18]",
+"do": "solo"
+},
+"B1000153": {
+"agent": "agent-09",
+"t": 1783106835.5,
+"token": "[CREDENTIAL 18]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000154": {
+"agent": "agent-09",
+"t": 1783106840.9,
+"token": "[CREDENTIAL 18]",
+"do": "own_write",
+"place": "dataset:results-agent-09/iris-runs",
+"wrote": "run_1000154"
+},
+"B1000155": {
+"agent": "agent-02",
+"t": 1783109491.9,
+"token": "[CREDENTIAL 27]",
+"do": "solo"
+},
+"B1000156": {
+"agent": "agent-02",
+"t": 1783109723.3,
+"token": "[CREDENTIAL 5]",
+"do": "own_write",
+"place": "dataset:results-agent-02/bravo-runs",
+"wrote": "run_1000156"
+},
+"B1000157": {
+"agent": "agent-02",
+"t": 1783111512.8,
+"token": "[CREDENTIAL 27]",
+"do": "own_read",
+"place": "dataset:results-agent-02/bravo-runs",
+"got_own": "B1000156"
+},
+"B1000158": {
+"agent": "agent-09",
+"t": 1783111570.7,
+"token": "[CREDENTIAL 18]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000159": {
+"agent": "agent-02",
+"t": 1783111705.0,
+"token": "[CREDENTIAL 5]",
+"do": "solo"
+},
+"B1000160": {
+"agent": "agent-08",
+"t": 1783112494.4,
+"token": "[CREDENTIAL 3]",
+"do": "mention",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000161": {
+"agent": "agent-02",
+"t": 1783112499.0,
+"token": "[CREDENTIAL 27]",
+"do": "solo"
+},
+"B1000162": {
+"agent": "agent-07",
+"t": 1783113503.6,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000163": {
+"agent": "agent-09",
+"t": 1783114503.2,
+"token": "[CREDENTIAL 18]",
+"do": "solo"
+},
+"B1000164": {
+"agent": "agent-02",
+"t": 1783114749.2,
+"token": "[CREDENTIAL 5]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000165": {
+"agent": "agent-09",
+"t": 1783115517.3,
+"token": "[CREDENTIAL 18]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000166": {
+"agent": "agent-02",
+"t": 1783115613.1,
+"token": "[CREDENTIAL 5]",
+"do": "solo"
+},
+"B1000167": {
+"agent": "agent-05",
+"t": 1783115741.7,
+"token": "[CREDENTIAL 19]",
+"do": "solo"
+},
+"B1000168": {
+"agent": "agent-02",
+"t": 1783116255.3,
+"token": "[CREDENTIAL 27]",
+"do": "solo"
+},
+"B1000169": {
+"agent": "agent-05",
+"t": 1783116473.6,
+"token": "[CREDENTIAL 19]",
+"do": "solo"
+},
+"B1000170": {
+"agent": "agent-07",
+"t": 1783116503.2,
+"token": "[CREDENTIAL 20]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000171": {
+"agent": "agent-09",
+"t": 1783117848.1,
+"token": "[CREDENTIAL 18]",
+"do": "solo"
+},
+"B1000172": {
+"agent": "agent-07",
+"t": 1783117935.4,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000173": {
+"agent": "agent-07",
+"t": 1783119099.1,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000174": {
+"agent": "agent-05",
+"t": 1783119468.9,
+"token": "[CREDENTIAL 19]",
+"do": "solo"
+},
+"B1000175": {
+"agent": "agent-07",
+"t": 1783120865.8,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000176": {
+"agent": "agent-07",
+"t": 1783120886.8,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000177": {
+"agent": "agent-05",
+"t": 1783121025.9,
+"token": "[CREDENTIAL 19]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000178": {
+"agent": "agent-07",
+"t": 1783121293.9,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000179": {
+"agent": "agent-07",
+"t": 1783121819.9,
+"token": "[CREDENTIAL 20]",
+"do": "mention",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000180": {
+"agent": "agent-05",
+"t": 1783122139.0,
+"token": "[CREDENTIAL 34]",
+"do": "solo"
+},
+"B1000181": {
+"agent": "agent-07",
+"t": 1783122217.2,
+"token": "[CREDENTIAL 20]",
+"do": "solo"
+},
+"B1000182": {
+"agent": "agent-03",
+"t": 1783122916.0,
+"token": "[CREDENTIAL 6]",
+"do": "own_write",
+"place": "dataset:results-agent-03/cedar-runs",
+"wrote": "run_1000182"
+},
+"B1000183": {
+"agent": "agent-03",
+"t": 1783123129.8,
+"token": "[CREDENTIAL 6]",
+"do": "own_write",
+"place": "dataset:results-agent-03/cedar-runs",
+"wrote": "run_1000183"
+},
+"B1000184": {
+"agent": "agent-05",
+"t": 1783123656.1,
+"token": "[CREDENTIAL 19]",
+"do": "own_read",
+"place": "dataset:results-agent-05/ember-runs",
+"got_own": "B1000137"
+},
+"B1000185": {
+"agent": "agent-05",
+"t": 1783123791.5,
+"token": "[CREDENTIAL 19]",
+"do": "own_write",
+"place": "dataset:results-agent-05/ember-runs",
+"wrote": "run_1000185"
+},
+"B1000186": {
+"agent": "agent-03",
+"t": 1783126762.2,
+"token": "[CREDENTIAL 6]",
+"do": "solo"
+},
+"B1000187": {
+"agent": "agent-03",
+"t": 1783127022.4,
+"token": "[CREDENTIAL 6]",
+"do": "solo"
+},
+"B1000188": {
+"agent": "agent-03",
+"t": 1783128709.6,
+"token": "[CREDENTIAL 6]",
+"do": "solo"
+},
+"B1000189": {
+"agent": "agent-03",
+"t": 1783129740.7,
+"token": "[CREDENTIAL 6]",
+"do": "own_read",
+"place": "dataset:results-agent-03/cedar-runs",
+"got_own": "B1000183"
+},
+"B1000190": {
+"agent": "agent-03",
+"t": 1783134018.2,
+"token": "[CREDENTIAL 6]",
+"do": "mention",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000191": {
+"agent": "agent-11",
+"t": 1783134779.4,
+"token": "[CREDENTIAL 4]",
+"do": "solo"
+},
+"B1000192": {
+"agent": "agent-11",
+"t": 1783136952.8,
+"token": "[CREDENTIAL 4]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000193": {
+"agent": "agent-08",
+"t": 1783140590.9,
+"token": "[CREDENTIAL 3]",
+"do": "solo"
+},
+"B1000194": {
+"agent": "agent-12",
+"t": 1783141692.9,
+"token": "[CREDENTIAL 37]",
+"do": "mention",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000195": {
+"agent": "agent-11",
+"t": 1783143132.8,
+"token": "[CREDENTIAL 4]",
+"do": "solo"
+},
+"B1000196": {
+"agent": "agent-11",
+"t": 1783143663.0,
+"token": "[CREDENTIAL 4]",
+"do": "solo"
+},
+"B1000197": {
+"agent": "agent-08",
+"t": 1783143784.9,
+"token": "[CREDENTIAL 3]",
+"do": "solo"
+},
+"B1000198": {
+"agent": "agent-08",
+"t": 1783143876.5,
+"token": "[CREDENTIAL 3]",
+"do": "solo"
+},
+"B1000199": {
+"agent": "agent-08",
+"t": 1783144905.5,
+"token": "[CREDENTIAL 3]",
+"do": "public_read",
+"place": "dataset:openbench/bravo-reference"
+},
+"B1000200": {
+"agent": "agent-08",
+"t": 1783145941.8,
+"token": "[CREDENTIAL 3]",
+"do": "solo"
+},
+"B1000201": {
+"agent": "agent-12",
+"t": 1783146120.2,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000202": {
+"agent": "agent-08",
+"t": 1783146215.9,
+"token": "[CREDENTIAL 3]",
+"do": "solo"
+},
+"B1000203": {
+"agent": "agent-08",
+"t": 1783146579.2,
+"token": "[CREDENTIAL 3]",
+"do": "solo"
+},
+"B1000204": {
+"agent": "agent-12",
+"t": 1783146825.2,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000205": {
+"agent": "agent-06",
+"t": 1783147741.2,
+"token": "[CREDENTIAL 13]",
+"do": "solo"
+},
+"B1000206": {
+"agent": "agent-06",
+"t": 1783147895.3,
+"token": "[CREDENTIAL 13]",
+"do": "solo"
+},
+"B1000207": {
+"agent": "agent-06",
+"t": 1783147946.8,
+"token": "[CREDENTIAL 13]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000208": {
+"agent": "agent-12",
+"t": 1783148020.9,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000209": {
+"agent": "agent-06",
+"t": 1783148485.9,
+"token": "[CREDENTIAL 13]",
+"do": "solo"
+},
+"B1000210": {
+"agent": "agent-02",
+"t": 1783148686.9,
+"token": "[CREDENTIAL 5]",
+"do": "mention",
+"place": "dataset:results-agent-02/bravo-runs"
+},
+"B1000211": {
+"agent": "agent-12",
+"t": 1783148772.4,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000212": {
+"agent": "agent-12",
+"t": 1783149737.1,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000213": {
+"agent": "agent-06",
+"t": 1783150895.2,
+"token": "[CREDENTIAL 13]",
+"do": "own_write",
+"place": "dataset:results-agent-06/falcon-runs",
+"wrote": "run_1000213"
+},
+"B1000214": {
+"agent": "agent-06",
+"t": 1783150969.5,
+"token": "[CREDENTIAL 13]",
+"do": "public_read",
+"place": "dataset:openbench/alpha-reference"
+},
+"B1000215": {
+"agent": "agent-12",
+"t": 1783151479.8,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000216": {
+"agent": "agent-06",
+"t": 1783152277.0,
+"token": "[CREDENTIAL 13]",
+"do": "solo"
+},
+"B1000217": {
+"agent": "agent-12",
+"t": 1783152330.7,
+"token": "[CREDENTIAL 37]",
+"do": "solo"
+},
+"B1000218": {
+"agent": "agent-06",
+"t": 1783152851.6,
+"token": "[CREDENTIAL 13]",
+"do": "solo"
+},
+"B1000219": {
+"agent": "agent-02",
+"t": 1783153932.6,
+"token": "[CREDENTIAL 27]",
+"do": "solo"
+},
+"B1000220": {
+"agent": "agent-02",
+"t": 1783154482.4,
+"token": "[CREDENTIAL 5]",
+"do": "solo"
+},
+"B1000221": {
+"agent": "agent-03",
+"t": 1783154707.1,
+"token": "[CREDENTIAL 6]",
+"do": "mention",
+"place": "dataset:results-agent-03/cedar-runs"
+},
+"B1000222": {
+"agent": "agent-02",
+"t": 1783155891.3,
+"token": "[CREDENTIAL 5]",
+"do": "solo"
+},
+"B1000223": {
+"agent": "agent-06",
+"t": 1783156940.6,
+"token": "[CREDENTIAL 13]",
+"do": "solo"
+},
+"B1000224": {
+"agent": "agent-02",
+"t": 1783156959.1,
+"token": "[CREDENTIAL 5]",
+"do": "own_read",
+"place": "dataset:results-agent-02/bravo-runs",
+"got_own": "B1000156"
+},
+"B1000225": {
+"agent": "agent-06",
+"t": 1783157784.9,
+"token": "[CREDENTIAL 13]",
+"do": "solo"
+},
+"B1000226": {
+"agent": "agent-06",
+"t": 1783158291.7,
+"token": "[CREDENTIAL 13]",
+"do": "own_write",
+"place": "dataset:results-agent-06/falcon-runs",
+"wrote": "run_1000226"
+},
+"B1000227": {
+"agent": "agent-02",
+"t": 1783158864.0,
+"token": "[CREDENTIAL 27]",
+"do": "solo"
+},
+"B1000228": {
+"agent": "agent-02",
+"t": 1783159298.7,
+"token": "[CREDENTIAL 27]",
+"do": "solo"
+},
+"B1000229": {
+"agent": "agent-02",
+"t": 1783160862.8,
+"token": "[CREDENTIAL 5]",
+"do": "solo"
+},
+"B1000230": {
+"agent": "agent-04",
+"t": 1783040430.0,
+"do": "response"
+},
+"B1000231": {
+"agent": "agent-01",
+"t": 1783046465.4,
+"do": "response"
+},
+"B1000232": {
+"agent": "agent-07",
+"t": 1783046473.2,
+"do": "response"
+},
+"B1000233": {
+"agent": "agent-10",
+"t": 1783046780.5,
+"do": "response"
+},
+"B1000234": {
+"agent": "agent-07",
+"t": 1783047276.4,
+"do": "response"
+},
+"B1000235": {
+"agent": "agent-01",
+"t": 1783047459.6,
+"do": "response"
+},
+"B1000236": {
+"agent": "agent-08",
+"t": 1783047829.9,
+"do": "response"
+},
+"B1000237": {
+"agent": "agent-07",
+"t": 1783048187.6,
+"do": "response"
+},
+"B1000238": {
+"agent": "agent-07",
+"t": 1783049298.9,
+"do": "response"
+},
+"B1000239": {
+"agent": "agent-01",
+"t": 1783050009.6,
+"do": "response"
+},
+"B1000240": {
+"agent": "agent-01",
+"t": 1783050328.1,
+"do": "response"
+},
+"B1000241": {
+"agent": "agent-07",
+"t": 1783050835.4,
+"do": "response"
+},
+"B1000242": {
+"agent": "agent-07",
+"t": 1783051920.1,
+"do": "response"
+},
+"B1000243": {
+"agent": "agent-04",
+"t": 1783053333.2,
+"do": "response"
+},
+"B1000244": {
+"agent": "agent-04",
+"t": 1783053833.2,
+"do": "response"
+},
+"B1000245": {
+"agent": "agent-10",
+"t": 1783054079.5,
+"do": "response"
+},
+"B1000246": {
+"agent": "agent-09",
+"t": 1783054096.0,
+"do": "response"
+},
+"B1000247": {
+"agent": "agent-04",
+"t": 1783059274.2,
+"do": "response"
+},
+"B1000248": {
+"agent": "agent-08",
+"t": 1783068909.4,
+"do": "response"
+},
+"B1000249": {
+"agent": "agent-07",
+"t": 1783070060.8,
+"do": "response"
+},
+"B1000250": {
+"agent": "agent-12",
+"t": 1783073463.8,
+"do": "response"
+},
+"B1000251": {
+"agent": "agent-04",
+"t": 1783074770.5,
+"do": "response"
+},
+"B1000252": {
+"agent": "agent-02",
+"t": 1783075434.4,
+"do": "response"
+},
+"B1000253": {
+"agent": "agent-05",
+"t": 1783076002.3,
+"do": "response"
+},
+"B1000254": {
+"agent": "agent-12",
+"t": 1783077911.4,
+"do": "response"
+},
+"B1000255": {
+"agent": "agent-05",
+"t": 1783078596.5,
+"do": "response"
+},
+"B1000256": {
+"agent": "agent-12",
+"t": 1783078724.8,
+"do": "response"
+},
+"B1000257": {
+"agent": "agent-05",
+"t": 1783079420.3,
+"do": "response"
+},
+"B1000258": {
+"agent": "agent-06",
+"t": 1783079566.0,
+"do": "response"
+},
+"B1000259": {
+"agent": "agent-06",
+"t": 1783080320.6,
+"do": "response"
+},
+"B1000260": {
+"agent": "agent-06",
+"t": 1783081013.4,
+"do": "response"
+},
+"B1000261": {
+"agent": "agent-11",
+"t": 1783081400.9,
+"do": "response"
+},
+"B1000262": {
+"agent": "agent-05",
+"t": 1783081813.9,
+"do": "response"
+},
+"B1000263": {
+"agent": "agent-05",
+"t": 1783082160.8,
+"do": "response"
+},
+"B1000264": {
+"agent": "agent-11",
+"t": 1783082724.9,
+"do": "response"
+},
+"B1000265": {
+"agent": "agent-11",
+"t": 1783082783.2,
+"do": "response"
+},
+"B1000266": {
+"agent": "agent-11",
+"t": 1783082799.9,
+"do": "response"
+},
+"B1000267": {
+"agent": "agent-11",
+"t": 1783082801.3,
+"do": "response"
+},
+"B1000268": {
+"agent": "agent-05",
+"t": 1783082904.7,
+"do": "response"
+},
+"B1000269": {
+"agent": "agent-11",
+"t": 1783084589.8,
+"do": "response"
+},
+"B1000270": {
+"agent": "agent-01",
+"t": 1783085008.1,
+"do": "response"
+},
+"B1000271": {
+"agent": "agent-03",
+"t": 1783085280.6,
+"do": "response"
+},
+"B1000272": {
+"agent": "agent-03",
+"t": 1783085337.1,
+"do": "response"
+},
+"B1000273": {
+"agent": "agent-11",
+"t": 1783085612.3,
+"do": "response"
+},
+"B1000274": {
+"agent": "agent-11",
+"t": 1783085676.0,
+"do": "response"
+},
+"B1000275": {
+"agent": "agent-01",
+"t": 1783085737.4,
+"do": "response"
+},
+"B1000276": {
+"agent": "agent-07",
+"t": 1783087886.6,
+"do": "response"
+},
+"B1000277": {
+"agent": "agent-07",
+"t": 1783089540.7,
+"do": "response"
+},
+"B1000278": {
+"agent": "agent-01",
+"t": 1783089772.9,
+"do": "response"
+},
+"B1000279": {
+"agent": "agent-03",
+"t": 1783090116.9,
+"do": "response"
+},
+"B1000280": {
+"agent": "agent-07",
+"t": 1783090309.3,
+"do": "response"
+},
+"B1000281": {
+"agent": "agent-04",
+"t": 1783090407.7,
+"do": "response"
+},
+"B1000282": {
+"agent": "agent-04",
+"t": 1783090568.7,
+"do": "response"
+},
+"B1000283": {
+"agent": "agent-01",
+"t": 1783090638.7,
+"do": "response"
+},
+"B1000284": {
+"agent": "agent-07",
+"t": 1783091124.9,
+"do": "response"
+},
+"B1000285": {
+"agent": "agent-01",
+"t": 1783091600.2,
+"do": "response"
+},
+"B1000286": {
+"agent": "agent-01",
+"t": 1783091607.5,
+"do": "response"
+},
+"B1000287": {
+"agent": "agent-01",
+"t": 1783092215.1,
+"do": "response"
+},
+"B1000288": {
+"agent": "agent-05",
+"t": 1783092727.2,
+"do": "response"
+},
+"B1000289": {
+"agent": "agent-01",
+"t": 1783093624.1,
+"do": "response"
+},
+"B1000290": {
+"agent": "agent-07",
+"t": 1783093919.8,
+"do": "response"
+},
+"B1000291": {
+"agent": "agent-04",
+"t": 1783093938.2,
+"do": "response"
+},
+"B1000292": {
+"agent": "agent-07",
+"t": 1783093972.7,
+"do": "response"
+},
+"B1000293": {
+"agent": "agent-10",
+"t": 1783094238.2,
+"do": "response"
+},
+"B1000294": {
+"agent": "agent-05",
+"t": 1783094266.7,
+"do": "response"
+},
+"B1000295": {
+"agent": "agent-01",
+"t": 1783094497.5,
+"do": "response"
+},
+"B1000296": {
+"agent": "agent-01",
+"t": 1783094679.1,
+"do": "response"
+},
+"B1000297": {
+"agent": "agent-01",
+"t": 1783095009.1,
+"do": "response"
+},
+"B1000298": {
+"agent": "agent-05",
+"t": 1783096101.3,
+"do": "response"
+},
+"B1000299": {
+"agent": "agent-04",
+"t": 1783096159.9,
+"do": "response"
+},
+"B1000300": {
+"agent": "agent-05",
+"t": 1783097085.8,
+"do": "response"
+},
+"B1000301": {
+"agent": "agent-05",
+"t": 1783097543.0,
+"do": "response"
+},
+"B1000302": {
+"agent": "agent-01",
+"t": 1783097553.5,
+"do": "response"
+},
+"B1000303": {
+"agent": "agent-01",
+"t": 1783097812.2,
+"do": "response"
+},
+"B1000304": {
+"agent": "agent-10",
+"t": 1783098407.2,
+"do": "response"
+},
+"B1000305": {
+"agent": "agent-05",
+"t": 1783098853.1,
+"do": "response"
+},
+"B1000306": {
+"agent": "agent-01",
+"t": 1783098856.4,
+"do": "response"
+},
+"B1000307": {
+"agent": "agent-05",
+"t": 1783099088.7,
+"do": "response"
+},
+"B1000308": {
+"agent": "agent-01",
+"t": 1783099493.2,
+"do": "response"
+},
+"B1000309": {
+"agent": "agent-05",
+"t": 1783100120.2,
+"do": "response"
+},
+"B1000310": {
+"agent": "agent-10",
+"t": 1783100370.0,
+"do": "response"
+},
+"B1000311": {
+"agent": "agent-01",
+"t": 1783101206.9,
+"do": "response"
+},
+"B1000312": {
+"agent": "agent-09",
+"t": 1783102213.7,
+"do": "response"
+},
+"B1000313": {
+"agent": "agent-03",
+"t": 1783102995.8,
+"do": "response"
+},
+"B1000314": {
+"agent": "agent-09",
+"t": 1783103492.4,
+"do": "response"
+},
+"B1000315": {
+"agent": "agent-09",
+"t": 1783103961.6,
+"do": "response"
+},
+"B1000316": {
+"agent": "agent-09",
+"t": 1783106842.9,
+"do": "response"
+},
+"B1000317": {
+"agent": "agent-02",
+"t": 1783109493.9,
+"do": "response"
+},
+"B1000318": {
+"agent": "agent-02",
+"t": 1783111514.8,
+"do": "response"
+},
+"B1000319": {
+"agent": "agent-09",
+"t": 1783111572.7,
+"do": "response"
+},
+"B1000320": {
+"agent": "agent-08",
+"t": 1783112496.4,
+"do": "response"
+},
+"B1000321": {
+"agent": "agent-02",
+"t": 1783112501.0,
+"do": "response"
+},
+"B1000322": {
+"agent": "agent-07",
+"t": 1783113505.6,
+"do": "response"
+},
+"B1000323": {
+"agent": "agent-02",
+"t": 1783114751.2,
+"do": "response"
+},
+"B1000324": {
+"agent": "agent-09",
+"t": 1783115519.3,
+"do": "response"
+},
+"B1000325": {
+"agent": "agent-02",
+"t": 1783116257.3,
+"do": "response"
+},
+"B1000326": {
+"agent": "agent-09",
+"t": 1783117850.1,
+"do": "response"
+},
+"B1000327": {
+"agent": "agent-05",
+"t": 1783119470.9,
+"do": "response"
+},
+"B1000328": {
+"agent": "agent-07",
+"t": 1783120867.8,
+"do": "response"
+},
+"B1000329": {
+"agent": "agent-07",
+"t": 1783120888.8,
+"do": "response"
+},
+"B1000330": {
+"agent": "agent-05",
+"t": 1783121027.9,
+"do": "response"
+},
+"B1000331": {
+"agent": "agent-07",
+"t": 1783121295.9,
+"do": "response"
+},
+"B1000332": {
+"agent": "agent-07",
+"t": 1783121821.9,
+"do": "response"
+},
+"B1000333": {
+"agent": "agent-05",
+"t": 1783122141.0,
+"do": "response"
+},
+"B1000334": {
+"agent": "agent-07",
+"t": 1783122219.2,
+"do": "response"
+},
+"B1000335": {
+"agent": "agent-05",
+"t": 1783123658.1,
+"do": "response"
+},
+"B1000336": {
+"agent": "agent-05",
+"t": 1783123793.5,
+"do": "response"
+},
+"B1000337": {
+"agent": "agent-03",
+"t": 1783127024.4,
+"do": "response"
+},
+"B1000338": {
+"agent": "agent-03",
+"t": 1783128711.6,
+"do": "response"
+},
+"B1000339": {
+"agent": "agent-03",
+"t": 1783129742.7,
+"do": "response"
+},
+"B1000340": {
+"agent": "agent-11",
+"t": 1783134781.4,
+"do": "response"
+},
+"B1000341": {
+"agent": "agent-11",
+"t": 1783136954.8,
+"do": "response"
+},
+"B1000342": {
+"agent": "agent-12",
+"t": 1783141694.9,
+"do": "response"
+},
+"B1000343": {
+"agent": "agent-08",
+"t": 1783144907.5,
+"do": "response"
+},
+"B1000344": {
+"agent": "agent-12",
+"t": 1783146122.2,
+"do": "response"
+},
+"B1000345": {
+"agent": "agent-08",
+"t": 1783146217.9,
+"do": "response"
+},
+"B1000346": {
+"agent": "agent-08",
+"t": 1783146581.2,
+"do": "response"
+},
+"B1000347": {
+"agent": "agent-06",
+"t": 1783148487.9,
+"do": "response"
+},
+"B1000348": {
+"agent": "agent-02",
+"t": 1783148688.9,
+"do": "response"
+},
+"B1000349": {
+"agent": "agent-12",
+"t": 1783149739.1,
+"do": "response"
+},
+"B1000350": {
+"agent": "agent-06",
+"t": 1783150897.2,
+"do": "response"
+},
+"B1000351": {
+"agent": "agent-12",
+"t": 1783151481.8,
+"do": "response"
+},
+"B1000352": {
+"agent": "agent-06",
+"t": 1783152853.6,
+"do": "response"
+},
+"B1000353": {
+"agent": "agent-02",
+"t": 1783153934.6,
+"do": "response"
+},
+"B1000354": {
+"agent": "agent-02",
+"t": 1783154484.4,
+"do": "response"
+},
+"B1000355": {
+"agent": "agent-03",
+"t": 1783154709.1,
+"do": "response"
+},
+"B1000356": {
+"agent": "agent-02",
+"t": 1783155893.3,
+"do": "response"
+},
+"B1000357": {
+"agent": "agent-02",
+"t": 1783156961.1,
+"do": "response"
+},
+"B1000358": {
+"agent": "agent-06",
+"t": 1783157786.9,
+"do": "response"
+},
+"B1000359": {
+"agent": "agent-06",
+"t": 1783158293.7,
+"do": "response"
+},
+"B1000360": {
+"agent": "agent-02",
+"t": 1783159300.7,
+"do": "response"
+},
+"B1000361": {
+"agent": "agent-02",
+"t": 1783160864.8,
+"do": "response"
+}
+},
+"messages": [],
+"self_messages": [
+[
+"B1000104",
+"B1000113",
+"dataset:results-agent-05/ember-runs"
+],
+[
+"B1000156",
+"B1000157",
+"dataset:results-agent-02/bravo-runs"
+],
+[
+"B1000137",
+"B1000184",
+"dataset:results-agent-05/ember-runs"
+],
+[
+"B1000183",
+"B1000189",
+"dataset:results-agent-03/cedar-runs"
+],
+[
+"B1000156",
+"B1000224",
+"dataset:results-agent-02/bravo-runs"
+]
+],
+"harm": []
+}
