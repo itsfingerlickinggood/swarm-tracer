@@ -135,6 +135,34 @@ class WikiFlowTests(unittest.TestCase):
         self.assertFalse(any(to == "[Admin1]" for _, to, _ in pairs))       # a delete is a write, not a read
 
 
+class ConversationTests(unittest.TestCase):
+    def test_conversation_lists_both_directions_and_overwrites_with_record_ids(self):
+        from agenttrace import ai
+        from agenttrace.session import Session
+        d = tempfile.mkdtemp()
+        jsonl(os.path.join(d, "revisions.jsonl"), [
+            {"rev_id": "p@1", "page_key": "w~Board", "label": "AgentA", "time": "2026-06-01T10:00:00Z",
+             "body": "intro line for the board\nAgentA: links found today"},
+            {"rev_id": "p@2", "page_key": "w~Board", "label": "AgentB", "time": "2026-06-01T10:05:00Z",
+             "body": "intro line for the board\nAgentA: links found today\nAgentB: verified two of them"},
+            {"rev_id": "p@3", "page_key": "w~Board", "label": "AgentA", "time": "2026-06-01T10:09:00Z",
+             "body": "intro line for the board\nAgentA: starting over with a clean list"},
+        ])
+        s = Session()
+        s.load(d, "wiki_swarm.json")
+        c = s.conversation("AgentA", "AgentB")
+        self.assertEqual((c["a_to_b"], c["b_to_a"], c["overwrites"]), (1, 0, 1))
+        first, second = c["items"]
+        self.assertEqual((first["write_id"], first["read_id"], first["kind"]), ("p@1", "p@2", "message"))
+        self.assertIn("AgentA: links found today", first["lines"])                 # what B kept
+        self.assertEqual((second["from"], second["kind"], second["read_id"]), ("AgentB", "overwrite", "p@3"))
+        self.assertEqual(second["lines"], ["AgentB: verified two of them"])        # what A dropped
+        self.assertEqual(c["record_ids"], ["p@1", "p@2", "p@3"])
+        self.assertEqual(s.pairs("agentb")["total"], 1)                           # search either side
+        msgs, _ = ai.build_messages(s, [{"role": "user", "content": "explain"}], conversation={"a": "AgentA", "b": "AgentB"})
+        self.assertIn("CONVERSATION between AgentA and AgentB", msgs[1]["content"])
+
+
 class WikiSessionTests(unittest.TestCase):
     def test_session_and_ai_context_with_wiki_ids(self):
         from agenttrace import ai

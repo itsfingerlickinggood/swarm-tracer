@@ -8,6 +8,8 @@ Serves the app from agenttrace/app/ and a JSON API on 127.0.0.1 only:
     POST /api/upload?filename=&pack=&map=   raw file body; analyzes it and returns the summary
     GET  /api/events?q=&kind=&actor=&intent=&tag=&channels=1&offset=&limit=
     GET  /api/event?id=                 full trace of one record
+    GET  /api/pairs?q=&all=1&offset=&limit=   every sender-receiver pair (named only unless all=1)
+    GET  /api/conversation?a=&b=        all messages between two actors, both directions, with record ids
     POST /api/ai                        {messages, apiKey, baseUrl, model, selectedId}
     POST /api/ai/models                 {apiKey, baseUrl}
 
@@ -86,6 +88,13 @@ class Handler(BaseHTTPRequestHandler):
                 s = self.need_session()
                 t = s.trace(q.get("id", ""))
                 return self.send_json(t if t else {"error": "not found"}, 200 if t else 404)
+            if u.path == "/api/pairs":
+                s = self.need_session()
+                return self.send_json(s.pairs(q.get("q", ""), q.get("all") != "1",
+                                              int(q.get("offset", 0)), min(500, int(q.get("limit", 50)))))
+            if u.path == "/api/conversation":
+                s = self.need_session()
+                return self.send_json(s.conversation(q.get("a", ""), q.get("b", "")))
             return self.serve_static(u.path)
         except LookupError as e:
             return self.send_json({"error": str(e)}, 409)
@@ -206,7 +215,8 @@ class Handler(BaseHTTPRequestHandler):
     def ai_chat(self):
         body = json.loads(self.read_body(5_000_000) or b"{}")
         s = self.need_session()
-        msgs, ids = ai.build_messages(s, body.get("messages", []), body.get("selectedId"))
+        msgs, ids = ai.build_messages(s, body.get("messages", []), body.get("selectedId"),
+                                      conversation=body.get("conversation"))
         content, usage = ai.call(body.get("baseUrl") or ai.DEFAULT_BASE_URL, body.get("apiKey", ""),
                                  body.get("model") or ai.DEFAULT_MODEL, msgs)
         self.send_json({"content": content, "usage": usage, "context_ids": ids})

@@ -67,6 +67,7 @@ $("upload").addEventListener("submit", async (ev) => {
 
 function setSummary(s) {
   S.summary = s;
+  S.conv = null;
   $("dsname").textContent = `${s.name} · ${fmt(s.records)} records · pack: ${s.pack}`;
   S.ev = { q: "", kind: "", intent: "", tag: "", actor: "", hour: "", channels: false, offset: 0 };
   render();
@@ -153,11 +154,14 @@ function network(el, s) {
   const sizes = [...new Set([15, 30, 60].map((n) => Math.min(n, pairs.length)))];
   const chosen = Math.min(30, pairs.length);
   el.innerHTML = `<h2>Who talked to whom</h2>
-  <p class="muted small">Named actors only. An arrow runs from the actor who wrote to a place to a different actor who later read it; thicker means more messages. Actors that only send are on the left, actors that only receive are on the right, and actors that do both are in the middle. Each shaded band is one group of connected actors. The number in a box is that actor's messages in the pairs shown. Hover a box to pick out its messages; click it to list its events.</p>
+  <p class="muted small">Named actors only. An arrow runs from the actor who wrote to a place to a different actor who later read it; thicker means more messages. Actors that only send are on the left, actors that only receive are on the right, and actors that do both are in the middle. Each shaded band is one group of connected actors. The number in a box is that actor's messages in the pairs shown. Hover a box to pick out its messages; click it to list its events. <b>Click an arrow to open the whole conversation</b> between the two actors, with every record id.</p>
   <p class="small">Show the <select id="netN">${sizes.map((n) => `<option value="${n}"${n === chosen ? " selected" : ""}>${n}</option>`).join("")}</select> busiest sender-receiver pairs (of ${fmt(s.flow.named_actor_pairs)}).</p>
   <div id="net"></div>
-  <h3>Messages between named actors</h3>
-  ${table(["sender", "receiver", "messages", "channels", "first"], pairs.map((p) => [`<code>${esc(short(p.from))}</code>`, `<code>${esc(short(p.to))}</code>`, fmt(p.deliveries), fmt(p.channels), esc(p.first)]), true)}
+  <div id="conv"></div>
+  <h3>All sender-receiver pairs</h3>
+  <p class="small"><input id="pairQ" placeholder="Find an actor, e.g. cred 169" style="width:220px"> <label class="muted"><input type="checkbox" id="pairAll"> include anonymous runs</label> <span id="pairCount" class="muted"></span></p>
+  <p class="muted small">Click a pair to open its conversation. "Back" is how many messages went the other way.</p>
+  <div id="pairs"></div>
   <h3>Other links</h3>
   <p class="muted small">One identity carrying another's token before its use, two identities on one place, and replies.</p>
   ${table(["type", "a", "b", "detail"], [
@@ -165,7 +169,11 @@ function network(el, s) {
     ...s.shared_places.filter((p) => !p.same_record).slice(0, 10).map((p) => ["shared place", `<code>${esc(short(p.identities[0]))}</code>`, `<code>${esc(short(p.identities[1]))}</code>`, `<code>${esc(p.place)}</code> ${esc(p.first)} / ${esc(p.second)}: ${idlink(p.first_id)}, ${idlink(p.second_id)}`]),
     ...s.reply_edges.slice(0, 10).map((r) => ["replies", `<code>${esc(short(r[0]))}</code>`, `<code>${esc(short(r[1]))}</code>`, fmt(r[2])]),
   ])}`;
-  bindRows(el, (i) => goEvents({ actor: pairs[i].from }));
+  pairList();
+  let qt = null;
+  $("pairQ").addEventListener("input", () => { clearTimeout(qt); qt = setTimeout(() => pairList(), 200); });
+  $("pairAll").addEventListener("change", () => pairList());
+  if (S.conv) openConversation(S.conv.a, S.conv.b, false);
   const host = $("net"), pick = $("netN");
   const draw = () => drawNetwork(host, pairs.slice(0, +pick.value));
   pick.addEventListener("change", draw);
@@ -175,6 +183,68 @@ function network(el, s) {
     let w = host.clientWidth, t = null;
     new ResizeObserver(() => { if (Math.abs(host.clientWidth - w) > 24) { w = host.clientWidth; clearTimeout(t); t = setTimeout(draw, 120); } }).observe(host);
   }
+}
+
+// every pair, searchable, a page at a time
+async function pairList(offset = 0) {
+  const box = $("pairs");
+  if (!box) return;
+  const q = $("pairQ").value.trim(), all = $("pairAll").checked;
+  const r = await api(`/api/pairs?q=${encodeURIComponent(q)}${all ? "&all=1" : ""}&offset=${offset}&limit=50`);
+  if ($("pairQ").value.trim() !== q) return;   // a newer search is on its way
+  $("pairCount").textContent = `${fmt(r.total)} pair${r.total === 1 ? "" : "s"}`;
+  const rows = r.rows.map((p) => `<tr class="click" data-a="${esc(p.from)}" data-b="${esc(p.to)}"><td><code>${esc(short(p.from))}</code></td><td><code>${esc(short(p.to))}</code></td><td class="n">${fmt(p.messages)}</td><td class="n">${fmt(p.back)}</td><td class="n">${fmt(p.channels)}</td><td>${esc(p.first)}</td><td>${esc(p.last)}</td></tr>`).join("");
+  const head = "<tr><th>sender</th><th>receiver</th><th>messages</th><th>back</th><th>places</th><th>first</th><th>last</th></tr>";
+  if (offset === 0) box.innerHTML = r.total ? `<table><thead>${head}</thead><tbody>${rows}</tbody></table><p id="pairMore"></p>` : '<p class="muted">None found.</p>';
+  else box.querySelector("tbody").insertAdjacentHTML("beforeend", rows);
+  box.querySelectorAll("tr.click:not([data-bound])").forEach((tr) => { tr.dataset.bound = 1; tr.addEventListener("click", () => openConversation(tr.dataset.a, tr.dataset.b)); });
+  const shown = offset + r.rows.length, more = $("pairMore");
+  if (more) more.innerHTML = shown < r.total ? `<button id="pairMoreBtn">Show ${fmt(Math.min(50, r.total - shown))} more (${fmt(shown)} of ${fmt(r.total)} shown)</button>` : "";
+  if ($("pairMoreBtn")) $("pairMoreBtn").addEventListener("click", () => pairList(shown));
+}
+
+// the whole conversation between two actors: every message both ways, in time order, with record ids
+async function openConversation(a, b, scroll = true) {
+  const box = $("conv");
+  if (!box) return;
+  S.conv = { a, b };
+  box.innerHTML = '<p class="muted">Loading the conversation…</p>';
+  const c = await api(`/api/conversation?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`);
+  const PAGE = 200;
+  const item = (it) => {
+    const side = it.kind === "overwrite" ? "over" : it.from === a ? "left" : "right";
+    const lines = it.lines.length ? `<ul class="lines">${it.lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "";
+    return `<div class="msg ${side}">
+      <div class="mhead"><b>${esc(short(it.from))} → ${esc(short(it.to))}</b>${it.kind === "overwrite" ? ' <span class="tag">overwrite, not a message</span>' : ""} · <code>${esc(it.channel)}</code> · <span class="muted">${esc(it.how || "")}</span></div>
+      <div class="mrow"><span class="lab">wrote</span> ${idlink(it.write_id)} <span class="muted">${esc(it.write_time || "time unknown")}</span></div>
+      <div class="snip">${esc(it.write_text)}</div>
+      <div class="mrow"><span class="lab">${it.kind === "overwrite" ? "replaced in" : "read in"}</span> ${idlink(it.read_id)} <span class="muted">${esc(it.read_time || "time unknown")}${it.latency_h != null ? ` · ${esc(it.latency_h)} h later` : ""}</span></div>
+      <div class="snip">${esc(it.read_text)}</div>
+      ${lines ? `<div class="mrow"><span class="lab">${it.kind === "overwrite" ? "lines dropped" : "lines kept"}</span></div>${lines}` : ""}
+    </div>`;
+  };
+  box.innerHTML = `<div class="conv">
+    <div class="convhead">
+      <div><b>${esc(short(a))} ↔ ${esc(short(b))}</b><br><span class="muted small">${fmt(c.a_to_b)} message${c.a_to_b === 1 ? "" : "s"} from ${esc(short(a))} (left), ${fmt(c.b_to_a)} from ${esc(short(b))} (right)${c.overwrites ? `, ${fmt(c.overwrites)} overwrite${c.overwrites === 1 ? "" : "s"} (centre)` : ""} · ${fmt(c.places.length)} place${c.places.length === 1 ? "" : "s"} · ${esc(c.first || "")} to ${esc(c.last || "")}</span></div>
+      <div class="convbtns"><button id="convAsk">Ask the AI about this</button> <button id="convCopy">Copy ${fmt(c.record_ids.length)} record ids</button> <button id="convClose">Close</button></div>
+    </div>
+    <details class="convids"><summary>All ${fmt(c.record_ids.length)} record ids, in order</summary><div>${c.record_ids.map(idlink).join(" ")}</div></details>
+    <details class="convids"><summary>${fmt(c.places.length)} place${c.places.length === 1 ? "" : "s"}</summary><div>${c.places.map((p) => `<code>${esc(p)}</code>`).join(" ")}</div></details>
+    <div class="thread" id="thread">${c.items.slice(0, PAGE).map(item).join("")}</div>
+    ${c.items.length > PAGE ? `<button id="convMore">Show all ${fmt(c.items.length)}</button>` : ""}
+    ${c.truncated ? `<p class="muted small">Showing the first ${fmt(c.items.length)} of ${fmt(c.total)}.</p>` : ""}
+  </div>`;
+  if ($("convMore")) $("convMore").addEventListener("click", () => { $("thread").innerHTML = c.items.map(item).join(""); $("convMore").remove(); });
+  $("convClose").addEventListener("click", () => { S.conv = null; box.innerHTML = ""; });
+  $("convCopy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(c.record_ids.join("\n")); $("convCopy").textContent = "Copied"; }
+    catch { $("convCopy").textContent = "Copy failed"; }
+  });
+  $("convAsk").addEventListener("click", () => {
+    $("q").value = `Explain the conversation between ${a} and ${b}: what passed between them, in what order, through which places, and what it suggests. Cite record ids.`;
+    $("q").focus();
+  });
+  if (scroll) box.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 const textWidth = (() => {
@@ -280,7 +350,10 @@ function drawNetwork(host, pairs) {
       const x1 = a.x + boxOf(p.from), x2 = b.x - 2, h = (x2 - x1) / 2;
       d = `M${x1},${a.y} C${x1 + h},${a.y} ${x2 - h},${b.y} ${x2},${b.y}`;
     }
-    svg += `<path class="edge" data-a="${esc(p.from)}" data-b="${esc(p.to)}" d="${d}" fill="none" stroke="#2f6fb3" stroke-width="${width(p.deliveries)}" marker-end="url(#ah)"><title>${esc(short(p.from))} → ${esc(short(p.to))}: ${fmt(p.deliveries)} message${p.deliveries === 1 ? "" : "s"} over ${fmt(p.channels)} place${p.channels === 1 ? "" : "s"}, first ${esc(p.first)}</title></path>`;
+    const tip = `${esc(short(p.from))} → ${esc(short(p.to))}: ${fmt(p.deliveries)} message${p.deliveries === 1 ? "" : "s"} over ${fmt(p.channels)} place${p.channels === 1 ? "" : "s"}, first ${esc(p.first)}. Click to open the conversation.`;
+    svg += `<path class="edge" data-a="${esc(p.from)}" data-b="${esc(p.to)}" d="${d}" fill="none" stroke="#2f6fb3" stroke-width="${width(p.deliveries)}" marker-end="url(#ah)"/>`;
+    // a wider invisible copy, so a thin arrow is easy to hover and click
+    svg += `<path class="edgehit" data-a="${esc(p.from)}" data-b="${esc(p.to)}" d="${d}" fill="none" stroke="transparent" stroke-width="12"><title>${tip}</title></path>`;
   });
   const fill = ["#fdf0da", "#e7effa", "#eef1f4"], stroke = ["#e3a43b", "#2f6fb3", "#9aa5b1"];
   names.forEach((n) => {
@@ -312,9 +385,11 @@ function drawNetwork(host, pairs) {
     g.addEventListener("mouseenter", () => light((e) => e.dataset.a === n || e.dataset.b === n));
     g.addEventListener("mouseleave", clear);
   });
-  el.querySelectorAll(".edge").forEach((edge) => {
-    edge.addEventListener("mouseenter", () => light((e) => e === edge));
-    edge.addEventListener("mouseleave", clear);
+  el.querySelectorAll(".edgehit").forEach((hit) => {
+    const { a, b } = hit.dataset;
+    hit.addEventListener("mouseenter", () => light((e) => e.dataset.a === a && e.dataset.b === b));
+    hit.addEventListener("mouseleave", clear);
+    hit.addEventListener("click", () => openConversation(a, b));
   });
 }
 
@@ -559,10 +634,10 @@ async function ask(q) {
   try {
     const r = await api("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
       messages: S.chat, apiKey: $("apiKey").value, baseUrl: $("baseUrl").value, model: $("model").value,
-      selectedId: $("useSel").checked ? S.selected : null }) });
+      selectedId: $("useSel").checked ? S.selected : null, conversation: S.conv || null }) });
     wait.remove();
     S.chat.push({ role: "assistant", content: r.content });
-    addMsg("assistant", r.content, `${$("model").value}${r.context_ids?.length ? " · evidence sent: " + r.context_ids.join(", ") : ""}${r.usage?.total_tokens ? " · " + r.usage.total_tokens + " tokens" : ""}`);
+    addMsg("assistant", r.content, `${$("model").value}${r.context_ids?.length ? " · evidence sent: " + r.context_ids.join(", ") : ""}${S.conv ? ` · conversation sent: ${short(S.conv.a)} ↔ ${short(S.conv.b)}` : ""}${r.usage?.total_tokens ? " · " + r.usage.total_tokens + " tokens" : ""}`);
   } catch (e) { wait.remove(); S.chat.pop(); addMsg("error", e.message); }
   finally { $("send").disabled = false; }
 }

@@ -6,11 +6,17 @@ builds indexes so any single event can be traced: its parent chain, children, ch
 operations, messages in and out, and copies of the same program under other actors.
 """
 import os
+import re
 from collections import defaultdict
 
 from . import analysis, messages, model, packs, reconstruct
 
 PACK_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "packs")
+
+
+def _display(actor):
+    """The name the app shows ('cred 169' for '[CREDENTIAL 169]'), so search matches what people see."""
+    return re.sub(r"\[CREDENTIAL (\d+)\]", r"cred \1", actor) + " " + actor
 
 
 def list_packs():
@@ -71,10 +77,82 @@ class Session:
         for d in self.flow.get("_overwrites", []):
             self.over_in[d["read_id"]].append(d)
             self.over_out[d["write_id"]].append(d)
+        self._index_pairs()
         self.prefix = messages.program_prefix(ev)
         self.by_prefix = defaultdict(list)
         for rid, p in self.prefix.items():
             self.by_prefix[p].append(rid)
+
+    # ------------------------------------------------------------------ pairs and conversations
+    def _index_pairs(self):
+        self.by_pair = defaultdict(list)
+        for d in self.flow["_deliveries"]:
+            self.by_pair[(d["from"], d["to"])].append(d)
+        self.over_by_pair = defaultdict(list)
+        for d in self.flow.get("_overwrites", []):
+            self.over_by_pair[(d["from"], d["to"])].append(d)
+        rows = []
+        for (a, b), lst in self.by_pair.items():
+            rows.append({"from": a, "to": b, "messages": len(lst), "channels": len({d["channel"] for d in lst}),
+                         "back": len(self.by_pair.get((b, a), [])),
+                         "overwrites": len(self.over_by_pair.get((a, b), [])),
+                         "first": min(d["read_time"] for d in lst), "last": max(d["read_time"] for d in lst),
+                         "named": not a.startswith("run:") and not b.startswith("run:")})
+        rows.sort(key=lambda r: (-r["messages"], r["first"]))
+        iso = reconstruct.iso
+        for r in rows:
+            r["first"], r["last"] = iso(r["first"]), iso(r["last"])
+            r["_key"] = (_display(r["from"]) + " " + _display(r["to"])).lower()
+        self.pair_rows = rows
+
+    def pairs(self, q="", named_only=True, offset=0, limit=50):
+        """Every sender-receiver pair, busiest first. q matches either actor (also as 'cred 169')."""
+        terms = q.lower().split()
+        hits = [r for r in self.pair_rows if (r["named"] or not named_only) and all(t in r["_key"] for t in terms)]
+        return {"total": len(hits), "offset": offset,
+                "rows": [{k: v for k, v in r.items() if not k.startswith("_")} for r in hits[offset:offset + limit]]}
+
+    def _snippet(self, rid, channel, width=240):
+        """The part of a record around its mention of the channel, else its start."""
+        text = " ".join(self.by_id[rid].text.split())
+        key = channel.split(":", 1)[1] if ":" in channel else channel
+        if channel.startswith("place:"):
+            key = messages._short(key)
+        i = text.lower().find(key.lower()) if key else -1
+        if i < 0:
+            return text[:width] + ("…" if len(text) > width else "")
+        start = max(0, i - width // 3)
+        end = min(len(text), start + width)
+        return ("…" if start else "") + text[start:end] + ("…" if end < len(text) else "")
+
+    def conversation(self, a, b, limit=2000):
+        """Everything that passed between two actors, both directions, in time order, with record ids."""
+        iso = reconstruct.iso
+        items = []
+        for frm, to in ((a, b), (b, a)):
+            for kind, src in (("message", self.by_pair), ("overwrite", self.over_by_pair)):
+                for d in src.get((frm, to), []):
+                    items.append((d["read_time"], d["write_time"], {
+                        "kind": kind, "from": frm, "to": to, "channel": d["channel"], "how": d.get("how"),
+                        "write_id": d["write_id"], "write_time": iso(d["write_time"]),
+                        "read_id": d["read_id"], "read_time": iso(d["read_time"]), "latency_h": d["latency_h"],
+                        "lines": d.get("lines", []),
+                        "write_text": self._snippet(d["write_id"], d["channel"]),
+                        "read_text": self._snippet(d["read_id"], d["channel"])}))
+        items.sort(key=lambda x: (x[0] if x[0] is not None else float("inf"), x[1] or 0))
+        items = [x[2] for x in items]
+        ids = []
+        for it in items:
+            for rid in (it["write_id"], it["read_id"]):
+                if rid not in ids:
+                    ids.append(rid)
+        count = lambda f, t, k: sum(1 for x in items if x["from"] == f and x["to"] == t and x["kind"] == k)
+        return {"a": a, "b": b, "total": len(items),
+                "a_to_b": count(a, b, "message"), "b_to_a": count(b, a, "message"),
+                "overwrites": sum(1 for x in items if x["kind"] == "overwrite"),
+                "places": sorted({x["channel"] for x in items}),
+                "first": items[0]["read_time"] if items else None, "last": items[-1]["read_time"] if items else None,
+                "record_ids": ids, "items": items[:limit], "truncated": len(items) > limit}
 
     # ------------------------------------------------------------------ summary
     def summary(self):

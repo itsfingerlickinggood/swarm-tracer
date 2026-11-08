@@ -146,6 +146,18 @@ def _lines(text):
     return {s for s in (x.strip() for x in text.splitlines()) if len(s) >= 8}
 
 
+def _in_order(text, wanted, n=3, width=160):
+    """Up to n of the wanted lines, in the order they appear in text (a sample to show the reader)."""
+    out = []
+    for x in text.splitlines():
+        s = x.strip()
+        if s in wanted and s not in out:
+            out.append(s)
+            if len(out) == n:
+                break
+    return [s if len(s) <= width else s[:width - 1] + "…" for s in out]
+
+
 def _how(w, r):
     if r[1] == "read":
         return "read in code" if not w[0].startswith("place:") else "named the place"
@@ -214,9 +226,11 @@ def deliveries(ops, fam=None, texts=None):
                         kept = new & _lines(texts.get(r[6], ""))
                         if not kept:
                             d["how"] = f"dropped all {len(new)} lines it added"
+                            d["lines"] = _in_order(texts.get(w[6], ""), new)
                             overwrites.append(d)
                             continue
                         d["how"] = f"kept {len(kept)} of {len(new)} lines it added"
+                        d["lines"] = _in_order(texts.get(r[6], ""), kept)
                     else:
                         d["how"] = "edited after it (it added no lines to compare)"
                 out.append(d)
