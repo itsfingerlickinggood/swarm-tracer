@@ -407,6 +407,12 @@ document.addEventListener("click", (e) => {
 
 // ------------------------------------------------------------------ the inspector (right top): a record, an actor or a place
 const INS = { stack: [] };
+// features add sections to the Inspector: window.INSPECTOR_EXTRAS.push((kind, key, data) => html), and
+// window.INSPECTOR_BIND.push((host, kind, key) => {...}) to wire them after render
+window.INSPECTOR_EXTRAS = window.INSPECTOR_EXTRAS || [];
+window.INSPECTOR_BIND = window.INSPECTOR_BIND || [];
+const extras = (kind, key, data) => window.INSPECTOR_EXTRAS.map((f) => { try { return f(kind, key, data) || ""; } catch (e) { console.error(e); return ""; } }).join("");
+const bindExtras = (host, kind, key) => window.INSPECTOR_BIND.forEach((f) => { try { f(host, kind, key); } catch (e) { console.error(e); } });
 function inspect(kind, key, render) {
   const cur = INS.stack.at(-1);
   if (!cur || cur.kind !== kind || cur.key !== key) INS.stack.push({ kind, key });
@@ -420,13 +426,13 @@ function inspect(kind, key, render) {
 function selectEvent(id) {
   if (!id) return;
   S.selected = id;
-  inspect("record", id, async (host) => { host.innerHTML = recordDossier(await api("/api/event?id=" + encodeURIComponent(id))); });
+  inspect("record", id, async (host) => { const t = await api("/api/event?id=" + encodeURIComponent(id)); host.innerHTML = recordDossier(t) + extras("record", id, t); bindExtras(host, "record", id); });
 }
 function inspectActor(a) {
-  inspect("actor", a, async (host) => { host.innerHTML = actorDossier(await cached("/api/actor?a=" + encodeURIComponent(a))); bindDossier(host); });
+  inspect("actor", a, async (host) => { const p = await cached("/api/actor?a=" + encodeURIComponent(a)); host.innerHTML = actorDossier(p) + extras("actor", a, p); bindDossier(host); bindExtras(host, "actor", a); });
 }
 function inspectPlace(ch) {
-  inspect("place", ch, async (host) => { host.innerHTML = placeDossier(await cached("/api/place?ch=" + encodeURIComponent(ch))); bindDossier(host); });
+  inspect("place", ch, async (host) => { const p = await cached("/api/place?ch=" + encodeURIComponent(ch)); host.innerHTML = placeDossier(p) + extras("place", ch, p); bindDossier(host); bindExtras(host, "place", ch); });
 }
 function bindDossier(host) {
   host.querySelectorAll("[data-goevents]").forEach((b) => b.addEventListener("click", () => goEvents(JSON.parse(b.dataset.goevents))));

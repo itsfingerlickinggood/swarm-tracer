@@ -40,7 +40,7 @@ import traceback
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from . import ai, insight
+from . import ai, extensions, insight
 from .session import Session, list_packs
 
 APP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app")
@@ -63,6 +63,9 @@ VIEWS = {
     "search": lambda s, q: insight.omni(s, q.get("q", "")),
     "gaps": lambda s, q: {"rows": insight.gap_facts(s)},
 }
+
+
+XGET, XPOST = extensions.routes()
 
 
 def run_load(path, pack, mapping, name):
@@ -126,6 +129,8 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/conversation":
                 s = self.need_session()
                 return self.send_json(s.conversation(q.get("a", ""), q.get("b", "")))
+            if u.path.startswith("/api/x/") and u.path[7:] in XGET:
+                return self.send_json(XGET[u.path[7:]](STATE, q))
             if u.path.startswith("/api/") and u.path[5:] in VIEWS:
                 s = self.need_session()
                 return self.send_json(VIEWS[u.path[5:]](s, q))
@@ -169,6 +174,13 @@ class Handler(BaseHTTPRequestHandler):
                 return self.stage(q)
             if u.path == "/api/analyze":
                 return self.analyze_staged(q)
+            if u.path.startswith("/api/x/") and u.path[7:] in XPOST:
+                try:
+                    return self.send_json(XPOST[u.path[7:]](STATE, q, self.read_body()))
+                except LookupError as e:
+                    return self.send_json({"error": str(e)}, 409)
+                except ValueError as e:
+                    return self.send_json({"error": str(e)}, 400)
             if u.path == "/api/ai":
                 return self.ai_chat()
             if u.path == "/api/ai/models":

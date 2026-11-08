@@ -14,6 +14,11 @@
 <link rel="stylesheet" href="views/events.css">
 <link rel="stylesheet" href="views/gaps.css">
 <link rel="stylesheet" href="views/ai.css">
+<link rel="stylesheet" href="views/readers.css">
+<link rel="stylesheet" href="views/agents.css">
+<link rel="stylesheet" href="views/live.css">
+<link rel="stylesheet" href="views/casework.css">
+<link rel="stylesheet" href="views/compare.css">
 </head>
 <body>
 <header class="top">
@@ -25,6 +30,8 @@
   <div id="ribbon" class="ribbon"></div>
   <div class="omni"><input id="omni" placeholder="Find an actor, place or record id…" autocomplete="off" spellcheck="false"><div id="omniout" class="omniout" hidden></div></div>
   <span id="status" class="status" role="status"></span>
+  <button id="livebtn" class="loadbtn" type="button" title="Follow a growing trace and watch alerts fire">Live</button>
+  <button id="casebtn" class="loadbtn" type="button" title="Your pinned items and notes; export a case file">Case file <span id="casecount"></span></button>
   <button id="glossbtn" class="loadbtn" type="button" title="What every term in the app means">Glossary</button>
   <button id="loadbtn" class="loadbtn" type="button">Load data</button>
   <div id="loadpanel" class="loadpanel" hidden>
@@ -46,6 +53,7 @@
         <p class="muted small">Leave blank to detect by name. In JSONL, a dotted path works, e.g. meta.agent.</p>
       </details>
       <button type="submit" id="analyze" class="primary">Analyze</button>
+      <button type="button" id="packbuild" class="link">Build a pack from a sample…</button>
     </form>
   </div>
 </header>
@@ -60,6 +68,8 @@
       <button data-tab="spread">Spread</button>
       <button data-tab="early">Early flag</button>
       <button data-tab="events">Events</button>
+      <button data-tab="agents">Agents</button>
+      <button data-tab="compare">Compare</button>
       <button data-tab="gaps">What's missing</button>
     </nav>
     <div class="body" id="left"><div class="empty">Load a trace file (CSV or JSONL) to begin. Any agent trace works.</div></div>
@@ -110,5 +120,10 @@
 <script src="views/events.js"></script>
 <script src="views/gaps.js"></script>
 <script src="ai.js"></script>
+<script src="views/readers.js"></script>
+<script src="views/agents.js"></script>
+<script src="views/live.js"></script>
+<script src="views/casework.js"></script>
+<script src="views/compare.js"></script>
 </body>
 </html>
