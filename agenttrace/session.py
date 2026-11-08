@@ -298,6 +298,7 @@ class Session:
         out = []
         total = 0
         kinds, intents_c, actors_c, hours = Counter(), Counter(), Counter(), Counter()
+        by_hour = defaultdict(Counter)   # hour -> what the matches are (intent for actions, else kind)
         for e in self.events:
             if kind and e.kind != kind:
                 continue
@@ -309,9 +310,16 @@ class Session:
                 continue
             if channel_only and not self.ops_by_id.get(e.id):
                 continue
-            if hour:
+            if hour:   # one hour ("2026-07-11 04") or an inclusive range ("2026-07-11 04..2026-07-11 09")
                 t = self.rec["_times"].get(e.id)
-                if t is None or not reconstruct.iso(t).startswith(hour):
+                if t is None:
+                    continue
+                h = reconstruct.iso(t)[:13]
+                if ".." in hour:
+                    lo, hi = hour.split("..", 1)
+                    if not (lo <= h <= hi):
+                        continue
+                elif not h.startswith(hour):
                     continue
             if ql and ql not in e.id.lower() and ql not in e.text.lower() \
                     and ql not in (e.actor or "").lower() and ql not in (e.channel or "").lower():
@@ -326,11 +334,14 @@ class Session:
             actors_c[self.actor[e.id][0]] += 1
             t = self.rec["_times"].get(e.id)
             if t is not None:
-                hours[reconstruct.iso(t)[:13]] += 1
+                hk = reconstruct.iso(t)[:13]
+                hours[hk] += 1
+                by_hour[hk][it or "kind:" + (e.kind or "record")] += 1
         return {"total": total, "offset": offset, "rows": out,
                 "facets": {"kind": dict(kinds.most_common()), "intent": dict(intents_c.most_common()),
                            "actor": [[a, n] for a, n in actors_c.most_common(12)]},
-                "hist": sorted(hours.items()), "timed": sum(hours.values())}
+                "hist": sorted(hours.items()), "timed": sum(hours.values()),
+                "hist_by": [[h, dict(by_hour[h])] for h in sorted(by_hour)]}
 
     def trace(self, rid, text_limit=20000):
         e = self.by_id.get(rid)

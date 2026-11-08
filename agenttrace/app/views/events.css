@@ -18,3 +18,7 @@
 .evrow .io{margin-left:auto;display:flex;gap:6px;font-size:11px}
 .evrow .io .in{color:var(--actor)} .evrow .io .out{color:var(--accent)} .evrow .io .ops{color:var(--place)}
 .pager{margin:8px 0}
+svg.evh{cursor:crosshair;user-select:none}
+svg.evh .hhit:hover{fill:rgba(47,111,179,.10)}
+.evleg .lk{cursor:pointer} .evleg .lk:hover{text-decoration:underline}
+.evhnote{margin:4px 0 0}

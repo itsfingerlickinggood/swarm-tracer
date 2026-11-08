@@ -16,8 +16,8 @@
       <label class="chk"><input type="checkbox" id="fc"${S.ev.channels ? " checked" : ""}> touches a place</label>
       <span id="evchips"></span>
     </div>
-    <div class="grid2 evtop">
-      ${card("When", '<div id="evhist"></div>', { sub: "Matching records per hour (UTC; most times are estimated). Click a bar to keep only that hour." })}
+    <div class="evtop">
+      ${card("When", '<div id="evhist"></div>', { sub: `Matching records per hour, stacked by what they do (UTC; most times are ${term("dated", "estimated")}). Hover an hour for its breakdown; click it to keep only that hour, or drag across hours to keep a range.` })}
       ${card("What they are", '<div id="evfacets"></div>', { sub: "Click a part to filter." })}
     </div>
     <div id="evlist" class="muted">Loading…</div>`;
@@ -34,7 +34,10 @@
     const box = $("evchips"); if (!box) return;
     const c = [];
     if (S.ev.actor) c.push(["actor", `actor ${ent.actor(S.ev.actor)}`]);
-    if (S.ev.hour) c.push(["hour", `hour ${esc(when(toTime(S.ev.hour)))}`]);
+    if (S.ev.hour) {
+      const [a, b] = S.ev.hour.split("..");
+      c.push(["hour", b ? `${esc(when(toTime(a)))} to ${esc(when(toTime(b) + 3600e3))}` : `hour ${esc(when(toTime(a)))}`]);
+    }
     box.innerHTML = c.map(([k, h]) => `<span class="fchip">${h}<button class="link" data-clear="${k}" title="Remove">×</button></span>`).join("");
     box.querySelectorAll("[data-clear]").forEach((b) => b.addEventListener("click", () => { S.ev[b.dataset.clear] = ""; S.ev.offset = 0; loadEvents(); }));
   }
@@ -47,7 +50,7 @@
       const r = await api("/api/events?" + p);
       if (!$("evlist")) return;
       $("evtotal").textContent = `${fmt(r.total)} matching · ${fmt(r.timed)} with a time`;
-      hist($("evhist"), r.hist);
+      hist($("evhist"), r.hist, r.hist_by);
       facets($("evfacets"), r.facets, r.total);
       const rows = r.rows;
       host.className = "";
@@ -63,22 +66,94 @@
     } catch (e) { host.innerHTML = `<p class="warn">${esc(e.message)}</p>`; }
   }
 
-  function hist(host, h) {
+  // what a slice of the chart is: an intent for actions, a record kind otherwise
+  const KIND_SHADES = ["#9aa5b1", "#c3cad2", "#7d8a97", "#dde2e8"];
+  const sliceName = (k) => k.startsWith("kind:") ? `${k.slice(5)} (not an action)` : human(k);
+  function sliceColor(k, kindOrder) {
+    if (!k.startsWith("kind:")) return intentColor(k);
+    return KIND_SHADES[Math.max(0, kindOrder.indexOf(k)) % KIND_SHADES.length];
+  }
+  const HOUR = 3600e3;
+  const hourKey = (t) => new Date(t).toISOString().slice(0, 13).replace("T", " ");
+  function hist(host, h, byHour) {
     if (!host) return;
     const sp = span();
-    if (!h.length || !sp) { host.innerHTML = '<p class="muted small">None of the matching events has a time.</p>'; return; }
-    const W = Math.max(260, host.clientWidth || 340), H = 110, x0 = 34, x1 = W - 6, yT = 6, yB = H - 20;
+    if (!h.length || !sp) { host.innerHTML = '<p class="muted small">None of the matching records has a time, so they cannot be placed on this chart.</p>'; return; }
+    const by = new Map((byHour || []).map(([k, c]) => [k, c]));
+    const totals = {};
+    by.forEach((c) => Object.entries(c).forEach(([k, v]) => { totals[k] = (totals[k] || 0) + v; }));
+    const keys = Object.keys(totals).sort((a, b) => (a.startsWith("kind:") - b.startsWith("kind:")) || (a === "other") - (b === "other") || totals[b] - totals[a]);
+    const kindOrder = keys.filter((k) => k.startsWith("kind:"));
+    const W = Math.max(300, host.clientWidth || 520), H = 210, x0 = 44, x1 = W - 8, yT = 28, yB = H - 34;
     const [t0, t1] = sp;
     const X = (t) => x0 + (t - t0) / (t1 - t0) * (x1 - x0);
-    const mx = Math.max(...h.map((x) => x[1])), Y = (v) => yB - v / mx * (yB - yT);
-    const bw = Math.max(1, (x1 - x0) / ((t1 - t0) / 3600e3) - 0.5);
-    let svg = `<svg class="chart" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
-    [0, mx].forEach((v) => { svg += `<text x="${x0 - 5}" y="${Y(v) + 3.5}" text-anchor="end" font-size="10" fill="${QUIET}">${fmt(v)}</text>`; });
-    h.forEach(([k, v]) => { const t = toTime(k); svg += `<rect data-h="${esc(k)}" x="${X(t).toFixed(1)}" y="${Y(v).toFixed(1)}" width="${bw.toFixed(2)}" height="${(yB - Y(v)).toFixed(1)}" fill="${S.ev.hour === k ? HARM : ACCENT}" class="hbar"><title>${esc(when(t))}: ${fmt(v)}</title></rect>`; });
+    const mx = Math.max(...h.map((x) => x[1]));
+    const step = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000].find((s) => mx / s <= 4) || Math.ceil(mx / 4);
+    const top = Math.ceil(mx / step) * step, Y = (v) => yB - v / top * (yB - yT);
+    const bw = Math.max(1, (x1 - x0) / ((t1 - t0) / HOUR) - 0.6);
+    const sel = S.ev.hour || "";
+    const [selA, selB] = sel.includes("..") ? sel.split("..") : [sel, sel];
+    const peak = h.reduce((a, x) => (x[1] > a[1] ? x : a), h[0]);
+    let svg = `<svg class="chart evh" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Matching records per hour">`;
+    for (let v = 0; v <= top; v += step) svg += `<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="${GRID}"/><text x="${x0 - 6}" y="${Y(v) + 3.5}" text-anchor="end" font-size="10" fill="${QUIET}">${fmt(v)}</text>`;
+    svg += `<text x="10" y="${(yT + yB) / 2}" font-size="10" fill="${QUIET}" transform="rotate(-90 10 ${(yT + yB) / 2})" text-anchor="middle">records per hour</text>`;
+    // the incident's own turning points
+    let lastEnd = -1e9, row = 0;
+    (S.summary?.phases || []).filter((p) => ["surge", "peak", "stop"].includes(p.key)).forEach((p) => {
+      const x = X(toTime(p.time)), label = { surge: "surge begins", peak: "busiest hour", stop: "falls below 15%" }[p.key];
+      row = x < lastEnd + 4 ? row + 1 : 0;           // a label that would touch the last one goes on the next line
+      lastEnd = x + 3 + textWidth(label, "9.5px -apple-system, system-ui, sans-serif");
+      svg += `<line x1="${x}" x2="${x}" y1="${yT - 4 + row * 11}" y2="${yB}" stroke="${INK}" stroke-opacity=".35" stroke-dasharray="3 3"/><text x="${x + 3}" y="${yT - 6 + row * 11}" font-size="9.5" fill="${QUIET}">${esc({ surge: "surge begins", peak: "busiest hour", stop: "falls below 15%" }[p.key])}<title>${esc(p.name)} ${esc(p.time)}${p.why ? ": " + esc(p.why) : ""}</title></text>`;
+    });
+    h.forEach(([k, v]) => {
+      const t = toTime(k), x = X(t), on = sel && k >= selA && k <= selB;
+      const c = by.get(k) || { all: v };
+      let y = yB;
+      keys.filter((key) => c[key]).forEach((key) => {
+        const hh = c[key] / top * (yB - yT); y -= hh;
+        svg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(2)}" height="${Math.max(0.5, hh).toFixed(2)}" fill="${sliceColor(key, kindOrder)}" opacity="${sel && !on ? 0.28 : 1}" pointer-events="none"/>`;
+      });
+      if (on) svg += `<rect x="${(x - 0.5).toFixed(1)}" y="${yT}" width="${(bw + 1).toFixed(2)}" height="${yB - yT}" fill="${ACCENT}" fill-opacity=".07" pointer-events="none"/>`;
+      const parts = keys.filter((key) => c[key]).map((key) => `${sliceName(key)}: ${fmt(c[key])}`).join("\n");
+      svg += `<rect class="hhit" data-h="${esc(k)}" x="${x.toFixed(1)}" y="${yT}" width="${Math.max(bw, 2).toFixed(2)}" height="${yB - yT}" fill="transparent"><title>${esc(when(t))}–${esc(clock(t + HOUR))} UTC: ${fmt(v)} records\n${esc(parts)}\nClick to keep only this hour; drag to keep a range.</title></rect>`;
+    });
     svg += `<line x1="${x0}" x2="${x1}" y1="${yB}" y2="${yB}" stroke="${AXIS}"/>`;
-    timeTicks(t0, t1, Math.max(2, Math.floor(W / 90))).forEach((k) => { svg += `<text x="${X(k.t)}" y="${H - 5}" text-anchor="middle" font-size="10" fill="${QUIET}">${esc(k.label)}</text>`; });
-    host.innerHTML = svg + "</svg>";
-    host.querySelectorAll("rect[data-h]").forEach((r) => r.addEventListener("click", () => { S.ev.hour = S.ev.hour === r.dataset.h ? "" : r.dataset.h; S.ev.offset = 0; loadEvents(); }));
+    timeTicks(t0, t1, Math.max(3, Math.floor((x1 - x0) / 80))).forEach((k) => { svg += `<line x1="${X(k.t)}" x2="${X(k.t)}" y1="${yB}" y2="${yB + 4}" stroke="${AXIS}"/><text x="${X(k.t)}" y="${yB + 16}" text-anchor="middle" font-size="10" fill="${QUIET}">${esc(k.label)}</text>`; });
+    svg += `<rect class="evbrush" x="0" y="${yT}" width="0" height="${yB - yT}" fill="${ACCENT}" fill-opacity=".14" stroke="${ACCENT}" stroke-opacity=".5" visibility="hidden" pointer-events="none"/>`;
+    const shown = keys.slice(0, 14);
+    const rest = keys.slice(14).reduce((a, k) => a + totals[k], 0);
+    host.innerHTML = svg + "</svg>" +
+      `<div class="legend evleg">${shown.map((k) => `<span${k.startsWith("kind:") ? "" : ` class="lk" data-li="${esc(k)}" title="Keep only: ${esc(intentName(k))}"`}><i style="background:${sliceColor(k, kindOrder)}"></i>${esc(sliceName(k))} <b>${fmt(totals[k])}</b></span>`).join("")}${rest ? `<span class="muted">+ ${fmt(rest)} more</span>` : ""}</div>` +
+      `<p class="small muted evhnote">Counts in the key are the matching records that have a time. Peak: ${esc(when(toTime(peak[0])))} UTC, ${fmt(peak[1])} records.${sel ? ` Showing ${sel.includes("..") ? `${esc(when(toTime(selA)))} to ${esc(when(toTime(selB) + HOUR))}` : `the hour from ${esc(when(toTime(selA)))}`}. <button type="button" class="link" id="evhclear">show every hour</button>` : ""}</p>`;
+    host.querySelectorAll("[data-li]").forEach((el) => el.addEventListener("click", () => { S.ev.intent = el.dataset.li; $("fi").value = el.dataset.li; S.ev.offset = 0; loadEvents(); }));
+    if ($("evhclear")) $("evhclear").addEventListener("click", () => { S.ev.hour = ""; S.ev.offset = 0; loadEvents(); });
+    // click an hour to keep it; drag across hours to keep a range
+    const el = host.querySelector("svg"), brush = el.querySelector(".evbrush");
+    const toX = (ev) => { const r = el.getBoundingClientRect(); return (ev.clientX - r.left) * W / r.width; };
+    const tAt = (x) => t0 + (Math.max(x0, Math.min(x1, x)) - x0) / (x1 - x0) * (t1 - t0);
+    let start = null;
+    // pointer events with capture: the release is seen even if the pointer leaves the chart
+    el.addEventListener("pointerdown", (ev) => { start = toX(ev); ev.preventDefault(); try { el.setPointerCapture(ev.pointerId); } catch (e) { /* not capturable */ } });
+    el.addEventListener("pointerup", (ev) => finish(ev));
+    el.addEventListener("pointercancel", () => { start = null; brush.setAttribute("visibility", "hidden"); });
+    el.addEventListener("pointermove", (ev) => {
+      if (start == null) return;
+      const a = Math.min(start, toX(ev)), b = Math.max(start, toX(ev));
+      brush.setAttribute("x", a); brush.setAttribute("width", b - a); brush.setAttribute("visibility", b - a > 4 ? "visible" : "hidden");
+    });
+    function finish(ev) {
+      if (start == null) return;
+      const end = toX(ev), a = Math.min(start, end), b = Math.max(start, end);
+      start = null; brush.setAttribute("visibility", "hidden");
+      if (b - a > 4) {
+        const ha = hourKey(Math.floor(tAt(a) / HOUR) * HOUR), hb = hourKey(Math.floor(tAt(b) / HOUR) * HOUR);
+        S.ev.hour = ha === hb ? ha : `${ha}..${hb}`;
+      } else {
+        const hk = hourKey(Math.floor(tAt(a) / HOUR) * HOUR);
+        S.ev.hour = S.ev.hour === hk ? "" : hk;
+      }
+      S.ev.offset = 0; loadEvents();
+    }
   }
 
   function facets(host, f, total) {
