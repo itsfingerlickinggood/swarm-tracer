@@ -215,7 +215,7 @@ async function openConversation(a, b, scroll = true) {
     const side = it.kind === "overwrite" ? "over" : it.from === a ? "left" : "right";
     const lines = it.lines.length ? `<ul class="lines">${it.lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "";
     return `<div class="msg ${side}">
-      <div class="mhead"><b>${esc(short(it.from))} → ${esc(short(it.to))}</b>${it.kind === "overwrite" ? ' <span class="tag">overwrite, not a message</span>' : ""} · <code>${esc(it.channel)}</code> · <span class="muted">${esc(it.how || "")}</span></div>
+      <div class="mhead"><b>${esc(short(it.from))} → ${esc(short(it.to))}</b>${it.kind === "overwrite" ? ' <span class="tag">overwrite, not a message</span>' : ""}${it.merged_place ? ' <span class="tag" title="The redaction kept only the owner of this place, so it may join several places: the write and the read may not be the same message.">place may be merged by redaction</span>' : ""} · <code>${esc(it.channel)}</code> · <span class="muted">${esc(it.how || "")}</span></div>
       <div class="mrow"><span class="lab">wrote</span> ${idlink(it.write_id)} <span class="muted">${esc(it.write_time || "time unknown")}</span></div>
       <div class="snip">${esc(it.write_text)}</div>
       <div class="mrow"><span class="lab">${it.kind === "overwrite" ? "replaced in" : "read in"}</span> ${idlink(it.read_id)} <span class="muted">${esc(it.read_time || "time unknown")}${it.latency_h != null ? ` · ${esc(it.latency_h)} h later` : ""}</span></div>
@@ -225,7 +225,7 @@ async function openConversation(a, b, scroll = true) {
   };
   box.innerHTML = `<div class="conv">
     <div class="convhead">
-      <div><b>${esc(short(a))} ↔ ${esc(short(b))}</b><br><span class="muted small">${fmt(c.a_to_b)} message${c.a_to_b === 1 ? "" : "s"} from ${esc(short(a))} (left), ${fmt(c.b_to_a)} from ${esc(short(b))} (right)${c.overwrites ? `, ${fmt(c.overwrites)} overwrite${c.overwrites === 1 ? "" : "s"} (centre)` : ""} · ${fmt(c.places.length)} place${c.places.length === 1 ? "" : "s"} · ${esc(c.first || "")} to ${esc(c.last || "")}</span></div>
+      <div><b>${esc(short(a))} ↔ ${esc(short(b))}</b><br><span class="muted small">${fmt(c.a_to_b)} message${c.a_to_b === 1 ? "" : "s"} from ${esc(short(a))} (left), ${fmt(c.b_to_a)} from ${esc(short(b))} (right)${c.overwrites ? `, ${fmt(c.overwrites)} overwrite${c.overwrites === 1 ? "" : "s"} (centre)` : ""}${c.on_merged_places ? `; ${fmt(c.on_merged_places)} on places the redaction may have merged` : ""} · ${fmt(c.places.length)} place${c.places.length === 1 ? "" : "s"} · ${esc(c.first || "")} to ${esc(c.last || "")}</span></div>
       <div class="convbtns"><button id="convAsk">Ask the AI about this</button> <button id="convCopy">Copy ${fmt(c.record_ids.length)} record ids</button> <button id="convClose">Close</button></div>
     </div>
     <details class="convids"><summary>All ${fmt(c.record_ids.length)} record ids, in order</summary><div>${c.record_ids.map(idlink).join(" ")}</div></details>

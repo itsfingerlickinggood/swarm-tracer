@@ -128,12 +128,15 @@ class Session:
     def conversation(self, a, b, limit=2000):
         """Everything that passed between two actors, both directions, in time order, with record ids."""
         iso = reconstruct.iso
+        # places the pack marks as coarse (a redaction that kept only the owner) may join several places
+        coarse = [re.compile(p) for p in self.pack.raw.get("coarse_channels", [])]
         items = []
         for frm, to in ((a, b), (b, a)):
             for kind, src in (("message", self.by_pair), ("overwrite", self.over_by_pair)):
                 for d in src.get((frm, to), []):
                     items.append((d["read_time"], d["write_time"], {
                         "kind": kind, "from": frm, "to": to, "channel": d["channel"], "how": d.get("how"),
+                        "merged_place": any(r.search(d["channel"]) for r in coarse),
                         "write_id": d["write_id"], "write_time": iso(d["write_time"]),
                         "read_id": d["read_id"], "read_time": iso(d["read_time"]), "latency_h": d["latency_h"],
                         "lines": d.get("lines", []),
@@ -150,6 +153,7 @@ class Session:
         return {"a": a, "b": b, "total": len(items),
                 "a_to_b": count(a, b, "message"), "b_to_a": count(b, a, "message"),
                 "overwrites": sum(1 for x in items if x["kind"] == "overwrite"),
+                "on_merged_places": sum(1 for x in items if x["merged_place"]),
                 "places": sorted({x["channel"] for x in items}),
                 "first": items[0]["read_time"] if items else None, "last": items[-1]["read_time"] if items else None,
                 "record_ids": ids, "items": items[:limit], "truncated": len(items) > limit}
