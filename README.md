@@ -37,10 +37,11 @@ The datasets are not in this repository.
 
 | Folder | What it is |
 |---|---|
-| `agenttrace/` | The general tool and the Swarm Tracer app: loader, analysis, time and identity reconstruction, message flow, claims checking, labeling, AI investigator, tests |
-| `analyzer/` | Earlier single-purpose scripts for the Swarm Traces release (command cards, first flow reconstruction) kept for reference |
-| `forensics/` | First-pass scripts and notes: findings, a study of existing tools, clustering, quantification |
+| `agenttrace/` | The tool and the Swarm Tracer app: loader, analysis, time and identity reconstruction, message flow, conversations, claims checking, labeling, AI investigator, tests |
 | `reports/findings/` | A written summary of what the swarm did, with record ids |
+| `docs/tool-study.md` | Notes on existing trace viewers and what they lack for swarm forensics |
+
+Earlier prototypes (`analyzer/`, `forensics/`) were replaced by `agenttrace` and removed; they remain in the git history.
 
 ## How a message is counted
 

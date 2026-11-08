@@ -1,5 +1,5 @@
 {
-  "name": "code traces (swarm pack, from analyzer/rules/default.json)",
+  "name": "code traces (Swarm Traces release)",
   "description": "Pattern rules for code-like agent traces.",
   "behaviors": [
     {

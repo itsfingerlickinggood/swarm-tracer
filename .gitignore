@@ -8,7 +8,6 @@ full-wiki-logs/
 # Generated outputs (rebuild with the commands in the README)
 reports/*
 !reports/findings/
-forensics/out/
 
 # Local tools, environments, and scratch
 tools/

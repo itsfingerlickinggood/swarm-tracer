@@ -28,7 +28,7 @@ Written before removal, so what we learned about each tool is kept. Each entry s
 - **What it does:** a benchmark asking whether an agent can investigate raw logs of misbehaving agents and recover what human investigators found. It has three benchmarks: a German wiki report, a Transluce urlquery report, and an AI Village report. Each has a judge that scores coverage of known findings.
 - **Install:** `uv sync --frozen` (Python 3.11+, uv, Docker). Runs use Inspect and a Docker sandbox.
 - **What we did:** the test suite passes (1,609 passed, 3 skipped). We did not run the evals; Docker was not set up for that. Its static pages are its own benchmark results, not our data.
-- **Takeaway:** the useful part for us is the scoring idea: a list of known findings and a judge that checks coverage. We can build the same kind of ground truth from the report's cited records (see `forensics/FINDINGS.md`).
+- **Takeaway:** the useful part for us is the scoring idea: a list of known findings and a judge that checks coverage. We can build the same kind of ground truth from the report's cited records (this became `agenttrace/claims.py`, which checks the report against the traces).
 
 ## clustergrep
 - **What it does:** a grep for concepts instead of strings. A lexical thesaurus (WordNet) picks the terms to look for once, and matching is then deterministic. Each match shows its conceptual distance.
@@ -44,6 +44,6 @@ Written before removal, so what we learned about each tool is kept. Each entry s
 
 ## Independent tool: what to build
 - **Input:** `redacted.jsonl` only, with no external package.
-- **Analysis:** the existing `forensics/swarm_forensics.py` (handles, edges, replay rules, investigator gaps).
+- **Analysis:** the first-pass forensics script (handles, edges, replay rules, investigator gaps), since replaced by `agenttrace`.
 - **View:** one static HTML file generated from the analysis, with a timeline, a handle table, a record viewer and the gap list. Served from a local folder with the Python standard library.
 - **Evaluation:** the report's cited records as anchors, plus our own gap counts.
