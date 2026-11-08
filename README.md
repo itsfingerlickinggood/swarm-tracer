@@ -4,6 +4,10 @@ Forensics for AI agent swarms. Built for the Apart Research Swarm Alignment Hack
 
 The main tool is **agenttrace** and its web app, **Swarm Tracer**. It works on any agent trace (JSONL, JSON, CSV, or a folder of linked files), not only the Swarm Traces release.
 
+![Swarm Tracer walkthrough: the overview, the Inspector, who talked to whom, the early-flag replay stepping through the incident, swimlanes, the Agents tab and a record explained](docs/assets/walkthrough.gif)
+
+▶ **[Watch the walkthrough video (MP4, 24 s)](https://itsfingerlickinggood.github.io/swarm-tracer/assets/walkthrough.mp4)** · [Read the report (PDF)](docs/assets/Swarm_Tracer_report.pdf)
+
 **Website and documentation:** <https://itsfingerlickinggood.github.io/swarm-tracer/>
 
 ## Quick start
@@ -37,6 +41,20 @@ python3 -m unittest discover -s agenttrace/tests -t .                 # tests
 - **Compare** two swarms, from a library of past incidents. **Ground-truth mode** scores the tool on a simulated swarm whose true links are known.
 - **AI investigator** (optional; any OpenAI-compatible model, including local Ollama): answers drawn as charts and cards with every id checked against the data, a gap audit, and a draft incident report.
 - Large datasets are cached on disk (32.7 s to 0.5 s for the Swarm Traces release).
+
+## Screenshots
+
+**Overview and Inspector.** Short answers to the challenge, measured from the records, beside a record explained in plain words: what it does, its role in the swarm, and how much harm was still to come.
+
+![Overview with the Inspector explaining the first message between named tokens](docs/assets/app_overview.jpg)
+
+**Who talked to whom.** Every message between named tokens in the Swarm Traces release (95 sender-receiver pairs), with a slider that grows the network message by message.
+
+![The graph of every message between named tokens](docs/assets/app_network.jpg)
+
+**Could it have been flagged early?** The replay stopped at 06:00 on July 11: the share of harm still to come, every warning sign as it fires, and the state of the swarm at that hour.
+
+![The early-flag replay of the incident](docs/assets/app_early.jpg)
 
 ## Data
 
