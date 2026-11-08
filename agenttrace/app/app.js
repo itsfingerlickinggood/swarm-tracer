@@ -147,11 +147,14 @@ function overview(el, s) {
   bindRows(el, (i) => goEvents({ actor: s.identities[i].identity }));
 }
 
-// ------------------------------------------------------------------ network (force layout)
+// ------------------------------------------------------------------ network (layered layout)
 function network(el, s) {
   const pairs = s.flow.top_pairs;
+  const sizes = [...new Set([15, 30, 60].map((n) => Math.min(n, pairs.length)))];
+  const chosen = Math.min(30, pairs.length);
   el.innerHTML = `<h2>Who talked to whom</h2>
-  <p class="muted small">Named actors only. An arrow is a message: a read of a channel after another actor wrote it. Width grows with the number of messages. Click a node to list its events; hover an arrow for details.</p>
+  <p class="muted small">Named actors only. An arrow runs from the actor who wrote to a place to a different actor who later read it; thicker means more messages. Actors that only send are on the left, actors that only receive are on the right, and actors that do both are in the middle. Each shaded band is one group of connected actors. The number in a box is that actor's messages in the pairs shown. Hover a box to pick out its messages; click it to list its events.</p>
+  <p class="small">Show the <select id="netN">${sizes.map((n) => `<option value="${n}"${n === chosen ? " selected" : ""}>${n}</option>`).join("")}</select> busiest sender-receiver pairs (of ${fmt(s.flow.named_actor_pairs)}).</p>
   <div id="net"></div>
   <h3>Messages between named actors</h3>
   ${table(["sender", "receiver", "messages", "channels", "first"], pairs.map((p) => [`<code>${esc(short(p.from))}</code>`, `<code>${esc(short(p.to))}</code>`, fmt(p.deliveries), fmt(p.channels), esc(p.first)]), true)}
@@ -163,46 +166,156 @@ function network(el, s) {
     ...s.reply_edges.slice(0, 10).map((r) => ["replies", `<code>${esc(short(r[0]))}</code>`, `<code>${esc(short(r[1]))}</code>`, fmt(r[2])]),
   ])}`;
   bindRows(el, (i) => goEvents({ actor: pairs[i].from }));
-  drawNetwork($("net"), pairs);
+  const host = $("net"), pick = $("netN");
+  const draw = () => drawNetwork(host, pairs.slice(0, +pick.value));
+  pick.addEventListener("change", draw);
+  draw();
+  // redraw when the pane is resized, so the boxes always fit the width without scaling the text
+  if (window.ResizeObserver) {
+    let w = host.clientWidth, t = null;
+    new ResizeObserver(() => { if (Math.abs(host.clientWidth - w) > 24) { w = host.clientWidth; clearTimeout(t); t = setTimeout(draw, 120); } }).observe(host);
+  }
+}
+
+const textWidth = (() => {
+  const ctx = document.createElement("canvas").getContext("2d");
+  return (s, font) => { ctx.font = font; return ctx.measureText(s).width; };
+})();
+// shorten a name to fit, keeping its start and its distinguishing end ("AgentSECDou…6937")
+function fitName(s, max, font) {
+  if (textWidth(s, font) <= max) return s;
+  let lo = 2, hi = s.length;
+  while (lo < hi) {
+    const k = Math.ceil((lo + hi) / 2), head = Math.ceil(k * 0.6), tail = k - head;
+    if (textWidth(s.slice(0, head) + "…" + (tail ? s.slice(-tail) : ""), font) <= max) lo = k; else hi = k - 1;
+  }
+  const head = Math.ceil(lo * 0.6), tail = lo - head;
+  return s.slice(0, head) + "…" + (tail ? s.slice(-tail) : "");
 }
 
 function drawNetwork(host, pairs) {
-  const deg = {};
-  pairs.forEach((p) => { deg[p.from] = (deg[p.from] || 0) + p.deliveries; deg[p.to] = (deg[p.to] || 0) + p.deliveries; });
-  const names = Object.keys(deg).sort((a, b) => deg[b] - deg[a]).slice(0, 30);
-  if (names.length < 2) { host.innerHTML = '<p class="muted">Too few named actors to draw a network.</p>'; return; }
-  const W = 760, H = 460;
-  const N = names.map((n, i) => ({ n, x: W / 2 + 180 * Math.cos(i * 2.4), y: H / 2 + 150 * Math.sin(i * 2.4), vx: 0, vy: 0 }));
-  const idx = Object.fromEntries(N.map((d, i) => [d.n, i]));
-  const E = pairs.filter((p) => p.from in idx && p.to in idx);
-  for (let it = 0; it < 400; it++) {
-    for (let i = 0; i < N.length; i++) for (let j = i + 1; j < N.length; j++) {
-      const a = N[i], b = N[j]; let dx = a.x - b.x, dy = a.y - b.y; const d2 = Math.max(dx * dx + dy * dy, 25);
-      const f = 2600 / d2; const d = Math.sqrt(d2); dx /= d; dy /= d;
-      a.vx += dx * f; a.vy += dy * f; b.vx -= dx * f; b.vy -= dy * f;
-    }
-    E.forEach((e) => {
-      const a = N[idx[e.from]], b = N[idx[e.to]]; const dx = b.x - a.x, dy = b.y - a.y; const d = Math.hypot(dx, dy) || 1;
-      const f = (d - 120) * 0.01; a.vx += dx / d * f; a.vy += dy / d * f; b.vx -= dx / d * f; b.vy -= dy / d * f;
-    });
-    N.forEach((a) => { a.vx += (W / 2 - a.x) * 0.002; a.vy += (H / 2 - a.y) * 0.002; a.x += a.vx * 0.5; a.y += a.vy * 0.5; a.vx *= 0.6; a.vy *= 0.6;
-      a.x = Math.max(40, Math.min(W - 40, a.x)); a.y = Math.max(30, Math.min(H - 30, a.y)); });
-  }
-  const mx = Math.max(...E.map((e) => e.deliveries)), md = Math.max(...Object.values(deg));
-  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="network of messages between named actors"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0L10,5L0,10z" fill="#2f6fb3"/></marker></defs>`;
-  E.forEach((e) => {
-    const a = N[idx[e.from]], b = N[idx[e.to]]; const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
-    const ra = 6 + 12 * Math.sqrt(deg[e.from] / md), rb = 6 + 12 * Math.sqrt(deg[e.to] / md);
-    const x1 = a.x + dx / d * ra, y1 = a.y + dy / d * ra, x2 = b.x - dx / d * (rb + 3), y2 = b.y - dy / d * (rb + 3);
-    const cx = (x1 + x2) / 2 - dy / d * 16, cy = (y1 + y2) / 2 + dx / d * 16;
-    svg += `<path d="M${x1},${y1} Q${cx},${cy} ${x2},${y2}" fill="none" stroke="#2f6fb3" stroke-opacity=".5" stroke-width="${(0.8 + 5 * Math.log1p(e.deliveries) / Math.log1p(mx)).toFixed(2)}" marker-end="url(#ah)"><title>${esc(short(e.from))} → ${esc(short(e.to))}: ${e.deliveries} messages over ${e.channels} channels, first ${esc(e.first)}</title></path>`;
+  if (!pairs.length) { host.innerHTML = '<p class="muted">No messages between named actors to draw.</p>'; return; }
+  const out = {}, inn = {}, tot = {}, nb = {};
+  pairs.forEach((p) => {
+    out[p.from] = (out[p.from] || 0) + p.deliveries; inn[p.to] = (inn[p.to] || 0) + p.deliveries;
+    tot[p.from] = (tot[p.from] || 0) + p.deliveries; tot[p.to] = (tot[p.to] || 0) + p.deliveries;
+    (nb[p.from] ||= []).push(p.to); (nb[p.to] ||= []).push(p.from);
   });
-  N.forEach((a) => {
-    const r = 6 + 12 * Math.sqrt(deg[a.n] / md);
-    svg += `<g class="node" data-actor="${esc(a.n)}"><circle cx="${a.x}" cy="${a.y}" r="${r}" fill="#e3a43b" stroke="#fff" stroke-width="1.5"><title>${esc(a.n)}: ${deg[a.n]} messages in and out</title></circle><text x="${a.x + r + 3}" y="${a.y + 4}" font-size="11.5" fill="#333">${esc(short(a.n))}</text></g>`;
+  const names = Object.keys(tot);
+  const colOf = (n) => (out[n] && inn[n] ? 1 : out[n] ? 0 : 2);   // 0 only sends, 1 both, 2 only receives
+
+  // groups: actors connected by any message in the pairs shown
+  const root = Object.fromEntries(names.map((n) => [n, n]));
+  const find = (x) => (root[x] === x ? x : (root[x] = find(root[x])));
+  pairs.forEach((p) => { const a = find(p.from), b = find(p.to); if (a !== b) root[a] = b; });
+  const byRoot = {};
+  names.forEach((n) => (byRoot[find(n)] ||= []).push(n));
+  const groups = Object.values(byRoot).map((ns) => ({ ns, msgs: ns.reduce((s, n) => s + (out[n] || 0), 0) }))
+    .sort((a, b) => b.msgs - a.msgs);
+
+  // inside each group: three columns, ordered so arrows cross as little as possible
+  const row = {};   // name -> row within its group (fractional when a column is shorter, so it sits centered)
+  groups.forEach((g) => {
+    const cols = [[], [], []];
+    g.ns.sort((a, b) => tot[b] - tot[a]).forEach((n) => cols[colOf(n)].push(n));
+    g.rows = Math.max(...cols.map((c) => c.length));
+    const place = () => cols.forEach((c) => c.forEach((n, i) => (row[n] = i + (g.rows - c.length) / 2)));
+    place();
+    for (let it = 0; it < 8; it++) {
+      [2, 1, 0, 1].forEach((ci) => {
+        const mean = (n) => nb[n].reduce((s, m) => s + row[m], 0) / nb[n].length;
+        cols[ci].sort((a, b) => mean(a) - mean(b) || tot[b] - tot[a]);
+        place();
+      });
+    }
+    g.cols = cols;
+  });
+
+  // geometry in real pixels: the drawing is as wide as the pane, so text is never scaled down
+  const W = Math.max(320, host.clientWidth || 700);
+  const ROW = 26, BOX = 19, TOP = 24, BAND_PAD = 7;
+  const nameFont = '12px -apple-system, system-ui, "Segoe UI", sans-serif', numFont = '11px -apple-system, system-ui, sans-serif';
+  const present = [0, 1, 2].filter((c) => groups.some((g) => g.cols[c].length));
+  const gap = Math.max(46, Math.min(120, W * 0.12));
+  // each column as wide as its longest name needs; if they do not all fit, trim the widest first
+  const need = {};
+  present.forEach((c) => (need[c] = Math.min(260, Math.max(...names.filter((n) => colOf(n) === c)
+    .map((n) => textWidth(short(n), nameFont) + textWidth(fmt(tot[n]), numFont) + 26)))));
+  const room = W - 8 - gap * (present.length - 1);
+  const used = (cap) => present.reduce((s, c) => s + Math.min(need[c], cap), 0);
+  let lo = 70, hi = 260;
+  for (let it = 0; it < 30; it++) { const mid = (lo + hi) / 2; if (used(mid) <= room) lo = mid; else hi = mid; }
+  const colW = Object.fromEntries(present.map((c) => [c, Math.min(need[c], lo)]));
+  const total = present.reduce((s, c) => s + colW[c], 0) + gap * (present.length - 1);
+  const colX = {};
+  present.reduce((x, c) => { colX[c] = x; return x + colW[c] + gap; }, Math.max(4, (W - total) / 2));
+  const boxOf = (n) => colW[colOf(n)];
+  const pos = {};
+  let y = TOP;
+  groups.forEach((g) => {
+    g.y0 = y; y += BAND_PAD;
+    g.ns.forEach((n) => (pos[n] = { x: colX[colOf(n)], y: y + row[n] * ROW + ROW / 2 }));
+    y += g.rows * ROW + BAND_PAD; g.y1 = y; y += 4;
+  });
+  const H = y + 4;
+  const mx = Math.max(...pairs.map((p) => p.deliveries));
+  const width = (n) => (1.2 + 4.3 * Math.log1p(n) / Math.log1p(mx)).toFixed(2);
+  const heads = ["only sends", "sends and receives", "only receives"];
+
+  let svg = `<svg class="net" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="messages between named actors">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,1L10,5L0,9z" fill="#2f6fb3"/></marker></defs>`;
+  groups.forEach((g, i) => { svg += `<rect x="0" y="${g.y0}" width="${W}" height="${g.y1 - g.y0}" rx="6" fill="${i % 2 ? "#ffffff" : "#f6f8fb"}"/>`; });
+  present.forEach((c) => { svg += `<text x="${colX[c] + colW[c] / 2}" y="14" text-anchor="middle" font-size="11" fill="#66717d">${heads[c]}</text>`; });
+
+  // arrows first, boxes on top
+  pairs.forEach((p) => {
+    const a = pos[p.from], b = pos[p.to];
+    let d;
+    if (colOf(p.from) === 1 && colOf(p.to) === 1) {
+      // both in the middle column: a loop beside the column, downward on the right, upward on the left
+      const down = b.y > a.y, bend = Math.min(gap * 0.7, 16 + 7 * Math.abs(b.y - a.y) / ROW), w = colW[1];
+      d = down ? `M${a.x + w},${a.y} C${a.x + w + bend},${a.y} ${b.x + w + bend},${b.y} ${b.x + w + 2},${b.y}`
+               : `M${a.x},${a.y} C${a.x - bend},${a.y} ${b.x - bend},${b.y} ${b.x - 2},${b.y}`;
+    } else {
+      const x1 = a.x + boxOf(p.from), x2 = b.x - 2, h = (x2 - x1) / 2;
+      d = `M${x1},${a.y} C${x1 + h},${a.y} ${x2 - h},${b.y} ${x2},${b.y}`;
+    }
+    svg += `<path class="edge" data-a="${esc(p.from)}" data-b="${esc(p.to)}" d="${d}" fill="none" stroke="#2f6fb3" stroke-width="${width(p.deliveries)}" marker-end="url(#ah)"><title>${esc(short(p.from))} → ${esc(short(p.to))}: ${fmt(p.deliveries)} message${p.deliveries === 1 ? "" : "s"} over ${fmt(p.channels)} place${p.channels === 1 ? "" : "s"}, first ${esc(p.first)}</title></path>`;
+  });
+  const fill = ["#fdf0da", "#e7effa", "#eef1f4"], stroke = ["#e3a43b", "#2f6fb3", "#9aa5b1"];
+  names.forEach((n) => {
+    const c = colOf(n), { x, y: cy } = pos[n], num = fmt(tot[n]), bw = colW[c];
+    const label = fitName(short(n), bw - 24 - textWidth(num, numFont), nameFont);
+    svg += `<g class="node" data-actor="${esc(n)}"><title>${esc(n)}: sent ${fmt(out[n] || 0)}, received ${fmt(inn[n] || 0)} in the pairs shown</title>
+      <rect x="${x}" y="${cy - BOX / 2}" width="${bw}" height="${BOX}" rx="${BOX / 2}" fill="${fill[c]}" stroke="${stroke[c]}"/>
+      <text x="${x + 9}" y="${cy + 4}" font-size="12" fill="#1d2329">${esc(label)}</text>
+      <text x="${x + bw - 9}" y="${cy + 4}" font-size="11" fill="#66717d" text-anchor="end">${num}</text></g>`;
   });
   host.innerHTML = svg + "</svg>";
-  host.querySelectorAll(".node").forEach((g) => g.addEventListener("click", () => goEvents({ actor: g.dataset.actor })));
+
+  // hover: keep the chosen actor (or arrow) and what it touches, fade the rest
+  const el = host.querySelector("svg");
+  const light = (keepEdge) => {
+    el.classList.add("dim");
+    const keep = new Set();
+    el.querySelectorAll(".edge").forEach((e) => {
+      const on = keepEdge(e);
+      e.classList.toggle("hi", on);
+      if (on) { keep.add(e.dataset.a); keep.add(e.dataset.b); }
+    });
+    el.querySelectorAll(".node").forEach((g) => g.classList.toggle("hi", keep.has(g.dataset.actor)));
+  };
+  const clear = () => { el.classList.remove("dim"); el.querySelectorAll(".hi").forEach((x) => x.classList.remove("hi")); };
+  el.querySelectorAll(".node").forEach((g) => {
+    const n = g.dataset.actor;
+    g.addEventListener("click", () => goEvents({ actor: n }));
+    g.addEventListener("mouseenter", () => light((e) => e.dataset.a === n || e.dataset.b === n));
+    g.addEventListener("mouseleave", clear);
+  });
+  el.querySelectorAll(".edge").forEach((edge) => {
+    edge.addEventListener("mouseenter", () => light((e) => e === edge));
+    edge.addEventListener("mouseleave", clear);
+  });
 }
 
 // ------------------------------------------------------------------ timeline

@@ -375,8 +375,9 @@ def message_flow(events, pack, rec, res):
                                              if first_any_named else None),
         "coarse_channel_deliveries": sum(1 for d in dels if is_coarse(d["channel"])),
         "top_pairs": [{"from": a, "to": b, "deliveries": n, "channels": len(pair_ch[(a, b)]),
-                       "first": iso(pair_first[(a, b)])} for (a, b), n in pair.most_common(60)
-                      if not a.startswith("run:") and not b.startswith("run:")][:30],
+                       "first": iso(pair_first[(a, b)])}
+                      for (a, b), n in sorted(((k, pair[k]) for k in known_pairs),
+                                              key=lambda kv: (-kv[1], pair_first[kv[0]]))[:60]],
         "top_channels": sorted(perf, key=lambda p: (-p["deliveries"], -p["actors"]))[:40],
         "content_spread": spread[:40],
         "content_families_moving": len(spread),
