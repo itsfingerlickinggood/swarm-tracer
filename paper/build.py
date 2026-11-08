@@ -6,12 +6,15 @@ and the page is printed to PDF with headless Chrome. Run from the project root a
     python3 -m agenttrace evaluate redacted_columns.csv --pack code_traces.json --out reports/evaluation
     python3 -m agenttrace evaluate full-wiki-logs --pack wiki_swarm.json --out reports/evaluation-wiki
     python3 paper/build.py --author "Your Name" --affiliation "Your affiliation"
+
+Add --capture http://localhost:8010 to recapture the app figures (paper/figures) from a running app.
 """
 import argparse
 import html
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import urllib.request
@@ -59,6 +62,67 @@ def pipeline_svg():
     return "\n".join(out)
 
 
+# the app figures in Appendix C: (name, window size, deep link, crop as height, width, y, x in device pixels at 2x)
+CAPTURES = [
+    ("app_overview", "1680,1050", "#tab=overview&rec=R0006786&scroll=700", None),
+    ("app_early", "1680,1300", "#tab=early&hour=2026-07-11T06", (1680, 1980, 244, 20)),
+    ("app_network", "1680,1300", "#tab=network&scroll=470", (1785, 1966, 215, 20)),
+    ("app_timeline", "1680,1300", "#tab=timeline&order=messages&rows=messages&scroll=600", (1277, 1980, 344, 20)),
+]
+
+
+def capture(url, d):
+    """Screenshot the running app (python3 -m agenttrace serve) with headless Chrome and crop each view (macOS sips)."""
+    import tempfile
+    tmp = tempfile.mkdtemp()
+    for name, size, link, crop in CAPTURES:
+        png = os.path.join(tmp, name + ".png")
+        subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2",
+                        f"--window-size={size}", "--virtual-time-budget=30000", f"--user-data-dir={tmp}/prof",
+                        f"--screenshot={png}", url.rstrip("/") + "/" + link], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if crop:
+            h, w, y, x = crop
+            subprocess.run(["sips", "-c", str(h), str(w), "--cropOffset", str(y), str(x), png, "--out", png], check=True, stdout=subprocess.DEVNULL)
+        subprocess.run(["sips", "-Z", "2200", "-s", "format", "jpeg", "-s", "formatOptions", "82", png, "--out",
+                        os.path.join(d, name + ".jpg")], check=True, stdout=subprocess.DEVNULL)
+        print("captured", name)
+
+
+def tok(text):
+    return re.sub(r"\[CREDENTIAL (\d+)\]", r"token \1", str(text))
+
+
+def when(t):
+    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    return f"{months[int(t[5:7]) - 1]} {int(t[8:10])} {t[11:16]}"
+
+
+def app_signs(ev):
+    """Table 7 rows (the replay's link and group signs) and the alert-rule sentence, from evaluation.json."""
+    signs = ev.get("replay_signs") or []
+    rows = []
+    for g in signs:
+        if not (g["key"] in ("program2", "program3", "two_way") or g["key"].startswith("group")):
+            continue
+        why = tok(g["why"]).split(" into one connected group")[0]
+        rows.append(f'<tr><td>{html.escape(g["name"])}</td><td>{html.escape(when(g["time"]))}</td>'
+                    f'<td class="n">{pct(g["harm_share_after"])}</td><td><code>{html.escape(str(g["ref"]))}</code></td>'
+                    f'<td>{html.escape(why)}</td></tr>')
+    joint = [g for g in signs if g["family"] == "joint"]
+    hits, kinds = [], []
+    for g in joint:
+        if g["kind"] not in kinds:
+            kinds.append(g["kind"])
+            hits.append(g)
+    base = next((g for g in signs if g["key"] == "rate_all"), None)
+    alert = ""
+    if len(hits) >= 3:
+        alert = (f"With N = 1, 2 and 3 the alert comes at {', '.join(when(h['time']) for h in hits[:3])}, with "
+                 f"{', '.join(pct(h['harm_share_after']) for h in hits[:3])} of the timed harm still to come"
+                 + (f", against {pct(base['harm_share_after'])} for the volume alarm." if base else "."))
+    return rows, alert
+
+
 def strip_xml(svg):
     return re.sub(r"<\?xml[^>]*>", "", svg)
 
@@ -75,9 +139,16 @@ def main():
     ap.add_argument("--wiki", default=os.path.join(ROOT, "reports", "evaluation-wiki"))
     ap.add_argument("--labels", default=os.path.join(ROOT, "reports", "submission", "precision_labels.csv"))
     ap.add_argument("--out", default=os.path.join(ROOT, "reports", "submission"))
+    ap.add_argument("--capture", metavar="APP_URL", help="recapture the app figures from a running app first, e.g. http://localhost:8010")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     ensure_fonts(os.path.join(a.out, "fonts"))
+    figs = os.path.join(ROOT, "paper", "figures")
+    if a.capture:
+        capture(a.capture, figs)
+    os.makedirs(os.path.join(a.out, "figures"), exist_ok=True)
+    for f in os.listdir(figs):
+        shutil.copy(os.path.join(figs, f), os.path.join(a.out, "figures", f))
     with open(os.path.join(ROOT, "paper", "report.html"), encoding="utf-8") as f:
         page = f.read()
     ev = json.load(open(os.path.join(a.swarm, "evaluation.json"), encoding="utf-8"))
@@ -124,6 +195,7 @@ def main():
             prec.append(f'<tr><td>{html.escape(tag.replace("_", " "))}</td><td class="n">{v["judged"]}</td><td class="n">{v["tp"]}</td>'
                         f'<td class="n">{pct(v["precision"])}</td><td class="n">{pct(v["ci_low"])}&ndash;{pct(v["ci_high"])}</td></tr>')
 
+    sign_rows, alert = app_signs(ev)
     with open(os.path.join(a.swarm, "fig_early_flag.svg"), encoding="utf-8") as f:
         early = strip_xml(f.read())
     with open(os.path.join(a.swarm, "fig_network.svg"), encoding="utf-8") as f:
@@ -131,7 +203,8 @@ def main():
     page = (page.replace("{{AUTHOR}}", html.escape(a.author)).replace("{{AFFILIATION}}", html.escape(a.affiliation))
             .replace("{{FIG_PIPELINE}}", pipeline_svg()).replace("{{FIG_EARLY}}", early).replace("{{FIG_NETWORK}}", net)
             .replace("{{TIMING_ROWS}}", "\n".join(timing)).replace("{{COUNT_ROWS}}", "\n".join(counts))
-            .replace("{{ROBUST_ROWS}}", "\n".join(robust)).replace("{{PRECISION_ROWS}}", "\n".join(prec)))
+            .replace("{{ROBUST_ROWS}}", "\n".join(robust)).replace("{{PRECISION_ROWS}}", "\n".join(prec))
+            .replace("{{APP_SIGNAL_ROWS}}", "\n".join(sign_rows)).replace("{{ALERT_SENTENCE}}", html.escape(alert)))
     left = re.findall(r"{{[A-Z_]+}}", page)
     if left:
         sys.exit(f"unfilled placeholders: {left}")

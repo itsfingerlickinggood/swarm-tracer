@@ -48,7 +48,7 @@ The datasets are not in this repository.
 | `agenttrace/` | The tool and the Swarm Tracer app: loader, analysis, time and identity reconstruction, message flow, conversations, claims checking, labeling, AI investigator, tests |
 | `reports/findings/` | A written summary of what the swarm did, with record ids |
 | `docs/tool-study.md` | Notes on existing trace viewers and what they lack for swarm forensics |
-| `paper/` | The hackathon report source and its build script (tables and figures filled from `agenttrace evaluate`) |
+| `paper/` | The hackathon report source, its build script (tables and figures filled from `agenttrace evaluate`), and the app screenshots in Appendix C (`paper/figures`; `python3 paper/build.py --capture http://localhost:8010` recaptures them from a running app) |
 
 Earlier prototypes (`analyzer/`, `forensics/`) were replaced by `agenttrace` and removed; they remain in the git history.
 

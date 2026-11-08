@@ -43,4 +43,5 @@
 .drow.axis span{position:absolute;font-size:10px;color:var(--faint)}
 .drow.axis span[style*="50%"]{transform:translateX(-50%)}
 .ovnoctx h2{margin-bottom:4px}
-.answer .hb{grid-template-columns:minmax(120px,58%) 1fr 34px}
+.answer .hb{grid-template-columns:minmax(150px,72%) 1fr 30px}
+.grid2.answers{grid-template-columns:repeat(auto-fit,minmax(max(300px,calc((100% - 12px) / 2)),1fr))}

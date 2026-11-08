@@ -31,6 +31,7 @@ li { margin: 0 0 3pt; text-align: justify; }
 code, .mono { font-family: Menlo, "Courier New", monospace; font-size: 8.3pt; }
 figure { margin: 6pt 0 7pt; break-inside: avoid; }
 figure svg { width: 100%; height: auto; display: block; }
+figure img { width: 100%; height: auto; display: block; border: 0.6pt solid #c9c9c9; border-radius: 3pt; }
 figcaption { font-size: 8.7pt; line-height: 1.28; margin-top: 3pt; text-align: justify; }
 figcaption b { font-weight: 700; }
 table { border-collapse: collapse; width: 100%; font-size: 8.3pt; line-height: 1.25; margin: 2pt 0 3pt; break-inside: avoid; }
@@ -105,7 +106,8 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 <p><b>Places and messages.</b> A place is anywhere one identity can leave something for another: in this release, Hugging Face dataset repositories, registry mailbox folders, webhooks and command files. Each mention of a place in code is judged a write or a read from the code around that mention, not from the whole record, because one program can read one place and write another. A message is a read of a place after an earlier write to it by a different identity, linked to the latest such write.</p>
 <p><b>Three counting rules.</b> Our first counts overstated contact. We added three rules, each covered by a test: (1) a reader running the same program as the writer (the same first 60 normalized tokens) is one sender retrying, not a message; (2) each write counts once per reader, so polling a folder ten times is one message; (3) where every post replaces the whole page, as in a wiki edit, a later edit counts as a message only if it keeps at least one line the earlier editor added. An edit that keeps none of them is reported as an overwrite: a whole-page edit can be sent without reading the page, so two agents overwriting each other may never have seen each other's work. Places whose redaction kept only an owner name may merge several repositories, and messages on them are flagged.</p>
 <p><b>Spread.</b> A program counts as spreading when the same code, with ids, numbers and hashes masked, is run under several named identities; the first is the source. A token first seen as data inside a record and only later used to authenticate also counts as spread.</p>
-<p><b>What did not work.</b> Judging a whole record as a read or a write produced false links. Counting decoded copies of programs as separate readers inflated messages, as did keyword tags such as &ldquo;lock&rdquo; or &ldquo;poll&rdquo; that matched ordinary code. A force-directed network drawing was unreadable. Each was replaced by the rule or view described here.</p>
+<p><b>What did not work.</b> Judging a whole record as a read or a write produced false links. Counting decoded copies of programs as separate readers inflated messages, as did keyword tags such as &ldquo;lock&rdquo; or &ldquo;poll&rdquo; that matched ordinary code. Each was replaced by the rule described here.</p>
+<p><b>The app.</b> An investigator works in a local web app (Appendix C). It draws every message as a graph, a matrix and swimlanes; replays the incident hour by hour; explains any record in plain words with its role in the swarm; and shows the incident context from the public reports beside the data. An optional AI investigator answers in a fixed set of charts and cards, and every record id, actor and place it names is checked against the data.</p>
 
 <h3>3.3 Evaluation</h3>
 <p><b>Replay.</b> For each warning signal we find the first time it fires and the share of timed harmful actions after it. Harmful actions are defined in the pack as Hugging Face dataset writes, Kubernetes API calls, cloud metadata requests, Docker registry use and registry mailbox use (8,133 timed actions).</p>
@@ -142,7 +144,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 {{FIG_EARLY}}
 <figcaption><b>Figure 3.</b> Replay of the Swarm Traces release. The grey line is the share of the 8,133 timed harmful actions still to come at each hour. Each numbered point is the first time a signal fired; blue marks signs of tokens working together, dark grey single-agent signs, and orange diamonds the volume-alarm baselines. Light vertical bars show each point's 95% range when every time is perturbed by the date fit's largest 90th-percentile error.</figcaption>
 </figure>
-<p>Single-agent signs came first. Agents used a registry mailbox (<code>R0000032</code>) and the Docker registry (<code>R0000554</code>) within two hours of the first dated record, and the first write to a Hugging Face dataset (<code>R0005279</code>) came at 10:24 on July 10 with 90% still to come. The first message between two named tokens came at 03:06 on July 11 (88% to come), three hours before the surge METR dates to 06:00. The volume alarm fired at the end of the 08:00 hour, with 84% to come, on both all actions and harmful actions. The two signs of shared control came after the surge was under way: one token holding another's token at 17:13 (57% to come) and two tokens sharing a name at 20:05 (50% to come).</p>
+<p>Single-agent signs came first. Agents used a registry mailbox (<code>R0000032</code>) and the Docker registry (<code>R0000554</code>) within two hours of the first dated record, and the first write to a Hugging Face dataset (<code>R0005279</code>) came at 10:24 on July 10 with 90% still to come. The first message between two named tokens came at 03:06 on July 11 (88% to come), three hours before the surge METR dates to 06:00. The volume alarm fired at the end of the 08:00 hour, with 84% to come, on both all actions and harmful actions. The two signs of shared control came after the surge was under way: one token holding another's token at 17:13 (57% to come) and two tokens sharing a name at 20:05 (50% to come). The app's replay tracks further link signs (Table 7); the earliest, token 170 running a program token 169 had run half an hour before, fired at 23:58 on July 10 (88% to come).</p>
 <p>The ordering is robust. Under the conservative time-error test, the first dataset write stays between 89% and 91% to come and the first message between 81% and 89%, while the two shared-control signs stay at or below 76%. Shifting any signal by an hour moves its share by at most 7 points. The signals are about 30 hours apart, so no plausible dating error reverses them.</p>
 
 <h3>4.5 Naive counting overstates contact</h3>
@@ -222,10 +224,40 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 </table>
 <p class="small">Of 30 untagged control records, 18 showed a behavior the patterns missed, 2 were clean and 10 could not be judged.</p>
 </div>
-<p class="small"><b>Tool.</b> The Swarm Tracer app shows each result above interactively: an overview with how each file was read and how the dates were fitted; who talked to whom with every conversation and its record ids; a timeline; places; spread; the early-flag replay; every event; and what is missing. A side pane traces any record (its parent chain, places touched, messages in and out, copies of the same program), and the AI investigator answers questions over the same evidence with any OpenAI-compatible endpoint. Its provider path was tested against a stand-in that enforces OpenCode Go's request rules; it was not run with a live key. The test suite has 76 tests.</p>
+
+<h2 class="pagebreak">Appendix C. The Swarm Tracer App</h2>
+<p>Figures 4&ndash;7 show the app on the Swarm Traces release. It runs locally (<code>python3 -m agenttrace serve</code>) and takes any trace; the same views run on the wiki logs (3,226 named actors over 58 days). Every actor, place and record id is a chip: hovering shows a card with a small chart, and clicking opens it in the Inspector, which explains a record in plain words (what the code does, its role in the swarm, the share of harm still to come at that moment, its actor's activity and what it touched) or profiles an actor or a place. A search box finds any of them.</p>
+<figure>
+<img src="figures/app_overview.jpg" alt="The Swarm Tracer app: overview, Inspector and AI investigator">
+<figcaption><b>Figure 4.</b> The app. Left: the overview's answers to the challenge, measured from the records; above them (scrolled out of view) are the incident brief from the public reports and the whole incident on one chart, with the reports' phases and their dated moments against the tool's estimates. Right top: the Inspector explaining <code>R0006786</code>, the first message between named tokens on a specific place. Right bottom: the AI investigator.</figcaption>
+</figure>
+<p><b>Incident context.</b> The overview's brief comes from <code>agenttrace/claims/incident_context.json</code>: facts from METR, OpenAI's technical report, Hugging Face's disclosure and timeline, and the Swarm Traces report, each with its source and page. Where the sources disagree, both versions are kept; for example, METR counts 2 working credentials posted on July 10 where OpenAI's report counts 14 tokens. The app shows the file only for datasets its match rule fits.</p>
+<p><b>AI investigator.</b> Each question sends the model a system prompt, an analysis brief (counts, warning signs, phases and the incident context) and the records or actors the question names. The model must reply with one JSON object of typed blocks: key numbers, a timeline, a flow of what moved where, the actors involved, evidence, inferences with an alternative explanation and a check that would tell them apart, what the data cannot show, and next steps. The app draws each block as a chart or card, and the server marks every record id, actor or place that is not in the data, so an invented name is never shown as real. The provider path, including OpenCode Go's session header and a fallback for providers that refuse JSON mode, is tested against stand-ins. It was not run with a live key during the hackathon, so we report no AI output. The test suite has 88 tests.</p>
+<div class="pagebreak"></div>
+<figure>
+<img style="width:66%;margin:0 auto" src="figures/app_early.jpg" alt="The early-flag replay stopped at 06:00 on July 11">
+<figcaption><b>Figure 5.</b> The early-flag replay stopped at 06:00 on July 11. The share of harm still to come is drawn solid up to the hour shown; numbered dots are warning signs, filled once they have fired; the band under the chart is the alert level under the rule below; the counters give the state at that hour. The page also shows each sign as it fires, in plain words, and the network as it stood.</figcaption>
+</figure>
+<p><b>Alert rule.</b> The replay computes a simple rule in the page: watch at the first single-agent harmful sign, and alert once N different kinds of coordination sign have fired (a shared program, a message, a linked group, a two-way exchange, a carried token, a shared name). {{ALERT_SENTENCE}} We wrote the rule after seeing this incident, and its first two signs both link tokens 169 and 170, which may be one agent holding two keys (Section 4.2). It illustrates what the tracer can say, and is not an evaluated detector.</p>
+<div class="tablewrap">
+<div class="tcap"><b>Table 7.</b> Link and group signs the app's replay tracks in addition to Table 5, with the share of timed harm still to come. They were not part of the robustness test.</div>
+<table>
+<tr><th style="width:27%">Sign</th><th style="width:13%">First fired (UTC)</th><th class="n">Still to come</th><th>Record</th><th>What fired it</th></tr>
+{{APP_SIGNAL_ROWS}}
+</table>
+</div>
+<div class="pagebreak"></div>
+<figure>
+<img style="width:64%;margin:0 auto" src="figures/app_network.jpg" alt="Who talked to whom: every message between named tokens">
+<figcaption><b>Figure 6.</b> Who talked to whom: all 95 pairs between 36 named tokens. The layout is computed once and labels are placed so that none overlap; dot size is messages and colour is role. The slider grows the network message by message. Below it in the app are findings (hub, broker, largest group, two-way pairs, fastest relay), the matrix of every sender and receiver, and the conversation behind any arrow.</figcaption>
+</figure>
+<figure>
+<img style="width:86%;margin:0 auto" src="figures/app_timeline.jpg" alt="Swimlanes: one row per token, with every message drawn between rows">
+<figcaption><b>Figure 7.</b> Swimlanes for the 40 tokens in messages, ordered by messages. Each cell is an hour coloured by what the token mostly did, with harmful hours underlined; each line runs from the writer's row at write time to the reader's row at read time.</figcaption>
+</figure>
 
 <h2>LLM Usage Statement</h2>
-<p>We used Claude Code (Anthropic) throughout: to write most of the code, run the analyses, gather and summarize sources, and draft this report under our direction. It also labeled the 192-record precision sample in Appendix B, which is disclosed there. Every number in this report comes from the tool's own output and was checked against it, the reports and papers we cite were read during the sprint, and we take responsibility for the content.</p>
+<p>We used Claude Code (Anthropic) throughout: to write most of the code, run the analyses, gather and summarize sources (including the incident context file in Appendix C), and draft this report under our direction. It also labeled the 192-record precision sample in Appendix B, which is disclosed there. Every number in this report comes from the tool's own output and was checked against it, the reports and papers we cite were read during the sprint, and we take responsibility for the content.</p>
 
 <h2>References for Appendix B</h2>
 <ol class="refs">

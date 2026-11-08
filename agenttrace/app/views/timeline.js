@@ -6,7 +6,8 @@
   "use strict";
   const HR = 3600e3;
   const RUNS = "(anonymous runs)";
-  const st = { z: null, sort: "first", show: "all", lines: "named", off: new Set() };
+  const dl = typeof deepLink === "function" ? deepLink() : {};   // #tab=timeline&order=messages&rows=messages
+  const st = { z: null, sort: dl.order || "first", show: dl.rows || "all", lines: "named", off: new Set() };
   let seq = 0;
   const hourKey = (t) => new Date(t).toISOString().slice(0, 13).replace("T", " ");
   const WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

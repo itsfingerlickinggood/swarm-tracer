@@ -448,7 +448,8 @@ def simulate(s):
                                                                   "carried" if "carries" in r["signal"] else "place")
         why = {"harm": "the first harmful action of this kind",
                "token": f"{ref} appeared inside a record as data before any record used it to authenticate",
-               "carried": f"one record authenticates as one identity and holds another's token: {ref}",
+               "carried": (f"{actors[0]} holds {actors[1]}'s token in {ref}, before that token's own first use"
+                           if len(actors) == 2 else f"one record authenticates as one identity and holds another's token: {ref}"),
                "place": f"two identities used the same named place {place or ref} in different records"}[kind]
         add("replay:" + r["signal"], name + (" (at or before)" if "at or before" in r["time"] else ""), fam, t, ref, actors, why, kind)
 

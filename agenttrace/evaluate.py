@@ -227,4 +227,12 @@ def evaluate(session):
                        "signals": robustness(signals, harm, sigma)},
         "counting_rules": counting_ablation(events, session.pack, rec, session.res),
         "external": external_check(events, rec),
+        # every warning sign the app's replay tracks (Table 5's signals plus link and group signs)
+        "replay_signs": _replay_signs(session),
     }
+
+
+def _replay_signs(session):
+    from . import insight
+    return [{k: g[k] for k in ("key", "name", "family", "kind", "time", "ref", "actors", "harm_share_after", "why")}
+            for g in insight.simulate(session)["signals"]]

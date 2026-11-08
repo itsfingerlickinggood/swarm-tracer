@@ -70,6 +70,8 @@
       D.cumMsgs = cum(inc); D.pairs = pairs; D.group = group;
     }
     ST.data = D;
+    const dh = (deepLink().hour || "").replace("T", " ");
+    if (ST.i == null && dh) { const k = Math.floor((toTime(dh) / 1000 - sim.start_t) / HR); if (k >= 0 && k < n) ST.i = k; }
     if (ST.i == null || ST.i >= n) ST.i = n - 1;
 
     el.innerHTML = `

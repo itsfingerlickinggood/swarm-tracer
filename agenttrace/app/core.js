@@ -481,6 +481,8 @@ function tabCounts(s) {
     if (!c) { c = document.createElement("span"); c.className = "cnt"; b.appendChild(c); }
     c.textContent = n >= 10000 ? Math.round(n / 1000) + "k" : fmt(n);
   });
+  // the early-flag count is every warning sign the replay tracks, which the summary does not carry
+  cached("/api/sim").then((sim) => { const c = document.querySelector('#tabs button[data-tab="early"] .cnt'); if (c) c.textContent = fmt(sim.signals.length); }).catch(() => {});
 }
 
 // ------------------------------------------------------------------ top bar
@@ -566,6 +568,22 @@ $("upload").addEventListener("submit", async (ev) => {
   finally { $("analyze").disabled = false; }
 });
 
+// deep links: #tab=early&hour=2026-07-11T06&rec=R0006786&actor=...&place=...&scroll=600&ai=wide
+// open a view, a record, an actor or a place straight from the address (also used to capture figures)
+function deepLink() {
+  const h = new URLSearchParams(location.hash.replace(/^#/, ""));
+  return Object.fromEntries(h.entries());
+}
+function openDeepLink() {
+  const d = deepLink();
+  if (d.ai === "wide") document.body.classList.add("aiwide");
+  if (d.tab && VIEWS[d.tab]) goTab(d.tab);
+  if (d.rec) selectEvent(d.rec);
+  else if (d.actor) inspectActor(d.actor);
+  else if (d.place) inspectPlace(d.place);
+  if (d.scroll) setTimeout(() => { $("left").scrollTop = +d.scroll; }, 2500);
+}
+
 async function init() {
   const p = await api("/api/packs");
   $("pack").innerHTML = p.packs.map((x) => `<option value="${esc(x.file)}" title="${esc(x.description)}"${x.file === "auto" ? " selected" : ""}>${esc(x.name)}</option>`).join("");
@@ -573,7 +591,7 @@ async function init() {
   status("Loading the analysis…");
   const st = await api("/api/state");
   status("");
-  if (st.loaded) setSummary(st.summary);
+  if (st.loaded) { setSummary(st.summary); openDeepLink(); }
   else if (st.busy) status("An analysis is running on the server…");
   else $("loadpanel").hidden = false;
 }
