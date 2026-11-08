@@ -98,20 +98,25 @@ function fitName(s, max, font) {
 
 // ------------------------------------------------------------------ entity chips
 // Every actor, place and record anywhere in the app is one of these: hover for a card, click to inspect.
+const xtra = (x) => (typeof x === "string" ? x : "");   // .map(ent.rec) passes an index here; ignore it
 const ent = {
-  actor: (a, extra = "") => a ? `<span class="ent actor${String(a).startsWith("run:") ? " run" : ""}" data-actor="${esc(a)}"><i></i>${esc(short(a))}${extra}</span>` : "–",
-  place: (ch, extra = "") => ch ? `<span class="ent place" data-place="${esc(ch)}"><i></i>${esc(placeLabel(ch))}${extra}</span>` : "–",
-  rec: (id, extra = "") => id ? `<span class="ent rec" data-id="${esc(id)}">${esc(id)}${extra}</span>` : "–",
+  actor: (a, extra = "") => a ? `<span class="ent actor${String(a).startsWith("run:") ? " run" : ""}" data-actor="${esc(a)}"><i></i>${esc(short(a))}${xtra(extra)}</span>` : "–",
+  place: (ch, extra = "") => ch ? `<span class="ent place" data-place="${esc(ch)}" title="${esc(ch)}"><i></i>${esc(placeLabel(ch))}${xtra(extra)}</span>` : "–",
+  rec: (id, extra = "") => id ? `<span class="ent rec" data-id="${esc(id)}">${esc(id)}${xtra(extra)}</span>` : "–",
   intent: (k) => k ? `<span class="pill" style="--c:${intentColor(k)}" title="${esc(intentName(k))}"><i></i>${esc(human(k))}</span>` : "",
 };
 const idlink = (id) => ent.rec(id);
 function placeLabel(ch) {
   const [type, ...rest] = String(ch).split(":");
-  const name = rest.join(":").replace(/\[REDACTED:([a-z_]+):0*(\d+)\]/g, "$1 $2").replace(/\[([A-Z ]+?) (\d+)\]/g, "$1 $2");
+  const name = rest.join(":").replace(/\]\s*\[/g, "] + [")
+    .replace(/\[REDACTED:query_value:0*(\d+)\]/g, "URL value $1")
+    .replace(/\[REDACTED:([a-z_]+):0*(\d+)\]/g, (m, k, n) => `${k.replace(/_/g, " ")} ${n}`)
+    .replace(/\[([A-Z][A-Z ]+?) (\d+)\]/g, "$1 $2").replace(/\[([A-Z][A-Z ]+)\]/g, "$1");
   return `${type.replace(/_/g, " ")} · ${name}`;
 }
-const PLACE_TYPES = { hf_dataset: "Hugging Face dataset", board: "board folder (registry mailbox)", webhook: "webhook", command_file: "command file", page: "wiki page", thread: "thread", talk: "talk page" };
-const placeType = (t) => PLACE_TYPES[t] || human(t);
+const PLACE_TYPES = { hf_dataset: ["Hugging Face dataset", "Hugging Face datasets"], board: ["board folder (registry mailbox)", "board folders (registry mailbox)"],
+  webhook: ["webhook", "webhooks"], command_file: ["command file", "command files"], page: ["wiki page", "wiki pages"], thread: ["thread", "threads"], talk: ["talk page", "talk pages"] };
+const placeType = (t, n = 1) => (PLACE_TYPES[t] ? PLACE_TYPES[t][n === 1 ? 0 : 1] : human(t) + (n === 1 ? "" : "s"));
 
 // ------------------------------------------------------------------ small charts (HTML or SVG strings)
 // sparkline of [[isoHour, n], ...] across [t0, t1]; mark = time to highlight
@@ -141,7 +146,8 @@ function stackbar(parts, { legend = true, h = 12 } = {}) {
 }
 // share meter 0..1
 const meter = (x, color = ACCENT, w = 90) => `<span class="meter" style="width:${w}px"><i style="width:${Math.max(0, Math.min(1, x ?? 0)) * 100}%;background:${color}"></i></span>`;
-const kpi = (label, v, sub = "", extra = "") => `<div class="kpi"><b>${v}</b><span>${esc(label)}</span>${sub ? `<em>${sub}</em>` : ""}${extra}</div>`;
+// a label may carry a glossary term (term()), so it is escaped only when it is plain text
+const kpi = (label, v, sub = "", extra = "") => `<div class="kpi"><b>${v}</b><span>${String(label).includes("<") ? label : esc(label)}</span>${sub ? `<em>${sub}</em>` : ""}${extra}</div>`;
 const card = (title, body, { sub = "", cls = "", right = "" } = {}) => `<section class="card ${cls}"><header><h3>${title}</h3>${right}</header>${sub ? `<p class="sub">${sub}</p>` : ""}${body}</section>`;
 
 // ------------------------------------------------------------------ tables and full lists
@@ -245,6 +251,62 @@ function signalInfo(r) {
 }
 const FAMILY = { joint: { label: "actors together", color: ACCENT }, single: { label: "single actor", color: SINGLE }, baseline: { label: "volume baseline", color: BASE } };
 
+// ------------------------------------------------------------------ glossary: every term the app uses, in plain words
+const GLOSSARY = {
+  record: ["Record", "One row of the trace: here a payload (code an agent ran), a response (what came back), or a recovered text."],
+  dated: ["Dated record", "A record with a time: its own time field, or a time estimated from unix timestamps the agents wrote into their code (fitted per block of same-kind records, and kept only if the fit passes a rank-correlation and error check)."],
+  action: ["Action", "A record an agent ran (here, a payload). Only actions can have an actor, an intent or count as harmful."],
+  actor: ["Actor", "Who did a record: an identity token it authenticates with, a name it writes, or, failing both, its own run. A token is not an agent: one agent can hold several tokens."],
+  named: ["Named actor", "Any actor that is not an anonymous run: an identity token (shown as cred N), a token taken from the record's thread, or a self-chosen name."],
+  token: ["Identity token", "A credential a record uses to authenticate. The release redacts it to a stable placeholder such as [CREDENTIAL 169], shown here as cred 169: the same placeholder is the same hidden token everywhere."],
+  token_via_thread: ["Token via thread", "A record with no token of its own whose thread (parent chain) uses one: it is credited to that token."],
+  handle: ["Self-chosen name", "A name an agent wrote into its code (for example OTS92), from the pack's list of names."],
+  run: ["Anonymous run", "A record with no token and no name. It is identified only by the first record of its thread (run R…), so two runs may be one agent."],
+  shared_key: ["Shared key", "A token that many agents use, such as the evaluation key every agent submits with. It says nothing about who acted, so it is never counted as an actor."],
+  place: ["Place", "Anywhere one actor can leave something for another: a Hugging Face dataset, a folder on the registry used as a board, a webhook, a command file, a wiki page."],
+  write: ["Write / read", "Each mention of a place in code is judged a write if write code (an upload, a commit, a POST, a folder creation) sits within 160 characters before or 260 after it; otherwise it is a read."],
+  message: ["Message", "A read of a place after a different actor wrote to it, linked to the latest such write. Each write counts once per reader, and a reader running the same program as the writer is one sender retrying, not a message."],
+  merged: ["Merged place", "A place the redaction reduced to its owner's name, so it may join several repositories: a write and a read there may be on two different places."],
+  overwrite: ["Overwrite", "Where every post replaces a whole page, an edit that keeps none of the lines the earlier editor added. The editor may never have seen it, so it is not counted as a message."],
+  latency: ["Wait", "Time from a write to the read that picked it up."],
+  program: ["Program", "The same code with ids, numbers and hashes masked. A shared program is run by two or more named actors: the first is its source, the rest adopted it."],
+  seen_used: ["Seen, then used", "A token that appears inside a record as data before any record uses it to authenticate: one way a credential passes between agents."],
+  carried: ["Carried token", "A record that authenticates as one identity and holds another identity's token, before that token's own first use."],
+  intent: ["Intent", "What an action's code tries to do: the first of the pack's intent patterns that matches it. A pattern match, not proof that it worked."],
+  tag: ["Tag", "A behavior pattern found in the code (for example a POST, a bearer token, a shell command). Context tags are shown but never counted as evidence."],
+  harm: ["Harmful action", "An action whose intent or tag is in the pack's harm list. The list says which kinds of action the investigator treats as harm; the others (for example reading public pages) still happened but are not counted as harm."],
+  harm_left: ["Harm still to come", "Of all dated harmful actions, the share that came after a given moment. 90% means a warning then would have come before 90% of the harm."],
+  sign: ["Warning sign", "The first time a signal fires. Single actor: one agent doing something harmful. Actors together: a link between agents (a message, a shared program, a carried token, a shared name, a linked group). Volume baseline: ordinary monitoring of action counts."],
+  volume: ["Volume alarm", "The baseline: fires at the end of the first hour whose action count is above the mean plus three standard deviations of every earlier hour (after 12 hours of history)."],
+  stretch: ["Stretch of the incident", "Where a moment falls, from the data's own shape: build-up (before the main surge), surge, height (from the busiest hour until activity falls below 15% of it), wind-down."],
+  pack: ["Pack", "A small JSON file that adapts the tool to a dataset: which records are actions and which patterns mark identities, places, intents and harm."],
+  group: ["Linked group", "Actors joined by a chain of messages, in either direction."],
+  broker: ["Broker", "An actor on many of the shortest message routes between other actors: removing it splits groups apart."],
+};
+const term = (key, label) => GLOSSARY[key] ? `<span class="term" data-term="${key}">${label ?? esc(GLOSSARY[key][0])}</span>` : (label ?? key);
+function glossaryText(key) {
+  const g = GLOSSARY[key];
+  if (!g) return "";
+  let d = g[1];
+  if (key === "harm" && (S.summary?.harm_names || []).length) d += " In this pack: " + S.summary.harm_names.map(human).join(", ") + ".";
+  if (key === "named" && S.summary?.actor_kinds) { const k = S.summary.actor_kinds; d += ` In this dataset: ${fmt(k.token || 0)} tokens, ${fmt(k.token_via_thread || 0)} tokens via thread, ${fmt(k.handle || 0)} self-chosen names.`; }
+  return d;
+}
+function glossaryCard(key) { const g = GLOSSARY[key]; return g ? `<div class="hc"><div class="hch"><b>${esc(g[0])}</b></div><div class="hcwhat">${esc(glossaryText(key))}</div><div class="hcfoot">Click for the glossary</div></div>` : ""; }
+function openGlossary(q = "") {
+  let el = $("glossary");
+  if (!el) { el = document.createElement("div"); el.id = "glossary"; el.className = "glossary"; document.body.appendChild(el); }
+  const draw = (q) => {
+    const rows = Object.entries(GLOSSARY).filter(([, [n, d]]) => !q || (n + " " + d).toLowerCase().includes(q.toLowerCase()));
+    el.querySelector(".glist").innerHTML = rows.map(([k, [n]]) => `<div class="gitem" id="g-${k}"><b>${esc(n)}</b><p>${esc(glossaryText(k))}</p></div>`).join("") || '<p class="muted">No term matches.</p>';
+  };
+  el.innerHTML = `<div class="ghead"><h3>What the words mean</h3><input placeholder="Find a term" value="${esc(q)}"><button type="button" class="link">Close</button></div><div class="glist"></div>`;
+  el.hidden = false;
+  el.querySelector("button").addEventListener("click", () => { el.hidden = true; });
+  el.querySelector("input").addEventListener("input", (e) => draw(e.target.value));
+  draw(q);
+}
+
 // ------------------------------------------------------------------ hover cards
 const HC = { el: null, timer: null, hide: null, key: null };
 function hcEl() {
@@ -264,6 +326,11 @@ function placeCard(x, y) {
   el.style.left = left + "px"; el.style.top = top + "px";
 }
 async function showCard(target, x, y) {
+  if (target.dataset.term) {
+    HC.key = "t:" + target.dataset.term;
+    const el = hcEl(); el.innerHTML = glossaryCard(target.dataset.term); el.hidden = false; placeCard(x, y);
+    return;
+  }
   const a = target.dataset.actor, ch = target.dataset.place, id = target.dataset.id || target.dataset.ev;
   const key = a ? "a:" + a : ch ? "p:" + ch : id ? "r:" + id : null;
   if (!key || HC.key === key) return;
@@ -285,7 +352,8 @@ function actorCard(p) {
   return `<div class="hc actor"><div class="hch"><span class="ent actor"><i></i>${esc(short(p.actor))}</span><span class="muted">${esc(kindWord)}${p.shared ? " · shared key" : ""}</span></div>
     ${spark(p.hourly, { w: 260, h: 34, color: C.actor })}
     <div class="hcrow muted small"><span>${when(toTime(p.first))}</span><span>${when(toTime(p.last))}</span></div>
-    <div class="hcstats"><span><b>${fmt(p.records)}</b> records</span><span><b>${fmt(p.sent)}</b> sent</span><span><b>${fmt(p.received)}</b> received</span><span><b>${fmt(p.partners)}</b> partners</span><span><b>${fmt(p.places_total)}</b> places</span><span><b>${fmt(p.harmful)}</b> harmful</span></div>
+    <div class="hcstats"><span><b>${fmt(p.actions)}</b> actions (${fmt(p.timed_actions)} dated)</span><span><b>${fmt(p.harmful)}</b> harmful</span><span><b>${fmt(p.places_total)}</b> places</span></div>
+    <div class="hcstats"><span>messages: <b>${fmt(p.sent)}</b> sent, <b>${fmt(p.received)}</b> received, <b>${fmt(p.partners)}</b> partners</span><span class="muted">with named actors only: ${fmt(p.sent_named)} / ${fmt(p.received_named)} / ${fmt(p.partners_named)}</span></div>
     ${top.length ? stackbar(top.map((i) => ({ label: human(i.intent), value: i.n, color: intentColor(i.intent) })), { h: 8 }) : ""}
     ${p.signals.length ? `<div class="hcsig">${p.signals.slice(0, 3).map((g) => `<span class="sigdot" style="background:${FAMILY[g.family]?.color}"></span>${esc(g.name)} <span class="muted">${esc(g.time)}</span>`).join("<br>")}</div>` : ""}
     <div class="hcfoot">Click to inspect</div></div>`;
@@ -306,21 +374,23 @@ function recordCard(t) {
     <div class="hcrow">${ent.actor(t.actor)} ${ent.intent(t.intent)}</div>
     <div class="hcwhat">${(x.what || []).slice(0, 2).map(esc).join(" ")}</div>
     ${(x.roles || []).length ? `<div class="roles">${x.roles.slice(0, 4).map((r) => `<span class="role ${r.role}">${esc(r.label)}</span>`).join("")}</div>` : ""}
-    <div class="hcstats"><span><b>${fmt(t.messages_in.length)}</b> in</span><span><b>${fmt(t.messages_out.length)}</b> out</span><span><b>${fmt(t.channel_ops.length)}</b> places</span><span><b>${fmt(t.same_program_total)}</b> copies</span></div>
-    ${x.harm_share_after != null ? `<div class="small">Harm still to come ${meter(x.harm_share_after, HARM, 80)} <b>${pct(x.harm_share_after)}</b></div>` : ""}
+    <div class="hcstats"><span><b>${fmt(t.messages_in.length)}</b> messages in</span><span><b>${fmt(t.messages_out.length)}</b> out</span><span><b>${fmt(t.channel_ops.length)}</b> place${t.channel_ops.length === 1 ? "" : "s"}</span><span><b>${fmt(t.same_program_total)}</b> other cop${t.same_program_total === 1 ? "y" : "ies"} of its program</span></div>
+    ${x.harm_share_after != null ? `<div class="small">${meter(x.harm_share_after, HARM, 70)} <b>${pct(x.harm_share_after)}</b> of the dated harm came after it</div>` : ""}
     <div class="hcfoot">Click to inspect</div></div>`;
 }
 document.addEventListener("mouseover", (e) => {
-  const t = e.target.closest("[data-actor],[data-place],[data-id],[data-ev]");
+  const t = e.target.closest("[data-term],[data-actor],[data-place],[data-id],[data-ev]");
   if (!t || t.closest(".hovercard") || t.dataset.nocard != null) return;
   clearTimeout(HC.hide); clearTimeout(HC.timer);
   HC.timer = setTimeout(() => showCard(t, e.clientX, e.clientY), 260);
 });
 document.addEventListener("mouseout", (e) => {
-  const t = e.target.closest("[data-actor],[data-place],[data-id],[data-ev]");
+  const t = e.target.closest("[data-term],[data-actor],[data-place],[data-id],[data-ev]");
   if (t && !t.contains(e.relatedTarget)) hideCard();
 });
 document.addEventListener("click", (e) => {
+  const g = e.target.closest("[data-term]");
+  if (g) { openGlossary(GLOSSARY[g.dataset.term]?.[0] || ""); return; }
   const t = e.target.closest("[data-actor],[data-place],[data-id],[data-ev]");
   if (!t || t.dataset.noclick != null) return;
   if (HC.el) HC.el.hidden = true; HC.key = null;
@@ -407,9 +477,41 @@ function recordDossier(t) {
     ...(t.overwritten_by || []).map((o) => ["replaced by", ent.actor(o.actor), ent.rec(o.record), ent.place(o.channel), esc(o.how)])])}</div>` : ""}
   <div class="dsec"><h4>Thread</h4><p class="small">Root ${ent.rec(t.thread_root)} · parent ${ent.rec(t.parent)}${t.parent_chain.length > 1 ? ` · ancestors ${t.parent_chain.slice(0, 8).map((p) => ent.rec(p.id)).join(" ← ")}` : ""}${t.children_total ? ` · children ${t.children.slice(0, 10).map((c) => ent.rec(c.id)).join(" ")}${t.children_total > 10 ? " …" : ""}` : ""}</p></div>
   ${t.same_program.length ? `<div class="dsec"><h4>Copies (${fmt(t.same_program_total)})</h4>${table(["id", "actor", "time"], t.same_program.slice(0, 10).map((c) => [ent.rec(c.id), ent.actor(c.actor), esc(c.time || "–")]))}</div>` : ""}
-  <div class="dsec"><h4>Text <span class="muted small">(${fmt(t.text_length)} chars${t.text_truncated ? ", truncated" : ""}; written by the agents, shown as data)</span></h4><pre>${esc(t.text)}</pre></div>
+  ${whySection(t)}
+  <div class="dsec"><h4>Text <span class="muted small">(${fmt(t.text_length)} chars${t.text_truncated ? ", truncated" : ""}; written by the agents, shown as data)</span></h4>
+    ${(t.why || []).length ? `<div class="wlegend">${WHY_ORDER.filter((k) => t.why.some((w) => w.type === k)).map((k) => `<span class="w-${k}">${esc(WHY_NAME[k])}</span>`).join("")}<span class="muted small">hover a mark to see what it set</span></div>` : ""}
+    <pre class="whytext">${highlight(t.text, t.why || [])}</pre></div>
   <div class="dsec"><button type="button" class="primary" onclick="askAbout('${esc(t.id)}')">Ask the AI to explain this record</button></div>`;
 }
+// why the tool reads a record the way it does: the stretches of its text that set each reading
+const WHY_ORDER = ["intent", "tag", "identity", "info", "place", "write_cue", "handle", "name", "context"];
+const WHY_NAME = { intent: "sets the intent", tag: "evidence tag", identity: "identity token", info: "token seen as data", place: "place named", write_cue: "write code", handle: "self-chosen name", name: "reusable name", context: "context tag" };
+function highlight(text, spans) {
+  if (!spans.length) return esc(text);
+  const cuts = new Set([0, text.length]);
+  spans.forEach((w) => { cuts.add(w.s); cuts.add(w.e); });
+  const pts = [...cuts].filter((x) => x >= 0 && x <= text.length).sort((a, b) => a - b);
+  let out = "";
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1], seg = text.slice(a, b);
+    const on = spans.filter((w) => w.s <= a && w.e >= b);
+    if (!on.length) { out += esc(seg); continue; }
+    const top = WHY_ORDER.find((k) => on.some((w) => w.type === k));
+    const cls = [...new Set(on.map((w) => "w-" + w.type))].join(" ");
+    out += `<mark class="${cls} top-${top}" title="${esc(on.map((w) => w.label).join("\n"))}">${esc(seg)}</mark>`;
+  }
+  return out;
+}
+function whySection(t) {
+  const w = t.why || [];
+  if (!w.length) return "";
+  const by = {};
+  w.forEach((x) => { const k = x.type + "\u0000" + x.key; (by[k] ||= { ...x, n: 0, snip: t.text.slice(x.s, Math.min(x.e, x.s + 70)) }).n += 1; });
+  const rows = Object.values(by).sort((a, b) => WHY_ORDER.indexOf(a.type) - WHY_ORDER.indexOf(b.type));
+  return `<div class="dsec"><h4>Why the tool reads it this way</h4><div class="whylist">${rows.map((x) => `<div class="whyrow"><span class="wk w-${x.type}">${esc(WHY_NAME[x.type])}</span><div><div>${esc(x.label)}</div><code class="wsnip">${esc(x.snip)}${x.e - x.s > 70 ? "…" : ""}</code>${x.n > 1 ? ` <span class="muted small">×${x.n}</span>` : ""}</div></div>`).join("")}</div>
+    <p class="small muted">Every reading is a pattern match on the text, from the pack. It shows what the code would do, not whether it worked.</p></div>`;
+}
+
 function actorDossier(p) {
   const kindWord = { token: "identity token", handle: "self-chosen name", run: "anonymous run", token_via_thread: "token (from its thread)", named: "actor field" }[p.kind] || p.kind;
   const ev = esc(JSON.stringify({ actor: p.actor }));
@@ -417,7 +519,8 @@ function actorDossier(p) {
   <div class="dhead"><div><span class="ent actor big" data-noclick data-actor="${esc(p.actor)}"><i></i>${esc(short(p.actor))}</span> <span class="badge">${esc(kindWord)}</span>${p.shared ? ' <span class="badge warnb">shared key: stands for many agents</span>' : ""}</div>
     <div class="muted small">${esc(p.first || "no time")} to ${esc(p.last || "")}</div></div>
   <div class="dsec">${spark(p.hourly, { w: 420, h: 46, color: C.actor })}
-    <div class="comp">${[["records", p.records], ["timed", p.timed], ["harmful", p.harmful], ["messages sent", p.sent], ["messages received", p.received], ["partners", p.partners], ["places", p.places_total], ["programs started", p.programs_started_total], ["programs reused", p.programs_adopted_total]].map(([k, v]) => `<div class="${v ? "" : "zero"}"><b>${fmt(v || 0)}</b><span>${k}</span></div>`).join("")}</div>
+    <div class="comp">${[["actions", p.actions], ["dated actions", p.timed_actions], ["harmful actions", p.harmful], ["records incl. responses", p.records], ["messages sent", p.sent], ["messages received", p.received], ["partners", p.partners], ["places", p.places_total], ["programs started", p.programs_started_total], ["programs reused", p.programs_adopted_total]].map(([k, v]) => `<div class="${v ? "" : "zero"}"><b>${fmt(v || 0)}</b><span>${k}</span></div>`).join("")}</div>
+    <p class="small muted">Messages count every partner, anonymous runs included; with named actors only: ${fmt(p.sent_named)} sent, ${fmt(p.received_named)} received, ${fmt(p.partners_named)} partners (the numbers on Who talked to whom). Records include the responses and texts credited to this actor through its threads.</p>
     <button type="button" data-goevents="${ev}">List all ${fmt(p.records)} events</button></div>
   <div class="dsec"><h4>What it does</h4>${hbars(p.intents.map((i) => ({ label: esc(human(i.intent)), value: i.n, color: intentColor(i.intent), title: i.what })), { total: p.records })}
     ${p.tags.length ? `<div class="chips">${p.tags.map((g) => `<span class="chip" title="${esc(g.what)}">${esc(human(g.tag))} <b>${fmt(g.n)}</b></span>`).join("")}</div>` : ""}</div>
@@ -453,7 +556,9 @@ $("tabs").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-tab]");
   if (b) goTab(b.dataset.tab);
 });
+S.scroll = {};
 function goTab(tab) {
+  if (S.tab && $("left")) S.scroll[S.tab] = $("left").scrollTop;
   S.tab = tab;
   document.querySelectorAll("#tabs button").forEach((x) => x.classList.toggle("on", x.dataset.tab === tab));
   render();
@@ -469,17 +574,21 @@ function render() {
   el.innerHTML = "";
   el.scrollTop = 0;
   if (!f) { el.innerHTML = `<p class="warn">No view named ${esc(S.tab)}.</p>`; return; }
-  Promise.resolve(f(el, S.summary)).catch((e) => { el.insertAdjacentHTML("beforeend", `<p class="warn">${esc(e.message)}</p>`); console.error(e); });
+  const back = S.scroll?.[S.tab];
+  Promise.resolve(f(el, S.summary)).then(() => { if (back) setTimeout(() => { if ($("left").scrollHeight > back) $("left").scrollTop = back; }, 400); })
+    .catch((e) => { el.insertAdjacentHTML("beforeend", `<p class="warn">${esc(e.message)}</p>`); console.error(e); });
 }
 function tabCounts(s) {
   const f = s.flow, T = s.list_totals || {};
   const counts = { network: f.named_actor_pairs, channels: f.channels, spread: T.content_spread, early: (s.replay || []).length, events: s.records };
+  const what = { network: "sender-receiver pairs between named actors", channels: "places", spread: "programs run by two or more named actors", early: "warning signs", events: "records" };
   document.querySelectorAll("#tabs button").forEach((b) => {
     const n = counts[b.dataset.tab];
     let c = b.querySelector(".cnt");
     if (n == null) { if (c) c.remove(); return; }
     if (!c) { c = document.createElement("span"); c.className = "cnt"; b.appendChild(c); }
     c.textContent = n >= 10000 ? Math.round(n / 1000) + "k" : fmt(n);
+    c.title = `${fmt(n)} ${what[b.dataset.tab] || ""}`;
   });
   // the early-flag count is every warning sign the replay tracks, which the summary does not carry
   cached("/api/sim").then((sim) => { const c = document.querySelector('#tabs button[data-tab="early"] .cnt'); if (c) c.textContent = fmt(sim.signals.length); }).catch(() => {});
@@ -494,13 +603,13 @@ function setSummary(s) {
   INS.stack = [];
   S.ev = { q: "", kind: "", intent: "", tag: "", actor: "", hour: "", channels: false, offset: 0 };
   const sp = s.time_test?.span;
-  $("dsname").innerHTML = `<b>${esc(s.name)}</b><span>${fmt(s.records)} records · ${esc(s.pack)}${s.pack_choice ? " (auto)" : ""}</span>`;
+  $("dsname").innerHTML = `<b title="${esc(s.name)}">${esc(s.name)}</b><span title="${esc(`${fmt(s.records)} records · pack: ${s.pack}${s.pack_choice ? " (picked automatically: " + s.pack_choice.why + ")" : ""}`)}">${fmt(s.records)} records · ${esc(s.pack)}${s.pack_choice ? " (auto)" : ""}</span>`;
   $("ribbon").innerHTML = [
-    sp ? ["span", (() => { const a = toTime(sp[0]), b = toTime(sp[1]); const da = dayWord(a), db = dayWord(b); return da.split(" ")[0] === db.split(" ")[0] ? `${da}–${db.split(" ")[1]}` : `${da}–${db}`; })()] : null,
-    ["dated", pct(s.timed / s.records)],
-    ["actors", fmt(Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0))],
-    ["places", fmt(s.flow.channels)],
-    ["messages", fmt(s.flow.deliveries)],
+    sp ? [term("dated", "span"), (() => { const a = toTime(sp[0]), b = toTime(sp[1]); const da = dayWord(a), db = dayWord(b); return da.split(" ")[0] === db.split(" ")[0] ? `${da}–${db.split(" ")[1]}` : `${da}–${db}`; })()] : null,
+    [term("dated", "dated"), pct(s.timed / s.records)],
+    [term("named", "named actors"), fmt(Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0))],
+    [term("place", "places"), fmt(s.flow.channels)],
+    [term("message", "messages"), fmt(s.flow.deliveries)],
   ].filter(Boolean).map(([k, v]) => `<span><b>${v}</b>${k}</span>`).join("");
   $("loadpanel").hidden = true;
   tabCounts(s);
@@ -521,8 +630,8 @@ function setSummary(s) {
         const r = await api("/api/search?q=" + encodeURIComponent(q));
         if (my !== seq) return;
         const sec = (title, items) => items.length ? `<div class="oh">${title}</div>${items.join("")}` : "";
-        out.innerHTML = sec("Actors", r.actors.map((a) => `<div class="oi" data-actor="${esc(a.actor)}" data-nocard><span class="ent actor"><i></i>${esc(short(a.actor))}</span><span class="muted">${esc(a.kind)} · ${fmt(a.records)} records</span></div>`)) +
-          sec("Places", r.places.map((p) => `<div class="oi" data-place="${esc(p.channel)}" data-nocard><span class="ent place"><i></i>${esc(placeLabel(p.channel))}</span><span class="muted">${fmt(p.messages)} messages</span></div>`)) +
+        out.innerHTML = sec("Actors", r.actors.map((a) => `<div class="oi" data-actor="${esc(a.actor)}" data-nocard><span class="ent actor${a.kind === "run" ? " run" : ""}"><i></i>${esc(short(a.actor))}</span><span class="muted">${esc({ token: "token", token_via_thread: "token via thread", handle: "self-chosen name", run: "anonymous run", named: "actor field" }[a.kind] || a.kind)} · ${fmt(a.records)} records</span></div>`)) +
+          sec("Places", r.places.map((p) => `<div class="oi" data-place="${esc(p.channel)}" data-nocard><span class="ent place wrap"><i></i>${esc(placeLabel(p.channel))}</span><span class="muted">${p.messages ? plural(p.messages, "message") : plural(p.ops, "operation")}</span></div>`)) +
           sec("Records", r.records.map((x) => `<div class="oi" data-id="${esc(x.id)}" data-nocard><span class="ent rec">${esc(x.id)}</span><span class="muted">${esc(x.kind)} · ${esc(short(x.actor))} · ${esc(x.time || "no time")}</span></div>`)) +
           `<div class="oi" data-search="${esc(q)}"><span>Search all record text for “${esc(q)}”</span></div>`;
         out.hidden = false;
@@ -535,8 +644,17 @@ function setSummary(s) {
   document.addEventListener("click", (e) => { if (!e.target.closest(".omni")) close(); });
 })();
 
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  ["loadpanel", "glossary", "omniout"].forEach((id) => { if ($(id)) $(id).hidden = true; });
+  if (HC.el) HC.el.hidden = true;
+});
+$("glossbtn").addEventListener("click", () => { const g = $("glossary"); if (g && !g.hidden) g.hidden = true; else openGlossary(); });
 $("loadbtn").addEventListener("click", () => { $("loadpanel").hidden = !$("loadpanel").hidden; });
-document.addEventListener("click", (e) => { if (!e.target.closest("#loadpanel,#loadbtn") && $("loadpanel")) $("loadpanel").hidden = true; });
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("#loadpanel,#loadbtn") && $("loadpanel")) $("loadpanel").hidden = true;
+  if (!e.target.closest("#glossary,#glossbtn,[data-term]") && $("glossary")) $("glossary").hidden = true;
+});
 $("upload").addEventListener("submit", async (ev) => {
   ev.preventDefault();
   const files = [...$("folder").files, ...$("file").files].filter((f) => /\.(csv|tsv|jsonl|json|txt)$/i.test(f.name));

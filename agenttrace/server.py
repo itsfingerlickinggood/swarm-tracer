@@ -193,7 +193,10 @@ class Handler(BaseHTTPRequestHandler):
             ext = os.path.splitext(name)[1].lower()
             if ext not in (".csv", ".jsonl", ".json", ".tsv", ".txt"):
                 raise ValueError("Upload a .csv or .jsonl file.")
-            path = os.path.join(UPLOAD_DIR, "data" + (".jsonl" if ext in (".jsonl", ".json") else ".csv"))
+            # keep the file's own name, so the overview's read report names the file that was uploaded
+            safe = "".join(ch if ch.isalnum() or ch in "._-" else "_" for ch in os.path.splitext(name)[0])[:80] or "data"
+            d = tempfile.mkdtemp(dir=UPLOAD_DIR)
+            path = os.path.join(d, safe + (".jsonl" if ext in (".jsonl", ".json") else ".csv"))
             data = self.read_body()
             with open(path, "wb") as f:
                 f.write(data)
@@ -255,7 +258,7 @@ class Handler(BaseHTTPRequestHandler):
         s = self.need_session()
         mode = "gaps" if body.get("mode") == "gaps" else "chat"
         msgs, ids = ai.build_messages(s, body.get("messages", []), body.get("selectedId"),
-                                      conversation=body.get("conversation"), mode=mode)
+                                      conversation=body.get("conversation"), mode=mode, selected=body.get("selected"))
         content, usage = ai.call(body.get("baseUrl") or ai.DEFAULT_BASE_URL, body.get("apiKey", ""),
                                  body.get("model") or ai.DEFAULT_MODEL, msgs, session_id=body.get("sessionId"),
                                  json_mode=True)

@@ -122,6 +122,17 @@ def build_indexes(s):
     s.harm_sorted = sorted(s.rec.get("_harm_times", []))
 
 
+def family_index(s):
+    """record id -> program family (identical text once ids, numbers and hashes are masked), built once."""
+    if getattr(s, "_fam", None) is None:
+        from . import messages
+        s._fam = messages.families(s.events)
+        s.by_family = defaultdict(list)
+        for rid, f in s._fam.items():
+            s.by_family[f].append(rid)
+    return s._fam
+
+
 def harm_share_after(s, t):
     h = s.harm_sorted
     if not h or t is None:
@@ -153,6 +164,7 @@ def actor_profile(s, actor, top=12):
     ts.sort()
     sent, got = s.del_by_actor_out.get(actor, []), s.del_by_actor_in.get(actor, [])
     p_out, p_in = Counter(d["to"] for d in sent), Counter(d["from"] for d in got)
+    acts = [rid for rid in ids if reconstruct.is_action(s.by_id[rid], s.pack)]
     places = defaultdict(Counter)
     for ch, op, t, rid in s.ops_by_actor.get(actor, []):
         places[ch][op] += 1
@@ -177,6 +189,9 @@ def actor_profile(s, actor, top=12):
     names_t = tag_names(s.pack)
     return {
         "actor": actor, "kind": kind, "records": len(ids), "timed": len(ts),
+        "actions": len(acts), "timed_actions": sum(1 for rid in acts if rid in times),
+        "sent_named": sum(1 for d in sent if is_named(d["to"])), "received_named": sum(1 for d in got if is_named(d["from"])),
+        "partners_named": len({a for a in set(p_out) | set(p_in) if is_named(a)}),
         "first": iso(ts[0][0]) if ts else None, "last": iso(ts[-1][0]) if ts else None,
         "first_record": ts[0][1] if ts else ids[0], "last_record": ts[-1][1] if ts else ids[-1],
         "hourly": sorted(hourly.items()),
@@ -304,7 +319,7 @@ def message_list(s):
 
 # ------------------------------------------------------------------ program gist
 
-URL_RX = re.compile(r"https?://([\w.\-\[\] ]+?)(/[\w\-./\[\]%:]*)?(?=['\"\s`)?]|$)")
+URL_RX = re.compile(r"https?://((?:\[[^\]\n]{1,60}\]|[\w.\-])+)((?:/(?:\[[^\]\n]{1,60}\]|[\w\-.%:])*)*)")
 
 
 def program_gist(s, rid):
@@ -319,7 +334,7 @@ def program_gist(s, rid):
     for m in URL_RX.finditer(e.text[:20000]):
         host = m.group(1).strip()
         path = (m.group(2) or "").split("?")[0]
-        segs = [p for p in path.split("/") if p][:3]
+        segs = [p for p in re.findall(r"\[[^\]]+\]|[^/]+", path) if p and p != "/"][:3]
         h = host + ("/" + "/".join(segs) if segs else "")
         if h not in hosts:
             hosts.append(h)
@@ -425,8 +440,12 @@ def simulate(s):
     def add(key, name, family, t, ref, actors, why, kind=None):
         if t is None:
             return
+        rec = ref if ref in s.by_id else None
+        if rec is None and (kind or key) == "token":
+            x = next((x for x in s.rec["seen_then_used"] if x["item"] == ref), None)
+            rec = x["first_seen_id"] if x else None
         signals.append({"key": key, "name": name, "family": family, "kind": kind or key, "time": iso(t), "t": t,
-                        "ref": ref, "actors": [a for a in actors if a], "why": why,
+                        "ref": ref, "record": rec, "actors": [a for a in actors if a], "why": why,
                         "harm_share_after": harm_share_after(s, t)})
 
     # the tool's replay: first harmful action of each kind, coordination and spread signs
@@ -581,7 +600,8 @@ def explain(s, rid):
         what.append("It authenticates as " + ", ".join(f"{k}{' (shared key)' if k in shared else ''} via {v}" for k, v in list(ids.items())[:4]) + ".")
     if not what:
         what.append(f"A {e.kind or 'record'} with no known pattern." if reconstruct.is_action(e, s.pack)
-                    else f"A {e.kind or 'record'}: not an action itself; it is where information can be seen.")
+                    else f"A {e.kind or 'record'}: not an action an agent ran, but text recovered or returned around one. "
+                         "Its identities and places are credited to the action, so it is not counted twice.")
 
     roles = []
     din, dout = s.del_in.get(rid, []), s.del_out.get(rid, [])
@@ -633,20 +653,35 @@ def explain(s, rid):
             if st and iso(t) >= st[:16]:
                 report_phase = {"name": p["name"], "source": p.get("source")}
     prog = None
-    p = s.prefix.get(rid)
-    if p:
-        copies = s.by_prefix.get(p, [])
+    fam = family_index(s).get(rid)
+    is_act = reconstruct.is_action(e, s.pack)
+    if fam:
+        copies = [x for x in s.by_family[fam] if reconstruct.is_action(s.by_id[x], s.pack)]
         actors_p = Counter(s.actor[x][0] for x in copies)
-        ct = sorted(times[x] for x in copies if x in times)
-        prog = {"copies": len(copies), "actors": len(actors_p), "named_actors": sum(1 for k in actors_p if is_named(k)),
-                "first_time": iso(ct[0]) if ct else None, "last_time": iso(ct[-1]) if ct else None,
-                "hourly": sorted(Counter(iso(x)[:13] for x in ct).items()),
+        ct = sorted((times[x], x) for x in copies if x in times)
+        first = ct[0][1] if ct else (copies[0] if copies else None)
+        prog = {"rule": "identical code once ids, numbers and hashes are masked", "copies": len(copies),
+                "other_copies": len([x for x in copies if x != rid]),
+                "actors": len(actors_p), "named_actors": sum(1 for k in actors_p if is_named(k)),
+                "first_record": first, "first_actor": s.actor[first][0] if first else None, "is_first": first == rid,
+                "first_time": iso(ct[0][0]) if ct else None, "last_time": iso(ct[-1][0]) if ct else None,
+                "hourly": sorted(Counter(iso(x)[:13] for x, _ in ct).items()),
                 "top_actors": [{"actor": k, "n": v} for k, v in actors_p.most_common(6)]}
+    copy_of = None
+    if not is_act:
+        # a recovered copy or a response: point at the action it repeats or answers
+        same = [x for x in (s.by_family.get(fam, []) if fam else []) if reconstruct.is_action(s.by_id[x], s.pack)]
+        if same:
+            copy_of = {"record": same[0], "why": "the same code (ids masked) as this action"}
+        elif e.parent and e.parent in s.by_id:
+            copy_of = {"record": e.parent, "why": "its parent record"}
+    ctx_tags = s.res["_context"][rid]
     return {
+        "is_action": is_act, "copy_of": copy_of,
         "what": what,
         "stages": sorted({stage.get(g, "other") for g in tags}),
         "roles": roles,
-        "harm_share_after": harm_share_after(s, t),
+        "harm_share_after": harm_share_after(s, t) if is_act else None,
         "phase": phase,
         "report_phase": report_phase,
         "actor": {"actor": a, "kind": ak, "records": len(mine), "timed": len(mine_t),
@@ -656,7 +691,7 @@ def explain(s, rid):
         "program": prog,
         "components": {"identities": len(ids), "places_written": len(w), "places_read": len(r),
                        "messages_in": len(din), "messages_out": len(dout),
-                       "ancestors": 0, "children": len(s.children.get(rid, [])), "tags": len(tags)},
+                       "ancestors": 0, "children": len(s.children.get(rid, [])), "tags": len(tags), "context_tags": len(ctx_tags)},
     }
 
 
@@ -704,13 +739,15 @@ def omni(s, q, limit=8):
             break
         if rid != q and rid.lower().startswith(ql):
             recs.append(rid)
-    actors = []
-    for a, ids in sorted(s.by_actor.items(), key=lambda kv: -len(kv[1])):
-        al = a.lower()
-        if (ql in al or alt in al) and not a.startswith("run:"):
-            actors.append({"actor": a, "records": len(ids), "kind": s.actor[ids[0]][1]})
-        if len(actors) >= limit:
-            break
+    def rank(a):
+        al, sh = a.lower(), re.sub(r"\[credential (\d+)\]", r"cred \1", a.lower())
+        if ql in (al, sh) or alt == al:
+            return 0
+        if al.startswith(ql) or sh.startswith(ql) or re.search(r"\b" + re.escape(ql) + r"\b", sh):
+            return 1
+        return 2 if (ql in al or alt in al or ql in sh) else None
+    hits = [(rank(a), -len(ids), a) for a, ids in s.by_actor.items() if not a.startswith("run:")]
+    actors = [{"actor": a, "records": -n, "kind": s.actor[s.by_actor[a][0]][1]} for r, n, a in sorted(x for x in hits if x[0] is not None)[:limit]]
     places = []
     for ch, row in s.channel_row.items():
         if ql in ch.lower() or alt in ch.lower():
@@ -778,3 +815,78 @@ def gap_facts(s):
     for r in rows:
         r["share"] = round(r["count"] / r["of"], 4) if r.get("count") is not None and r.get("of") else None
     return rows
+
+
+# ------------------------------------------------------------------ why a record was read the way it was
+
+def why_spans(s, rid, text_limit=20000):
+    """Every stretch of a record's text that made the tool read it a certain way: the pattern that set
+    its intent, each behavior tag, each identity token, each place it names (with the code that made the
+    mention a write), and self-chosen names. Offsets index the first text_limit characters."""
+    from . import messages
+    e = s.by_id.get(rid)
+    if not e:
+        return []
+    text = e.text[:text_limit]
+    names_i = intent_names(s.pack)
+    spans = []
+
+    def add(m, typ, key, label, group=0, **extra):
+        spans.append({"s": m.start(group), "e": m.end(group), "type": typ, "key": key, "label": label, **extra})
+
+    it = s.rec["_intents"].get(rid)
+    if it and it != "other":
+        for name, rx in s.pack.intents:
+            if name == it:
+                m = rx.search(text)
+                if m and m.end() > m.start():
+                    add(m, "intent", name, f"sets its intent: {names_i.get(name, human(name))} (first intent pattern that matches)")
+                break
+    tags = set(s.res["_evidence"][rid]) | set(s.res["_context"][rid])
+    for b in s.pack.behaviors:
+        if b.name not in tags:
+            continue
+        for k, m in enumerate(b.rx.finditer(text)):
+            if k >= 4:
+                break
+            if m.end() > m.start():
+                add(m, "context" if b.context else "tag", b.name,
+                    f"tag {human(b.name)}: {b.description or human(b.name)}" + (" (context only, not counted as evidence)" if b.context else ""))
+    if reconstruct.is_action(e, s.pack):
+        shared = set(s.pack.raw.get("shared_identities", []))
+        for role, rx in s.pack.identity_patterns:
+            for m in rx.finditer(text):
+                tok = m.group(1)
+                add(m, "identity", tok, f"identity {tok} used as {role}" + (" (a shared key: not counted as an actor)" if tok in shared else ""), 1)
+        for name, rx, wrx in messages.compile_channels(s.pack):
+            for m in rx.finditer(text):
+                if not m.group(1):
+                    continue
+                w0 = max(0, m.start() - 160)
+                window = text[w0: m.end() + 260]
+                wm = wrx.search(window)
+                key = f"{name}:{m.group(1)}"
+                add(m, "place", key, f"names the place {key}: counted as a {'write' if wm else 'read'}"
+                    + (" because of the code marked nearby" if wm else " (no write code within the 160 characters before or 260 after)"),
+                    op="write" if wm else "read")
+                if wm and wm.end() > wm.start():
+                    spans.append({"s": w0 + wm.start(), "e": w0 + wm.end(), "type": "write_cue", "key": key,
+                                  "label": f"write code: makes the mention of {key} a write"})
+        ids_here = set(s.rec["_ids"].get(rid, {}))
+        for fam, rx in s.pack.info_patterns:
+            for k, m in enumerate(rx.finditer(text)):
+                if k >= 6:
+                    break
+                if m.group(0) not in ids_here:
+                    add(m, "info", m.group(0), f"{m.group(0)} appears here as data ({fam}), not used to authenticate: how a token can pass to another agent")
+        if s.pack.handles_rx:
+            for m in s.pack.handles_rx.finditer(text):
+                add(m, "handle", m.group(1), f"self-chosen name {m.group(1)}", 1)
+        for fam, rx in s.pack.shared_names:
+            for k, m in enumerate(rx.finditer(text)):
+                if k >= 4:
+                    break
+                add(m, "name", m.group(0), f"a name other runs can reuse ({fam})")
+    spans = [x for x in spans if 0 <= x["s"] < x["e"] <= len(text)]
+    spans.sort(key=lambda x: (x["s"], -(x["e"] - x["s"])))
+    return spans[:400]

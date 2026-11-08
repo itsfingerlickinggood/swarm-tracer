@@ -32,7 +32,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid #bcd3ee;border-color:v
 .dataset b{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dataset span{font-size:11px;color:#9fb0c3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ribbon{display:flex;gap:2px;border-left:1px solid #2c3e54;padding-left:10px}
-.ribbon span{display:flex;flex-direction:column;align-items:center;padding:0 9px;font-size:10px;color:#8fa1b5;text-transform:uppercase;letter-spacing:.4px;line-height:1.25}
+.ribbon>span{display:flex;flex-direction:column;align-items:center;padding:0 9px;font-size:10px;color:#8fa1b5;text-transform:uppercase;letter-spacing:.4px;line-height:1.25}
 .ribbon b{font-size:13.5px;color:#fff;text-transform:none;letter-spacing:0;font-variant-numeric:tabular-nums}
 .omni{position:relative;flex:1;min-width:180px;max-width:420px;margin-left:auto}
 .omni input{width:100%;background:#0b1520;border:1px solid #2f435b;color:#e9eef4;border-radius:8px;padding:6px 10px 6px 30px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Ccircle cx='6' cy='6' r='4.5' fill='none' stroke='%238fa1b5' stroke-width='1.5'/%3E%3Cpath d='M9.5 9.5L13 13' stroke='%238fa1b5' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:9px 50%}
@@ -85,7 +85,7 @@ h2{font-size:17px;margin:2px 0 4px;letter-spacing:-.1px} h3{font-size:14px;margi
 .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:12px}
 .kpi{background:#f6f8fb;border:1px solid var(--line2);border-radius:9px;padding:8px 11px;min-width:0;position:relative}
 .kpi b{display:block;font-size:19px;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
-.kpi span{font-size:11.5px;color:var(--muted);display:block}
+.kpi>span{font-size:11.5px;color:var(--muted);display:block}
 .kpi em{font-style:normal;font-size:11px;color:var(--faint);display:block}
 .kpi .spark{margin-top:4px;display:block}
 
@@ -229,9 +229,39 @@ pre{white-space:pre-wrap;word-break:break-word;background:#f7f8fa;border:1px sol
 #aiStateLine .dot{width:8px;height:8px;border-radius:50%;background:#c3cad2}
 #aiStateLine.ok .dot{background:#2e9d5b} #aiStateLine.bad .dot{background:var(--bad)}
 
-@media (max-width:1180px){.brand span{display:none}.dataset{max-width:190px}.ribbon span:nth-child(n+5){display:none}}
+@media (max-width:1180px){.brand span{display:none}.dataset{max-width:190px}.ribbon>span:nth-child(n+5){display:none}}
 @media (max-width:980px){.ribbon{display:none}.top{gap:10px}}
-.ribbon span{white-space:nowrap}
+.ribbon>span{white-space:nowrap}
+.ribbon .term{border-bottom-color:#5f7690}
 h4 .ent,h3 .ent{text-transform:none;letter-spacing:0}
 .filters input[type=checkbox]{width:auto}
 .phead>b{white-space:nowrap}
+
+/* ---------------------------------------------------------------- terms and glossary */
+.term{border-bottom:1px dotted #8a96a3;cursor:help}
+.term:hover{border-bottom-color:var(--accent);color:var(--accent)}
+.glossary{position:fixed;right:14px;top:56px;width:400px;max-height:calc(100vh - 80px);display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 40px rgba(10,20,35,.25);z-index:60}
+.glossary .ghead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.glossary .ghead h3{margin:0;font-size:14px;flex:none}
+.glossary .ghead input{flex:1;min-width:0}
+.glossary .glist{overflow:auto;padding:6px 14px 12px}
+.glossary .gitem{padding:6px 0;border-bottom:1px solid var(--line2)}
+.glossary .gitem p{margin:2px 0 0;font-size:12.5px;color:#2b3542}
+
+/* ---------------------------------------------------------------- why the tool reads a record this way */
+.whylist{display:flex;flex-direction:column;gap:4px}
+.whyrow{display:grid;grid-template-columns:118px 1fr;gap:8px;font-size:12px;align-items:start}
+.whyrow .wk{font-size:10.5px;border-radius:4px;padding:1px 6px;text-align:center}
+.wsnip{display:inline-block;margin-top:2px;font-size:11px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+.wlegend{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 4px;align-items:center}
+.wlegend span[class^="w-"]{font-size:10.5px;border-radius:4px;padding:0 6px}
+pre.whytext mark{border-radius:2px;padding:0;color:inherit}
+.w-intent,pre.whytext mark.top-intent{background:#dbeafe}
+.w-tag,pre.whytext mark.top-tag{background:#fde2cf}
+.w-identity,pre.whytext mark.top-identity{background:#fdf0c4;box-shadow:inset 0 -2px 0 #b7791f}
+.w-info,pre.whytext mark.top-info{background:#f3e8ff;box-shadow:inset 0 -2px 0 #7c4dbd}
+.w-place,pre.whytext mark.top-place{background:#ede4fb;box-shadow:inset 0 -2px 0 #6b46c1}
+.w-write_cue,pre.whytext mark.top-write_cue{background:#fecaca}
+.w-handle,pre.whytext mark.top-handle{background:#fdf0c4}
+.w-name,pre.whytext mark.top-name{background:#d1fae5}
+.w-context,pre.whytext mark.top-context{background:#eef1f5}

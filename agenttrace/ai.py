@@ -161,7 +161,17 @@ def actors_named(session, text, limit=3):
     return out[:limit]
 
 
-def build_messages(session, history, selected_id=None, max_ids=4, conversation=None, mode="chat"):
+def place_context(session, ch):
+    from . import insight
+    p = insight.place_detail(session, ch, limit=40)
+    r = p["row"] or {}
+    return (f"PLACE {ch} ({p['type']}{', may merge several places' if p['merged'] else ''}): {r.get('writes')} writes, {r.get('reads')} reads; "
+            f"writers {[(x['actor'], x['n']) for x in p['writers'][:8]]}; readers {[(x['actor'], x['n']) for x in p['readers'][:8]]}; "
+            f"{p['messages_total']} messages, e.g. {[(m['from'], m['to'], m['write_id'], m['read_id'], m['read_time']) for m in p['messages'][:10]]}; "
+            f"first operations {[(o['time'], o['op'], o['actor'], o['record']) for o in p['ops'][:10]]}.")
+
+
+def build_messages(session, history, selected_id=None, max_ids=4, conversation=None, mode="chat", selected=None):
     """history: [{role, content}] from the user and assistant. Adds the system prompt,
     the analysis brief, the selected event, any record ids and actors the user names, the
     conversation between two actors when one is open in the app, and for a gap audit the
@@ -180,8 +190,16 @@ def build_messages(session, history, selected_id=None, max_ids=4, conversation=N
         context += "\n\n" + event_context(session, rid)
     if conversation and conversation.get("a") and conversation.get("b"):
         context += "\n\n" + conversation_context(session, conversation["a"], conversation["b"])
-    for a in actors_named(session, last_user):
+    named = actors_named(session, last_user)
+    if selected and selected.get("kind") == "actor" and selected.get("key") in session.by_actor and selected["key"] not in named:
+        named.insert(0, selected["key"])
+    for a in named[:3]:
         context += "\n\n" + actor_context(session, a)
+    places = [ch for ch in session.channel_row if ch in last_user][:2]
+    if selected and selected.get("kind") == "place" and selected.get("key") in session.channel_row and selected["key"] not in places:
+        places.insert(0, selected["key"])
+    for ch in places[:2]:
+        context += "\n\n" + place_context(session, ch)
     if mode == "gaps":
         context += "\n\n" + gap_context(session)
     msgs = [{"role": "system", "content": system_prompt(mode)},

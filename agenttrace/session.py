@@ -229,8 +229,19 @@ class Session:
             "tag_names": insight.tag_names(self.pack),
             "harm_names": sorted(self.pack.harm),
             "actor_kinds": dict(Counter({a: ak for a, ak in self.actor.values()}.values())),
+            "actions": self._action_counts(),
             "phases": insight.simulate(self)["phases"],
         }
+
+    def _action_counts(self):
+        """Actions (records an agent ran) and who they are credited to: the scope of every actor count."""
+        acts = [e.id for e in self.events if reconstruct.is_action(e, self.pack)]
+        named = {self.actor[r][0] for r in acts if self.actor[r][1] != "run"}
+        runs = {self.actor[r][0] for r in acts if self.actor[r][1] == "run"}
+        timed_named = {self.actor[r][0] for r in acts if self.actor[r][1] != "run" and r in self.rec["_times"]}
+        return {"total": len(acts), "unattributed": sum(1 for r in acts if self.actor[r][1] == "run"),
+                "named_actors": len(named), "named_actors_dated": len(timed_named), "runs": len(runs),
+                "dated": sum(1 for r in acts if r in self.rec["_times"])}
 
     # ------------------------------------------------------------------ full lists
     def _lists(self):
@@ -348,6 +359,7 @@ class Session:
             "overwrote": overwrote, "overwritten_by": overwritten_by,
             "same_program": copies, "same_program_total": len(self.by_prefix.get(p, [])) - 1 if p else 0,
             "explain": insight.explain(self, rid),
+            "why": insight.why_spans(self, rid, text_limit),
         })
         row["explain"]["components"]["ancestors"] = len(chain)
         return row

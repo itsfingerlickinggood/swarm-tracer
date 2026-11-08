@@ -68,6 +68,18 @@ class InsightTests(unittest.TestCase):
         t = self.s.trace("M0007")
         self.assertIn("explain", t)
 
+    def test_why_spans_point_into_the_text(self):
+        t = self.s.trace("M0007")
+        self.assertTrue(t["why"])
+        for w in t["why"]:
+            self.assertTrue(0 <= w["s"] < w["e"] <= len(t["text"]))
+            self.assertTrue(w["label"])
+        places = [w for w in t["why"] if w["type"] == "place"]
+        self.assertTrue(places and places[0]["op"] == "read")          # M0007 only reads board0
+        w = [x for x in self.s.trace("M0005")["why"] if x["type"] == "place"]
+        self.assertEqual(w[0]["op"], "write")                            # M0005 posts to board1
+        self.assertIn("write_cue", {x["type"] for x in self.s.trace("M0005")["why"]})
+
     def test_search_box_and_facets(self):
         r = insight.omni(self.s, "agent-1")
         self.assertEqual(r["actors"][0]["actor"], "agent-1")

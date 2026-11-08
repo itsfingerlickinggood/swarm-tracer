@@ -34,14 +34,14 @@
     </div>
     <h3 class="ovh">The swarm by the numbers</h3>
     <div class="kpis">
-      ${kpi("records", fmt(s.records), Object.entries(s.kinds).map(([k, v]) => `${fmt(v)} ${esc(k)}`).join(" · "))}
-      ${kpi("dated", pct(s.timed / s.records), `${fmt(s.timed)} records`)}
-      ${kpi("named actors", fmt(named), `${fmt(s.actor_kinds?.run || 0)} anonymous runs`)}
-      ${kpi("places", fmt(f.channels), `${fmt(f.records_on_channels)} records touch one`)}
-      ${kpi("messages", fmt(f.deliveries), `${fmt(f.deliveries_between_named_actors)} between named actors`)}
-      ${kpi("programs shared", fmt(T.content_spread ?? f.content_families_moving), "run by 2+ actors")}
-      ${kpi("warning signs", fmt(sigs.length), `${sigs.filter((g) => g.family === "joint").length} of actors together`)}
-      ${kpi("harmful actions", fmt(sim?.harm_total ?? s.harm_events_timed), "timed")}
+      ${kpi(term("record", "records"), fmt(s.records), Object.entries(s.kinds).map(([k, v]) => `${fmt(v)} ${esc(k)}`).join(" · "))}
+      ${kpi(term("dated", "dated"), pct(s.timed / s.records), `${fmt(s.timed)} records`)}
+      ${kpi(term("named", "named actors"), fmt(named), `and ${fmt(s.actor_kinds?.run || 0)} ${term("run", "anonymous runs")}`)}
+      ${kpi(term("place", "places"), fmt(f.channels), `${fmt(f.records_on_channels)} records touch one`)}
+      ${kpi(term("message", "messages"), fmt(f.deliveries), `${fmt(f.deliveries_between_named_actors)} between named actors`)}
+      ${kpi(term("program", "programs shared"), fmt(T.content_spread ?? f.content_families_moving), "run by 2+ named actors")}
+      ${kpi(term("sign", "warning signs"), fmt(sigs.length), `${sigs.filter((g) => g.family === "joint").length} of actors together`)}
+      ${kpi(term("harm", "harmful actions"), fmt(sim?.harm_total ?? s.harm_events_timed), "dated")}
     </div>
     <div class="grid2">
       ${card("What the swarm is made of", anatomy(s), { sub: "Each bar is one whole, split by kind. Hover a segment for its count." })}
