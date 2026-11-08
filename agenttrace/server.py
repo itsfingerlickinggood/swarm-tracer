@@ -252,6 +252,9 @@ def run_load(path, pack, mapping, name):
     sess = Session()
     sess.load(path, pack, mapping, name)
     STATE["session"] = sess
+    # the program index behind "the same program elsewhere" takes seconds on a large trace: build it
+    # now in the background, so the first record the investigator opens does not wait for it
+    threading.Thread(target=lambda: insight.family_index(sess), daemon=True).start()
 
 
 class Handler(BaseHTTPRequestHandler):

@@ -465,7 +465,10 @@ def _load_once(state):
 def check(state):
     """One watch step: load again when the path changed. Returns True when a load ran."""
     path = LIVE["path"]
-    if LIVE["session"] is not None and state["session"] is not LIVE["session"] and state["session"].loaded:
+    # the app loaded another dataset: after live's first load, anything but live's own session; before
+    # it, anything but the session that was showing when live mode started
+    mine = LIVE["session"] if LIVE["session"] is not None else LIVE.get("session_at_start")
+    if state["session"] is not mine and getattr(state["session"], "loaded", False):
         _log("stopped", "Live mode stopped: another dataset was loaded in the app.")
         LIVE["stop"] and LIVE["stop"].set()
         LIVE["watching"] = False
@@ -539,10 +542,13 @@ def live_start(state, q, body):
     mapping = b.get("map") or {}
     if not isinstance(mapping, dict):
         raise ValueError("map must be an object: {\"role\": \"column\"}")
+    if state.get("busy"):   # an upload is being analyzed: live mode would replace it the moment it finished
+        raise LookupError("An upload is being analyzed. Start live mode once it has finished.")
     live_stop(state, {}, b"", quiet=True)
     stop = threading.Event()
     LIVE.update({"path": path, "pack": pack, "mapping": {str(k): str(v) for k, v in mapping.items() if v}, "guard": guard,
                  "interval": interval, "watching": True, "started": _now(), "stop": stop, "session": None,
+                 "session_at_start": state.get("session"),
                  "sig": None, "pending": None, "error": None, "note": None, "loads": 0, "records": 0,
                  "actors": 0, "messages": 0, "signs": 0, "last_load": None, "load_s": None})
     _log("started", f"Watching {path} every {interval:g} s.")

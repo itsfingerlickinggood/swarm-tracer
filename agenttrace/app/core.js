@@ -17,7 +17,9 @@ async function api(path, opts) {
   const r = await fetch(path, opts);
   let data;
   try { data = await r.json(); } catch { throw new Error(`HTTP ${r.status}`); }
-  if (!r.ok || data.error) throw new Error(data.error || `HTTP ${r.status}`);
+  // a failed request, or a reply that is only an error, throws; a state reply that carries an
+  // error field alongside its data (load state, live status, compare state) is returned as data
+  if (!r.ok || (data.error && Object.keys(data).length === 1)) throw new Error(data.error || `HTTP ${r.status}`);
   return data;
 }
 // GET once per dataset; views share the result
@@ -645,6 +647,8 @@ function setSummary(s) {
   S.conv = null;
   S.cache = new Map();
   INS.stack = [];
+  // whatever the Inspector showed belonged to the previous dataset
+  if ($("trace")) { $("trace").innerHTML = '<div class="empty">Hover any record id, actor or place anywhere in the app for a quick card. Click it to inspect it here.</div>'; $("traceid").textContent = "select a record, actor or place"; }
   S.ev = { q: "", kind: "", intent: "", tag: "", actor: "", hour: "", channels: false, offset: 0 };
   const sp = s.time_test?.span;
   $("dsname").innerHTML = `<b title="${esc(s.name)}">${esc(s.name)}</b><span title="${esc(`${fmt(s.records)} records · pack: ${s.pack}${s.pack_choice ? " (picked automatically: " + s.pack_choice.why + ")" : ""}`)}">${fmt(s.records)} records · ${esc(s.pack)}${s.pack_choice ? " (auto)" : ""}</span>`;
@@ -764,6 +768,24 @@ function openDeepLink() {
   if (d.scroll) setTimeout(() => { $("left").scrollTop = +d.scroll; }, 2500);
 }
 
+// the page and the server must show the same dataset: check on focus and every 30 s, and reload
+// the summary (and every tab) when the server's dataset changed, e.g. after a restart or live mode
+function datasetKey(s) { return s ? `${s.name}|${s.records}|${s.pack}` : ""; }
+function watchDataset() {
+  const check = async () => {
+    try {
+      const st = await api("/api/state");
+      if (st.loaded && datasetKey(st.summary) !== datasetKey(S.summary)) {
+        const had = !!S.summary;
+        setSummary(st.summary);
+        if (had) status("The server now holds a different dataset; the page has been refreshed to match.");
+      }
+    } catch (e) { /* the server may be restarting; try again later */ }
+  };
+  window.addEventListener("focus", check);
+  setInterval(check, 30000);
+}
+
 async function init() {
   const p = await api("/api/packs");
   $("pack").innerHTML = p.packs.map((x) => `<option value="${esc(x.file)}" title="${esc(x.description)}"${x.file === "auto" ? " selected" : ""}>${esc(x.name)}</option>`).join("");
@@ -773,7 +795,8 @@ async function init() {
   status("");
   if (st.loaded) { setSummary(st.summary); openDeepLink(); }
   else if (st.busy) status("An analysis is running on the server…");
-  else $("loadpanel").hidden = false;
+  else { $("loadpanel").hidden = false; if (st.error) status(`The last file could not be analyzed: ${st.error}`, true); }
+  watchDataset();
 }
 window.addEventListener("load", () => init().catch((e) => status(e.message, true)));
 

@@ -106,7 +106,10 @@ def cmd_flow(a):
 
 def cmd_serve(a):
     from . import server
-    server.serve(a.port, a.input, a.pack, parse_map(a.map), allow_paths=a.allow_path or [])
+    try:
+        server.serve(a.port, a.input, a.pack, parse_map(a.map), allow_paths=a.allow_path or [])
+    except (ValueError, OSError) as e:          # an unreadable or empty --input: one line, not a traceback
+        raise SystemExit(f"swarm-tracer: could not analyze {a.input}: {e}")
 
 
 SAMPLES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "samples")

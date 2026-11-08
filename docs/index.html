@@ -77,8 +77,8 @@ footer a{color:#cfdbe8}
 
 <section class="alt">
   <div class="wrap">
-    <h2>See it in 24 seconds</h2>
-    <p class="lead">The overview, a record explained, who talked to whom, the early-flag replay stepping through the incident hour by hour, swimlanes, the Agents tab and how a carried token shows up in the code.</p>
+    <h2>See it in 32 seconds</h2>
+    <p class="lead">The overview, a record explained, who talked to whom, the early-flag replay stepping through the incident hour by hour, swimlanes, the Agents tab, the Forensics tab tracing a token through the swarm, the stage ladder, credential lifecycles, and how a carried token shows up in the code.</p>
     <video src="assets/walkthrough.mp4" controls muted playsinline loop poster="assets/app_overview.jpg" style="width:100%;border-radius:12px;border:1px solid var(--line)"></video>
   </div>
 </section>
@@ -108,6 +108,8 @@ footer a{color:#cfdbe8}
       <div class="card"><div class="k">Inspector</div><h3>Why the tool reads it that way</h3><p>Any record explained in plain words, with the exact stretch of code that set its intent, tags, identities and places highlighted.</p></div>
       <div class="card"><div class="k">AI investigator</div><h3>Answers as charts, checked</h3><p>Any OpenAI-compatible model, including local ones. Answers come back as timelines, flow diagrams and evidence cards, and every record id is checked against the data.</p></div>
       <div class="card"><div class="k">Case file</div><h3>Evidence you can hand over</h3><p>Pin records, agents and conversations, add notes, and export a self-contained dossier.</p></div>
+      <div class="card"><div class="k">Forensics</div><h3>Follow any thread</h3><p>Trace any token, URL or line of code through the swarm; credential lifecycles; command-and-control pickups; dead drops; how code evolved; each agent's climb through the attack stages; a story written from the data; and SOC exports with a chain of custody.</p></div>
+      <div class="card"><div class="k">Accuracy</div><h3>Measured, not assumed</h3><p>Scored on 50 simulated swarms with known answers, including benign ones, so every claim about messages, timing and identity comes with a measured range.</p></div>
       <div class="card"><div class="k">Compare</div><h3>Swarm against swarm</h3><p>Load two swarms and compare group sizes, message speed and which signs fired first, from a library of past incidents.</p></div>
       <div class="card"><div class="k">What's missing</div><h3>Blind spots, measured</h3><p>How much of the data has no time, no named actor or only weak evidence, which question each gap limits, and how to close it.</p></div>
     </div>
@@ -161,6 +163,8 @@ swarm-tracer serve --input my-swarm.jsonl
       <li><a href="cli.html"><b>Command line</b><span>serve, evaluate, demo, ground truth, replay</span></a></li>
       <li><a href="api.html"><b>HTTP API</b><span>Every endpoint the app uses</span></a></li>
       <li><a href="validation.html"><b>How accurate is it?</b><span>Scored on simulated swarms with known answers</span></a></li>
+      <li><a href="forensics.html"><b>Forensics</b><span>Trace, credentials, C2, evolution, stages, exports</span></a></li>
+      <li><a href="known-issues.html"><b>Known issues</b><span>What is weak, wrong or untested</span></a></li>
       <li><a href="limitations.html"><b>Limits and dual use</b><span>What it cannot see, and who it helps</span></a></li>
     </ul>
   </div>

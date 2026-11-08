@@ -4,9 +4,9 @@ Forensics for AI agent swarms. Built for the Apart Research Swarm Alignment Hack
 
 The main tool is **agenttrace** and its web app, **Swarm Tracer**. It works on any agent trace (JSONL, JSON, CSV, or a folder of linked files), not only the Swarm Traces release.
 
-![Swarm Tracer walkthrough: the overview, the Inspector, who talked to whom, the early-flag replay stepping through the incident, swimlanes, the Agents tab and a record explained](docs/assets/walkthrough.gif)
+![Swarm Tracer walkthrough: the overview, the Inspector, who talked to whom, the early-flag replay stepping through the incident, swimlanes, the Agents tab, the Forensics tab (tracing a token, the stage ladder, credential lifecycles) and a record explained](docs/assets/walkthrough.gif)
 
-▶ **[Watch the walkthrough video (MP4, 24 s)](https://itsfingerlickinggood.github.io/swarm-tracer/assets/walkthrough.mp4)** · [Read the report (PDF)](docs/assets/Swarm_Tracer_report.pdf)
+▶ **[Watch the walkthrough video (MP4, 32 s)](https://itsfingerlickinggood.github.io/swarm-tracer/assets/walkthrough.mp4)** · [Read the report (PDF)](docs/assets/Swarm_Tracer_report.pdf)
 
 **Website and documentation:** <https://itsfingerlickinggood.github.io/swarm-tracer/>
 
@@ -26,7 +26,7 @@ From a clone, `python3 -m agenttrace …` is the same command. Reproduce the rep
 python3 -m agenttrace evaluate redacted_columns.csv --pack code_traces.json --out reports/evaluation
 python3 -m agenttrace evaluate full-wiki-logs --pack wiki_swarm.json --out reports/evaluation-wiki
 python3 paper/build.py --author "Name" --affiliation "Affiliation"   # needs Google Chrome
-python3 -m unittest discover -s agenttrace/tests -t .                 # tests
+python3 -m agenttrace.tools.check                                      # tests, smoke test, consistency oracle
 ```
 
 ## What it does
@@ -38,6 +38,8 @@ python3 -m unittest discover -s agenttrace/tests -t .                 # tests
 - **Agents:** a token is not an agent. Proposals that identities are one agent, with evidence and confidence, and roles.
 - **Inspector:** any record explained, with the code that set each reading highlighted; estimated times with their likely range.
 - **Case file:** pins, notes, and an exported dossier. Labels in the app give live precision for each pattern.
+- **Forensics tab:** trace any string through the swarm, credential lifecycles, command-and-control pickups, a dead-drop ledger, boolean/regex search, program evolution with diffs, the stage ladder, lead–lag, anomalies, a story written from the data, what-if decisions, a reference comparison, chain of custody, and SOC exports (timeline CSV, Timesketch, STIX 2.1).
+- **Measured accuracy:** scored on 50 simulated swarms with known answers, including benign ones ([validation](docs/validation.md), [known issues](docs/known-issues.md)).
 - **Compare** two swarms, from a library of past incidents. **Ground-truth mode** scores the tool on a simulated swarm whose true links are known.
 - **AI investigator** (optional; any OpenAI-compatible model, including local Ollama): answers drawn as charts and cards with every id checked against the data, a gap audit, and a draft incident report.
 - Large datasets are cached on disk (32.7 s to 0.5 s for the Swarm Traces release).

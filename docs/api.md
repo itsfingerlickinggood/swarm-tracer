@@ -2,7 +2,7 @@
 
 [Home](./) · [Command line](cli.md)
 
-The app talks to its own server on `127.0.0.1` only. Everything returns JSON; errors are `{"error": "…"}` with HTTP 400 (bad input), 404 or 409 (nothing loaded / not found).
+The app talks to its own server on `127.0.0.1` only. Requests must come from the app itself: other web pages and non-local host names are refused. Everything returns JSON; errors are `{"error": "…"}` with HTTP 400 (bad input), 404 or 409 (nothing loaded / not found).
 
 ## Dataset
 
@@ -40,6 +40,9 @@ The app talks to its own server on `127.0.0.1` only. Everything returns JSON; er
 | `POST label` · `GET labels` · `GET precision` | labels from the Inspector, and live precision |
 | `GET validation_summary[?which=quick]` · `POST validation_run` | the latest validation suite results; run a quick one |
 | `GET groundtruth_score` · `POST groundtruth_truth` · `GET time_range?id=` | scores against a truth file; a record's likely time range |
+| `GET fx_trace?q=` · `fx_credentials` · `fx_c2` · `fx_c2_place?ch=` · `fx_drops` · `fx_drops_csv` · `fx_search?q=` · `fx_like?id=` | Forensics: follow the evidence |
+| `GET fx_evolution` · `fx_evolution_cluster?id=` · `fx_evolution_diff?id=&version=` · `fx_stages` · `fx_leadlag` · `fx_anomalies` · `fx_story[?format=md]` | Forensics: how agents behaved |
+| `GET fx_whatif` · `POST fx_whatif_decide` · `GET fx_reference` · `fx_custody` · `fx_export?format=timeline_csv\|timesketch_csv\|stix\|detections` | Forensics: test and export |
 | `POST compare_load {path, pack} \| {library}` · `GET compare` · `GET compare_state` · `POST compare_clear` · `GET library` | comparing two swarms |
 
 ## AI investigator

@@ -311,7 +311,22 @@
   }
 
   // ------------------------------------------------------------------ network snapshot
+  // the force layout costs N² per step, so it is drawn for the 150 best-connected actors and kept per dataset
+  const LAYOUT_CAP = 150, layoutCache = new Map();
   function netLayout(named) {
+    const key = `${S.summary?.name}|${S.summary?.records}|${named.length}`;
+    if (layoutCache.has(key)) return layoutCache.get(key);
+    const out = netLayoutUncached(named);
+    layoutCache.set(key, out);
+    return out;
+  }
+  function netLayoutUncached(named) {
+    const deg0 = new Map();
+    named.forEach((r) => { deg0.set(r[0], (deg0.get(r[0]) || 0) + 1); deg0.set(r[1], (deg0.get(r[1]) || 0) + 1); });
+    if (deg0.size > LAYOUT_CAP) {
+      const keep = new Set([...deg0.entries()].sort((a, b) => b[1] - a[1]).slice(0, LAYOUT_CAP).map((x) => x[0]));
+      named = named.filter((r) => keep.has(r[0]) && keep.has(r[1]));
+    }
     const deg = new Map(), pairs = new Map();
     named.forEach((r) => { deg.set(r[0], (deg.get(r[0]) || 0) + 1); deg.set(r[1], (deg.get(r[1]) || 0) + 1); const k = r[0] < r[1] ? r[0] + "\u0000" + r[1] : r[1] + "\u0000" + r[0]; pairs.set(k, (pairs.get(k) || 0) + 1); });
     const nodes = [...deg.keys()];
@@ -346,7 +361,7 @@
     if (!D.named.length) { host.innerHTML = '<p class="muted small">No message between two named actors.</p>'; $("efNetCap").textContent = ""; return; }
     const W = Math.max(260, host.clientWidth || 300), Hh = Math.round(Math.min(300, Math.max(200, W * 0.62))), m = 16;
     const P = (a) => { const p = D.layout.get(a); return [m + p.x * (W - 2 * m), m + p.y * (Hh - 2 * m)]; };
-    const seen = D.named.filter((r) => r[6] < now);
+    const seen = D.named.filter((r) => r[6] < now && D.layout.has(r[0]) && D.layout.has(r[1]));   // the picture holds the best-connected actors
     const edges = new Map(), cnt = new Map(), recent = now - 6 * HR, fresh = new Set();
     seen.forEach((r) => {
       const k = r[0] + "\u0000" + r[1]; const e = edges.get(k) || { a: r[0], b: r[1], n: 0, last: 0 };
@@ -378,7 +393,7 @@
       svg += `<text x="${x}" y="${y - r - 3}" text-anchor="${anchor}" font-size="10" fill="#3d4a58" pointer-events="none" paint-order="stroke" stroke="#fff" stroke-width="3">${esc(label)}</text>`;
     });
     host.innerHTML = svg + "</svg>";
-    $("efNetCap").innerHTML = `${plural(cnt.size, "named actor")}, ${plural(seen.length, "message")} in ${plural(edges.size, "pair")} by now (exact places). Grey dots: actors not yet in a message. Blue arrows: read in the last 6 hours. Red ring: active in the last hour.`;
+    $("efNetCap").innerHTML = `${plural(cnt.size, "named actor")}, ${plural(seen.length, "message")} in ${plural(edges.size, "pair")} by now (exact places). Grey dots: actors not yet in a message. Blue arrows: read in the last 6 hours. Red ring: active in the last hour.${D.layout.size >= LAYOUT_CAP ? ` Drawn for the ${LAYOUT_CAP} best-connected actors; the counters above cover everyone.` : ""}`;
   }
 
   // ------------------------------------------------------------------ explanation feed

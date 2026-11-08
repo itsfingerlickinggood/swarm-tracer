@@ -78,6 +78,13 @@ RULES = [
 DIRECT = {"same_record", "same_thread", "carried"}
 
 
+def _int(q, key, default):
+    try:
+        return max(0, int(q.get(key, default)))
+    except (TypeError, ValueError):
+        raise ValueError(f"{key} must be a whole number")
+
+
 def _need(state):
     s = state["session"]
     if not getattr(s, "loaded", False):
@@ -644,7 +651,7 @@ def pct_s(x):
 
 def _get_identity(state, q):
     s = _need(state)
-    return identity(s, actor=q.get("actor") or None, limit=int(q.get("limit", MAX_PROPOSALS)))
+    return identity(s, actor=q.get("actor") or None, limit=_int(q, "limit", MAX_PROPOSALS))
 
 
 def _get_roles(state, q):
@@ -654,7 +661,7 @@ def _get_roles(state, q):
     role = q.get("role")
     if role:
         rows = [x for x in rows if x["role"] == role]
-    off, lim = int(q.get("offset", 0)), int(q.get("limit", 500))
+    off, lim = _int(q, "offset", 0), _int(q, "limit", 500)
     return {**{k: v for k, v in r.items() if k not in ("rows", "by_actor")}, "total": len(rows), "offset": off,
             "rows": rows[off:off + lim]}
 

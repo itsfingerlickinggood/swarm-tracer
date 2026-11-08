@@ -217,12 +217,34 @@ def _events_from_row(row, cols, stem, line):
     )]
 
 
+READ_NOTES = {}   # path -> notes about how it was read (encoding fallback, unreadable lines)
+
+
+def _encoding(path):
+    """utf-8 (with or without a byte-order mark) when the file is valid utf-8, else cp1252, which
+    accepts every byte; the read report says so."""
+    import codecs
+    dec = codecs.getincrementaldecoder("utf-8")()
+    try:
+        with open(path, "rb") as f:          # in chunks, so a large file is not held twice in memory
+            for chunk in iter(lambda: f.read(8 << 20), b""):
+                dec.decode(chunk)
+        dec.decode(b"", final=True)
+        return "utf-8-sig"
+    except UnicodeDecodeError:
+        return "cp1252"
+
+
 def _read_rows(path):
     ext = os.path.splitext(path)[1].lower()
+    enc = _encoding(path)
+    notes = READ_NOTES.setdefault(path, {})
+    if enc != "utf-8-sig":
+        notes["encoding"] = f"not valid UTF-8; read as {enc} (Windows Latin-1), so some characters may be wrong"
     if ext in (".csv", ".tsv"):
-        with open(path, encoding="utf-8", newline="") as f:
+        with open(path, encoding=enc, errors="replace", newline="") as f:
             return list(csv.DictReader(f, delimiter="\t" if ext == ".tsv" else ","))
-    with open(path, encoding="utf-8") as f:
+    with open(path, encoding=enc, errors="replace") as f:
         head = f.read(2048)
         f.seek(0)
         if ext == ".json" or head.lstrip().startswith("["):
@@ -247,6 +269,9 @@ def _read_rows(path):
         # a plain text log (.txt or .log): when most lines are not JSON objects, each line is one record
         if ext in (".txt", ".log") and len(plain) > len(rows):
             return plain + [{"line": 0, "text": json.dumps(r, ensure_ascii=False)} for r in rows]
+        if plain:   # JSON lines that could not be read are left out, and the read report says which
+            notes["unreadable_lines"] = len(plain)
+            notes["unreadable_line_numbers"] = [p["line"] for p in plain[:20]]
         return rows
 
 
@@ -263,7 +288,7 @@ def load_file(path, mapping=None):
     events = []
     for i, r in enumerate(rows, start=1):
         events.extend(_events_from_row(r, cols, stem, i))
-    info = {"file": os.path.basename(path), "format": readers.label(fmt), "format_key": fmt,
+    info = {**READ_NOTES.pop(path, {}), "file": os.path.basename(path), "format": readers.label(fmt), "format_key": fmt,
             "rows": len(rows), "events": len(events),
             # for a known format, where its reader took each field from
             "fields": readers.SOURCE_FIELDS.get(fmt, cols) if fmt else cols,

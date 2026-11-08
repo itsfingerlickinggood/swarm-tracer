@@ -231,7 +231,10 @@
     ${(s.shared_identities || []).length ? `<p>Shared keys, never counted as actors: ${s.shared_identities.map((t) => ent.actor(t)).join(" ")}${(s.auto_shared || []).length ? ` <span class="muted">(found automatically: ${s.auto_shared.map((a) => `${esc(short(a.identity))} is used in ${pct(a.share_of_runs)} of the runs that carry a token`).join("; ")})</span>` : ""}.</p>` : ""}
     <h4>Files</h4>
     ${table(["file", "rows", "events", "fields found"], (s.read_report?.files || []).map((f) => [esc(f.file), fmt(f.rows), fmt(f.events),
-      Object.entries(f.fields).map(([k, v]) => `${esc(k)}: <code>${esc(v.join(" → "))}</code>`).join("<br>")]))}
+      Object.entries(f.fields).map(([k, v]) => `${esc(k)}: <code>${esc([].concat(v).join(" → "))}</code>`).join("<br>") +
+      (f.format ? `<br><span class="small">format: ${esc(f.format)}</span>` : "") +
+      (f.encoding ? `<br><span class="small warnc">${esc(f.encoding)}</span>` : "") +
+      (f.unreadable_lines ? `<br><span class="small warnc">${fmt(f.unreadable_lines)} line${f.unreadable_lines === 1 ? "" : "s"} could not be read as JSON and were left out (line ${f.unreadable_line_numbers.map(fmt).join(", ")}${f.unreadable_lines > f.unreadable_line_numbers.length ? ", …" : ""})</span>` : "")]))}
     <h4>Time</h4>
     <p class="small">${fmt(s.timed)} of ${fmt(s.records)} records have a time (${Object.entries(s.time_test.source || {}).map(([k, v]) => `${esc(human(k))} ${fmt(v)}`).join(", ") || "none"}). ${s.time_test.span ? `Span ${esc(s.time_test.span[0])} to ${esc(s.time_test.span[1])} UTC.` : ""} Where records have no time field, unix timestamps written in the code are fitted to file order within each block of one kind; a block is dated only if the fit passes a rank-correlation and error check.</p>
     ${table(["kind", "first", "last", "records", "timestamps", "rank corr.", "dated", "median err (h)"],

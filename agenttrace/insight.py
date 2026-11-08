@@ -784,7 +784,8 @@ def gap_facts(s):
     shared = set(s.pack.raw.get("shared_identities", []))
     shared_recs = sum(1 for ids in s.rec["_ids"].values() if any(t in shared for t in ids)) if shared else 0
     runs = (summ.get("actions") or {}).get("runs", summ.get("actor_kinds", {}).get("run", 0))
-    named_actors = sum(v for k, v in summ.get("actor_kinds", {}).items() if k != "run")
+    named_actors = (summ.get("actions") or {}).get("named_actors",
+                    sum(v for k, v in summ.get("actor_kinds", {}).items() if k != "run"))
     rows = [
         {"key": "time", "gap": "Records with no time", "count": n - timed, "of": n, "unit": "records", "question": "early flag",
          "hides": "anything they did cannot be placed on the timeline or in the early-flag replay",

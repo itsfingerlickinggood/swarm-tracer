@@ -43,6 +43,10 @@ A replay of the incident, hour by hour. The line is the share of harmful actions
 
 A token is not an agent. This tab proposes identities that are probably one agent, each with its evidence (used in one thread, one carrying the other's token, a shared name, taking turns in time, the same programs) and the evidence against, a score and a confidence. Accept or reject each proposal; the estimate of how many agents there were updates. Roles (coordinator, relay, recruiter, worker, lone) come with the numbers behind them.
 
+## Forensics
+
+Deeper analyses in a side menu: trace any string, credential lifecycles, command and control, dead drops, search, program evolution, the stage ladder, lead–lag, anomalies, a story written from the data, what-if decisions, a reference comparison, chain of custody, SOC exports and the tool's measured accuracy. See [Forensics](forensics.md).
+
 ## Compare
 
 Load a second swarm, from a path or from the library of past incidents, and compare them measure by measure: size, dated share, groups, message speed, spread, which signs fired first and with how much harm still to come.

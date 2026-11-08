@@ -6,7 +6,7 @@
 
 | Command | What it does |
 |---|---|
-| `serve [--input PATH] [--pack PACK] [--port 8010] [--map role=field]` | run the app on 127.0.0.1; preload a file or folder |
+| `serve [--input PATH] [--pack PACK] [--port 8010] [--map role=field] [--allow-path DIR]` | run the app on 127.0.0.1; preload a file or folder; `--allow-path` lets live mode and Compare read another folder |
 | `demo [--port] [--no-browser]` | serve the bundled simulated swarm |
 | `evaluate PATH --pack PACK --out DIR` | baselines, robustness under time error, counting rules, the external timing check, report figures |
 | `analyze PATH --pack PACK --out DIR` | a static HTML report, `summary.json` and `records.csv` |
@@ -16,6 +16,16 @@
 | `library` | known incidents and datasets, and whether each is on this machine |
 | `sample PATH --pack PACK --out FILE` | records to label for precision |
 | `precision LABELS.csv` | precision and recall from labels |
+
+Checks (run before every push; there is no CI service):
+
+```bash
+python3 -m agenttrace.tools.check            # unit tests, smoke test in the browser, consistency oracle
+python3 -m agenttrace.tools.check --quick    # faster: API-only smoke test
+python3 -m agenttrace.tools.check --full     # adds the large datasets and the concurrency checks
+python3 -m agenttrace.tools.smoke --datasets demo samples odd
+python3 -m agenttrace.tools.oracle --url http://127.0.0.1:8010
+```
 
 Other tools:
 
