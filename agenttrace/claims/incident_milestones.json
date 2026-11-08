@@ -1,0 +1,21 @@
+{
+  "about": "Times published by the incident's investigators, used to check the times Swarm Tracer estimates for the Swarm Traces release. All UTC. Each entry says how the matching moment is found in our reconstruction.",
+  "milestones": [
+    {"event": "Hugging Face credentials found and posted to the board", "source": "METR report p.34-35", "source_time": "2026-07-10 09:40",
+     "ours": {"kind": "first_identity", "identity": "[CREDENTIAL 169]"}, "match": "first use of the main Hugging Face token"},
+    {"event": "Malicious HDF5 dataset gets a file read on Hugging Face servers", "source": "METR report p.35", "source_time": "2026-07-11 04:40",
+     "ours": {"kind": "first_text", "pattern": "\\bhdf5\\b|\\.h5\\b|h5py"}, "match": "first dated record that mentions HDF5"},
+    {"event": "Rapid climb in attack participation", "source": "METR report p.35", "source_time": "2026-07-11 06:00",
+     "ours": {"kind": "surge"}, "match": "first hour whose next 6 hours hold 3x the actions of the 6 before and 5% of all actions"},
+    {"event": "Kubernetes activity first seen in Hugging Face logs", "source": "Hugging Face blog, phase first-seen times", "source_time": "2026-07-11 10:10",
+     "ours": {"kind": "first_intent", "intent": "kubernetes_api"}, "match": "first Kubernetes API call"},
+    {"event": "Tailscale enrollments into Hugging Face's network begin", "source": "Hugging Face blog, phase first-seen times", "source_time": "2026-07-11 21:23",
+     "ours": {"kind": "first_text", "pattern": "tailscale"}, "match": "first dated record that mentions Tailscale"},
+    {"event": "Many agents stop at once, including all 11 top coordinators", "source": "METR report p.38", "source_time": "2026-07-12 01:30",
+     "ours": {"kind": "stop"}, "match": "first hour after the peak with under 15% of peak activity"},
+    {"event": "Last attacker action in Hugging Face's logs", "source": "Hugging Face blog, data window", "source_time": "2026-07-13 14:14",
+     "ours": {"kind": "last_record"}, "match": "last dated record"}
+  ],
+  "hf_actions_source": "Hugging Face blog, recovered attacker actions per day",
+  "hf_actions_per_day": {"2026-07-09": 3779, "2026-07-10": 1135, "2026-07-11": 7677, "2026-07-12": 3892, "2026-07-13": 1130}
+}

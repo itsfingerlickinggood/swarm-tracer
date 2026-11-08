@@ -12,18 +12,25 @@ Python 3.9+ standard library only, no installs.
 # run the app on 127.0.0.1:8010, then upload a trace file or folder in the browser
 python3 -m agenttrace serve
 
-# or preload a dataset
-python3 -m agenttrace serve --input redacted_columns.csv --pack code_traces.json
+# or preload a dataset (the pack is picked from the data unless you name one)
+python3 -m agenttrace serve --input redacted.jsonl
 python3 -m agenttrace serve --input full-wiki-logs --pack wiki_swarm.json
+
+# every number and figure in the report: baselines, robustness, counting rules, timing check
+python3 -m agenttrace evaluate redacted_columns.csv --pack code_traces.json --out reports/evaluation
+python3 -m agenttrace evaluate full-wiki-logs --pack wiki_swarm.json --out reports/evaluation-wiki
+python3 paper/build.py --author "Name" --affiliation "Affiliation"   # the report PDF (needs Google Chrome)
 
 # tests
 python3 -m unittest discover -s agenttrace/tests -t .
 ```
 
 The app has three panes:
-- **Left:** the analysis. Overview, who talked to whom (network graph), timeline, channels, spread, early flag, every event, and what is missing.
+- **Left:** the analysis. Overview, who talked to whom (a sender-receiver graph; click an arrow for the whole conversation with every record id), timeline, places, spread, early flag, every event, and what is missing. Every list can be shown in full and filtered.
 - **Right top:** a trace of any selected event.
-- **Right bottom:** an AI investigator that uses any OpenAI-compatible endpoint. The default is OpenCode Go with `deepseek-v4.1-flash`, and you supply your own API key.
+- **Right bottom:** an AI investigator that uses any OpenAI-compatible endpoint. The default is OpenCode Go with `deepseek-v4.1-flash`: paste your key under Settings and press **Check connection**. On OpenCode Go, DeepSeek models also need **Global** selected under Settings > Privacy > Regions in the OpenCode console. The app sends the session header Go requires, and explains provider errors in plain words.
+
+**Any trace.** With the `auto` pack (the default) the tool picks a pack from the data's shape and says why on the overview. The generic pack also finds shared keys on its own: a token used in a quarter or more of all runs, in a trace with 20 or more tokens, is treated as shared rather than as one agent.
 
 See [`agenttrace/README.md`](agenttrace/README.md) for the full guide: formats, packs, labeling and precision, and the command-line reports.
 
@@ -40,6 +47,7 @@ The datasets are not in this repository.
 | `agenttrace/` | The tool and the Swarm Tracer app: loader, analysis, time and identity reconstruction, message flow, conversations, claims checking, labeling, AI investigator, tests |
 | `reports/findings/` | A written summary of what the swarm did, with record ids |
 | `docs/tool-study.md` | Notes on existing trace viewers and what they lack for swarm forensics |
+| `paper/` | The hackathon report source and its build script (tables and figures filled from `agenttrace evaluate`) |
 
 Earlier prototypes (`analyzer/`, `forensics/`) were replaced by `agenttrace` and removed; they remain in the git history.
 

@@ -120,6 +120,22 @@ def cmd_sample(a):
     print(f"wrote {n} rows to {a.out}; fill the label column with 1, 0, or leave blank")
 
 
+def cmd_evaluate(a):
+    from . import evaluate, figures
+    from .session import Session
+    s = Session()
+    s.load(a.input, a.pack, parse_map(a.map))
+    out = evaluate.evaluate(s)
+    os.makedirs(a.out, exist_ok=True)
+    with open(os.path.join(a.out, "evaluation.json"), "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2, ensure_ascii=False, default=str)
+    with open(os.path.join(a.out, "summary.json"), "w", encoding="utf-8") as f:
+        json.dump(s.summary(), f, ensure_ascii=False, default=str)
+    written = figures.write_all(s, out, a.out)
+    print(json.dumps({k: out[k] for k in ("baselines", "counting_rules")}, indent=2, default=str))
+    print(f"wrote {os.path.join(a.out, 'evaluation.json')} and {len(written)} figures")
+
+
 def cmd_precision(a):
     out = labels.precision(a.labels)
     text = json.dumps(out, indent=2)
@@ -175,6 +191,13 @@ def main(argv=None):
     c.add_argument("--map", action="append")
     c.add_argument("--title")
     c.set_defaults(fn=cmd_claims)
+
+    ev = sub.add_parser("evaluate", help="baselines, robustness, counting rules, external timing check, and report figures")
+    ev.add_argument("input")
+    ev.add_argument("--pack", default="auto")
+    ev.add_argument("--out", required=True)
+    ev.add_argument("--map", action="append")
+    ev.set_defaults(fn=cmd_evaluate)
 
     q = sub.add_parser("precision", help="precision and recall from a filled labels CSV")
     q.add_argument("labels")
