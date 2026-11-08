@@ -155,7 +155,7 @@ def main(argv=None):
     sv = sub.add_parser("serve", help="run the Swarm Tracer web app on 127.0.0.1")
     sv.add_argument("--port", type=int, default=8010)
     sv.add_argument("--input", help="a file to analyze at start (optional; you can upload in the app)")
-    sv.add_argument("--pack", default="generic.json", help="pack file name in agenttrace/packs or a path")
+    sv.add_argument("--pack", default="auto", help="pack file name in agenttrace/packs, a path, or auto (pick from the data)")
     sv.add_argument("--map", action="append")
     sv.set_defaults(fn=cmd_serve)
 

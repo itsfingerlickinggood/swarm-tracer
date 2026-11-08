@@ -177,3 +177,36 @@ class WikiSessionTests(unittest.TestCase):
         msgs, ids = ai.build_messages(s, [{"role": "user", "content": "What changed in w~PlanPage@2?"}])
         self.assertEqual(ids, ["w~PlanPage@2"])
         self.assertIn("EVENT w~PlanPage@2", msgs[1]["content"])
+
+
+class AutoPackTests(unittest.TestCase):
+    def test_choose_by_shape(self):
+        d = tempfile.mkdtemp()
+        wiki_folder(d)
+        ev = model.load(d)
+        self.assertEqual(packs.choose(ev, model.LAST_REPORT)[0], "wiki_swarm.json")
+        p = os.path.join(tempfile.mkdtemp(), "chat.jsonl")
+        jsonl(p, [{"id": f"m{i}", "role": "user" if i % 2 else "assistant", "content": f"turn {i}"} for i in range(20)])
+        ev = model.load(p)
+        self.assertEqual(packs.choose(ev, model.LAST_REPORT)[0], "chat.json")
+        p = os.path.join(tempfile.mkdtemp(), "code.jsonl")
+        jsonl(p, [{"id": f"R{i}", "kind": "payload", "text": f"fetch('https://[SERVICE HOST 1]/x{i}',{{headers:{{Authorization:'Bearer [CREDENTIAL {i}]'}}}})"} for i in range(20)])
+        ev = model.load(p)
+        self.assertEqual(packs.choose(ev, model.LAST_REPORT)[0], "code_traces.json")
+
+    def test_shared_key_found_automatically(self):
+        # 30 tokens; one evaluation key rides along in 40% of runs: that is a shared key, not an agent
+        rows = []
+        for i in range(100):
+            text = f"curl -H 'Authorization: Bearer sk-agent{i % 30:02d}xxxxxxxxxxxxxxxx' https://example.com/r{i}"
+            if i % 5 < 2:
+                text += " -H 'X-API-Key: sk-evalkeyxxxxxxxxxxxxxxxxxx'"
+            rows.append({"id": f"E{i:03d}", "text": text})
+        p = os.path.join(tempfile.mkdtemp(), "runs.jsonl")
+        jsonl(p, rows)
+        from agenttrace.session import Session
+        s = Session()
+        s.load(p, "generic.json")
+        shared = [a["identity"] for a in s.summary()["auto_shared"]]
+        self.assertEqual(len(shared), 1)
+        self.assertIn("evalkey", shared[0])

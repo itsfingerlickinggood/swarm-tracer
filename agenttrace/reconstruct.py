@@ -367,7 +367,7 @@ def reconstruct(events, pack, res):
         "identities_total": len(uses),
         "identities": [{"identity": tok, "uses": n, "first": iso(first_use.get(tok)), "last": iso(last_use.get(tok)),
                         "roles": dict(roles[tok]), "intents": dict(id_intents[tok].most_common(3))}
-                       for tok, n in uses.most_common(30)],
+                       for tok, n in uses.most_common()],
         "intents": dict(Counter(v for v in intents.values() if v).most_common()),
         "activity_by_hour": {h: dict(c) for h, c in sorted(by_hour.items())},
         "seen_then_used": seen_then_used,

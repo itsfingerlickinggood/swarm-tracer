@@ -5,6 +5,7 @@ and replay (reconstruct), channels, deliveries and content spread (messages). It
 builds indexes so any single event can be traced: its parent chain, children, channel
 operations, messages in and out, and copies of the same program under other actors.
 """
+import json
 import os
 import re
 from collections import defaultdict
@@ -20,7 +21,8 @@ def _display(actor):
 
 
 def list_packs():
-    out = []
+    out = [{"file": "auto", "name": "auto: pick a pack from the data",
+            "description": "Looks at the records (wiki revisions, chat roles, code with redacted credentials) and picks the pack that fits; the overview says which and why."}]
     for f in sorted(os.listdir(PACK_DIR)):
         if f.endswith(".json"):
             try:
@@ -38,14 +40,22 @@ class Session:
 
     # ------------------------------------------------------------------ load
     def load(self, path, pack_file, mapping=None, name=None):
-        pack_path = pack_file if os.path.isabs(pack_file) else os.path.join(PACK_DIR, pack_file)
-        self.pack = packs.load_pack(pack_path)
         self.events = model.load(path, mapping or {})
         import copy
         self.read_report = copy.deepcopy(model.LAST_REPORT)
         if not self.events:
             raise ValueError("the file has no records")
+        self.pack_choice = None
+        if not pack_file or pack_file in ("auto", "auto.json"):
+            pack_file, why = packs.choose(self.events, self.read_report)
+            self.pack_choice = {"pack": pack_file, "why": why}
+        pack_path = pack_file if os.path.isabs(pack_file) else os.path.join(PACK_DIR, pack_file)
+        self.pack = packs.load_pack(pack_path)
         self.res = analysis.analyze(self.events, self.pack)
+        self.auto_shared = []
+        if self.pack.raw.get("auto_shared_identities") and not self.pack.raw.get("shared_identities"):
+            self.auto_shared = packs.detect_shared_identities(self.events, self.pack, self.res["_root"])
+            self.pack.raw["shared_identities"] = [t for t, _ in self.auto_shared]
         self.rec = reconstruct.reconstruct(self.events, self.pack, self.res)
         self.flow = messages.message_flow(self.events, self.pack, self.rec, self.res)
         self.name = name or os.path.basename(path)
@@ -184,6 +194,9 @@ class Session:
             "name": self.name,
             "pack": self.pack.name,
             "pack_actor_note": self.pack.raw.get("actor_note"),
+            "pack_choice": self.pack_choice,
+            "shared_identities": self.pack.raw.get("shared_identities", []),
+            "auto_shared": [{"identity": t, "share_of_runs": s} for t, s in self.auto_shared],
             "read_report": self.read_report,
             "records": n,
             "kinds": res["kinds"],
@@ -209,7 +222,30 @@ class Session:
             "flow": {k: v for k, v in flow.items() if not k.startswith("_") and k not in ("content_spread", "top_channels")},
             "top_channels": flow["top_channels"][:30],
             "content_spread": spread_named,
+            "list_totals": {k: len(v) for k, v in self._lists().items()},
         }
+
+    # ------------------------------------------------------------------ full lists
+    def _lists(self):
+        """Every list the app shows, uncut. The summary carries the first rows; /api/list pages through the rest."""
+        rec, res, flow = self.rec, self.res, self.flow
+        return {"identities": rec["identities"], "seen_then_used": rec["seen_then_used"],
+                "carried_edges": rec["carried_edges"], "shared_places": rec["shared_places"],
+                "reply_edges": [{"from": r[0], "to": r[1], "replies": r[2]} for r in res["reply_edges"]],
+                "channels": flow.get("_channels", flow["top_channels"]),
+                "content_spread": flow.get("_content_spread", flow["content_spread"]),
+                "overwrites": [{k: (reconstruct.iso(v) if k.endswith("_time") else v) for k, v in d.items()}
+                               for d in flow.get("_overwrites", [])]}
+
+    def listing(self, name, q="", offset=0, limit=100):
+        rows = self._lists().get(name)
+        if rows is None:
+            raise LookupError(f"no list named {name}")
+        if q:
+            ql = q.lower()
+            rows = [r for r in rows if ql in json.dumps(r, default=str).lower()
+                    or ql in json.dumps(r, default=str).lower().replace("[credential ", "cred ")]
+        return {"name": name, "total": len(rows), "offset": offset, "rows": rows[offset:offset + limit]}
 
     # ------------------------------------------------------------------ events
     def event_row(self, e):

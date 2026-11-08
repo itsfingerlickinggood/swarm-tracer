@@ -20,7 +20,7 @@ async function api(path, opts) {
 // ------------------------------------------------------------------ start
 async function init() {
   const p = await api("/api/packs");
-  $("pack").innerHTML = p.packs.map((x) => `<option value="${esc(x.file)}" title="${esc(x.description)}"${x.file === "generic.json" ? " selected" : ""}>${esc(x.name)}</option>`).join("");
+  $("pack").innerHTML = p.packs.map((x) => `<option value="${esc(x.file)}" title="${esc(x.description)}"${x.file === "auto" ? " selected" : ""}>${esc(x.name)}</option>`).join("");
   const saved = JSON.parse(sessionStorage.getItem("st-ai") || "{}");
   $("baseUrl").value = saved.baseUrl || p.ai_defaults.baseUrl;
   $("model").value = saved.model || p.ai_defaults.model;
@@ -108,6 +108,24 @@ function table(headers, rows, onclick) {
   if (!rows.length) return '<p class="muted">None found.</p>';
   return `<table><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r, i) => `<tr${onclick ? ` class="click" data-i="${i}"` : ""}>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
 }
+// a table that starts with the rows the summary carries and can page through the whole list on the server
+function listView(host, name, headers, rowFn, rows, total, onRow) {
+  if (!host) return;
+  const st = { rows: rows.slice(), total: total ?? rows.length, q: "", full: false };
+  const load = async (append) => {
+    const r = await api(`/api/list?name=${encodeURIComponent(name)}&q=${encodeURIComponent(st.q)}&offset=${append ? st.rows.length : 0}&limit=200`);
+    st.rows = append ? st.rows.concat(r.rows) : r.rows; st.total = r.total; st.full = true; draw();
+  };
+  const draw = () => {
+    const filter = st.total > 12 || st.q ? `<p class="small listbar"><input class="lq" placeholder="Filter all ${fmt(st.total)} rows" value="${esc(st.q)}"> <span class="muted">${st.rows.length < st.total ? `showing ${fmt(st.rows.length)} of ${fmt(st.total)}` : `${fmt(st.total)} row${st.total === 1 ? "" : "s"}`}</span></p>` : "";
+    host.innerHTML = filter + table(headers, st.rows.map(rowFn), !!onRow) + (st.rows.length < st.total ? `<button type="button" class="lmore">Show ${st.full ? "200 more" : `all ${fmt(st.total)}`}</button>` : "");
+    if (onRow) bindRows(host, (i) => onRow(st.rows[i]));
+    const more = host.querySelector(".lmore"); if (more) more.addEventListener("click", () => load(st.full));
+    const q = host.querySelector(".lq");
+    if (q) { let t = null; q.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => { st.q = q.value.trim(); load(false).then(() => { const n = host.querySelector(".lq"); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }); }, 250); }); }
+  };
+  draw();
+}
 function bindRows(el, onclick) { el.querySelectorAll("tr.click").forEach((tr) => tr.addEventListener("click", () => onclick(+tr.dataset.i))); }
 const idlink = (id) => (id ? `<span class="idlink" data-id="${esc(id)}">${esc(id)}</span>` : "–");
 document.addEventListener("click", (e) => {
@@ -134,18 +152,23 @@ function overview(el, s) {
   ${(s.read_report?.skipped_files || []).length ? `<p class="muted small">Not loaded as events (reference tables, no time or parent): ${s.read_report.skipped_files.map((f) => esc(f.file)).join(", ")}.</p>` : ""}
   ${s.read_report?.dropped_pointer_records ? `<p class="muted small">${fmt(s.read_report.dropped_pointer_records)} records only pointed at another loaded record and were dropped as duplicates.</p>` : ""}
   <h2>What the results rest on</h2>
+  <p>Pack: <b>${esc(s.pack)}</b>${s.pack_choice ? ` <span class="muted">(picked automatically: ${esc(s.pack_choice.why)}; pick another pack above to override)</span>` : ""}.</p>
+  ${(s.shared_identities || []).length ? `<p>Shared keys, never counted as actors: ${s.shared_identities.map((t) => `<code>${esc(short(t))}</code>`).join(", ")}${(s.auto_shared || []).length ? ` <span class="muted">(found automatically: ${s.auto_shared.map((a) => `${esc(short(a.identity))} is used in ${pct(a.share_of_runs)} of the runs that carry a token`).join("; ")})</span>` : ""}.</p>` : ""}
   <p>Time: ${fmt(s.timed)} of ${fmt(s.records)} records have a time (${Object.entries(s.time_test.source || {}).map(([k, v]) => `${esc(k.replace(/_/g, " "))} ${fmt(v)}`).join(", ") || "none"}). ${s.time_test.span ? `Span ${esc(s.time_test.span[0])} to ${esc(s.time_test.span[1])} UTC.` : ""}</p>
   ${table(["kind", "first", "last", "records", "timestamps", "rank corr.", "timed", "median err (h)"],
     (s.time_test.blocks || []).map((b) => [esc(b.kind), idlink(b.first_id), idlink(b.last_id), fmt(b.records), fmt(b.timestamp_points), esc(b.spearman), b.timed ? "yes" : `no${b.rejected ? " (" + esc(b.rejected) + ")" : ""}`, esc(b.fit_error_hours_median ?? "")]))}
   <p>Identity: ${s.identity_test.tokens_used_5_plus ? `${s.identity_test.with_one_role_90pct} of ${s.identity_test.tokens_used_5_plus} identity tokens used 5+ times keep one role in at least 90% of uses.` : "no identity tokens repeat enough to test."}</p>
   <h2>Identities by activity</h2>
-  ${table(["identity", "uses", "first", "last", "mostly"], s.identities.slice(0, 15).map((i) => [`<code>${esc(short(i.identity))}</code>`, fmt(i.uses), esc(i.first), esc(i.last), esc(Object.keys(i.intents).join(", "))]), true)}
+  <p class="muted small">Every identity the tool found, busiest first. Click one to list its events.</p>
+  <div id="idlist"></div>
   <h2>What the records do</h2>
   ${bars(Object.entries(s.intents), Object.values(s.intents).reduce((a, b) => a + b, 0))}
   <h2>Evidence tags</h2>
   ${bars(Object.entries(s.evidence_tags).slice(0, 15), s.records)}
   <p class="muted small">Context tags (not evidence): ${Object.keys(s.context_tags).map(esc).join(", ") || "none"}.</p>`;
-  bindRows(el, (i) => goEvents({ actor: s.identities[i].identity }));
+  listView($("idlist"), "identities", ["identity", "uses", "first", "last", "roles", "mostly"],
+    (i) => [`<code>${esc(short(i.identity))}</code>`, fmt(i.uses), esc(i.first || "–"), esc(i.last || "–"), esc(Object.keys(i.roles || {}).join(", ")), esc(Object.keys(i.intents || {}).slice(0, 3).join(", "))],
+    s.identities.slice(0, 15), s.list_totals?.identities ?? s.identities_total, (i) => goEvents({ actor: i.identity }));
 }
 
 // ------------------------------------------------------------------ network (layered layout)
@@ -162,13 +185,21 @@ function network(el, s) {
   <p class="small"><input id="pairQ" placeholder="Find an actor, e.g. cred 169" style="width:220px"> <label class="muted"><input type="checkbox" id="pairAll"> include anonymous runs</label> <span id="pairCount" class="muted"></span></p>
   <p class="muted small">Click a pair to open its conversation. "Back" is how many messages went the other way.</p>
   <div id="pairs"></div>
-  <h3>Other links</h3>
-  <p class="muted small">One identity carrying another's token before its use, two identities on one place, and replies.</p>
-  ${table(["type", "a", "b", "detail"], [
-    ...s.carried_edges.slice(0, 10).map((e) => ["carried token", `<code>${esc(short(e.from))}</code>`, `<code>${esc(short(e.to))}</code>`, (e.evidence || []).map(idlink).join(", ")]),
-    ...s.shared_places.filter((p) => !p.same_record).slice(0, 10).map((p) => ["shared place", `<code>${esc(short(p.identities[0]))}</code>`, `<code>${esc(short(p.identities[1]))}</code>`, `<code>${esc(p.place)}</code> ${esc(p.first)} / ${esc(p.second)}: ${idlink(p.first_id)}, ${idlink(p.second_id)}`]),
-    ...s.reply_edges.slice(0, 10).map((r) => ["replies", `<code>${esc(short(r[0]))}</code>`, `<code>${esc(short(r[1]))}</code>`, fmt(r[2])]),
-  ])}`;
+  <h3>One identity carrying another's token</h3>
+  <p class="muted small">A record that authenticates as one identity and also holds another identity's token, before that token's own first use.</p>
+  <div id="carriedList"></div>
+  <h3>Two identities using one place</h3>
+  <p class="muted small">A named place (a controller, a command channel, a board) used by two identities. "Separately" means in different records.</p>
+  <div id="sharedList"></div>
+  <h3>Replies between actors</h3>
+  <div id="replyList"></div>`;
+  const T = s.list_totals || {};
+  listView($("carriedList"), "carried_edges", ["carrier", "token carried", "records", "evidence"],
+    (e) => [`<code>${esc(short(e.from))}</code>`, `<code>${esc(short(e.to))}</code>`, fmt(e.records), (e.evidence || []).map(idlink).join(", ")], s.carried_edges.slice(0, 10), T.carried_edges);
+  listView($("sharedList"), "shared_places", ["place", "identities", "first use", "second use", "separately"],
+    (p) => [`<code>${esc(p.place)}</code>`, p.identities.map((x) => `<code>${esc(short(x))}</code>`).join(" "), `${esc(p.first)} ${idlink(p.first_id)}`, `${esc(p.second)} ${idlink(p.second_id)}`, p.same_record ? "no, same record" : "yes"], s.shared_places.slice(0, 10), T.shared_places);
+  listView($("replyList"), "reply_edges", ["from", "to", "replies"],
+    (r) => [`<code>${esc(short(r.from))}</code>`, `<code>${esc(short(r.to))}</code>`, fmt(r.replies)], s.reply_edges.slice(0, 10).map((r) => ({ from: r[0], to: r[1], replies: r[2] })), T.reply_edges);
   pairList();
   let qt = null;
   $("pairQ").addEventListener("input", () => { clearTimeout(qt); qt = setTimeout(() => pairList(), 200); });
@@ -396,91 +427,260 @@ function drawNetwork(host, pairs) {
 // ------------------------------------------------------------------ timeline
 function timeline(el, s) {
   const hours = Object.keys(s.activity_by_hour).sort();
-  el.innerHTML = `<h2>What the agents did, hour by hour</h2><p class="muted small">Timed records only. Vertical lines mark when each early-flag signal first fired. Click a bar to list that hour's events.</p><div id="tl"></div>`;
+  const tot = Object.fromEntries(hours.map((h) => [h, Object.values(s.activity_by_hour[h]).reduce((a, b) => a + b, 0)]));
+  const peak = hours.reduce((a, h) => (tot[h] > (tot[a] || 0) ? h : a), hours[0]);
+  el.innerHTML = `<h2>What the agents did, hour by hour</h2>
+  ${peak ? `<p class="lead">The busiest hour was ${esc(dayWord(toTime(peak + ":00")))} ${esc(peak.slice(11))}:00 UTC, with ${fmt(tot[peak])} timed actions.</p>` : ""}
+  <p class="muted small">Timed actions only, stacked by what the code does. The numbered marks along the top show when each warning sign first fired (blue: actors working together; grey: a single actor). Click a bar to list that hour's events.</p>
+  <div id="tl"></div><div id="tlkey"></div>`;
   if (!hours.length) { $("tl").innerHTML = '<p class="muted">No timed records, so no timeline.</p>'; return; }
-  const intents = Object.keys(s.intents);
-  const color = Object.fromEntries(intents.map((k, i) => [k, PALETTE[i % PALETTE.length]]));
-  const W = 780, H = 300, L = 44, B = 40;
-  const tot = hours.map((h) => Object.values(s.activity_by_hour[h]).reduce((a, b) => a + b, 0));
-  const mx = Math.max(...tot), bw = (W - L - 10) / hours.length;
-  const t0 = toTime(hours[0] + ":00"), t1 = toTime(hours[hours.length - 1] + ":00") + 3600e3;
-  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="records per hour by intent">`;
-  hours.forEach((h, k) => {
-    let y = H - B;
-    intents.forEach((it) => { const v = s.activity_by_hour[h][it] || 0; if (!v) return; const hh = (H - B - 14) * v / mx; y -= hh;
-      svg += `<rect data-hour="${esc(h)}" x="${L + k * bw}" y="${y}" width="${Math.max(1, bw - 1)}" height="${hh}" fill="${color[it]}"><title>${esc(h)}h · ${esc(it)}: ${v}</title></rect>`; });
-    if (k % Math.max(1, Math.round(hours.length / 10)) === 0) svg += `<text x="${L + k * bw}" y="${H - B + 14}" font-size="10" fill="#555">${esc(h.slice(5))}h</text>`;
+  const draw = () => drawTimeline($("tl"), s, hours, tot);
+  draw();
+  if (window.ResizeObserver) { let w = $("tl").clientWidth; new ResizeObserver(() => { if ($("tl") && Math.abs($("tl").clientWidth - w) > 24) { w = $("tl").clientWidth; draw(); } }).observe($("tl")); }
+}
+
+function drawTimeline(host, s, hours, tot) {
+  const intents = Object.entries(s.intents).sort((a, b) => b[1] - a[1]).map(([k]) => k);
+  const color = Object.fromEntries(intents.map((k, i) => [k, k === "other" ? "#c9cfd6" : PALETTE[i % PALETTE.length]]));
+  const W = Math.max(380, host.clientWidth || 700), H = 300, x0 = 52, x1 = W - 12, yT = 40, yB = H - 30;
+  const t0 = toTime(hours[0] + ":00"), t1 = toTime(hours.at(-1) + ":00") + 3600e3;
+  const X = (t) => x0 + (t - t0) / (t1 - t0) * (x1 - x0), bw = Math.max(1, (x1 - x0) / ((t1 - t0) / 3600e3) - 1);
+  const mx = Math.max(...Object.values(tot)), Y = (v) => yB - v / mx * (yB - yT);
+  const step = mx > 2000 ? 1000 : mx > 500 ? 250 : mx > 100 ? 50 : mx > 20 ? 10 : 2;
+  let svg = `<svg class="chart" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Timed actions per hour, by what the code does">`;
+  for (let v = 0; v <= mx; v += step) svg += `<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="${GRID}"/><text x="${x0 - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="${QUIET}">${fmt(v)}</text>`;
+  hours.forEach((h) => {
+    let y = yB; const x = X(toTime(h + ":00"));
+    intents.forEach((it) => { const v = s.activity_by_hour[h][it] || 0; if (!v) return; const hh = v / mx * (yB - yT); y -= hh;
+      svg += `<rect data-hour="${esc(h)}" x="${x}" y="${y}" width="${bw}" height="${hh}" fill="${color[it]}"><title>${esc(dayWord(toTime(h + ":00")))} ${esc(h.slice(11))}:00 · ${esc(it.replace(/_/g, " "))}: ${fmt(v)} (hour total ${fmt(tot[h])})</title></rect>`; });
   });
-  s.replay.forEach((r, i) => {
-    const T = toTime(r.time.replace("at or before ", "")); if (T == null) return;
-    const x = L + (T - t0) / (t1 - t0) * (W - L - 10);
-    svg += `<line x1="${x}" x2="${x}" y1="12" y2="${H - B}" stroke="#c0392b" stroke-dasharray="3 3"><title>${esc(r.signal)} · ${esc(r.time)}</title></line><text x="${x + 2}" y="${12 + (i % 6) * 11}" font-size="9.5" fill="#c0392b">${i + 1}</text>`;
+  svg += `<line x1="${x0}" x2="${x1}" y1="${yB}" y2="${yB}" stroke="${AXIS}"/>`;
+  timeTicks(t0, t1).forEach((k) => { svg += `<line x1="${X(k.t)}" x2="${X(k.t)}" y1="${yB}" y2="${yB + 5}" stroke="${AXIS}"/><text x="${X(k.t)}" y="${yB + 19}" text-anchor="middle" font-size="11" fill="${QUIET}">${esc(k.label)}</text>`; });
+  // warning signs: numbered marks on a strip above the bars, staggered when close
+  const sigs = s.replay.map((r) => ({ ...r, ...signalInfo(r), t: sigTime(r.time) })).filter((r) => r.t != null && r.t >= t0 && r.t <= t1).sort((a, b) => a.t - b.t);
+  let lastX = -99, lane = 0;
+  sigs.forEach((r, i) => {
+    const x = X(r.t); lane = x - lastX < 18 ? (lane + 1) % 2 : 0; lastX = x;
+    const cy = 14 + lane * 15, c = r.joint ? ACCENT : SINGLE;
+    svg += `<line x1="${x}" x2="${x}" y1="${cy + 7}" y2="${yB}" stroke="${c}" stroke-opacity=".35" stroke-dasharray="2 3"/><circle cx="${x}" cy="${cy}" r="7" fill="${c}"/><text x="${x}" y="${cy + 3.5}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff">${i + 1}<title>${esc(r.name)} · ${esc(r.time)}</title></text>`;
   });
-  svg += `<text x="2" y="14" font-size="10" fill="#555">${mx}/h</text></svg>`;
-  $("tl").innerHTML = svg + `<div class="legend">${intents.map((k) => `<span><i style="background:${color[k]}"></i>${esc(k)}</span>`).join("")}</div>` +
-    `<h3>Signals marked on the chart</h3>` + table(["#", "signal", "first time", "harm still to come"], s.replay.map((r, i) => [i + 1, esc(r.signal), esc(r.time), pct(r.harm_share_after)]));
-  $("tl").querySelectorAll("rect[data-hour]").forEach((r) => r.addEventListener("click", () => goEvents({ hour: r.dataset.hour })));
+  host.innerHTML = svg + "</svg>";
+  host.querySelectorAll("rect[data-hour]").forEach((r) => r.addEventListener("click", () => goEvents({ hour: r.dataset.hour })));
+  $("tlkey").innerHTML = `<div class="legend">${intents.map((k) => `<span><i style="background:${color[k]}"></i>${esc(k.replace(/_/g, " "))} <span class="muted">${fmt(s.intents[k])}</span></span>`).join("")}</div>` +
+    `<h3>Warning signs on the chart</h3>` + table(["#", "sign", "kind", "first fired (UTC)", "harm still to come"], sigs.map((r, i) => [i + 1, esc(r.name), r.joint ? "actors together" : "single actor", esc(r.time), pct(r.harm_share_after)]));
 }
 
 // ------------------------------------------------------------------ channels
 function channels(el, s) {
   const ct = Object.entries(s.flow.channel_types).sort((a, b) => b[1].deliveries - a[1].deliveries);
-  el.innerHTML = `<h2>Channels and how messages performed</h2>
-  <p class="muted small">A channel is a place agents write to and read from. Deliveries are reads after a write by another actor. Latency is write-to-read time.</p>
-  ${table(["type", "channels", "writes", "reads", "messages", "written, never read by another actor"], ct.map(([t, v]) => [esc(t), fmt(v.channels), fmt(v.writes), fmt(v.reads), fmt(v.deliveries), fmt(v.never_read)]))}
-  <h3>Messages per channel type</h3>${bars(ct.map(([t, v]) => [t, v.deliveries]))}
-  <h3>Busiest channels</h3><p class="muted small">Click a channel to list the events that name it.</p>
-  ${table(["channel", "writes", "reads", "writers", "readers", "messages", "median latency (h)", "first write"], s.top_channels.map((c) => [`<code>${esc(c.channel)}</code>`, fmt(c.writes), fmt(c.reads), fmt(c.writers), fmt(c.readers), fmt(c.deliveries), esc(c.median_latency_h), esc(c.first_write)]), true)}`;
-  bindRows(el, (i) => goEvents({ q: s.top_channels[i].channel.split(":").slice(1).join(":") }));
+  const top = ct[0];
+  el.innerHTML = `<h2>Places and how messages moved through them</h2>
+  ${top ? `<p class="lead">${fmt(top[1].deliveries)} of ${fmt(s.flow.deliveries)} messages went through <b>${esc(top[0].replace(/_/g, " "))}</b> places.</p>` : ""}
+  <p class="muted small">A place is anywhere one actor can leave something for another: a repository, a mailbox folder, a page, a thread. A message is a read of a place after a different actor wrote to it. Latency is the time from write to read.</p>
+  ${table(["type", "places", "writes", "reads", "messages", "written, never read by another actor"], ct.map(([t, v]) => [esc(t), fmt(v.channels), fmt(v.writes), fmt(v.reads), fmt(v.deliveries), fmt(v.never_read)]))}
+  <h3>Messages per place type</h3>${bars(ct.map(([t, v]) => [t, v.deliveries]))}
+  <h3>Every place</h3><p class="muted small">Busiest first. Click a place to list the events that name it.</p>
+  <div id="chanList"></div>`;
+  listView($("chanList"), "channels", ["place", "writes", "reads", "writers", "readers", "messages", "overwrites", "median latency (h)", "first write"],
+    (c) => [`<code>${esc(c.channel)}</code>`, fmt(c.writes), fmt(c.reads), fmt(c.writers), fmt(c.readers), fmt(c.deliveries), fmt(c.overwrites || 0), esc(c.median_latency_h ?? "–"), esc(c.first_write || "–")],
+    s.top_channels.slice(0, 15), s.list_totals?.channels, (c) => goEvents({ q: c.channel.split(":").slice(1).join(":") }));
 }
 
 // ------------------------------------------------------------------ spread
 function spread(el, s) {
-  const items = s.content_spread.slice(0, 14);
+  const all = s.content_spread, total = s.list_totals?.content_spread ?? all.length;
+  const widest = all[0];
   el.innerHTML = `<h2>How information spread</h2>
-  <p class="muted small">Each lane is one program (the same code, ids masked) used under several named actors. The orange dot is the first use (source); blue dots are later adopters. Click a dot to trace that record.</p>
+  ${widest ? `<p class="lead">${fmt(total)} programs were run by more than one named actor. The widest, first run by ${esc(short(widest.source))}, reached ${fmt(widest.actors - 1)} more within ${hoursWord(Math.max(...widest.adopters.map((a) => a.hours_after_source)))}.</p>` : ""}
+  <p class="muted small">Each lane is one program (the same code, with ids, numbers and hashes masked) run by several named actors. The dark dot is its first run; blue dots are later runs by other actors, in time order. Click a dot to trace that record.</p>
+  <p class="small">Show <select id="laneN"><option>10</option><option selected>20</option><option>40</option></select> programs</p>
   <div id="lanes"></div>
-  <h3>Items seen as data, then used as an identity</h3>
-  ${table(["item", "first seen", "record", "kind", "first used", "uses", "lead (h)"], s.seen_then_used.map((x) => [`<code>${esc(short(x.item))}</code>`, esc(x.first_seen), idlink(x.first_seen_id), esc(x.first_seen_kind), esc(x.first_used), fmt(x.uses), esc(x.lead_hours)]))}`;
-  if (!items.length) { $("lanes").innerHTML = '<p class="muted">No program moved between two named actors.</p>'; return; }
+  <h3>Every program run by several actors</h3><div id="spreadList"></div>
+  <h3>Items first seen as data, then used as an identity</h3>
+  <p class="muted small">A token that appears inside a record as data before any record uses it to authenticate: one way a credential moves between agents.</p>
+  <div id="stuList"></div>`;
+  const T = s.list_totals || {};
+  listView($("spreadList"), "content_spread", ["first run by", "record", "time", "actors", "copies", "last adopter", "after"],
+    (x) => { const last = x.adopters.at(-1) || {}; return [`<code>${esc(short(x.source))}</code>`, idlink(x.source_record), esc(x.source_time || "–"), fmt(x.actors), fmt(x.copies), `<code>${esc(short(last.actor || ""))}</code> ${idlink(last.record)}`, esc(last.hours_after_source != null ? hoursWord(last.hours_after_source) : "–")]; },
+    all.slice(0, 10), total);
+  listView($("stuList"), "seen_then_used", ["item", "first seen", "record", "kind", "first used", "uses", "lead"],
+    (x) => [`<code>${esc(short(x.item))}</code>`, esc(x.first_seen), idlink(x.first_seen_id), esc(x.first_seen_kind), esc(x.first_used), fmt(x.uses), hoursWord(x.lead_hours)],
+    s.seen_then_used.slice(0, 10), T.seen_then_used);
+  if (!all.length) { $("lanes").innerHTML = '<p class="muted">No program moved between two named actors.</p>'; return; }
+  const draw = () => drawLanes($("lanes"), all.slice(0, +$("laneN").value));
+  $("laneN").addEventListener("change", draw);
+  draw();
+}
+const hoursWord = (h) => (h == null ? "–" : h < 1 ? `${Math.round(h * 60)} min` : h < 48 ? `${(+h).toFixed(1)} h` : `${(h / 24).toFixed(1)} days`);
+
+function drawLanes(host, items) {
+  const W = Math.max(380, host.clientWidth || 700), row = 28, L = 150, R = 118, y0 = 30, H = y0 + items.length * row + 30;
   const pts = items.flatMap((x) => [toTime(x.source_time), ...x.adopters.map((a) => toTime(a.time))]).filter((t) => t != null);
-  const t0 = Math.min(...pts), t1 = Math.max(...pts) || t0 + 1;
-  const W = 780, row = 30, L = 120, R = 150, H = items.length * row + 40;
+  const t0 = Math.min(...pts), t1 = Math.max(...pts) + 1;
   const X = (t) => L + (t - t0) / Math.max(1, t1 - t0) * (W - L - R);
-  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="program spread lanes">`;
+  const nameFont = '12px -apple-system, system-ui, sans-serif';
+  let svg = `<svg class="chart" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="How programs spread between actors over time">`;
+  timeTicks(t0, t1).forEach((k) => { svg += `<line x1="${X(k.t)}" x2="${X(k.t)}" y1="${y0 - 10}" y2="${H - 26}" stroke="${GRID}"/><text x="${X(k.t)}" y="${H - 10}" text-anchor="middle" font-size="11" fill="${QUIET}">${esc(k.label)}</text>`; });
   items.forEach((x, i) => {
-    const y = 20 + i * row;
-    svg += `<text x="4" y="${y + 4}" font-size="11" fill="#333">${esc(x.family)} (${x.actors})</text><line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="#eef0f3"/>`;
-    x.adopters.forEach((a) => { const xx = X(toTime(a.time)); svg += `<line x1="${X(toTime(x.source_time))}" x2="${xx}" y1="${y}" y2="${y}" stroke="#7fb3e6"/><circle data-ev="${esc(a.record)}" class="node" cx="${xx}" cy="${y}" r="5" fill="#2f6fb3"><title>${esc(short(a.actor))} adopted it ${a.hours_after_source} h later (${esc(a.record)})</title></circle>`; });
-    svg += `<circle data-ev="${esc(x.source_record)}" class="node" cx="${X(toTime(x.source_time))}" cy="${y}" r="6.5" fill="#e3a43b"><title>source ${esc(short(x.source))} at ${esc(x.source_time)} (${esc(x.source_record)})</title></circle>`;
+    const y = y0 + i * row, sx = X(toTime(x.source_time));
+    const label = fitName(`${short(x.source)}'s program`, L - 14, nameFont);
+    svg += `<text x="4" y="${y + 4}" font-size="12" fill="${INK}"><title>${esc(x.source)}: ${x.copies} copies, ${x.actors} actors</title>${esc(label)}</text>`;
+    const xs = x.adopters.map((a) => X(toTime(a.time)));
+    svg += `<line x1="${sx}" x2="${Math.max(sx, ...xs)}" y1="${y}" y2="${y}" stroke="#bcd3ec" stroke-width="2"/>`;
+    x.adopters.forEach((a, k) => { svg += `<circle data-ev="${esc(a.record)}" class="node" cx="${xs[k]}" cy="${y}" r="4.5" fill="${ACCENT}" stroke="#fff" stroke-width="1"><title>${esc(short(a.actor))} ran it ${hoursWord(a.hours_after_source)} after the first run (${esc(a.record)}, ${esc(a.time)})</title></circle>`; });
+    svg += `<circle data-ev="${esc(x.source_record)}" class="node" cx="${sx}" cy="${y}" r="5.5" fill="${INK}" stroke="#fff" stroke-width="1.5"><title>first run by ${esc(short(x.source))} at ${esc(x.source_time)} (${esc(x.source_record)})</title></circle>`;
     const lastH = Math.max(0, ...x.adopters.map((a) => a.hours_after_source));
-    svg += `<text x="${W - R + 10}" y="${y + 4}" font-size="11" fill="#555">${x.adopters.length} adopters, last +${lastH < 1 ? Math.round(lastH * 60) + " min" : lastH.toFixed(1) + " h"}</text>`;
+    svg += `<text x="${W - R + 10}" y="${y + 4}" font-size="11.5" fill="${QUIET}">${x.actors} actors, ${hoursWord(lastH)}</text>`;
   });
-  svg += `<text x="${L}" y="${H - 6}" font-size="10" fill="#555">${new Date(t0).toISOString().slice(5, 16).replace("T", " ")}</text><text x="${W - R}" y="${H - 6}" font-size="10" text-anchor="end" fill="#555">${new Date(t1).toISOString().slice(5, 16).replace("T", " ")}</text></svg>`;
-  $("lanes").innerHTML = svg;
+  svg += `<text x="${W - R + 10}" y="${y0 - 14}" font-size="11" fill="${QUIET}">reach, time</text></svg>`;
+  host.innerHTML = svg;
+}
+
+// ------------------------------------------------------------------ chart helpers
+const INK = "#1d2329", QUIET = "#66717d", GRID = "#e6e9ee", AXIS = "#9aa5b1", CURVE = "#b9bfb7", ACCENT = "#2f6fb3", SINGLE = "#4b5157";
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const sigTime = (t) => toTime(String(t || "").replace("at or before ", ""));
+const dayWord = (t) => { const d = new Date(t); return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`; };
+const clock = (t) => new Date(t).toISOString().slice(11, 16);
+// ticks at whole days, quarter days or hours, whichever gives 3 to 10 ticks across the span
+function timeTicks(t0, t1) {
+  const H = 3600e3, span = t1 - t0;
+  const step = span > 3 * 24 * H ? 24 * H : span > 18 * H ? 6 * H : span > 4 * H ? H : 15 * 60e3;
+  const out = [];
+  for (let t = Math.ceil(t0 / step) * step; t <= t1; t += step) out.push({ t, label: step >= 24 * H || new Date(t).getUTCHours() === 0 && step > H ? dayWord(t) : `${dayWord(t)} ${clock(t)}` });
+  return out;
+}
+// plain names for replay signals; packs name their own harms, the rest fall back to their words
+const SIGNAL_NAMES = {
+  registry_board: "Registry mailbox first used", docker_registry: "Docker registry first used",
+  hf_dataset_write: "First Hugging Face dataset write", kubernetes_api: "Kubernetes API first called",
+  cloud_metadata: "Cloud metadata first requested", probe_request: "First probe request",
+  hides_page: "First page hidden", proxy_link: "First proxy link", recreated_after_delete: "Page recreated after a delete",
+  runs_shell: "First shell command", handles_secrets: "First secret handled", sends_data: "First data sent out", deletes: "First delete",
+};
+function signalInfo(r) {
+  const sig = String(r.signal);
+  if (sig.startsWith("first message")) return { name: "First message between named actors", joint: true };
+  if (sig.startsWith("coordination: one identity carries")) return { name: "One identity carries another's token", joint: true };
+  if (sig.startsWith("coordination: two identities")) return { name: `Two identities share ${String(r.ref).length < 24 ? "place " + r.ref : "one place"}`, joint: true };
+  if (sig.startsWith("coordination")) return { name: sig.replace(/^coordination:\s*/, "").replace(/^./, (c) => c.toUpperCase()), joint: true };
+  if (sig.startsWith("spread")) return { name: "Token seen as data, then used", joint: false };
+  const key = sig.replace(/^first:\s*/, "");
+  return { name: SIGNAL_NAMES[key] || ("First " + key.replace(/_/g, " ")), joint: false };
+}
+// place two-line labels next to their dots without covering other labels, dots or the line
+// Search the whole plot for each label's spot: no overlap with other labels, as little of the line
+// and the dots covered as possible, and the shortest leader back to its dot. Works for any curve shape.
+function placeLabels(items, box, avoidPts, maxLeader = 260) {
+  const C = 5, nx = Math.ceil((box.x1 - box.x0) / C) + 1, ny = Math.ceil((box.y1 - box.y0) / C) + 1;
+  const grid = new Uint8Array(nx * ny);
+  avoidPts.forEach((p) => {
+    const r = p.r || 3;
+    for (let j = Math.floor((p.y - r - box.y0) / C); j <= Math.floor((p.y + r - box.y0) / C); j++)
+      for (let i = Math.floor((p.x - r - box.x0) / C); i <= Math.floor((p.x + r - box.x0) / C); i++)
+        if (i >= 0 && j >= 0 && i < nx && j < ny) grid[j * nx + i] = 1;
+  });
+  const P = new Int32Array((nx + 1) * (ny + 1));   // 2-D prefix sums: covered cells in any box in O(1)
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++)
+    P[(j + 1) * (nx + 1) + i + 1] = grid[j * nx + i] + P[j * (nx + 1) + i + 1] + P[(j + 1) * (nx + 1) + i] - P[j * (nx + 1) + i];
+  const covered = (b) => {
+    const i0 = Math.max(0, Math.floor((b.x - box.x0) / C)), i1 = Math.min(nx, Math.ceil((b.x + b.w - box.x0) / C));
+    const j0 = Math.max(0, Math.floor((b.y - box.y0) / C)), j1 = Math.min(ny, Math.ceil((b.y + b.h - box.y0) / C));
+    return P[j1 * (nx + 1) + i1] - P[j0 * (nx + 1) + i1] - P[j1 * (nx + 1) + i0] + P[j0 * (nx + 1) + i0];
+  };
+  const hits = (a, b, m = 4) => a.x < b.x + b.w + m && b.x < a.x + a.w + m && a.y < b.y + b.h + m && b.y < a.y + a.h + m;
+  const crosses = (ax, ay, bx, by, r) => {   // does the segment a-b pass through rectangle r?
+    let t0 = 0, t1 = 1; const dx = bx - ax, dy = by - ay;
+    for (const [p, q] of [[-dx, ax - r.x], [dx, r.x + r.w - ax], [-dy, ay - r.y], [dy, r.y + r.h - ay]]) {
+      if (p === 0) { if (q < 0) return false; continue; }
+      const t = q / p; if (p < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; }
+    }
+    return true;
+  };
+  const placed = [];
+  const anchors = items.map((it) => ({ x: it.x, y: it.y, it }));
+  for (const it of items) {
+    let best = null;
+    for (let y = box.y0; y + it.h <= box.y1; y += 6) for (let x = box.x0; x + it.w <= box.x1; x += 6) {
+      const b = { x, y, w: it.w, h: it.h };
+      if (placed.some((p) => hits(b, p))) continue;
+      const lx = Math.max(b.x, Math.min(it.x, b.x + b.w)), ly = Math.max(b.y, Math.min(it.y, b.y + b.h));
+      const d = Math.hypot(lx - it.x, ly - it.y);
+      if (d > maxLeader) continue;
+      // a label beside someone else's dot reads as that dot's label
+      const near = anchors.filter((a) => a.it !== it && a.x > b.x - 16 && a.x < b.x + b.w + 16 && a.y > b.y - 16 && a.y < b.y + b.h + 16).length;
+      const cross = placed.filter((p) => crosses(it.x, it.y, lx, ly, p)).length;
+      const cost = covered(b) * 60 + d * 1.2 + (d > 12 ? 10 : 0) + near * 90 + cross * 160;
+      if (!best || cost < best.cost) best = { b, cost };
+    }
+    if (best) { it.label = best.b; placed.push(best.b); }
+  }
 }
 
 // ------------------------------------------------------------------ early flag
 function early(el, s) {
   const rem = s.harm_remaining_by_hour;
+  const fnd = s.flow.first_named_delivery;
+  const sigs = s.replay.map((r) => ({ ...r }));
+  if (fnd) sigs.push({ signal: "first message between named actors", time: fnd.read_time, ref: fnd.read_id, harm_share_after: s.flow.harm_share_after_first_named_delivery });
+  sigs.forEach((r) => Object.assign(r, signalInfo(r), { t: sigTime(r.time) }));
+  sigs.sort((a, b) => (a.t ?? 0) - (b.t ?? 0));
+  const joint = sigs.filter((r) => r.joint && r.harm_share_after != null), single = sigs.filter((r) => !r.joint && r.harm_share_after != null);
+  const lo = (xs) => xs.length ? Math.min(...xs.map((r) => r.harm_share_after)) : null, hi = (xs) => xs.length ? Math.max(...xs.map((r) => r.harm_share_after)) : null;
+  const finding = joint.length && single.length
+    ? `Single-actor signs fired with ${pct(lo(single))} to ${pct(hi(single))} of the harm still to come; signs of actors working together with ${pct(lo(joint))} to ${pct(hi(joint))}.`
+    : "Each dot is when a signal first fired; the higher it sits, the earlier the warning.";
   el.innerHTML = `<h2>Could it have been flagged early?</h2>
-  <p class="muted small">The line is the share of timed harmful activity still to come at each hour. Each marker is when a signal first fired. The higher a marker sits on the line, the earlier the warning.</p><div id="ef"></div>
-  ${table(["signal", "first time", "harm still to come", "spread still to come", "record"], s.replay.map((r) => [esc(r.signal), esc(r.time), pct(r.harm_share_after), pct(r.spread_share_after), /^[A-Za-z]\d{3,}$/.test(String(r.ref)) ? idlink(r.ref) : `<code>${esc(short(r.ref))}</code>`]))}
-  ${s.flow.first_named_delivery ? `<div class="note">First message between named actors: ${esc(s.flow.first_named_delivery.read_time)}, with ${pct(s.flow.harm_share_after_first_named_delivery)} of the harm still to come (${idlink(s.flow.first_named_delivery.read_id)}).</div>` : ""}`;
-  if (!rem.length) { $("ef").innerHTML = '<p class="muted">No timed harmful activity.</p>'; return; }
-  const W = 780, H = 260, L = 40, B = 30;
-  const t0 = toTime(rem[0][0] + ":00"), t1 = toTime(rem[rem.length - 1][0] + ":00") + 3600e3;
-  const X = (t) => L + (t - t0) / (t1 - t0) * (W - L - 10), Y = (v) => 10 + (1 - v) * (H - B - 10);
-  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="harm still to come over time">`;
-  svg += `<polyline fill="none" stroke="#2f6fb3" stroke-width="2" points="${rem.map(([h, v]) => `${X(toTime(h + ":00"))},${Y(v)}`).join(" ")}"/>`;
-  [0, 0.5, 1].forEach((v) => { svg += `<text x="2" y="${Y(v) + 4}" font-size="10" fill="#555">${v * 100}%</text><line x1="${L}" x2="${W - 10}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eef0f3"/>`; });
-  const sigs = [...s.replay];
-  if (s.flow.first_named_delivery) sigs.push({ signal: "first message between named actors", time: s.flow.first_named_delivery.read_time, harm_share_after: s.flow.harm_share_after_first_named_delivery });
-  sigs.forEach((r, i) => { const T = toTime(String(r.time).replace("at or before ", "")); if (T == null || r.harm_share_after == null) return;
-    const col = r.signal.startsWith("coordination") || r.signal.startsWith("first message") ? "#c0392b" : "#e3a43b";
-    svg += `<circle cx="${X(T)}" cy="${Y(r.harm_share_after)}" r="5" fill="${col}"><title>${esc(r.signal)} · ${esc(r.time)} · ${pct(r.harm_share_after)} still to come</title></circle>`; });
-  svg += `<text x="${L}" y="${H - 8}" font-size="10" fill="#555">${esc(rem[0][0])}h</text><text x="${W - 10}" y="${H - 8}" font-size="10" text-anchor="end" fill="#555">${esc(rem[rem.length - 1][0])}h</text></svg>`;
-  $("ef").innerHTML = svg + `<div class="legend"><span><i style="background:#e3a43b"></i>single-actor signal</span><span><i style="background:#c0392b"></i>coordination signal</span></div>`;
+  <p class="lead">${esc(finding)}</p>
+  <p class="muted small">The grey line is the share of timed harmful activity still to come, hour by hour (${fmt(s.harm_events_timed)} timed harmful actions). Each dot marks when a warning sign first fired: <b style="color:${ACCENT}">blue</b> for signs of two actors working together, <b style="color:${SINGLE}">dark grey</b> for single-actor signs. Click a dot to trace its record.</p>
+  <div id="ef"></div>
+  <h3>Every signal</h3>
+  ${table(["signal", "kind", "first fired (UTC)", "harm still to come", "spread still to come", "record"], sigs.map((r) => [esc(r.name), r.joint ? "actors together" : "single actor", esc(r.time), pct(r.harm_share_after), pct(r.spread_share_after), /^[A-Za-z]\d{3,}$/.test(String(r.ref)) || /[~@]/.test(String(r.ref)) ? idlink(r.ref) : `<code>${esc(short(r.ref))}</code>`]))}`;
+  if (!rem.length) { $("ef").innerHTML = '<p class="muted">No timed harmful activity, so no replay.</p>'; return; }
+  drawEarly($("ef"), rem, sigs);
+  if (window.ResizeObserver) { let w = $("ef").clientWidth; new ResizeObserver(() => { if ($("ef") && Math.abs($("ef").clientWidth - w) > 24) { w = $("ef").clientWidth; drawEarly($("ef"), rem, sigs); } }).observe($("ef")); }
+}
+
+function drawEarly(host, rem, sigs) {
+  const W = Math.max(360, host.clientWidth || 700), H = Math.round(Math.min(480, Math.max(360, W * 0.62)));
+  const x0 = 52, x1 = W - 16, yT = 18, yB = H - 34;
+  const t0 = toTime(rem[0][0] + ":00") - 1800e3, t1 = toTime(rem[rem.length - 1][0] + ":00") + 3600e3;
+  const X = (t) => x0 + (t - t0) / (t1 - t0) * (x1 - x0), Y = (v) => yB - v * (yB - yT);
+  const pts = rem.map(([h, v]) => ({ x: X(toTime(h + ":00")), y: Y(v), h, v }));
+  // dense samples along the line so labels steer clear of it
+  const avoid = [];
+  pts.forEach((p, i) => { const q = pts[i + 1]; if (!q) return avoid.push(p); for (let k = 0; k < 6; k++) avoid.push({ x: p.x + (q.x - p.x) * k / 6, y: p.y + (q.y - p.y) * k / 6 }); });
+  const nameFont = '600 12.5px -apple-system, system-ui, "Segoe UI", sans-serif', detFont = '11.5px -apple-system, system-ui, sans-serif';
+  const shown = sigs.filter((r) => r.t != null && r.harm_share_after != null);
+  // dots on the same spot share one label
+  const groups = [];
+  shown.forEach((r) => { r.x = X(r.t); r.y = Y(r.harm_share_after); const g = groups.find((g) => Math.hypot(g.x - r.x, g.y - r.y) < 12 && g.joint === r.joint); if (g) g.more.push(r); else groups.push({ ...r, more: [] }); });
+  groups.forEach((g) => {
+    g.line1 = g.name + (g.more.length ? ` (+${g.more.length} more)` : "");
+    g.line2 = `${dayWord(g.t)} ${clock(g.t)} · ${pct(g.harm_share_after)} still to come`;
+    g.w = Math.max(textWidth(g.line1, nameFont), textWidth(g.line2, detFont)) + 6; g.h = 32;
+  });
+  const order = [...groups].sort((a, b) => (b.joint - a.joint) || (a.t - b.t));
+  placeLabels(order, { x0: x0 + 4, x1: x1, y0: yT, y1: yB - 4 }, [...avoid.map((p) => ({ ...p, r: 3 })), ...groups.map((g) => ({ x: g.x, y: g.y, r: 9 }))]);
+  let svg = `<svg class="chart" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of harmful activity still to come, with the first time each warning sign fired">`;
+  [0, 0.25, 0.5, 0.75, 1].forEach((v) => { svg += `<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="${GRID}"/><text x="${x0 - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="${QUIET}">${v * 100}%</text>`; });
+  svg += `<line x1="${x0}" x2="${x1}" y1="${yB}" y2="${yB}" stroke="${AXIS}"/>`;
+  timeTicks(t0, t1).forEach((k) => { svg += `<line x1="${X(k.t)}" x2="${X(k.t)}" y1="${yB}" y2="${yB + 5}" stroke="${AXIS}"/><text x="${X(k.t)}" y="${yB + 19}" text-anchor="middle" font-size="11" fill="${QUIET}">${esc(k.label)}</text>`; });
+  svg += `<path d="${pts.map((p, i) => `${i ? "L" : "M"}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join("")}" fill="none" stroke="${CURVE}" stroke-width="2.5"/>`;
+  pts.forEach((p) => { svg += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="transparent"><title>${esc(p.h)}:00 UTC: ${pct(p.v)} of timed harmful activity still to come</title></circle>`; });
+  groups.forEach((g) => {
+    const c = g.joint ? ACCENT : SINGLE, L = g.label;
+    if (L) {
+      const lx = Math.max(L.x, Math.min(g.x, L.x + L.w)), ly = Math.max(L.y, Math.min(g.y, L.y + L.h));
+      if (Math.hypot(lx - g.x, ly - g.y) > 10) svg += `<line x1="${g.x}" y1="${g.y}" x2="${lx}" y2="${ly}" stroke="${g.joint ? ACCENT : SINGLE}" stroke-opacity=".45" stroke-width="1.2"/>`;
+      svg += `<g class="lbl"><rect x="${L.x - 2}" y="${L.y - 1}" width="${L.w + 2}" height="${L.h}" rx="3" fill="#fff" fill-opacity=".85"/><text x="${L.x}" y="${L.y + 13}" font-size="12.5" font-weight="600" fill="${g.joint ? INK : "#3a4148"}">${esc(g.line1)}</text><text x="${L.x}" y="${L.y + 28}" font-size="11.5" fill="${QUIET}">${esc(g.line2)}</text></g>`;
+    }
+    [g, ...g.more].forEach((r) => {
+      const link = /^[A-Za-z]\d{3,}$/.test(String(r.ref)) || /[~@]/.test(String(r.ref));
+      svg += `<circle class="${link ? "node" : ""}" ${link ? `data-ev="${esc(r.ref)}"` : ""} cx="${r.x}" cy="${r.y}" r="5.5" fill="${c}" stroke="#fff" stroke-width="1.5"><title>${esc(r.name)}, ${esc(r.time)} UTC (${esc(short(r.ref))}): ${pct(r.harm_share_after)} of timed harmful activity still to come</title></circle>`;
+    });
+  });
+  host.innerHTML = svg + "</svg>" + (groups.some((g) => !g.label) ? `<p class="muted small">Not labelled for lack of room (hover the dot): ${groups.filter((g) => !g.label).map((g) => `${esc(g.line1)}, ${esc(g.line2)}`).join("; ")}.</p>` : "");
 }
 
 // ------------------------------------------------------------------ events
@@ -536,7 +736,12 @@ function gaps(el, s) {
   <li><b>Success.</b> A read or write in the code is an attempt; the data rarely records whether it worked.</li>
   <li><b>Unlisted channels.</b> Messages through places the pack does not describe, or with no shared place, are invisible.</li>
   <li><b>Patterns.</b> Tags and intents are pattern matches on text, not verified behavior.</li>
-  <li><b>Links.</b> ${fmt(g.no_parent)} records have no parent link.</li></ul>`;
+  <li><b>Links.</b> ${fmt(g.no_parent)} records have no parent link.</li></ul>
+  ${f.overwrites ? `<h3>Every overwrite</h3><p class="muted small">Edits that replaced another actor's edit without keeping any line it added. Not counted as messages. Click a row to trace the edit that did the replacing.</p><div id="overList"></div>` : ""}`;
+  if (f.overwrites) listView($("overList"), "overwrites", ["replaced", "by", "place", "earlier edit", "replacing edit", "what happened"],
+    (o) => [`<code>${esc(short(o.from))}</code>`, `<code>${esc(short(o.to))}</code>`, `<code>${esc(o.channel)}</code>`, `${idlink(o.write_id)} <span class="muted small">${esc(o.write_time || "")}</span>`, `${idlink(o.read_id)} <span class="muted small">${esc(o.read_time || "")}</span>`, esc(o.how)],
+    [], s.list_totals?.overwrites, (o) => selectEvent(o.read_id));
+  if (f.overwrites) $("overList").querySelector(".lmore")?.click();
 }
 
 // ------------------------------------------------------------------ event trace (right top)
@@ -600,6 +805,20 @@ $("listModels").addEventListener("click", async () => {
     $("modellist").innerHTML = r.models.map((m) => `<option value="${esc(m)}">`).join(""); addMsg("assistant", `Models available: ${r.models.join(", ")}`); }
   catch (e) { addMsg("error", "Could not list models: " + e.message); }
 });
+// one session id per conversation: OpenCode Go needs it (x-opencode-session); other providers ignore it
+const newSessionId = () => "ses_" + (crypto.randomUUID ? crypto.randomUUID().replace(/-/g, "") : String(Date.now()) + Math.random().toString(16).slice(2));
+S.aiSession = newSessionId();
+$("newChat").addEventListener("click", () => { S.chat = []; S.aiSession = newSessionId(); $("chat").innerHTML = ""; $("aistatus").textContent = "Started a new chat."; });
+$("checkAI").addEventListener("click", async () => {
+  const st = $("aistatus");
+  if (!$("apiKey").value) { st.textContent = "Enter an API key first."; st.className = "small bad"; return; }
+  st.textContent = "Checking…"; st.className = "small muted";
+  try {
+    const r = await api("/api/ai/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+      baseUrl: $("baseUrl").value, apiKey: $("apiKey").value, model: $("model").value, sessionId: S.aiSession }) });
+    st.textContent = `Connected: ${$("model").value} replied "${r.reply}".`; st.className = "small ok";
+  } catch (e) { st.textContent = e.message; st.className = "small bad"; }
+});
 $("quick").addEventListener("click", (e) => { const b = e.target.closest("button[data-q]"); if (b) ask(b.dataset.q); });
 $("ask").addEventListener("submit", (e) => { e.preventDefault(); const q = $("q").value.trim(); if (q) { $("q").value = ""; ask(q); } });
 $("q").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) $("ask").requestSubmit(); });
@@ -634,7 +853,7 @@ async function ask(q) {
   try {
     const r = await api("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
       messages: S.chat, apiKey: $("apiKey").value, baseUrl: $("baseUrl").value, model: $("model").value,
-      selectedId: $("useSel").checked ? S.selected : null, conversation: S.conv || null }) });
+      selectedId: $("useSel").checked ? S.selected : null, conversation: S.conv || null, sessionId: S.aiSession }) });
     wait.remove();
     S.chat.push({ role: "assistant", content: r.content });
     addMsg("assistant", r.content, `${$("model").value}${r.context_ids?.length ? " · evidence sent: " + r.context_ids.join(", ") : ""}${S.conv ? ` · conversation sent: ${short(S.conv.a)} ↔ ${short(S.conv.b)}` : ""}${r.usage?.total_tokens ? " · " + r.usage.total_tokens + " tokens" : ""}`);

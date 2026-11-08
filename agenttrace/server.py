@@ -10,8 +10,11 @@ Serves the app from agenttrace/app/ and a JSON API on 127.0.0.1 only:
     GET  /api/event?id=                 full trace of one record
     GET  /api/pairs?q=&all=1&offset=&limit=   every sender-receiver pair (named only unless all=1)
     GET  /api/conversation?a=&b=        all messages between two actors, both directions, with record ids
+    GET  /api/list?name=&q=&offset=&limit=   any full list (identities, channels, content_spread, seen_then_used,
+                                        carried_edges, shared_places, reply_edges, overwrites)
     POST /api/ai                        {messages, apiKey, baseUrl, model, selectedId}
     POST /api/ai/models                 {apiKey, baseUrl}
+    POST /api/ai/check                  {apiKey, baseUrl, model, sessionId}: a one-word request to prove they work
 
 Uploaded files are written to a private temporary folder for analysis and are not sent
 anywhere. The AI endpoint forwards the brief, selected event traces and the chat to the
@@ -92,6 +95,10 @@ class Handler(BaseHTTPRequestHandler):
                 s = self.need_session()
                 return self.send_json(s.pairs(q.get("q", ""), q.get("all") != "1",
                                               int(q.get("offset", 0)), min(500, int(q.get("limit", 50)))))
+            if u.path == "/api/list":
+                s = self.need_session()
+                return self.send_json(s.listing(q.get("name", ""), q.get("q", ""), int(q.get("offset", 0)),
+                                                min(1000, int(q.get("limit", 100)))))
             if u.path == "/api/conversation":
                 s = self.need_session()
                 return self.send_json(s.conversation(q.get("a", ""), q.get("b", "")))
@@ -140,6 +147,10 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/ai/models":
                 body = json.loads(self.read_body(1_000_000) or b"{}")
                 return self.send_json({"models": ai.list_models(body.get("baseUrl") or ai.DEFAULT_BASE_URL, body.get("apiKey", ""))})
+            if u.path == "/api/ai/check":
+                body = json.loads(self.read_body(1_000_000) or b"{}")
+                return self.send_json(ai.check(body.get("baseUrl") or ai.DEFAULT_BASE_URL, body.get("apiKey", ""),
+                                               body.get("model") or ai.DEFAULT_MODEL, body.get("sessionId")))
             self.send_json({"error": "unknown endpoint"}, 404)
         except Exception as e:
             traceback.print_exc()
@@ -161,7 +172,7 @@ class Handler(BaseHTTPRequestHandler):
                 f.write(data)
             mapping = json.loads(q["map"]) if q.get("map") else {}
             mapping = {k: v for k, v in mapping.items() if v}
-            run_load(path, q.get("pack", "generic.json"), mapping, name)
+            run_load(path, q.get("pack") or "auto", mapping, name)
             self.send_json({"loaded": True, "summary": STATE["session"].summary()})
         except SystemExit as e:  # model/pack errors are SystemExit with a message
             STATE["error"] = str(e)
@@ -199,7 +210,7 @@ class Handler(BaseHTTPRequestHandler):
             if not os.path.isdir(d) or not os.listdir(d):
                 raise ValueError("no files staged for this batch")
             mapping = {k: v for k, v in (json.loads(q["map"]) if q.get("map") else {}).items() if v}
-            run_load(d, q.get("pack", "generic.json"), mapping, q.get("name") or f"{len(os.listdir(d))} files")
+            run_load(d, q.get("pack") or "auto", mapping, q.get("name") or f"{len(os.listdir(d))} files")
             self.send_json({"loaded": True, "summary": STATE["session"].summary()})
         except SystemExit as e:
             STATE["error"] = str(e)
@@ -218,7 +229,7 @@ class Handler(BaseHTTPRequestHandler):
         msgs, ids = ai.build_messages(s, body.get("messages", []), body.get("selectedId"),
                                       conversation=body.get("conversation"))
         content, usage = ai.call(body.get("baseUrl") or ai.DEFAULT_BASE_URL, body.get("apiKey", ""),
-                                 body.get("model") or ai.DEFAULT_MODEL, msgs)
+                                 body.get("model") or ai.DEFAULT_MODEL, msgs, session_id=body.get("sessionId"))
         self.send_json({"content": content, "usage": usage, "context_ids": ids})
 
 

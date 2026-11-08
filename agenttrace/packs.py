@@ -105,3 +105,55 @@ def family_of(handle, pack):
         if handle.startswith(prefix) and (best is None or len(prefix) > len(best[0])):
             best = (prefix, fam)
     return best[1] if best else handle
+
+
+# ------------------------------------------------------------------ choosing a pack from the data
+
+import re as _re
+from collections import Counter as _Counter
+
+_CODE = _re.compile(r"fetch\(|XMLHttpRequest|Authorization|Bearer |\bcurl\b|requests\.(get|post)|subprocess|urllib|"
+                    r"function\s*\(|=>|import \w|os\.popen|\bdef \w+\(|base64|json\.(loads|dumps)|JSON\.(parse|stringify)|\.then\(|await ", _re.I)
+_PLACEHOLDER = _re.compile(r"\[(CREDENTIAL|REDACTED|HF REPO|SERVICE HOST)[ :\]]")
+_ROLES = {"user", "assistant", "system", "tool", "human", "ai", "model", "function"}
+
+
+def choose(events, read_report=None):
+    """Pick the shipped pack that fits a trace, and say why. A pack is only a starting point:
+    the app shows the choice, and any pack can be picked by hand instead."""
+    files = [f.get("file", "") for f in (read_report or {}).get("files", [])]
+    fields = {v for f in (read_report or {}).get("files", []) for vs in f.get("fields", {}).values() for v in vs}
+    kinds = _Counter(e.kind for e in events)
+    n = len(events)
+    if any(f.startswith("revisions") for f in files) or {"rev_id", "diff_base"} & fields or kinds.get("revisions"):
+        return "wiki_swarm.json", "page revisions found (wiki-style edits)"
+    if n and sum(kinds.get(k, 0) for k in _ROLES) >= 0.5 * n:
+        return "chat.json", "most records are chat turns (user / assistant roles)"
+    sample = events[:: max(1, n // 4000)][:4000]
+    code = [e for e in sample if _CODE.search(e.text[:3000])]
+    if sample and len(code) >= 0.2 * len(sample):
+        redacted = sum(1 for e in code if _PLACEHOLDER.search(e.text[:5000]))
+        if redacted >= 0.05 * len(code):
+            return "code_traces.json", f"{len(code) / len(sample):.0%} of records are code, with redaction placeholders for credentials and hosts"
+        return "generic.json", f"{len(code) / len(sample):.0%} of records are code (no redaction placeholders, so the general pack)"
+    return "generic.json", "no specific shape recognized, so the general pack"
+
+
+def detect_shared_identities(events, pack, roots, min_share=0.25, min_tokens=20):
+    """A token used in a quarter or more of all runs that carry a token, in a trace with many tokens,
+    behaves like a shared key (an evaluation key every agent uses), not like one agent. Field actors
+    (a sender name) are never treated this way. Returns [(token, share of runs)]."""
+    from .reconstruct import identities_of
+    runs_of, runs = {}, set()
+    for e in events:
+        toks = [t for t, role in identities_of(e, pack).items() if role != "actor_field"]
+        if not toks:
+            continue
+        r = roots.get(e.id, e.id)
+        runs.add(r)
+        for t in toks:
+            runs_of.setdefault(t, set()).add(r)
+    if len(runs_of) < min_tokens or not runs:
+        return []
+    return sorted(((t, round(len(rs) / len(runs), 3)) for t, rs in runs_of.items() if len(rs) >= min_share * len(runs)),
+                  key=lambda x: -x[1])

@@ -394,6 +394,8 @@ def message_flow(events, pack, rec, res):
                                               key=lambda kv: (-kv[1], pair_first[kv[0]]))[:60]],
         "top_channels": sorted(perf, key=lambda p: (-p["deliveries"], -p["actors"]))[:40],
         "content_spread": spread[:40],
+        "_channels": sorted(perf, key=lambda p: (-p["deliveries"], -p["actors"])),
+        "_content_spread": spread,
         "content_families_moving": len(spread),
         "deliveries_by_how": dict(Counter(_how_group(d["how"]) for d in dels)),
         "overwrites": len(overwrites),

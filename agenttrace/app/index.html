@@ -55,10 +55,12 @@
     <div id="aisettings" class="aisettings" hidden>
       <label>Base URL <input id="baseUrl"></label>
       <label>Model <input id="model" list="modellist"><datalist id="modellist"></datalist></label>
-      <label>API key <input id="apiKey" type="password" autocomplete="off" placeholder="sk-..."></label>
+      <label>API key <input id="apiKey" type="password" autocomplete="off" placeholder="oc_sk_... or sk-..."></label>
       <label class="chk"><input type="checkbox" id="remember"> Keep the key for this browser session</label>
-      <button type="button" id="listModels">List models</button>
-      <p class="muted small">The analysis brief, the events you select or name, and this chat are sent to the provider above. The key is sent with each request and is not stored on disk.</p>
+      <div class="aibtns"><button type="button" id="checkAI">Check connection</button> <button type="button" id="listModels">List models</button> <button type="button" id="newChat">New chat</button></div>
+      <p id="aistatus" class="small muted"></p>
+      <p class="muted small">OpenCode Go: create a key in the OpenCode console (Account &gt; API keys) on a workspace subscribed to Go. DeepSeek models also need <b>Global</b> selected under Settings &gt; Privacy &gt; Regions. Any OpenAI-compatible endpoint works: change the base URL and model.</p>
+      <p class="muted small">The analysis brief, the events you select or name, an open conversation, and this chat are sent to the provider above. The key is sent with each request and never stored on disk.</p>
     </div>
     <div class="chat" id="chat"></div>
     <div class="quick" id="quick">

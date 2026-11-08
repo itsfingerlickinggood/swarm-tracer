@@ -8,6 +8,7 @@ import os
 import re
 import urllib.error
 import urllib.request
+import uuid
 
 PROMPT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ai_system_prompt.md")
 DEFAULT_BASE_URL = "https://opencode.ai/inference/go/openai/v1"
@@ -123,30 +124,108 @@ def build_messages(session, history, selected_id=None, max_ids=4, conversation=N
     return msgs, ids
 
 
-def call(base_url, api_key, model, messages, timeout=180, temperature=0.2):
+USER_AGENT = "swarm-tracer/1.0 (+https://github.com/itsfingerlickinggood/swarm-tracer)"
+
+
+def new_session_id():
+    """One id per conversation. OpenCode Go routes on it (x-opencode-session) and refuses requests
+    without it; other OpenAI-compatible providers ignore the header."""
+    return "ses_" + uuid.uuid4().hex
+
+
+def _headers(api_key, session_id):
+    h = {"Content-Type": "application/json", "Accept": "application/json", "User-Agent": USER_AGENT,
+         "x-opencode-session": session_id or new_session_id()}
+    if api_key:
+        h["Authorization"] = "Bearer " + api_key
+    return h
+
+
+def explain_http_error(code, body, retry_after=None):
+    """Turn a provider's error into a plain sentence that says what to do."""
+    try:
+        data = json.loads(body)
+        err = data.get("error") if isinstance(data, dict) else None
+        msg = (err.get("message") if isinstance(err, dict) else err) or data.get("message") or body
+        kind = err.get("type") if isinstance(err, dict) else ""
+    except (ValueError, AttributeError):
+        msg, kind = body, ""
+    msg = str(msg)[:400]
+    low = (msg + " " + str(kind)).lower()
+    if "global region" in low or "regionerror" in low or "region" in low and code in (400, 403):
+        return ("This model needs the Global region. In the OpenCode console, a workspace owner selects "
+                f"Global under Settings > Privacy > Regions. Provider said: {msg}")
+    if code == 401:
+        return f"The provider rejected the API key (HTTP 401). Check the key in Settings. Provider said: {msg}"
+    if code == 403:
+        return f"The key is not allowed to use this model or endpoint (HTTP 403). Provider said: {msg}"
+    if code == 404:
+        return f"The provider has no such endpoint or model (HTTP 404). Check the base URL and model. Provider said: {msg}"
+    if code == 429:
+        wait = f" Retry after {retry_after} seconds." if retry_after else ""
+        return f"Usage or rate limit reached (HTTP 429).{wait} Provider said: {msg}"
+    if "missingsessionid" in low:
+        return f"The provider needs a session header (HTTP {code}). Provider said: {msg}"
+    return f"The AI provider returned HTTP {code}. Provider said: {msg}"
+
+
+def _post(url, payload, api_key, session_id, timeout):
+    req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), method="POST",
+                                 headers=_headers(api_key, session_id))
+    for attempt in (1, 2):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", "replace")[:2000]
+            if e.code in (502, 503, 504) and attempt == 1:
+                continue  # one retry on a gateway error; never on 429, which can mean a long wait
+            raise RuntimeError(explain_http_error(e.code, body, e.headers.get("retry-after")))
+        except urllib.error.URLError as e:
+            raise RuntimeError(f"Could not reach the AI provider at {url}: {e.reason}")
+        except TimeoutError:
+            raise RuntimeError(f"The AI provider at {url} did not answer within {timeout} seconds.")
+        except ValueError:
+            raise RuntimeError(f"The AI provider at {url} did not return JSON.")
+
+
+def call(base_url, api_key, model, messages, timeout=180, temperature=0.2, session_id=None, max_tokens=4096):
     if not api_key:
         raise ValueError("No API key. Enter one in the AI settings.")
     url = base_url.rstrip("/") + "/chat/completions"
-    body = json.dumps({"model": model, "messages": messages, "temperature": temperature}).encode("utf-8")
-    req = urllib.request.Request(url, data=body, method="POST", headers={
-        "Content-Type": "application/json", "Authorization": "Bearer " + api_key})
+    data = _post(url, {"model": model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens},
+                 api_key, session_id, timeout)
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            data = json.loads(r.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        detail = e.read().decode("utf-8", "replace")[:600]
-        raise RuntimeError(f"The AI provider returned HTTP {e.code}: {detail}")
-    except urllib.error.URLError as e:
-        raise RuntimeError(f"Could not reach the AI provider at {url}: {e.reason}")
-    try:
-        return data["choices"][0]["message"]["content"], data.get("usage")
+        msg = data["choices"][0]["message"]
     except (KeyError, IndexError, TypeError):
+        if isinstance(data, dict) and data.get("error"):
+            raise RuntimeError(explain_http_error(200, json.dumps(data)))
         raise RuntimeError("Unexpected response from the AI provider: " + json.dumps(data)[:600])
+    content = msg.get("content")
+    if isinstance(content, list):  # some providers return content parts
+        content = "".join(p.get("text", "") for p in content if isinstance(p, dict))
+    if not content:
+        raise RuntimeError("The model returned no answer text"
+                           + (" (only reasoning; try a larger max_tokens)" if msg.get("reasoning_content") else "") + ".")
+    return content, data.get("usage")
+
+
+def check(base_url, api_key, model, session_id=None):
+    """A one-line request that proves the endpoint, key and model work together."""
+    content, usage = call(base_url, api_key, model,
+                          [{"role": "user", "content": "Reply with the single word OK."}],
+                          timeout=60, temperature=0, session_id=session_id, max_tokens=16)
+    return {"ok": True, "reply": content.strip()[:80], "usage": usage}
 
 
 def list_models(base_url, api_key, timeout=30):
     url = base_url.rstrip("/") + "/models"
-    req = urllib.request.Request(url, headers={"Authorization": "Bearer " + api_key} if api_key else {})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        data = json.loads(r.read().decode("utf-8"))
+    req = urllib.request.Request(url, headers=_headers(api_key, None))
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            data = json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(explain_http_error(e.code, e.read().decode("utf-8", "replace")[:2000]))
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"Could not reach the AI provider at {url}: {e.reason}")
     return sorted(m.get("id") for m in data.get("data", []) if m.get("id"))

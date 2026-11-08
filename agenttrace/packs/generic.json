@@ -122,5 +122,6 @@
   "handle_families": {},
   "shared_names": [],
   "structural_channels": true,
-  "mention_channels": true
+  "mention_channels": true,
+  "auto_shared_identities": true
 }
