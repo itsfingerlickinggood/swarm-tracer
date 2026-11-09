@@ -54,8 +54,9 @@ class Session:
             return
         cache.store(self, path, pack_file, mapping)
 
-    def _analyze(self, path, pack_file, mapping=None, name=None):
-        self.events = model.load(path, mapping or {})
+    def _analyze(self, path, pack_file, mapping=None, name=None, rows=None):
+        """rows: the rows of the file at path, already read (live mode's incremental reader)."""
+        self.events = model.load(path, mapping or {}, rows={path: rows} if rows is not None else None)
         import copy
         self.read_report = copy.deepcopy(model.LAST_REPORT)
         if not self.events:
@@ -343,6 +344,12 @@ class Session:
                 "hist": sorted(hours.items()), "timed": sum(hours.values()),
                 "hist_by": [[h, dict(by_hour[h])] for h in sorted(by_hour)]}
 
+    def record_text(self, rid):
+        """A record's full text. For a session restored from the cache of a very large file the text is
+        not in memory: it is read from the source file through the on-disk record index (recindex.py)."""
+        e = self.by_id.get(rid)
+        return None if e is None else e.text
+
     def trace(self, rid, text_limit=20000):
         e = self.by_id.get(rid)
         if not e:
@@ -372,8 +379,9 @@ class Session:
                     break
         t = self.rec["_times"].get(rid)
         row = self.event_row(e)
+        text = e.text      # read once: for an indexed record this is one seek into the source file
         row.update({
-            "text": e.text[:text_limit], "text_truncated": len(e.text) > text_limit, "text_length": len(e.text),
+            "text": text[:text_limit], "text_truncated": len(text) > text_limit, "text_length": len(text),
             "parent": e.parent, "thread_root": self.res["_root"][rid],
             "time_source": "time field" if e.time else ("estimated" if t is not None else None),
             "identities": self.rec["_ids"].get(rid, {}),

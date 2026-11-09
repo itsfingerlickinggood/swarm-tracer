@@ -529,6 +529,8 @@ def simulate(s):
     # programs reused by other actors
     first_adopt, third = None, None
     for x in s.flow.get("_content_spread", []):
+        if x.get("routine"):
+            continue   # shared boilerplate (no shared place, nothing harmful) is not a sign of shared control
         src_t = _parse(x["source_time"]) if x.get("source_time") else None
         ad = [(_parse(a["time"]), a) for a in x["adopters"] if a.get("time")]
         ad.sort(key=lambda p: p[0])

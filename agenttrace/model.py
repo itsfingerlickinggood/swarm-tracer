@@ -80,6 +80,33 @@ class Event:
     raw: dict = field(default_factory=dict, repr=False)
 
 
+class LazyEvent(Event):
+    """An Event whose text is not held in memory: it is read back from the source file through the
+    on-disk record index (recindex.py) when asked for. A session restored from the cache of a very
+    large file holds these instead of Events. Setting text keeps it in memory as usual."""
+
+    @property
+    def text(self):
+        t = self.__dict__.get("_text")
+        if t is None:
+            from . import recindex
+            t = recindex.fetch_text(self.__dict__.get("_src"), self.id)
+        return t
+
+    @text.setter
+    def text(self, v):
+        self.__dict__["_text"] = v
+
+
+def _lazy_event(src, fields):
+    """Unpickle a LazyEvent (cache.py writes them for large inputs): every field but the text."""
+    e = LazyEvent.__new__(LazyEvent)
+    e.__dict__.update(fields)
+    e.__dict__["_text"] = None
+    e.__dict__["_src"] = src
+    return e
+
+
 def parse_time(s):
     if s is None or s == "" or isinstance(s, (list, dict, bool)):
         return None
@@ -275,8 +302,10 @@ def _read_rows(path):
         return rows
 
 
-def load_file(path, mapping=None):
-    rows = _read_rows(path)
+def load_file(path, mapping=None, rows=None):
+    """Events from one file. rows, when given, are the file's rows already read (live mode reads a
+    growing JSON-lines file incrementally and passes what it has read so far)."""
+    rows = _read_rows(path) if rows is None else rows
     stem = os.path.splitext(os.path.basename(path))[0]
     from . import readers
     fmt = None
@@ -304,9 +333,10 @@ def _is_event_table(info):
 DATA_EXTS = (".jsonl", ".json", ".csv", ".tsv", ".txt", ".log")
 
 
-def load(path_or_paths, mapping=None):
+def load(path_or_paths, mapping=None, rows=None):
     """Load one file, a list of files, or a folder. Returns events in file order, files in
-    the order given (folders: event tables only, sorted by name)."""
+    the order given (folders: event tables only, sorted by name). rows: {path: rows already read}
+    for files whose rows the caller has parsed itself (see load_file)."""
     mapping = mapping or {}
     LAST_REPORT.update({"files": [], "skipped_files": [], "dropped_pointer_records": 0, "format": None})
     if isinstance(path_or_paths, (list, tuple)):
@@ -319,7 +349,8 @@ def load(path_or_paths, mapping=None):
         from_folder = True
     else:
         paths, from_folder = [path_or_paths], False
-    read = [load_file(p, mapping) for p in paths]
+    rows = rows or {}
+    read = [load_file(p, mapping, rows.get(p)) for p in paths]
     # in a folder, files whose rows have no time and no parent are reference tables, set aside, but
     # only when some file does look like an event log; a folder of plain logs is kept whole
     tables = [_is_event_table(info) for _, info in read]

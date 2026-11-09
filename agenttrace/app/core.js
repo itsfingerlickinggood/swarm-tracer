@@ -303,8 +303,10 @@ function openGlossary(q = "") {
     const rows = Object.entries(GLOSSARY).filter(([, [n, d]]) => !q || (n + " " + d).toLowerCase().includes(q.toLowerCase()));
     el.querySelector(".glist").innerHTML = rows.map(([k, [n]]) => `<div class="gitem" id="g-${k}"><b>${esc(n)}</b><p>${esc(glossaryText(k))}</p></div>`).join("") || '<p class="muted">No term matches.</p>';
   };
-  el.innerHTML = `<div class="ghead"><h3>What the words mean</h3><input placeholder="Find a term" value="${esc(q)}"><button type="button" class="link">Close</button></div><div class="glist"></div>`;
+  el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Glossary");
+  el.innerHTML = `<div class="ghead"><h3>What the words mean</h3><input placeholder="Find a term" aria-label="Find a term" value="${esc(q)}"><button type="button" class="link">Close</button></div><div class="glist"></div>`;
   el.hidden = false;
+  setTimeout(() => el.querySelector("input")?.focus(), 0);
   el.querySelector("button").addEventListener("click", () => { el.hidden = true; });
   el.querySelector("input").addEventListener("input", (e) => draw(e.target.value));
   draw(q);
@@ -409,6 +411,24 @@ document.addEventListener("click", (e) => {
   else selectEvent(t.dataset.id || t.dataset.ev);
 });
 
+// ------------------------------------------------------------------ accessibility fallbacks
+// Views draw HTML strings; this names what they leave unnamed: icon-only buttons get their title as a
+// label, and charts (SVG) are announced as images named by their own <title>, aria-label or card heading.
+function a11yFix(root) {
+  root.querySelectorAll("button:not([aria-label])").forEach((b) => {
+    if (!/[A-Za-z0-9]/.test(b.textContent) && (b.title || b.dataset.act)) b.setAttribute("aria-label", b.title || b.dataset.act);
+  });
+  root.querySelectorAll("svg:not([role]):not([aria-hidden])").forEach((g) => {
+    if (g.parentElement?.closest("svg,button")) return;
+    const own = g.querySelector(":scope > title")?.textContent;
+    const head = g.closest(".card,.dsec,.hc")?.querySelector("h3,h4,.hch")?.textContent;
+    g.setAttribute("role", "img");
+    g.setAttribute("aria-label", (own || (g.classList.contains("spark") ? "Activity per hour" : "") + (head ? (g.classList.contains("spark") ? ": " : "Chart: ") + head.trim() : "") || "Chart").slice(0, 160));
+  });
+}
+let a11yT = null;
+new MutationObserver(() => { clearTimeout(a11yT); a11yT = setTimeout(() => a11yFix(document.body), 150); }).observe(document.body, { childList: true, subtree: true });
+
 // ------------------------------------------------------------------ the inspector (right top): a record, an actor or a place
 const INS = { stack: [] };
 // features add sections to the Inspector: window.INSPECTOR_EXTRAS.push((kind, key, data) => html), and
@@ -421,7 +441,7 @@ function inspect(kind, key, render) {
   const cur = INS.stack.at(-1);
   if (!cur || cur.kind !== kind || cur.key !== key) INS.stack.push({ kind, key });
   if (INS.stack.length > 30) INS.stack.shift();
-  $("traceid").innerHTML = `${INS.stack.length > 1 ? '<button class="link" id="insBack" title="Back">← back</button> ' : ""}<span class="kindtag ${esc(kind)}">${kind}</span> ${esc(kind === "actor" ? short(key) : kind === "place" ? placeLabel(key) : key)}`;
+  $("traceid").innerHTML = `${INS.stack.length > 1 ? '<button type="button" class="link" id="insBack" title="Back to the previous item" aria-label="Back to the previous item">← back</button> ' : ""}<span class="kindtag ${esc(kind)}">${kind}</span> ${esc(kind === "actor" ? short(key) : kind === "place" ? placeLabel(key) : key)}`;
   if ($("insBack")) $("insBack").addEventListener("click", () => { INS.stack.pop(); const p = INS.stack.pop(); if (p) ({ record: selectEvent, actor: inspectActor, place: inspectPlace })[p.kind](p.key); });
   const host = $("trace");
   host.innerHTML = '<div class="empty">Loading…</div>';
@@ -468,9 +488,10 @@ function richText(text) {
 const KIND_WORD = { payload: "payload: code an agent ran", response: "response: what came back to an agent", recovered_text: "recovered text: text recovered from the agents' files" };
 const ACTOR_KIND = { token: ["identity token", "token"], token_via_thread: ["token taken from its thread", "token_via_thread"], handle: ["self-chosen name", "handle"], run: ["anonymous run", "run"], named: ["actor field", "actor"] };
 const actorKind = (k) => ACTOR_KIND[k] ? term(ACTOR_KIND[k][1], esc(ACTOR_KIND[k][0])) : esc(k);
-function msgLine(m, dir) {
+function msgLine(m, dir, rid) {
   const who = dir === "in" ? m.from : m.to;
-  return `<div class="mline">${dir === "in" ? `${ent.actor(who)} wrote ${ent.place(m.channel)} in ${ent.rec(m.write_id)} <span class="muted">${esc(m.write_time || "")}</span>; this record read it`
+  const dec = rid && window.decCtl ? decCtl("message", dir === "in" ? `${m.write_id}>${rid}` : `${rid}>${m.read_id}`) : "";
+  return `<div class="mline">${dec}${dir === "in" ? `${ent.actor(who)} wrote ${ent.place(m.channel)} in ${ent.rec(m.write_id)} <span class="muted">${esc(m.write_time || "")}</span>; this record read it`
     : `this record wrote ${ent.place(m.channel)}; ${ent.actor(who)} read it in ${ent.rec(m.read_id)} <span class="muted">${esc(m.read_time || "")}</span>`}${m.latency_h != null ? ` <span class="muted">(${hoursWord(m.latency_h)} later)</span>` : ""} <span class="how">${esc(m.how || "")}</span></div>`;
 }
 const more = (shown, total, what) => total > shown ? `<p class="small muted">Showing ${fmt(shown)} of ${fmt(total)} ${what}.</p>` : "";
@@ -497,8 +518,8 @@ function recordDossier(t) {
     <div class="comp">${[["identities", comp.identities], ["places written", comp.places_written], ["places read", comp.places_read], ["messages in", comp.messages_in], ["messages out", comp.messages_out], ["records before it in its thread", comp.ancestors], ["records after it (children)", comp.children], ["evidence tags", comp.tags], ["context tags", comp.context_tags]].map(([k, v]) => `<div class="${v ? "" : "zero"}"><b>${fmt(v || 0)}</b><span>${k}</span></div>`).join("")}</div>
     ${recordGraph(t)}
     <p class="small muted">Above: messages in (writers, amber); left: its parent; right: its children; below: who read what it wrote (blue). Up to 3 of each.</p></div>
-  ${t.messages_in.length ? `<div class="dsec"><h4>${term("message", "Messages in")} (${fmt(t.messages_in.length)})</h4>${t.messages_in.slice(0, 20).map((m) => msgLine(m, "in")).join("")}${more(Math.min(20, t.messages_in.length), t.messages_in.length, "messages")}</div>` : ""}
-  ${t.messages_out.length ? `<div class="dsec"><h4>${term("message", "Messages out")} (${fmt(t.messages_out.length)})</h4>${t.messages_out.slice(0, 20).map((m) => msgLine(m, "out")).join("")}${more(Math.min(20, t.messages_out.length), t.messages_out.length, "messages")}</div>` : ""}
+  ${t.messages_in.length ? `<div class="dsec"><h4>${term("message", "Messages in")} (${fmt(t.messages_in.length)})</h4>${t.messages_in.slice(0, 20).map((m) => msgLine(m, "in", t.id)).join("")}${more(Math.min(20, t.messages_in.length), t.messages_in.length, "messages")}</div>` : ""}
+  ${t.messages_out.length ? `<div class="dsec"><h4>${term("message", "Messages out")} (${fmt(t.messages_out.length)})</h4>${t.messages_out.slice(0, 20).map((m) => msgLine(m, "out", t.id)).join("")}${more(Math.min(20, t.messages_out.length), t.messages_out.length, "messages")}</div>` : ""}
   ${(t.overwrote || []).length || (t.overwritten_by || []).length ? `<div class="dsec"><h4>${term("overwrite", "Overwrites")} <span class="muted small">(not counted as messages)</span></h4>${[
     ...(t.overwrote || []).map((o) => `<div class="mline">replaced ${ent.actor(o.actor)}'s edit ${ent.rec(o.record)} on ${ent.place(o.channel)} <span class="how">${esc(o.how)}</span></div>`),
     ...(t.overwritten_by || []).map((o) => `<div class="mline">replaced by ${ent.actor(o.actor)} in ${ent.rec(o.record)} on ${ent.place(o.channel)} <span class="how">${esc(o.how)}</span></div>`)].join("")}</div>` : ""}
@@ -596,11 +617,21 @@ $("tabs").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-tab]");
   if (b) goTab(b.dataset.tab);
 });
+// arrow keys move between tabs (one tab stop for the whole bar, as in a WAI-ARIA tablist)
+$("tabs").addEventListener("keydown", (e) => {
+  const bs = [...document.querySelectorAll("#tabs button[data-tab]")], i = bs.indexOf(e.target);
+  if (i < 0) return;
+  const j = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: bs.length - 1 }[e.key];
+  if (j == null) return;
+  e.preventDefault();
+  const b = bs[(j + bs.length) % bs.length];
+  b.focus(); goTab(b.dataset.tab);
+});
 S.scroll = {};
 function goTab(tab) {
   if (S.tab && $("left")) S.scroll[S.tab] = $("left").scrollTop;
   S.tab = tab;
-  document.querySelectorAll("#tabs button").forEach((x) => x.classList.toggle("on", x.dataset.tab === tab));
+  document.querySelectorAll("#tabs button").forEach((x) => { const on = x.dataset.tab === tab; x.classList.toggle("on", on); x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1; });
   render();
 }
 function goEvents(filters) {
@@ -692,13 +723,20 @@ function setSummary(s) {
   document.addEventListener("click", (e) => { if (!e.target.closest(".omni")) close(); });
 })();
 
+// Escape closes any open panel; focus goes back to the button that opened it
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
-  ["loadpanel", "glossary", "omniout"].forEach((id) => { if ($(id)) $(id).hidden = true; });
+  [["loadpanel", "loadbtn"], ["glossary", "glossbtn"], ["omniout", null], ["aisettings", "aiset"]].forEach(([id, opener]) => {
+    const el = $(id);
+    if (!el || el.hidden) return;
+    const had = el.contains(document.activeElement);
+    el.hidden = true;
+    if (opener && $(opener)) { $(opener).setAttribute("aria-expanded", "false"); if (had) $(opener).focus(); }
+  });
   if (HC.el) HC.el.hidden = true;
 });
 $("glossbtn").addEventListener("click", () => { const g = $("glossary"); if (g && !g.hidden) g.hidden = true; else openGlossary(); });
-$("loadbtn").addEventListener("click", () => { $("loadpanel").hidden = !$("loadpanel").hidden; });
+$("loadbtn").addEventListener("click", () => { $("loadpanel").hidden = !$("loadpanel").hidden; $("loadbtn").setAttribute("aria-expanded", String(!$("loadpanel").hidden)); });
 document.addEventListener("click", (e) => {
   if (!e.target.closest("#loadpanel,#loadbtn") && $("loadpanel")) $("loadpanel").hidden = true;
   if (!e.target.closest("#glossary,#glossbtn,[data-term]") && $("glossary")) $("glossary").hidden = true;

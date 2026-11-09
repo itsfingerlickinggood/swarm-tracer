@@ -24,6 +24,8 @@
 <link rel="stylesheet" href="views/fx_behavior.css">
 <link rel="stylesheet" href="views/fx_whatif.css">
 <link rel="stylesheet" href="views/fx_validation.css">
+<link rel="stylesheet" href="views/guide.css">
+<link rel="stylesheet" href="views/decide.css">
 </head>
 <body>
 <header class="top">
@@ -33,12 +35,13 @@
   </div>
   <div id="dsname" class="dataset"><b>no dataset</b><span>load a trace to begin</span></div>
   <div id="ribbon" class="ribbon"></div>
-  <div class="omni"><input id="omni" placeholder="Find an actor, place or record id…" autocomplete="off" spellcheck="false"><div id="omniout" class="omniout" hidden></div></div>
+  <div class="omni"><input id="omni" aria-label="Find an actor, place or record id" placeholder="Find an actor, place or record id…" autocomplete="off" spellcheck="false"><div id="omniout" class="omniout" hidden></div></div>
   <span id="status" class="status" role="status"></span>
+  <button id="guidebtn" class="loadbtn" type="button" aria-expanded="false" aria-controls="guide" title="A guided first pass through this dataset">Start here</button>
   <button id="livebtn" class="loadbtn" type="button" title="Follow a growing trace and watch alerts fire">Live</button>
   <button id="casebtn" class="loadbtn" type="button" title="Your pinned items and notes; export a case file">Case file <span id="casecount"></span></button>
   <button id="glossbtn" class="loadbtn" type="button" title="What every term in the app means">Glossary</button>
-  <button id="loadbtn" class="loadbtn" type="button">Load data</button>
+  <button id="loadbtn" class="loadbtn" type="button" aria-expanded="false" aria-controls="loadpanel">Load data</button>
   <div id="loadpanel" class="loadpanel" hidden>
     <form id="upload" autocomplete="off">
       <h3>Analyze a trace</h3>
@@ -64,29 +67,29 @@
 </header>
 
 <main class="panes">
-  <section class="pane left">
-    <nav class="tabs" id="tabs">
-      <button data-tab="overview" class="on">Overview</button>
-      <button data-tab="network">Who talked to whom</button>
-      <button data-tab="timeline">Timeline</button>
-      <button data-tab="channels">Channels</button>
-      <button data-tab="spread">Spread</button>
-      <button data-tab="early">Early flag</button>
-      <button data-tab="events">Events</button>
-      <button data-tab="agents">Agents</button>
-      <button data-tab="forensics">Forensics</button>
-      <button data-tab="compare">Compare</button>
-      <button data-tab="gaps">What's missing</button>
+  <section class="pane left" aria-label="Views">
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Views">
+      <button type="button" role="tab" aria-controls="left" aria-selected="true" tabindex="0" data-tab="overview" class="on">Overview</button>
+      <button type="button" role="tab" aria-controls="left" aria-selected="false" tabindex="-1" data-tab="network">Who talked to whom</button>
+      <button type="button" role="tab" aria-controls="left" aria-selected="false" tabindex="-1" data-tab="timeline">Timeline</button>
+      <button type="button" role="tab" aria-controls="left" aria-selected="false" tabindex="-1" data-tab="channels">Channels</button>
+      <button type="button" role="tab" aria-controls="left" aria-selected="false" tabindex="-1" data-tab="spread">Spread</button>
+      <button type="button" role="tab" aria-controls="left" aria-selected="false" tabindex="-1" data-tab="early">Early flag</button>
+      <button type="button" role="tab" aria-controls="left" aria-selected="false" tabindex="-1" data-tab="events">Events</button>
+      <button type="button" role="tab" aria-controls="left" aria-selected="false" tabindex="-1" data-tab="agents">Agents</button>
+      <button type="button" role="tab" aria-controls="left" aria-selected="false" tabindex="-1" data-tab="forensics">Forensics</button>
+      <button type="button" role="tab" aria-controls="left" aria-selected="false" tabindex="-1" data-tab="compare">Compare</button>
+      <button type="button" role="tab" aria-controls="left" aria-selected="false" tabindex="-1" data-tab="gaps">What's missing</button>
     </nav>
-    <div class="body" id="left"><div class="empty">Load a trace file (CSV or JSONL) to begin. Any agent trace works.</div></div>
+    <div class="body" id="left" role="tabpanel" aria-label="Current view" tabindex="-1"><div class="empty">Load a trace file (CSV or JSONL) to begin. Any agent trace works.</div></div>
   </section>
 
-  <section class="pane rtop">
+  <section class="pane rtop" aria-label="Inspector">
     <div class="phead"><b>Inspector</b><span id="traceid" class="muted">select a record, actor or place</span></div>
     <div class="body" id="trace"><div class="empty">Hover any record id, actor or place anywhere in the app for a quick card. Click it to inspect it here: what it is, its role in the swarm, and everything it connects to.</div></div>
   </section>
 
-  <section class="pane rbot">
+  <section class="pane rbot" aria-label="AI investigator">
     <div class="phead"><b>AI investigator</b><span id="aiStateLine" class="muted"><span class="dot"></span>no key</span>
       <button id="aiwide" class="link" type="button" title="Give the investigator the whole right column">Expand</button>
       <button id="aiset" class="link" type="button" aria-expanded="false">Settings</button></div>
@@ -101,7 +104,7 @@
       <p class="muted small">Sent to that service: a summary of the analysis, what you select or name, an open conversation and this chat. The key goes with each request and is never saved to disk.</p>
       <div class="aibtns"><button type="button" id="closeSet">Done</button></div>
     </div>
-    <div class="chat" id="chat"><div class="aiempty">Ask a question. Answers come back as cards, charts and diagrams built from the analysis, with every record id checked against the data.</div></div>
+    <div class="chat" id="chat" aria-live="polite"><div class="aiempty">Ask a question. Answers come back as cards, charts and diagrams built from the analysis, with every record id checked against the data.</div></div>
     <div class="quick" id="quick">
       <button type="button" data-q="Who talked to whom in this swarm? Name the main sender-receiver pairs, the places they used, and when.">Who talked to whom?</button>
       <button type="button" data-q="Trace how one piece of information spread through the swarm. Pick the clearest case from the evidence and show each hop in time order.">How did information spread?</button>
@@ -111,7 +114,7 @@
     </div>
     <form id="ask" class="ask">
       <label class="chk small"><input type="checkbox" id="useSel" checked> send what the Inspector shows (record, actor or place) with the question</label>
-      <textarea id="q" rows="2" placeholder="Ask the investigator. Mention record ids or actors to include them."></textarea>
+      <textarea id="q" rows="2" aria-label="Question for the AI investigator" placeholder="Ask the investigator. Mention record ids or actors to include them."></textarea>
       <button type="submit" id="send" class="primary">Ask</button>
     </form>
   </section>
@@ -136,5 +139,7 @@
 <script src="views/fx_behavior.js"></script>
 <script src="views/fx_whatif.js"></script>
 <script src="views/fx_validation.js"></script>
+<script src="views/decide.js"></script>
+<script src="views/guide.js"></script>
 </body>
 </html>

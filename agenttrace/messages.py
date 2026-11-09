@@ -20,7 +20,7 @@ import hashlib
 import re
 from collections import Counter, defaultdict
 
-from .reconstruct import iso
+from .reconstruct import iso, in_comment  # noqa: F401 (in_comment is part of this module's API)
 
 TOKEN = re.compile(r"<[a-z][a-z_]*>|\w+|[^\w\s]")
 
@@ -201,7 +201,7 @@ def channel_ops(events, pack, rec, res):
         for name, rx, wrx in chans:
             ops_here = {}
             for m in rx.finditer(e.text):
-                if not m.group(1):
+                if not m.group(1) or in_comment(e.text, m.start()):
                     continue
                 # judge each mention by the code around it, not the whole record: one program
                 # can read one place and write another
@@ -369,8 +369,33 @@ def program_prefix(events, n=60):
     return out
 
 
-def content_spread(events, pack, rec, res, kinds=None):
+def content_spread(events, pack, rec, res, kinds=None, written=None):
+    """Programs (normalized code) run under more than one named actor. Each entry says whether the program
+    is routine: it writes to no place the pack lists, reads no place that some actor in the trace wrote to
+    (written: the set of such places), and does nothing the pack counts as harmful. The evaluation's own
+    submit call, or two agents fetching the same public file, are routine. Routine reuse is listed but is not
+    a sign of shared control."""
     times = rec["_times"]
+    chans = compile_channels(pack)
+    intents = rec.get("_intents", {})
+    harm = set(getattr(pack, "harm", None) or [])
+    by_id = {e.id: e for e in events}
+
+    def touches(rid):
+        e = by_id.get(rid)
+        if e is None:
+            return False
+        if intents.get(rid) in harm:
+            return True
+        for name, rx, wrx in chans:
+            for m in rx.finditer(e.text):
+                if not m.group(1) or in_comment(e.text, m.start()):
+                    continue
+                if wrx.search(e.text[max(0, m.start() - 160): m.end() + 260]):
+                    return True
+                if written is None or f"{name}:{m.group(1)}" in written:
+                    return True
+        return False
     fam = families(events, kinds)
     groups = defaultdict(list)
     for i, e in enumerate(events):
@@ -396,7 +421,8 @@ def content_spread(events, pack, rec, res, kinds=None):
                      "hours_after_source": round((firsts[a][0] - src[0]) / 3600, 2)} for a in actors_known[1:]]
         out.append({"family": f, "copies": len(lst), "dated_copies": len(dated), "source": actors_known[0],
                     "source_time": iso(src[0]), "source_record": src[2], "adopters": adopters,
-                    "actors": len(actors_known)})
+                    "actors": len(actors_known),
+                    "routine": not any(touches(x[2]) for x in lst[:8])})
     out.sort(key=lambda r: (-r["actors"], -r["copies"]))
     return out
 
@@ -443,7 +469,8 @@ def message_flow(events, pack, rec, res):
         b["deliveries"] += p["deliveries"]
         b["never_read"] += 1 if p["never_read"] else 0
     action_kinds = pack.raw.get("action_kinds")
-    spread = content_spread(events, pack, rec, res, set(action_kinds) if action_kinds else None)
+    written = {o[0] for o in ops if o[1] in ("write", "post")}
+    spread = content_spread(events, pack, rec, res, set(action_kinds) if action_kinds else None, written)
     # channels the pack marks as coarse (for example a redaction that keeps only the owner)
     # may merge several places, so a write and a read there may not be the same message
     coarse = [re.compile(p) for p in pack.raw.get("coarse_channels", [])]

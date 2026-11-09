@@ -46,7 +46,10 @@ class LiveTests(unittest.TestCase):
         # set up live mode without the thread, then step it by hand
         live.LIVE.update({"path": path, "pack": "generic.json", "mapping": {"text": "body"}, "interval": 1,
                           "watching": True, "session": None, "sig": None, "pending": None, "loads": 0,
-                          "error": None, "note": None})
+                          "error": None, "note": None, "inc": None, "incremental": None, "reanalyze_s": None,
+                          "reanalyze_auto": True, "pending_records": 0, "records_read": 0, "read_offset": 0,
+                          "last_analysis": 0.0, "analysis_s": None, "facts": None, "rules_now": None,
+                          "rules_fp": None})
 
     def test_picks_up_appended_lines(self):
         p = os.path.join(self.d, "feed.jsonl")
@@ -106,6 +109,130 @@ class LiveTests(unittest.TestCase):
             live.live_start(self.state, {}, b"{}")
         with self.assertRaises(ValueError):
             live.live_start(self.state, {}, json.dumps({"path": "/no/such/dir/x.jsonl"}).encode())
+
+
+class IncrementalLiveTests(LiveTests):
+    """Live mode reads a growing JSON-lines file incrementally (only the new bytes)."""
+    test_picks_up_appended_lines = test_thread_start_and_stop = test_bad_start = None
+
+    def fresh(self, p):
+        s = Session()
+        s._analyze(p, "generic.json", {"text": "body"})
+        return s
+
+    def test_partial_lines_are_read_once_complete(self):
+        p = os.path.join(self.d, "feed.jsonl")
+        append(p, rows(0, 5))
+        self._watch(p)
+        self.assertTrue(live.check(self.state))
+        st = live.live_status(self.state, {})
+        self.assertTrue(st["incremental"])
+        self.assertEqual(st["records_read"], 5)
+        self.assertEqual(st["read_offset"], os.path.getsize(p))
+        # three complete lines and the start of a fourth
+        append(p, rows(5, 8))
+        half = json.dumps(rows(8, 9)[0])
+        with open(p, "a") as f:
+            f.write(half[:15])
+        self.assertTrue(live.check(self.state))
+        self.assertEqual(len(self.state["session"].events), 8)
+        self.assertEqual(live.LIVE["read_offset"], os.path.getsize(p) - 15)   # the partial line is not consumed
+        with open(p, "a") as f:
+            f.write(half[15:] + "\n")
+        append(p, rows(9, 12))
+        self.assertTrue(live.check(self.state))
+        s = self.state["session"]
+        self.assertEqual([e.id for e in s.events], [f"M{i:04d}" for i in range(12)])
+        # the same as analyzing the whole file afresh
+        ref = self.fresh(p)
+        self.assertEqual([(e.id, e.text, e.actor, e.parent) for e in s.events],
+                         [(e.id, e.text, e.actor, e.parent) for e in ref.events])
+        self.assertEqual(s.summary()["records"], ref.summary()["records"])
+        self.assertEqual(len(s.flow["_deliveries"]), len(ref.flow["_deliveries"]))
+        self.assertFalse(live.check(self.state))      # nothing new
+
+    def test_unreadable_lines_reported_like_a_full_read(self):
+        p = os.path.join(self.d, "feed.jsonl")
+        append(p, rows(0, 4))
+        with open(p, "a") as f:
+            f.write("not json\n\n")
+        append(p, rows(4, 6))
+        self._watch(p)
+        self.assertTrue(live.check(self.state))
+        got = self.state["session"].read_report["files"][0]
+        ref = self.fresh(p).read_report["files"][0]
+        self.assertEqual(got["unreadable_lines"], 1)
+        self.assertEqual(got["unreadable_line_numbers"], ref["unreadable_line_numbers"])
+        self.assertEqual(got["rows"], ref["rows"])
+
+    def test_truncation_and_rotation_reload_from_start(self):
+        p = os.path.join(self.d, "feed.jsonl")
+        append(p, rows(0, 10))
+        self._watch(p)
+        self.assertTrue(live.check(self.state))
+        seq = live.LIVE["seq"]
+        # truncated and rewritten with fewer, different records
+        other = [dict(r, id="N" + r["id"][1:]) for r in rows(0, 3)]
+        with open(p, "w") as f:
+            f.write("".join(json.dumps(r) + "\n" for r in other))
+        self.assertTrue(live.check(self.state))
+        self.assertEqual([e.id for e in self.state["session"].events], ["N0000", "N0001", "N0002"])
+        evs = live.live_status(self.state, {"since": seq})["events"]
+        self.assertTrue(any(e["type"] == "reset" and "truncated" in e["text"] for e in evs))
+        # rotated: a new file moved into place, longer than the old one
+        seq = live.LIVE["seq"]
+        new = os.path.join(self.d, "new.jsonl")
+        append(new, [dict(r, id="R" + r["id"][1:]) for r in rows(0, 6)])
+        os.replace(new, p)
+        self.assertTrue(live.check(self.state))
+        self.assertEqual(len(self.state["session"].events), 6)
+        self.assertTrue(self.state["session"].events[0].id.startswith("R"))
+        evs = live.live_status(self.state, {"since": seq})["events"]
+        self.assertTrue(any(e["type"] == "reset" for e in evs))
+
+    def test_full_analysis_is_throttled(self):
+        p = os.path.join(self.d, "feed.jsonl")
+        append(p, rows(0, 5))
+        self._watch(p)
+        self.assertTrue(live.check(self.state))
+        live.LIVE.update({"reanalyze_auto": False, "reanalyze_s": 3600})
+        append(p, rows(5, 9))
+        self.assertFalse(live.check(self.state))        # read, but not analyzed yet
+        st = live.live_status(self.state, {})
+        self.assertEqual(st["records_read"], 9)
+        self.assertEqual(st["pending_records"], 4)
+        self.assertEqual(st["records"], 5)
+        self.assertIn("at most every 3600 s", st["note"])
+        self.assertEqual(len(self.state["session"].events), 5)
+        live.LIVE["reanalyze_s"] = 0
+        self.assertTrue(live.check(self.state))         # the file did not change, but rows were waiting
+        st = live.live_status(self.state, {})
+        self.assertEqual((st["records"], st["pending_records"]), (9, 0))
+        self.assertIsNone(st["note"])
+
+    def test_reanalyze_s_validated(self):
+        p = os.path.join(self.d, "feed.jsonl")
+        append(p, rows(0, 3))
+        with self.assertRaises(ValueError):
+            live.live_start(self.state, {}, json.dumps({"path": p, "reanalyze_s": "soon"}).encode())
+        st = live.live_start(self.state, {}, json.dumps({"path": p, "pack": "generic.json", "interval_s": 60,
+                                                         "reanalyze_s": 30, "map": {"text": "body"}}).encode())
+        self.assertTrue(st["watching"])
+        self.assertEqual(live.LIVE["reanalyze_s"], 30)
+        self.assertFalse(live.LIVE["reanalyze_auto"])
+
+    def test_not_utf8_falls_back_to_full_reloads(self):
+        p = os.path.join(self.d, "feed.jsonl")
+        with open(p, "wb") as f:
+            f.write(json.dumps(rows(0, 1)[0]).encode() + b"\n")
+            f.write(b'{"id": "M0001", "sender": "agent-1", "sent_at": "2026-11-01T10:01:00Z", "body": "caf\xe9"}\n')
+        self._watch(p)
+        self.assertTrue(live.check(self.state))
+        self.assertFalse(live.LIVE["incremental"])
+        self.assertEqual(len(self.state["session"].events), 2)
+        append(p, rows(2, 4))
+        self.assertTrue(live.check(self.state))
+        self.assertEqual(len(self.state["session"].events), 4)
 
 
 class RuleTests(unittest.TestCase):

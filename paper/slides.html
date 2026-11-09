@@ -121,8 +121,8 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
       <h2>Not from coordination itself</h2>
       <p>Share of dated harm still to come when each sign first fired:</p>
       <div class="rowb"><span>Single-agent signs (first dataset write)</span><span class="track"><span class="bar" style="width:90%;background:#4b5157"></span></span><b>90–100%</b></div>
-      <div class="rowb"><span>First message between tokens</span><span class="track"><span class="bar" style="width:88%;background:#2f6fb3"></span></span><b>88%</b></div>
-      <div class="rowb"><span>Volume alarm (baseline)</span><span class="track"><span class="bar" style="width:84%;background:#8a94a0"></span></span><b>84%</b></div>
+      <div class="rowb"><span>First message between tokens</span><span class="track"><span class="bar" style="width:87%;background:#2f6fb3"></span></span><b>87%</b></div>
+      <div class="rowb"><span>Volume alarm (baseline)</span><span class="track"><span class="bar" style="width:83%;background:#8a94a0"></span></span><b>83%</b></div>
       <div class="rowb"><span>Signs of shared control</span><span class="track"><span class="bar" style="width:54%;background:#2f6fb3"></span></span><b>50–57%</b></div>
       <p class="small muted">Robust to time errors as large as the dating fit's own (95% ranges in the report).</p>
     </div>
@@ -136,12 +136,13 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
   <h2>Scored on 50 simulated swarms with known answers</h2>
   <table>
     <tr><th>Measure</th><th>Result (min–median–max)</th></tr>
-    <tr><td>Message links: precision / recall</td><td>44–<b>66</b>–80% / 56–<b>73</b>–80%</td></tr>
-    <tr><td>Agent pairs that talked: precision / recall</td><td>51–<b>74</b>–89% / 73–<b>83</b>–89%</td></tr>
+    <tr><td>Message links: precision / recall</td><td>66–<b>79</b>–88% / 57–<b>73</b>–80%</td></tr>
+    <tr><td>Agent pairs that talked: precision / recall</td><td>81–<b>89</b>–96% / 71–<b>83</b>–89%</td></tr>
     <tr><td>Dating error, median</td><td>about one minute</td></tr>
     <tr><td>Identity merges labelled high: before / after a rule change</td><td>10 of 240 right / 10 of 10 right</td></tr>
     <tr><td>Benign swarms: messages between different agents</td><td>0 in 10 runs</td></tr>
-    <tr><td>Benign swarms: program-reuse sign (shared boilerplate)</td><td>fires in 10 of 10: a known false positive</td></tr>
+    <tr><td>Benign swarms: program-reuse sign, before / after counting only reuse that touches a shared place or does harm</td><td>10 of 10 / 0 of 10</td></tr>
+    <tr><td>Places named only in code comments, before / after they stop counting as reads</td><td>message precision 66% / 79%</td></tr>
   </table>
   <div class="foot"><span>docs/validation.md · report Appendix C</span><span>8</span></div>
 </section>
@@ -151,7 +152,7 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
   <h2>The biggest blind spot is identity</h2>
   <ul>
     <li><b>A token is not an agent.</b> 241 named tokens and names against about 1,200 agents in the reports; 85% of actions carry no named actor. Merged into estimated agents, tokens 169 and 170 are likely one agent: 61 of the 166 messages fall inside one agent, and every sign of shared control fires later (the earliest with 38% of harm to come, not 57%).</li>
-    <li><b>Time:</b> 60% of records cannot be placed at all; with dating error, the 166 messages range 161&ndash;182 (95%).</li>
+    <li><b>Time:</b> 60% of records cannot be placed at all; with dating error, the 166 messages range 162&ndash;181 (95%).</li>
     <li><b>Reading is inferred:</b> code shows attempts, not results; 97 of 495 messages sit on places the redaction may have merged.</li>
     <li><b>Hindsight:</b> the signals and the harm list were written knowing how the incident unfolded.</li>
     <li><b>Dual use:</b> these gaps are also what a careful swarm could exploit; we describe them only at the level of the public reports and test no evasion.</li>

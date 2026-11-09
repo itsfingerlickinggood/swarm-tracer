@@ -142,7 +142,8 @@ window.INSPECTOR_BIND.push(async (host, kind, key) => {
     body.querySelector(".wi-rej").addEventListener("click", async () => {
       const act = rej === all.length ? "restore" : "reject";
       try {
-        await api("/api/x/fx_whatif_decide", { method: "POST", body: JSON.stringify({ kind: "message", ids: all.map((m) => m.id), action: act, by: investigator() }) });
+        if (window.DECISIONS) await window.DECISIONS.decide("message", all.map((m) => m.id), act === "reject");   // updates every Accept/Reject control
+        else await api("/api/x/fx_whatif_decide", { method: "POST", body: JSON.stringify({ kind: "message", ids: all.map((m) => m.id), action: act, by: investigator() }) });
         all.forEach((m) => { m.rejected = act === "reject"; });
         draw();
         status(`${act === "reject" ? "Rejected" : "Restored"} ${plural(all.length, "message")}; the What-if section recounts with it.`);
@@ -152,6 +153,15 @@ window.INSPECTOR_BIND.push(async (host, kind, key) => {
     body.querySelector(".wi-see").addEventListener("click", () => { location.hash = "tab=forensics&fx=whatif"; goTab("forensics"); });
   };
   draw();
+  // a single message accepted or rejected on its own line above changes this summary too
+  const sync = (e) => {
+    if (!box.isConnected) { document.removeEventListener("st-decision", sync); return; }
+    if (e.detail.kind !== "message") return;
+    let hit = false;
+    r.messages.forEach((m) => { if (e.detail.ids.includes(m.id)) { m.rejected = e.detail.reject; hit = true; } });
+    if (hit) draw();
+  };
+  document.addEventListener("st-decision", sync);
 });
 
 // ------------------------------------------------------------------ reference swarm

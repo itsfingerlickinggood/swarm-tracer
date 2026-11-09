@@ -10,6 +10,10 @@ SWARM_TRACER_NO_CACHE=1 turns it off. Inputs smaller than SWARM_TRACER_CACHE_MIN
 1 MB) load fast anyway and are not cached; nor are files the app received as uploads (they live in
 a fresh temporary folder each time). Any failure to read or write the cache falls back to a normal
 load: the cache can only make loading faster, never change what is loaded.
+
+A very large single JSON-lines file (SWARM_TRACER_LAZY_TEXT_MIN bytes, default 200 MB) is cached
+without its record text: an on-disk record index (<sha1>.recidx, recindex.py) maps each record id to
+its line's byte offset and length, and the restored session reads a record's text by seeking.
 """
 import gc
 import hashlib
@@ -23,7 +27,7 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 VERSION = 1
 MAX_ENTRIES = 8              # keep the newest few; a large dataset's entry can be hundreds of MB
-LAST = {"hit": None, "key": None, "seconds": None, "error": None}
+LAST = {"hit": None, "key": None, "seconds": None, "error": None, "lazy_text": None}
 
 
 def enabled():
@@ -112,7 +116,7 @@ def _trusted(f):
 
 def restore(session, path, pack_file, mapping=None, name=None):
     """Fill session from the cache. True if it did; False (and nothing changed) otherwise."""
-    LAST.update(hit=False, key=None, seconds=None, error=None)
+    LAST.update(hit=False, key=None, seconds=None, error=None, lazy_text=None)
     try:
         k, size = key(path, pack_file, mapping)
     except OSError:
@@ -137,6 +141,14 @@ def restore(session, path, pack_file, mapping=None, name=None):
         if not isinstance(state, dict) or state.get("_cache_version") != VERSION:
             raise ValueError("old cache format")
         state.pop("_cache_version", None)
+        if state.pop("_lazy_text", None):
+            # the record text lives in the source file; without a usable index the entry is useless
+            from . import recindex
+            recindex.forget(k)
+            idx = recindex.open_index(k)
+            if idx is None or not idx.fresh():
+                raise ValueError("record index missing or out of date")
+            LAST["lazy_text"] = True
     except Exception as e:  # corrupt, truncated, or written by other code: forget it and load normally
         LAST["error"] = f"{type(e).__name__}: {e}"
         try:
@@ -166,10 +178,13 @@ def store(session, path, pack_file, mapping=None):
         state = dict(session.__dict__)
         state["_cache_version"] = VERSION
         f = os.path.join(d, k + ".pickle")
+        lazy = _lazy_index(session, path, k, size, d)
+        if lazy:
+            state["_lazy_text"] = True
         fd, tmp = tempfile.mkstemp(dir=d, suffix=".part")
         try:
             with os.fdopen(fd, "wb") as fh:
-                pickle.dump(state, fh, protocol=pickle.HIGHEST_PROTOCOL)
+                (_LazyPickler(fh, k) if lazy else pickle.Pickler(fh, protocol=pickle.HIGHEST_PROTOCOL)).dump(state)
             os.replace(tmp, f)
         except BaseException:
             try:
@@ -184,6 +199,32 @@ def store(session, path, pack_file, mapping=None):
         return None
 
 
+def _lazy_index(session, path, k, size, d):
+    """Build the record index when this input is large enough to cache without record text."""
+    from . import recindex
+    lo = recindex.lazy_min()
+    if lo is None or size < lo:
+        return False
+    return recindex.build(session, path, k, d) is not None
+
+
+class _LazyPickler(pickle.Pickler):
+    """Writes every Event without its text; it comes back as a model.LazyEvent reading the index."""
+
+    def __init__(self, fh, key):
+        super().__init__(fh, protocol=pickle.HIGHEST_PROTOCOL)
+        self.key = key
+        from . import model
+        self.model = model
+
+    def reducer_override(self, obj):
+        m = self.model
+        if type(obj) is m.Event or type(obj) is m.LazyEvent:
+            fields = {k: v for k, v in obj.__dict__.items() if k not in ("text", "_text", "_src")}
+            return m._lazy_event, (self.key, fields)
+        return NotImplemented
+
+
 def prune(d=None, keep=MAX_ENTRIES):
     d = d or cache_dir()
     try:
@@ -196,6 +237,12 @@ def prune(d=None, keep=MAX_ENTRIES):
             os.remove(f)
         except OSError:
             pass
+    try:   # record indexes whose cache entry is gone
+        for f in os.listdir(d):
+            if f.endswith(".recidx") and not os.path.exists(os.path.join(d, f[:-len(".recidx")] + ".pickle")):
+                os.remove(os.path.join(d, f))
+    except OSError:
+        pass
 
 
 def clear():
@@ -203,7 +250,7 @@ def clear():
     n = 0
     if os.path.isdir(d):
         for f in os.listdir(d):
-            if f.endswith((".pickle", ".part")):
+            if f.endswith((".pickle", ".part", ".recidx")):
                 os.remove(os.path.join(d, f))
                 n += 1
     return n

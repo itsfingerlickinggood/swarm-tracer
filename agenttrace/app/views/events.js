@@ -129,7 +129,7 @@
       const [a, b] = S.ev.hour.split("..");
       c.push(["hour", b ? `${esc(when(toTime(a)))} to ${esc(when(toTime(b) + 3600e3))}` : `hour ${esc(when(toTime(a)))}`]);
     }
-    box.innerHTML = c.map(([k, h]) => `<span class="fchip">${h}<button class="link" data-clear="${k}" title="Remove">×</button></span>`).join("");
+    box.innerHTML = c.map(([k, h]) => `<span class="fchip">${h}<button type="button" class="link" data-clear="${k}" title="Remove this filter" aria-label="Remove this filter">×</button></span>`).join("");
     box.querySelectorAll("[data-clear]").forEach((b) => b.addEventListener("click", () => { S.ev[b.dataset.clear] = ""; S.ev.offset = 0; loadEvents(); }));
   }
 

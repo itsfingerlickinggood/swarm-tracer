@@ -15,7 +15,7 @@ The main tool is **agenttrace** and its web app, **Swarm Tracer**. It works on a
 Python 3.9+ standard library only.
 
 ```bash
-pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.0.0
+pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.1.0
 swarm-tracer demo                         # a simulated swarm with known answers
 swarm-tracer serve --input my-swarm.jsonl # then open http://127.0.0.1:8010
 ```
@@ -32,11 +32,13 @@ python3 -m agenttrace.tools.check                                      # tests, 
 ## What it does
 
 - **Any swarm.** JSONL, JSON, CSV/TSV, plain-text logs and folders, plus OpenTelemetry GenAI spans, LangSmith, Langfuse, AutoGen, CrewAI, OpenAI Agents SDK and MCP tool-call traces, detected from their shape. Logged agent-to-agent messages count directly; messages left in shared places are inferred. A pack adapts the tool to a new kind of swarm, and the pack builder proposes one from a sample.
+- **Start here:** a guided first investigation of any loaded trace, built from its own numbers.
 - **Who talked to whom:** the graph of every message, a time slider, the full matrix, and every conversation with its record ids.
 - **Spread:** programs and tokens that moved between agents.
-- **Early flag:** an hour-by-hour replay with every warning sign, editable alert rules, and **live mode** on a growing trace.
+- **Early flag:** an hour-by-hour replay with every warning sign, editable alert rules, and **live mode** that reads only the new lines of a growing trace.
 - **Agents:** a token is not an agent. Proposals that identities are one agent, with evidence and confidence, and roles.
 - **Inspector:** any record explained, with the code that set each reading highlighted; estimated times with their likely range.
+- **Your decisions count:** accept or reject any message or warning sign where it is shown; the what-if recount follows.
 - **Case file:** pins, notes, and an exported dossier. Labels in the app give live precision for each pattern.
 - **Forensics tab:** trace any string through the swarm, credential lifecycles, command-and-control pickups, a dead-drop ledger, boolean/regex search, program evolution with diffs, the stage ladder, lead–lag, anomalies, a story written from the data, what-if decisions, a reference comparison, chain of custody, and SOC exports (timeline CSV, Timesketch, STIX 2.1).
 - **Measured accuracy:** scored on 50 simulated swarms with known answers, including benign ones ([validation](docs/validation.md), [known issues](docs/known-issues.md)).

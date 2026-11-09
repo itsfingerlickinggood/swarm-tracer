@@ -5,9 +5,9 @@
 Honest list of what is known to be wrong, weak or untested, kept up to date.
 
 ## Accuracy
-- **Messages that only name a place.** A note that mentions a board or dataset without reading it can be counted as a read. On simulated swarms this is the main source of false messages (precision about 49% when such notes are common, 76% when they are not). See [validation](validation.md).
-- **Coordination signs can fire early.** On simulated swarms the first-message and group signs usually fire before the first true message, because a false message comes first.
-- **Program reuse fires on boilerplate.** Agents that share a template (for example the same submission code) trigger "program reused" even when they never coordinate. The benign swarms show this in 10 of 10 runs.
+- **Messages that only name a place.** Fixed for code comments: a place named only in a comment no longer counts as a read (simulated message precision 66% → 79%). A place named in a printed string or a variable that is never fetched can still count. See [validation](validation.md).
+- **Coordination signs can fire early.** On simulated swarms the first message is now within an hour of the truth in 40 of 40 swarms; groups of 20+ still fire early in some, because a false message joins two groups.
+- **Program reuse and boilerplate.** Fixed: reuse counts as a sign only when the program writes, reads a place another actor wrote, or does harm (benign swarms: 10 of 10 → 0 of 10). Two agents that run the same attack code without contact still fire it.
 - **The harm list is broad.** In the code-traces pack every Hugging Face dataset commit counts as harm.
 - **Identity merges at low confidence are rarely right** (about 1% on simulated swarms). Treat low as "worth a look". High and medium require direct evidence and were right in every simulated case.
 - **Comments are matched like code.** An intent pattern can fire on a commented-out line.

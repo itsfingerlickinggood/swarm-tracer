@@ -30,7 +30,7 @@ Next, who talked to whom. Polling a mailbox a hundred times is still one message
 
 Screens: `#tab=early&hour=2026-07-10T06&scroll=330`, `#tab=early&hour=2026-07-10T18&scroll=330`, `#tab=early&hour=2026-07-11T06&scroll=330`, `#tab=early&hour=2026-07-11T18&scroll=330`, `#tab=early&hour=2026-07-12T06&scroll=330`, `#tab=early&hour=2026-07-12T18&scroll=330`, `#tab=early&hour=2026-07-13T12&scroll=330`
 
-Could it have been flagged early? The replay steps through the incident hour by hour, from July tenth to July thirteenth, and shows every warning sign as it fires, beside the share of harm still to come. Signs of shared control between agents fire when fifty to fifty-seven percent of the harm is still ahead. A simple volume alarm only fires with eighty-four percent ahead, and single-agent signs at ninety to one hundred percent. So the earliest signs are the noisy ones, and the swarm-level signs come later, but still well before the end. The alert rules are editable, and live mode watches a growing trace.
+Could it have been flagged early? The replay steps through the incident hour by hour, from July tenth to July thirteenth, and shows every warning sign as it fires, beside the share of harm still to come. Signs of shared control between agents fire when fifty to fifty-seven percent of the harm is still ahead. A simple volume alarm only fires with eighty-three percent ahead, and single-agent signs at ninety to one hundred percent. So the earliest signs are the noisy ones, and the swarm-level signs come later, but still well before the end. The alert rules are editable, and live mode watches a growing trace.
 
 ## 6. Agents and identity
 
@@ -48,7 +48,7 @@ The Forensics tab is where an investigator digs in. Trace any string through the
 
 Screens: `#tab=forensics&fx=validation`
 
-How far can you trust it? We scored the tool on fifty simulated swarms with known answers, including benign ones. Median message precision is sixty-six percent, and recall seventy-three percent. Measuring also caught a real mistake. Our first identity rule labelled pairs high confidence on coordination evidence alone, and only ten of two hundred forty were right. We changed the rule to require direct evidence. After the change, ten of ten high-confidence merges were right.
+How far can you trust it? We scored the tool on fifty simulated swarms with known answers, including benign ones. Median message precision is seventy-nine percent, and recall seventy-three percent. Measuring also caught real mistakes. Places named only in code comments had been counted as reads, and shared boilerplate code fired the program-reuse sign on every benign swarm; both are fixed. Our first identity rule labelled pairs high confidence on coordination evidence alone, and only ten of two hundred forty were right. We changed the rule to require direct evidence. After the change, ten of ten high-confidence merges were right.
 
 ## 9. What's missing
 

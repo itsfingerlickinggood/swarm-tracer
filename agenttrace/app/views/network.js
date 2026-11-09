@@ -736,7 +736,7 @@ async function network(el, s) {
   };
   // the time scrubber
   const scrub = $("nwScrub");
-  scrub.innerHTML = `<button type="button" id="nwPlay" class="nw-play" title="Play the messages in time order">▶</button>
+  scrub.innerHTML = `<button type="button" id="nwPlay" class="nw-play" title="Play the messages in time order" aria-label="Play the messages in time order">▶</button>
     <div class="nw-track"><div id="nwHist"></div><div id="nwWin" class="nw-win"></div><input type="range" id="nwT" min="0" max="1000" value="1000" aria-label="Show messages up to this time"></div>
     <div class="nw-now"><b id="nwWhen"></b><span id="nwStats"></span></div>
     <span class="small muted nw-froml">from</span><div class="nw-from"><input type="range" id="nwF" min="0" max="1000" value="0" aria-label="Show messages from this time"></div><span class="small muted" id="nwFromWhen"></span>`;
@@ -769,10 +769,10 @@ async function network(el, s) {
     if (NW.F != null && NW.F > T) NW.T = NW.F >= t1 ? null : NW.F;
     setT(NW.T ?? t1);
   });
-  const stop = () => { NW.playing = false; cancelAnimationFrame(NW.raf); const b = $("nwPlay"); if (b) b.textContent = "▶"; };
+  const stop = () => { NW.playing = false; cancelAnimationFrame(NW.raf); const b = $("nwPlay"); if (b) { b.textContent = "▶"; b.setAttribute("aria-label", "Play the messages in time order"); } };
   $("nwPlay").addEventListener("click", () => {
     if (NW.playing) { stop(); return; }
-    NW.playing = true; $("nwPlay").textContent = "❚❚";
+    NW.playing = true; $("nwPlay").textContent = "❚❚"; $("nwPlay").setAttribute("aria-label", "Pause");
     let cur = +slider.value >= 1000 ? (+fslider.value || 0) : +slider.value;
     let last = performance.now();
     const step = (now) => {
@@ -838,7 +838,7 @@ async function openConversation(a, b, scroll = true) {
     const side = it.kind === "overwrite" ? "over" : it.from === a ? "left" : "right";
     const lines = it.lines.length ? `<ul class="lines">${it.lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "";
     return `<div class="msg ${side}">
-      <div class="mhead">${ent.actor(it.from)} → ${ent.actor(it.to)}${it.kind === "overwrite" ? ' <span class="tag">overwrite, not a message</span>' : ""}${it.merged_place ? ` <span class="tag nw-warn" title="${esc(MERGED_TIP)}">⚠ place may be merged by redaction</span>` : ""} · ${ent.place(it.channel)} · <span class="muted">${esc(it.how || "")}</span></div>
+      <div class="mhead">${ent.actor(it.from)} → ${ent.actor(it.to)}${it.kind === "overwrite" ? ' <span class="tag">overwrite, not a message</span>' : ""}${it.merged_place ? ` <span class="tag nw-warn" title="${esc(MERGED_TIP)}">⚠ place may be merged by redaction</span>` : ""} · ${ent.place(it.channel)} · <span class="muted">${esc(it.how || "")}</span>${it.kind === "overwrite" || !window.decCtl ? "" : decCtl("message", `${it.write_id}>${it.read_id}`)}</div>
       <div class="mrow"><span class="lab">wrote</span> ${ent.rec(it.write_id)} <span class="muted">${esc(it.write_time || "time unknown")}</span></div>
       <div class="snip">${esc(it.write_text)}</div>
       <div class="mrow"><span class="lab">${it.kind === "overwrite" ? "replaced in" : "read in"}</span> ${ent.rec(it.read_id)} <span class="muted">${esc(it.read_time || "time unknown")}${it.latency_h != null ? ` · ${it.latency_h < 1 / 60 ? "under a minute later" : esc(hoursWord(it.latency_h)) + " later"}` : ""}</span></div>
@@ -852,7 +852,7 @@ async function openConversation(a, b, scroll = true) {
   if (ts.length) {
     const W = 600, t0 = ts[0].t, t1 = Math.max(ts.at(-1).t, t0 + 3600e3);
     const X = (t) => 8 + ((t - t0) / (t1 - t0)) * (W - 16);
-    strip = `<svg class="nw-cstrip" viewBox="0 0 ${W} 46" preserveAspectRatio="none" width="100%" height="46"><line x1="8" x2="${W - 8}" y1="23" y2="23" stroke="${GRID}"/>${ts.map((x) => `<line x1="${X(x.t).toFixed(1)}" x2="${X(x.t).toFixed(1)}" y1="${x.dir > 0 ? 6 : x.dir < 0 ? 23 : 15}" y2="${x.dir > 0 ? 23 : x.dir < 0 ? 40 : 31}" stroke="${x.dir > 0 ? "#e3a43b" : x.dir < 0 ? ACCENT : BASE}" stroke-width="2"/>`).join("")}</svg>
+    strip = `<svg class="nw-cstrip" role="img" aria-label="${esc(`Messages over time: ${short(a)} to ${short(b)} above the line, ${short(b)} to ${short(a)} below`)}" viewBox="0 0 ${W} 46" preserveAspectRatio="none" width="100%" height="46"><line x1="8" x2="${W - 8}" y1="23" y2="23" stroke="${GRID}"/>${ts.map((x) => `<line x1="${X(x.t).toFixed(1)}" x2="${X(x.t).toFixed(1)}" y1="${x.dir > 0 ? 6 : x.dir < 0 ? 23 : 15}" y2="${x.dir > 0 ? 23 : x.dir < 0 ? 40 : 31}" stroke="${x.dir > 0 ? "#e3a43b" : x.dir < 0 ? ACCENT : BASE}" stroke-width="2"/>`).join("")}</svg>
       <div class="nw-cax small muted"><span>${esc(when(t0))}</span><span>above: ${esc(short(a))} → ${esc(short(b))} · below: ${esc(short(b))} → ${esc(short(a))}</span><span>${esc(when(ts.at(-1).t))}</span></div>`;
   }
   box.innerHTML = `<div class="conv">

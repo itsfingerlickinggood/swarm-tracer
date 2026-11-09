@@ -1,12 +1,25 @@
 """Live mode (follow a growing trace) and saved alert rules.
 
 Live mode
-    POST /api/x/live_start {path, pack, interval_s, map}   watch a file or folder on this machine
+    POST /api/x/live_start {path, pack, interval_s, map, reanalyze_s}   watch a file or folder on this machine
     GET  /api/x/live_status?since=SEQ                       watching?, last load, records, events after SEQ
     POST /api/x/live_stop
-A background thread checks the path's size and modification time. When it changed, the trace is
-analyzed again in a fresh Session (a single file is first copied up to its last complete line, so a
-half-written record is never read); the app's dataset is swapped only when that load succeeds.
+A background thread checks the path's size and modification time.
+
+A single JSON-lines file is read incrementally: each check reads only the bytes after the last
+offset, up to the last complete line (a half-written record waits for its newline), parses the new
+lines and appends them to the rows read so far. A file that shrank, was replaced (another inode) or
+whose first bytes changed was truncated or rotated: it is read again from the start. A file that
+stops being valid UTF-8 or turns out to be one JSON array falls back to full reloads.
+The analysis itself (pack, threads, identities, messages, signs) looks at the whole trace, so it is
+recomputed over all rows, but without reading or parsing the file again, and at most once every
+reanalyze_s seconds (default "auto": on every change while an analysis takes under half a second,
+else at most every four times the last analysis took, at least the watch interval, at most 5 min;
+the live status says how many new records are waiting for it and when it runs next). The facts and rule results of the previous
+analysis are kept, so each analysis evaluates the rules once instead of twice.
+Folders and other formats are analyzed again in a fresh Session on every change (a single file is
+first copied up to its last complete line). Either way the app's dataset is swapped only when the
+analysis succeeds.
 Each load is compared with the previous one and the differences go to an event log: new records,
 new named actors, new messages, every warning sign that is new, and every alert rule that fired
 for the first time.
@@ -30,7 +43,7 @@ import time
 import traceback
 from collections import Counter
 
-from . import insight, packs, reconstruct
+from . import insight, model, packs, reconstruct
 from .session import PACK_DIR, Session
 
 iso = reconstruct.iso
@@ -322,7 +335,11 @@ LIVE_LOCK = threading.Lock()          # one load at a time
 LIVE = {"thread": None, "stop": None, "path": None, "pack": "auto", "mapping": {}, "interval": 2.0, "watching": False,
         "started": None, "last_check": None, "last_load": None, "load_s": None, "loading": False, "loads": 0,
         "records": 0, "actors": 0, "messages": 0, "signs": 0, "error": None, "note": None,
-        "events": [], "seq": 0, "session": None, "sig": None, "pending": None, "guard": None}
+        "events": [], "seq": 0, "session": None, "sig": None, "pending": None, "guard": None,
+        # incremental reading (single JSON-lines files)
+        "inc": None, "incremental": None, "reanalyze_s": None, "reanalyze_auto": True, "pending_records": 0,
+        "records_read": 0, "read_offset": 0, "last_analysis": 0.0, "analysis_s": None,
+        "facts": None, "rules_now": None, "rules_fp": None}
 MAX_EVENTS = 2000
 
 
@@ -411,7 +428,9 @@ def _diff(prev, new, s, rules_now, rules_before):
                  actors=r["actors"], why=r["why"], harm_share_after=r.get("harm_share_after"), initial=first or None)
 
 
-def _load_once(state):
+def _load_once(state, rows=None):
+    """Analyze the trace again and swap it in. rows: every row of the single file read so far
+    (incremental mode), so the file is neither copied nor parsed again."""
     path = LIVE["path"]
     with LIVE_LOCK:
         if not state["lock"].acquire(blocking=False):   # an upload is being analyzed: try again next tick
@@ -420,9 +439,15 @@ def _load_once(state):
         work = tempfile.mkdtemp(prefix="swarmtracer-live-")
         t0 = time.time()
         try:
-            src = path if os.path.isdir(path) else _snapshot(path, work)
+            name = os.path.basename(path.rstrip(os.sep)) or path
             sess = Session()
-            sess.load(src, LIVE["pack"], LIVE["mapping"], os.path.basename(path.rstrip(os.sep)) or path)
+            if rows is not None:
+                sess.path = path
+                # shallow copies: a framework reader may rewrite the rows it is given
+                sess._analyze(path, LIVE["pack"], LIVE["mapping"], name, rows=[dict(r) for r in rows])
+            else:
+                src = path if os.path.isdir(path) else _snapshot(path, work)
+                sess.load(src, LIVE["pack"], LIVE["mapping"], name)
             sess.summary()                                  # warm, so the app's refresh is quick
             if LIVE["pack"] in ("auto", "", None) and sess.pack_choice:
                 LIVE["pack"] = sess.pack_choice["pack"]     # keep the pack fixed as the trace grows
@@ -430,18 +455,25 @@ def _load_once(state):
                              f"({sess.pack_choice['why']}). It stays fixed while live mode runs; pick a pack before "
                              "starting to use another.")
             rules = load_rules()[0]
+            fp = json.dumps(rules, sort_keys=True)
             now = evaluate_rules(sess, rules)["rules"]
             prev_s = LIVE["session"]
-            prev = _facts(prev_s) if prev_s is not None else None
-            before = evaluate_rules(prev_s, rules)["rules"] if prev_s is not None else []
-            _diff(prev, _facts(sess), sess, now, before)
+            prev, before = None, []
+            if prev_s is not None:
+                # the previous analysis's facts and rule results are kept, not recomputed
+                prev = LIVE["facts"] if LIVE.get("facts") is not None else _facts(prev_s)
+                before = LIVE["rules_now"] if LIVE.get("rules_fp") == fp and LIVE.get("rules_now") is not None \
+                    else evaluate_rules(prev_s, rules)["rules"]
+            f = _facts(sess)
+            _diff(prev, f, sess, now, before)
             state["session"] = sess
             state["error"] = None
             LIVE["session"] = sess
-            f = _facts(sess)
+            took = round(time.time() - t0, 2)
             LIVE.update({"records": sess.summary()["records"], "actors": len(f["actors"]), "messages": f["messages"],
                          "signs": len(f["signs"]), "loads": LIVE["loads"] + 1, "last_load": _now(),
-                         "load_s": round(time.time() - t0, 2), "error": None, "note": None})
+                         "load_s": took, "analysis_s": took, "error": None, "note": None,
+                         "facts": f, "rules_now": now, "rules_fp": fp})
         except ValueError as e:
             if "no records" in str(e):
                 LIVE["note"] = "waiting for the first records"
@@ -457,9 +489,148 @@ def _load_once(state):
             _log("error", f"Could not analyze the trace: {e}", severity="alert")
         finally:
             LIVE["loading"] = False
+            LIVE["last_analysis"] = time.time()
             state["lock"].release()
             shutil.rmtree(work, ignore_errors=True)
         return True
+
+
+# ------------------------------------------------------------------ incremental reading
+
+INC_EXTS = (".jsonl",)
+HEAD_BYTES = 4096
+_LINE_SPLIT = re.compile(r"\r\n|\r|\n")
+
+
+class _Fallback(Exception):
+    """This file cannot be read incrementally exactly as model.load would read it."""
+
+
+def _new_inc(path):
+    return {"path": path, "offset": 0, "file_id": None, "head": b"", "rows": [], "line_no": 0,
+            "unreadable": 0, "unreadable_lines": [], "pending": 0, "disabled": None}
+
+
+def _read_new(inc, path):
+    """Read the complete lines added since inc["offset"] and append their rows.
+    Returns (new rows, reset reason or None)."""
+    st = os.stat(path)
+    fid = (st.st_dev, st.st_ino)
+    reset = None
+    if inc["offset"]:
+        if inc["file_id"] != fid:
+            reset = "replaced by another file"
+        elif st.st_size < inc["offset"]:
+            reset = "truncated"
+        else:
+            with open(path, "rb") as f:
+                if f.read(len(inc["head"])) != inc["head"]:
+                    reset = "rewritten from the start"
+    if reset:
+        fresh = _new_inc(path)
+        inc.clear()
+        inc.update(fresh)
+    inc["file_id"] = fid
+    with open(path, "rb") as f:
+        f.seek(inc["offset"])
+        data = f.read(max(0, st.st_size - inc["offset"]))
+        if len(inc["head"]) < HEAD_BYTES:
+            f.seek(0)
+            head_end = inc["offset"] + (data.rfind(b"\n") + 1)
+            inc_head = f.read(min(HEAD_BYTES, head_end))
+        else:
+            inc_head = inc["head"]
+    cut = data.rfind(b"\n")
+    if cut < 0:
+        return 0, reset
+    chunk = data[:cut + 1]
+    first = inc["offset"] == 0
+    try:
+        text = chunk.decode("utf-8-sig" if first else "utf-8")
+    except UnicodeDecodeError:
+        raise _Fallback("the file is not valid UTF-8")
+    if first and text.lstrip().startswith("["):
+        raise _Fallback("the file is one JSON array, not JSON lines")
+    lines = _LINE_SPLIT.split(text)
+    if lines and lines[-1] == "":
+        lines.pop()
+    added = 0
+    for line in lines:
+        inc["line_no"] += 1
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except ValueError:
+            obj = None
+        if isinstance(obj, dict):
+            inc["rows"].append(obj)
+            added += 1
+        else:
+            inc["unreadable"] += 1
+            if len(inc["unreadable_lines"]) < 20:
+                inc["unreadable_lines"].append(inc["line_no"])
+    inc["offset"] += len(chunk)
+    inc["head"] = inc_head
+    inc["pending"] += added
+    return added, reset
+
+
+def _throttle_s():
+    """Seconds between two full analyses in incremental mode."""
+    if not LIVE.get("reanalyze_auto") and LIVE.get("reanalyze_s") is not None:
+        return LIVE["reanalyze_s"]
+    took = LIVE.get("analysis_s") or 0
+    # a quick analysis runs on every change; a slow one at most every 4x its own duration (<= 5 min)
+    return 0.0 if took < 0.5 else round(min(300.0, max(LIVE["interval"], 4 * took)), 2)
+
+
+def _check_incremental(state, path, sig):
+    inc = LIVE["inc"]
+    if inc is None or inc["path"] != path:
+        inc = LIVE["inc"] = _new_inc(path)
+    if sig != LIVE["sig"]:
+        try:
+            added, reset = _read_new(inc, path)
+        except _Fallback as e:
+            inc["disabled"] = str(e)
+            LIVE["incremental"] = False
+            _log("note", f"Reading the whole file on each change from now on: {e}.")
+            return None          # the caller does a full reload
+        except OSError:
+            return False
+        LIVE["sig"] = sig
+        if reset:
+            _log("reset", f"The file was {reset}: reading it again from the start.", severity="watch")
+            inc["pending"] = max(inc["pending"], 1)      # analyze even if it is empty now
+        LIVE.update({"records_read": len(inc["rows"]), "read_offset": inc["offset"], "incremental": True})
+    if not inc["pending"]:
+        return False
+    wait = _throttle_s()
+    LIVE["reanalyze_s"] = wait
+    LIVE["pending_records"] = inc["pending"]
+    since = time.time() - (LIVE.get("last_analysis") or 0)
+    if LIVE["session"] is not None and since < wait:
+        LIVE["note"] = (f"{inc['pending']:,} new record{'s' if inc['pending'] != 1 else ''} read; the full re-analysis "
+                        f"runs at most every {wait:g} s (the last took {LIVE.get('analysis_s') or 0:g} s), "
+                        f"next in {max(0.0, wait - since):.0f} s")
+        return False
+    if inc["unreadable"]:
+        model.READ_NOTES[path] = {"unreadable_lines": inc["unreadable"],
+                                  "unreadable_line_numbers": list(inc["unreadable_lines"])}
+    else:
+        model.READ_NOTES.pop(path, None)
+    if not inc["rows"]:
+        inc["pending"] = 0
+        LIVE["pending_records"] = 0
+        LIVE["note"] = "waiting for the first records"
+        return False
+    if not _load_once(state, rows=inc["rows"]):
+        return False
+    inc["pending"] = 0
+    LIVE["pending_records"] = 0
+    return True
 
 
 def check(state):
@@ -491,6 +662,12 @@ def check(state):
     except OSError:
         LIVE["note"] = "the path does not exist yet; waiting for it"
         return False
+    if os.path.isfile(path) and os.path.splitext(path)[1].lower() in INC_EXTS \
+            and not (LIVE["inc"] and LIVE["inc"]["path"] == path and LIVE["inc"]["disabled"]):
+        done = _check_incremental(state, path, sig)
+        if done is not None:
+            return done
+        LIVE["sig"] = None
     if sig == LIVE["sig"]:
         return False
     # a single file whose last line is still being written: wait one tick for it to settle
@@ -542,6 +719,16 @@ def live_start(state, q, body):
     mapping = b.get("map") or {}
     if not isinstance(mapping, dict):
         raise ValueError("map must be an object: {\"role\": \"column\"}")
+    reanalyze = b.get("reanalyze_s")
+    if reanalyze not in (None, "", "auto"):
+        try:
+            reanalyze = float(reanalyze)
+        except (TypeError, ValueError):
+            raise ValueError("reanalyze_s must be a number of seconds (or \"auto\")")
+        if not 0 <= reanalyze <= 3600:
+            raise ValueError("reanalyze_s must be between 0 and 3600 seconds")
+    else:
+        reanalyze = None
     if state.get("busy"):   # an upload is being analyzed: live mode would replace it the moment it finished
         raise LookupError("An upload is being analyzed. Start live mode once it has finished.")
     live_stop(state, {}, b"", quiet=True)
@@ -550,7 +737,10 @@ def live_start(state, q, body):
                  "interval": interval, "watching": True, "started": _now(), "stop": stop, "session": None,
                  "session_at_start": state.get("session"),
                  "sig": None, "pending": None, "error": None, "note": None, "loads": 0, "records": 0,
-                 "actors": 0, "messages": 0, "signs": 0, "last_load": None, "load_s": None})
+                 "actors": 0, "messages": 0, "signs": 0, "last_load": None, "load_s": None,
+                 "inc": None, "incremental": None, "reanalyze_s": reanalyze, "reanalyze_auto": reanalyze is None,
+                 "pending_records": 0, "records_read": 0, "read_offset": 0, "last_analysis": 0.0, "analysis_s": None,
+                 "facts": None, "rules_now": None, "rules_fp": None})
     _log("started", f"Watching {path} every {interval:g} s.")
     th = threading.Thread(target=_run, args=(state, stop), name="swarmtracer-live", daemon=True)
     LIVE["thread"] = th
@@ -565,6 +755,7 @@ def live_stop(state, q, body=b"", quiet=False):
         if not quiet:
             _log("stopped", "Live mode stopped.")
     LIVE["watching"] = False
+    LIVE["inc"] = None          # the rows read so far: the analyzed session keeps what it needs
     return live_status(state, {})
 
 
@@ -582,6 +773,12 @@ def live_status(state, q):
             "actors": LIVE["actors"], "messages": LIVE["messages"], "signs": LIVE["signs"],
             "error": LIVE["error"], "note": LIVE["note"], "seq": LIVE["seq"], "events": evs,
             "dataset_is_live": bool(LIVE["session"] is not None and s is LIVE["session"]),
+            # incremental reading: whether it is on, rows read so far, and new rows waiting for the
+            # (throttled) full re-analysis
+            "incremental": LIVE["incremental"], "records_read": LIVE["records_read"],
+            "read_offset": LIVE["read_offset"], "pending_records": LIVE["pending_records"],
+            "reanalyze_s": LIVE["reanalyze_s"] if LIVE["incremental"] else None,
+            "analysis_s": LIVE["analysis_s"],
             "hint": "python3 -m agenttrace.tools.replay_feed TRACE.jsonl /tmp/feed.jsonl --rate 2000"}
 
 

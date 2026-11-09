@@ -203,11 +203,28 @@ def places_of(e, pack):
     return {m.group(0) for _, rx in pack.shared_names for m in rx.finditer(e.text)}
 
 
+# a comment marker starts a line or follows whitespace; this keeps "https://", "'//host'" and the
+# minified regex /\//g from being read as comments
+_INLINE_COMMENT = re.compile(r"(?:^|\s)(?://|#\s|/\*(?!.*\*/))")
+
+
+def in_comment(text, pos):
+    """True when position pos sits in a code comment on its line (// ..., # ..., -- ..., /* ...).
+    A place named only in a comment was mentioned, not opened, so it is not a read or a write."""
+    start = text.rfind("\n", 0, pos) + 1
+    prefix = text[start:pos]
+    head = prefix.lstrip()
+    if head.startswith(("//", "#", "/*", "* ", "-- ")):
+        return True
+    return bool(_INLINE_COMMENT.search(prefix))
+
+
 def intent_of(e, pack):
     if not is_action(e, pack):
         return None
     for name, rx in pack.intents:
-        if rx.search(e.text):
+        # a pattern that matches only inside a code comment is a mention, not an action
+        if any(not in_comment(e.text, m.start()) for m in rx.finditer(e.text)):
             return name
     return "other" if pack.intents else None
 

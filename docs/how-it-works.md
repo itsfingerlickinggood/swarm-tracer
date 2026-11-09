@@ -32,7 +32,7 @@ Messages agents logged to each other (handoffs, `to`/`recipient` fields) count d
 
 ## 6. Spread
 
-A program is identical code once ids, numbers and hashes are masked. A program run by two or more named actors spreads; the first run is its source. A token first seen as data inside a record and only later used to authenticate also spreads, as does a record that authenticates as one identity while holding another's token.
+A program is identical code once ids, numbers and hashes are masked. A program run by two or more named actors spreads; the first run is its source. Reuse is a warning sign only when the program writes to a place, reads a place another actor wrote, or does something the pack calls harmful; the rest (a token check every agent runs, two agents fetching the same public file) is listed as routine. A token first seen as data inside a record and only later used to authenticate also spreads, as does a record that authenticates as one identity while holding another's token.
 
 ## 7. Warning signs and the replay
 

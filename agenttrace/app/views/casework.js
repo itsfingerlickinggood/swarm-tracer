@@ -272,7 +272,7 @@ function drawRender() {
 function itemRow(it) {
   const i = CW.case.items.indexOf(it);
   return `<div class="cw-item" data-i="${i}"><div class="cw-irow"><span class="cw-chip">${chip(it.kind, it.key)}</span>
-    <span class="cw-ibtns"><button type="button" class="link" data-act="open">open</button><button type="button" class="link" data-act="link">copy link</button><button type="button" data-act="up" title="Move up">↑</button><button type="button" data-act="down" title="Move down">↓</button><button type="button" data-act="rm" title="Remove from the case file">✕</button></span></div>
+    <span class="cw-ibtns"><button type="button" class="link" data-act="open">open</button><button type="button" class="link" data-act="link">copy link</button><button type="button" data-act="up" title="Move up" aria-label="Move up">↑</button><button type="button" data-act="down" title="Move down" aria-label="Move down">↓</button><button type="button" data-act="rm" title="Remove from the case file" aria-label="Remove from the case file">✕</button></span></div>
     <textarea class="cw-inote" rows="2" placeholder="Note">${esc(it.note || "")}</textarea><div class="small faint">pinned ${esc(it.added || "")}${it.by ? ` by ${esc(it.by)}` : ""}</div></div>`;
 }
 async function exportCase(format, btn) {

@@ -533,12 +533,13 @@
 
   function drawTable(host, sigs) {
     if (!host) return;
-    host.innerHTML = table(["#", "signal", "first fired", "harm still to come", "record", "why it counts"], sigs.map((g) => [
+    host.innerHTML = table(["#", "signal", "first fired", "harm still to come", "record", "why it counts", "your decision"], sigs.map((g) => [
       `<span class="efnum sm" style="background:${FAMILY[g.family]?.color};color:#fff">${g.num}</span>`,
       `<b>${esc(g.name)}</b><div class="small muted">${esc(FAMILY[g.family]?.label || g.family)} · ${esc(KIND[g.kind] || g.kind)}</div>${(g.actors || []).length ? `<div class="chips">${g.actors.filter((a) => a && !/ carried /.test(a)).slice(0, 3).map((a) => ent.actor(a)).join(" ")}</div>` : ""}`,
       `<span class="nowrap">${esc(when(g.t * 1000))}</span>`,
       g.harm_share_after != null ? `<span class="nowrap">${meter(g.harm_share_after, FAMILY[g.family]?.color, 46)} ${pct(g.harm_share_after)}</span>` : "–",
-      refChip(g), `<span class="small">${esc(plain(g.why))}${g.kind === "token" ? `. <span class="muted">${esc(TOKEN_NOTE)}</span>` : ""}</span>`]));
+      refChip(g), `<span class="small">${esc(plain(g.why))}${g.kind === "token" ? `. <span class="muted">${esc(TOKEN_NOTE)}</span>` : ""}</span>`,
+      g.key && window.decCtl ? decCtl("sign", g.key) : ""]));
   }
 
   VIEWS.early = view;

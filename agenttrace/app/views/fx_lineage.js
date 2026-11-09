@@ -440,7 +440,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     const host = $("srsaved");
     if (!host) return;
     const list = loadSaved();
-    host.innerHTML = list.length ? `<span class="small muted">Saved (this browser):</span> ${list.map((x, i) => `<span class="chip fxsaved" data-i="${i}" title="${esc([x.q, x.kind, x.intent, x.actor, x.hour].filter(Boolean).join(" · "))}">${esc(x.name)} <button type="button" class="link fxrm" data-i="${i}" title="Remove">×</button></span>`).join("")}` : "";
+    host.innerHTML = list.length ? `<span class="small muted">Saved (this browser):</span> ${list.map((x, i) => `<span class="chip fxsaved" data-i="${i}" title="${esc([x.q, x.kind, x.intent, x.actor, x.hour].filter(Boolean).join(" · "))}">${esc(x.name)} <button type="button" class="link fxrm" data-i="${i}" title="Remove" aria-label="Remove this saved search">×</button></span>`).join("")}` : "";
     host.querySelectorAll(".fxsaved").forEach((c) => c.addEventListener("click", (e) => {
       const list2 = loadSaved();
       if (e.target.closest(".fxrm")) { list2.splice(+c.dataset.i, 1); storeSaved(list2); savedChips(); return; }

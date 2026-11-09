@@ -310,6 +310,8 @@ def _carry_sign(s, ag):
 def _program_signs(s, ag):
     first, third = None, None
     for x in s.flow.get("_content_spread", []):
+        if x.get("routine"):
+            continue
         src = ag(x["source"])
         ad = sorted(((reconstruct_time(a["time"]), a) for a in x["adopters"] if a.get("time")), key=lambda p: p[0] or 0)
         seen = [src]
