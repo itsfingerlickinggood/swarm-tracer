@@ -41,7 +41,7 @@
         { sub: "One row per place, hours in UTC (estimated times). In each hour the top half shows writes and the bottom half reads; darker means more. A dark dot marks an hour in which another actor read a message there. Hover a name for the whole name; click a cell to list those events." })}
       <div class="grid2">
         ${card("How long a message waited", `<div id="chLat"></div>`, { sub: `The ${term("latency", "wait")} from a write to the read of it by a different actor, for every message.` })}
-        ${card("How places were shared", `<div id="chScatter"></div>`, { sub: "Every place counted by how many actors wrote to it and how many read it. Each cell prints its number of places." })}
+        ${card("How places were shared", `<div id="chScatter"></div>`, { sub: "Every place counted by how many actors wrote to it (columns) and read it (rows). Each cell prints its places and their share of all places; the last row and column are totals." })}
       </div>
       ${card("Every place", `<div id="chanList"></div>`, { sub: "Busiest first. Click a row to inspect the place; filter to search all of them." })}`;
     let map, msgs;
@@ -326,51 +326,60 @@
   // 3,500 places and a group of 80 never look alike and nothing overlaps
   const GBINS = [[0, 0, "0"], [1, 1, "1"], [2, 2, "2"], [3, 5, "3–5"], [6, 20, "6–20"], [21, Infinity, "21+"]];
   const gbin = (v) => GBINS.findIndex(([a, b]) => v >= a && v <= b);
+  const gname = (i, who) => (i === 0 ? (who === "w" ? "no writer seen" : "never read by another actor") : `${GBINS[i][2]} ${who === "w" ? "writer" : "reader"}${GBINS[i][2] === "1" ? "" : "s"}`);
   function drawScatter(D) {
     const host = $("chScatter");
     const N = D.P.length;
-    const cells = new Map();
-    D.P.forEach((p) => {
-      const k = gbin(p.readers) + "," + gbin(p.writers);
-      const c = cells.get(k) || { places: [], msg: 0, msgs: 0 };
-      c.places.push(p); if (p.messages) { c.msg++; c.msgs += p.messages; }
-      cells.set(k, c);
-    });
+    const cells = new Map(), rowT = new Map(), colT = new Map();
+    const add = (m, k, p) => { const c = m.get(k) || { places: [], msg: 0, msgs: 0 }; c.places.push(p); if (p.messages) { c.msg++; c.msgs += p.messages; } m.set(k, c); };
+    D.P.forEach((p) => { const ri = gbin(p.readers), wi = gbin(p.writers); add(cells, ri + "," + wi, p); add(rowT, ri, p); add(colT, wi, p); });
     const mx = Math.max(1, ...[...cells.values()].map((c) => c.places.length));
-    const shade = (n) => (n ? 0.08 + 0.82 * Math.log1p(n) / Math.log1p(mx) : 0);
-    // headline from the data: the biggest groups and the places that carried messages
-    const nRO = D.P.filter((p) => !p.writers && p.readers).length, nNever = D.P.filter((p) => p.never).length, nMsg = D.P.filter((p) => p.messages).length;
-    const big = [...cells.entries()].sort((a, b) => b[1].places.length - a[1].places.length)[0];
-    const pct = (n) => (N ? Math.round((100 * n) / N) : 0);
-    const head = `<p class="ch-gridhead"><b>${fmt(nRO)}</b> of ${fmt(N)} places (${pct(nRO)}%) were only read, with no write seen in the trace; <b>${fmt(nNever)}</b> (${pct(nNever)}%) were written and never read by another actor; <b>${fmt(nMsg)}</b> carried a message.</p>`;
+    const shade = (n) => (n ? 0.07 + 0.78 * Math.log1p(n) / Math.log1p(mx) : 0);
+    const pct = (n) => { if (!N || !n) return "0%"; const v = (100 * n) / N; return v >= 10 ? Math.round(v) + "%" : v >= 1 ? v.toFixed(1) + "%" : "<1%"; };
+    const nRO = D.P.filter((p) => !p.writers && p.readers).length, nNever = D.P.filter((p) => p.never).length;
+    const nMsgP = D.P.filter((p) => p.messages).length, nMsgs = D.P.reduce((a, p) => a + (p.messages || 0), 0);
+    const ro1 = (cells.get("1,0") || { places: [] }).places.length, nv1 = (cells.get("0,1") || { places: [] }).places.length;
+    const head = `<div class="ch-gstats">
+      <div><b>${fmt(N)}</b><span>places</span></div>
+      <div class="g-ro"><b>${pct(nRO)}</b><span>${fmt(nRO)} only read, no write seen<br>(${fmt(ro1)} read by a single actor)</span></div>
+      <div class="g-never"><b>${pct(nNever)}</b><span>${fmt(nNever)} written, never read by another actor<br>(${fmt(nv1)} with a single writer)</span></div>
+      <div class="g-msg"><b>${fmt(nMsgP)}</b><span>places carried ${plural(nMsgs, "message")} (${pct(nMsgP)})</span></div></div>`;
+    const msgLine = (c) => (c && c.msg ? `<span class="ch-g-badge" title="${esc(`${plural(c.msg, "place")} here carried ${plural(c.msgs, "message")}`)}"><i></i>${fmt(c.msg)}→${fmt(c.msgs)}</span>` : "");
+    const bar = (c, n) => (c && c.msg ? `<span class="ch-g-bar" style="width:${Math.max(6, (100 * c.msg) / n).toFixed(0)}%"></span>` : "");
     let rows = "";
     for (let ri = GBINS.length - 1; ri >= 0; ri--) {
-      rows += `<tr><th scope="row">${GBINS[ri][2]}</th>`;
+      rows += `<tr><th scope="row"${ri === 0 ? ' class="ch-g-never"' : ""}>${ri === 0 ? "0<small>never read</small>" : GBINS[ri][2]}</th>`;
       GBINS.forEach((_, wi) => {
         const c = cells.get(ri + "," + wi), n = c ? c.places.length : 0;
         const edge = wi === 0 ? " ch-g-ro" : ri === 0 ? " ch-g-never" : "";
-        const a = shade(n), dark = a > 0.55;
-        const label = n ? `${fmt(n)} place${n === 1 ? "" : "s"} with ${GBINS[wi][2]} writer(s) and ${GBINS[ri][2]} reader(s)${c.msg ? `; ${fmt(c.msg)} carried ${plural(c.msgs, "message")}` : ""}` : "no places";
+        const a = shade(n), dark = a > 0.5;
+        const label = n ? `${plural(n, "place")} (${pct(n)} of all) with ${gname(wi, "w")} and ${gname(ri, "r")}${c.msg ? `; ${fmt(c.msg)} carried ${plural(c.msgs, "message")}` : ""}. Click to list them.` : "no places";
         rows += n
-          ? `<td class="ch-gcell${edge}${c.msg ? " ch-g-msg" : ""}${dark ? " ch-g-dark" : ""}" style="--a:${a.toFixed(2)}" data-gcell="${ri},${wi}" tabindex="0" role="button" aria-label="${esc(label)}" title="${esc(label)}"><b>${fmt(n)}</b>${c.msg ? `<span class="ch-g-badge">${fmt(c.msg)} carried ${plural(c.msgs, "message")}</span>` : ""}</td>`
+          ? `<td class="ch-gcell${edge}${c.msg ? " ch-g-msg" : ""}${dark ? " ch-g-dark" : ""}" style="--a:${a.toFixed(2)}" data-gcell="${ri},${wi}" tabindex="0" role="button" aria-label="${esc(label)}" title="${esc(label)}"><b>${fmt(n)}</b>${(100 * n) / N >= 1 ? `<span class="ch-g-pct">${pct(n)}</span>` : ""}${msgLine(c)}${bar(c, n)}</td>`
           : `<td class="ch-gcell ch-g-empty${edge}" aria-label="no places">·</td>`;
       });
+      const t = rowT.get(ri);
+      rows += t ? `<td class="ch-gtot" data-grow="${ri}" tabindex="0" role="button" title="${esc(`all ${plural(t.places.length, "place")} with ${gname(ri, "r")}`)}"><b>${fmt(t.places.length)}</b><span class="ch-g-pct">${pct(t.places.length)}</span>${msgLine(t)}</td>` : `<td class="ch-gtot ch-g-empty">·</td>`;
       rows += "</tr>";
     }
-    const table = `<div class="tablewrap"><table class="ch-grid" aria-label="Places by number of writers and readers"><caption class="small muted">rows: actors that read the place · columns: actors that wrote to it</caption>
-      <thead><tr><th class="ch-g-corner">readers ↓ · writers →</th>${GBINS.map(([, , l], wi) => `<th scope="col"${wi === 0 ? ' class="ch-g-ro"' : ""}>${l}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>`;
-    const legend = `<div class="legend"><span><i class="ch-g-key ch-g-ro"></i>column 0: only read, no write seen</span><span><i class="ch-g-key ch-g-never"></i>row 0: written, never read by another actor</span><span><i class="ch-g-key ch-g-msg"></i>holds places that carried a message</span><span class="muted">darker = more places (log scale); click a cell for its places</span></div>`;
-    host.innerHTML = head + table + legend + `<div id="chGridList" class="ch-gridlist"></div>`;
-    const show = (td) => {
-      const [ri, wi] = td.dataset.gcell.split(",").map(Number);
-      const c = cells.get(ri + "," + wi); if (!c) return;
-      host.querySelectorAll(".ch-g-sel").forEach((x) => x.classList.remove("ch-g-sel")); td.classList.add("ch-g-sel");
-      const list = c.places.slice().sort((a, b) => (b.messages - a.messages) || (b.writes + b.reads) - (a.writes + a.reads));
-      $("chGridList").innerHTML = `<p class="small"><b>${plural(list.length, "place")}</b> with ${GBINS[wi][2]} writer(s) and ${GBINS[ri][2]} reader(s)${list.length > 30 ? ", the 30 busiest shown" : ""}${c.msg ? `; ${fmt(c.msg)} carried ${plural(c.msgs, "message")} (listed first)` : ""}:</p><div class="ch-gchips">${list.slice(0, 30).map((p) => ent.place(p.ch) + (p.messages ? ` <span class="small muted">${plural(p.messages, "message")}</span>` : "")).join(" ")}</div>`;
+    rows += `<tr class="ch-gtotrow"><th scope="row">all</th>${GBINS.map((_, wi) => { const t = colT.get(wi); return t ? `<td class="ch-gtot" data-gcol="${wi}" tabindex="0" role="button" title="${esc(`all ${plural(t.places.length, "place")} with ${gname(wi, "w")}`)}"><b>${fmt(t.places.length)}</b><span class="ch-g-pct">${pct(t.places.length)}</span>${msgLine(t)}</td>` : `<td class="ch-gtot ch-g-empty">·</td>`; }).join("")}<td class="ch-gtot ch-g-all"><b>${fmt(N)}</b><span class="ch-g-pct">100%</span></td></tr>`;
+    const table = `<div class="ch-gframe"><div class="ch-g-ylab">actors who read the place →</div><div class="tablewrap"><table class="ch-grid" aria-label="Places by number of writers and readers">
+      <thead><tr><th class="ch-g-corner" rowspan="2">readers</th><th colspan="${GBINS.length}" class="ch-g-xlab">actors who wrote to the place →</th><th class="ch-g-totlab" rowspan="2">all</th></tr>
+      <tr>${GBINS.map(([, , l], wi) => `<th scope="col"${wi === 0 ? ' class="ch-g-ro"' : ""}>${wi === 0 ? "0<small>no writer seen</small>" : l}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    const legend = `<div class="legend ch-glegend"><span><i class="ch-g-key ch-g-ro"></i>no writer seen</span><span><i class="ch-g-key ch-g-never"></i>never read by another actor</span><span><i class="ch-g-key ch-g-mid"></i>written and read</span><span><i class="ch-g-key ch-g-msg"></i>carried a message: <span class="ch-g-badge ch-g-badgekey"><i></i>places→messages</span>; the bar under a cell is its share of such places</span><span class="muted">darker = more places (log scale) · % of all ${fmt(N)} places (shown from 1%) · click a cell, row or column total to list its places</span></div>`;
+    host.innerHTML = head + table + legend + `<div class="ch-glistbar"><button class="btn small" data-gmsg>Places that carried a message (${fmt(nMsgP)})</button></div><div id="chGridList" class="ch-gridlist"></div>`;
+    const listOf = (title, list, sel) => {
+      host.querySelectorAll(".ch-g-sel").forEach((x) => x.classList.remove("ch-g-sel")); if (sel) sel.classList.add("ch-g-sel");
+      const L = list.slice().sort((a, b) => (b.messages - a.messages) || (b.writes + b.reads) - (a.writes + a.reads));
+      const nm = L.filter((p) => p.messages).length;
+      $("chGridList").innerHTML = `<p class="small"><b>${plural(L.length, "place")}</b> ${title}${nm && nm < L.length ? `; ${fmt(nm)} carried a message (listed first)` : ""}${L.length > 40 ? ". The 40 busiest:" : ":"}</p>
+        <div class="tablewrap"><table class="ch-glist"><thead><tr><th>place</th><th class="n">writers</th><th class="n">readers</th><th class="n">writes</th><th class="n">reads</th><th class="n">msgs</th><th>first write</th></tr></thead><tbody>${L.slice(0, 40).map((p) => `<tr><td>${ent.place(p.ch)}</td><td class="n">${fmt(p.writers)}</td><td class="n">${fmt(p.readers)}</td><td class="n">${fmt(p.writes)}</td><td class="n">${fmt(p.reads)}</td><td class="n">${p.messages ? `<b>${fmt(p.messages)}</b>` : "–"}</td><td class="small muted" title="${esc(p.first || "")}">${esc(p.first ? String(p.first).replace(/^\d{4}-/, "") : "–")}</td></tr>`).join("")}</tbody></table></div>`;
     };
-    host.querySelectorAll("[data-gcell]").forEach((td) => {
-      td.addEventListener("click", () => show(td));
-      td.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(td); } });
-    });
+    const bind = (el, fn) => { el.addEventListener("click", fn); el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); } }); };
+    host.querySelectorAll("[data-gcell]").forEach((td) => bind(td, () => { const [ri, wi] = td.dataset.gcell.split(",").map(Number); listOf(`with ${gname(wi, "w")} and ${gname(ri, "r")}`, cells.get(ri + "," + wi).places, td); }));
+    host.querySelectorAll("[data-grow]").forEach((td) => bind(td, () => { const ri = +td.dataset.grow; listOf(`with ${gname(ri, "r")}`, rowT.get(ri).places, td); }));
+    host.querySelectorAll("[data-gcol]").forEach((td) => bind(td, () => { const wi = +td.dataset.gcol; listOf(`with ${gname(wi, "w")}`, colT.get(wi).places, td); }));
+    bind(host.querySelector("[data-gmsg]"), () => listOf("that carried a message", D.P.filter((p) => p.messages), null));
+    if (nMsgP) listOf("that carried a message", D.P.filter((p) => p.messages), null);
   }
 })();
