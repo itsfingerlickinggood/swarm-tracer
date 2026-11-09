@@ -5,7 +5,7 @@
 Honest list of what is known to be wrong, weak or untested, kept up to date.
 
 ## Accuracy
-- **Simulated precision is an upper bound.** The simulator never writes the read-then-exfiltrate pattern that produced most false links on the Swarm Traces release (166 reported, 24 after a hand audit and the rules it led to). Audit real links before quoting them.
+- **Simulated precision is an upper bound.** The simulator never writes the read-then-exfiltrate pattern that produced most false links on the Swarm Traces release (166 reported, 19 after a hand audit and the rules it led to). Audit real links before quoting them.
 - **Messages that only name a place.** Fixed for code comments: a place named only in a comment no longer counts as a read (simulated message precision 66% → 79%). A place named in a printed string or a variable that is never fetched can still count. See [validation](validation.md).
 - **Coordination signs can fire early.** On simulated swarms the first message is now within an hour of the truth in 40 of 40 swarms; groups of 20+ still fire early in some, because a false message joins two groups.
 - **Program reuse and boilerplate.** Fixed: reuse counts as a sign only when the program writes, reads a place another actor wrote, or does harm (benign swarms: 10 of 10 → 0 of 10). Two agents that run the same attack code without contact still fire it.

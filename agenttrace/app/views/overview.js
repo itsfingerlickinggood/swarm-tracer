@@ -8,9 +8,11 @@
     const names = await cached("/api/list?name=identities&limit=1000").catch(() => ({ rows: [] }));
     const lanesAll = await cached("/api/lanes").catch(() => null);
     ACTORS = new Set([...(names.rows || []).map((r) => r.identity), ...((lanesAll?.actors) || []).map((a) => a.actor)]);
-    const [ctxR, sim, lanes, gapsR, wi] = await Promise.all([
+    const [ctxR, sim, lanes, gapsR, wi, idr] = await Promise.all([
       cached("/api/context").catch(() => ({})), cached("/api/sim").catch(() => null),
-      cached("/api/lanes").catch(() => null), cached("/api/gaps").catch(() => ({ rows: [] })), whatifEstimate()]);
+      cached("/api/lanes").catch(() => null), cached("/api/gaps").catch(() => ({ rows: [] })), whatifEstimate(),
+      cached("/api/x/identity").catch(() => null)]);
+    const est = idr?.estimate || null;     // the Agents tab's estimate, for the identities → actors → agents line
     const ctx = ctxR.context, ms = ctxR.milestones;
     const f = s.flow, T = s.list_totals || {};
     const named = s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0);
@@ -22,8 +24,8 @@
     host.innerHTML = `
     ${ctx ? brief(ctx) : `<div class="card ovnoctx"><h2>${esc(s.name)}</h2><p class="muted small">No incident report is linked to this dataset, so this page shows only what the records say. To add context, put a file like <code>agenttrace/claims/incident_context.json</code> with a <code>match</code> rule for this dataset.</p></div>`}
     ${card("The incident at a glance", '<div id="glance"></div><div id="glancekey" class="legend"></div>',
-      { sub: `Dated actions per hour (UTC; most times are ${term("dated", "estimated")} from timestamps in the code, so long flat stretches come from the fit), coloured by what the code does${ctx ? "; the investigators' phases above; " : "; "}warning signs as dots (blue: actors together, dark: a single actor, grey: volume baseline)${ms?.milestones?.length ? "; below, each time the reports give against the tool's estimate" : ""}. Click an hour to list its events.` })}
-    <h3 class="ovh">Answers to the challenge</h3>
+      { sub: `Dated actions per hour (UTC; most times are ${term("dated", "estimated")} from timestamps in the code, so long flat stretches come from the fit), coloured by what the code does${ctx ? "; the investigators' phases above; " : "; "}warning signs as dots (blue: actors together, dark: a single actor, orange: volume baseline)${ms?.milestones?.length ? "; below, each time the reports give against the tool's estimate" : ""}. Click an hour to list its events.` })}
+    <h3 class="ovh">What the records answer</h3>
     <div class="grid2 answers">
       ${answer("Who talked to whom", "network", f.named_actor_pairs ? `<b>${fmt(f.named_actor_pairs)}</b> named sender-receiver pairs exchanged <b>${fmt(f.deliveries_between_named_actors)}</b> messages, read a median <b>${hoursWord(f.latency_hours.median)}</b> after they were written.` : "No message between two named actors was found.",
         (f.top_pairs || []).length ? hbars(f.top_pairs.slice(0, 5).map((p) => ({ label: `${ent.actor(p.from)} → ${ent.actor(p.to)}`, value: p.deliveries, color: ACCENT }))) : "",
@@ -40,7 +42,7 @@
     <div class="kpis">
       ${kpi(term("record", "records"), fmt(s.records), Object.entries(s.kinds).map(([k, v]) => `${fmt(v)} ${esc(k)}`).join(" · "))}
       ${kpi(term("dated", "dated"), pct(s.timed / s.records), `${fmt(s.timed)} records`)}
-      ${kpi(term("named", "named actors"), fmt(named), `${term("actor", "tokens and names, not agents")}${ctxAgents(ctx) ? `; the reports count ${esc(ctxAgents(ctx))} agents` : ""}`)}
+      ${kpi(term("named", "named actors"), fmt(named), `${identityLine(s, est) || term("actor", "tokens and names, not agents")}${ctxAgents(ctx) ? `; the reports count ${esc(ctxAgents(ctx))} agents` : ""}`)}
       ${kpi(term("action", "actions"), fmt(s.actions?.total), `${pct((s.actions?.unattributed || 0) / Math.max(1, s.actions?.total || 1))} by ${term("run", "anonymous runs")}`)}
       ${kpi(term("place", "places"), fmt(f.channels), `${fmt(f.records_on_channels)} records touch one`)}
       ${kpi(term("message", "messages"), fmt(f.deliveries), `${fmt(f.deliveries_between_named_actors)} between named actors`)}
@@ -207,7 +209,7 @@
     const hc = { "read in code": "#2e7d32", "named the place": "#c58a00", "posted after it": "#e3a43b", "kept earlier content": "#2f6fb3" };
     const how = Object.entries(f.deliveries_by_how || {}).map(([k, v]) => ({ label: k, value: v, color: hc[k] || "#9aa5b1" }));
     const row = (title, parts, note) => `<div class="anat"><div class="anh"><b>${esc(title)}</b>${note ? `<span class="muted small">${note}</span>` : ""}</div>${stackbar(parts, { h: 14 })}</div>`;
-    return row("Records by kind", recs, fmt(s.records)) + row("Named actors by kind", actors, "tokens and self-chosen names") +
+    return row("Records by kind", recs, fmt(s.records)) + row("Named actors by kind", actors, identityLine(s) || "tokens and self-chosen names") +
       (acts.length ? row("Actions by who they are credited to", acts, fmt(A.total)) : "") +
       (places.length ? row("Places by type", places, fmt(f.channels)) : "") +
       (how.length > 1 ? row("Messages by what they rest on", how, fmt(f.deliveries)) : how.length ? `<p class="small muted">Every one of the ${fmt(f.deliveries)} messages rests on the same evidence: ${esc(how[0].label)}.</p>` : "");

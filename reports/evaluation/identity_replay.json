@@ -3,9 +3,9 @@
  "as_counted": {
   "named_actors": 241,
   "agents": 241,
-  "messages": 24,
-  "pairs": 16,
-  "largest_group": 7,
+  "messages": 19,
+  "pairs": 12,
+  "largest_group": 5,
   "inside_one_agent": 0,
   "rejected_messages": 0,
   "first_message": {
@@ -23,21 +23,21 @@
  "after": {
   "named_actors": 241,
   "agents": 234,
-  "messages": 4,
-  "pairs": 3,
+  "messages": 2,
+  "pairs": 2,
   "largest_group": 2,
-  "inside_one_agent": 20,
+  "inside_one_agent": 17,
   "rejected_messages": 0,
   "first_message": {
-   "time": "2026-07-11 11:15",
-   "from": "[CREDENTIAL 15]",
-   "to": "[CREDENTIAL 169]",
-   "agent_from": "[CREDENTIAL 15]",
-   "agent_to": "[CREDENTIAL 170]",
-   "write_id": "R0010079",
-   "read_id": "R0011833",
-   "channel": "hf_dataset:[REDACTED:destination:001198]",
-   "harm_share_after": 0.795
+   "time": "2026-07-11 17:59",
+   "from": "[CREDENTIAL 1178]",
+   "to": "[CREDENTIAL 1171]",
+   "agent_from": "[CREDENTIAL 1178]",
+   "agent_to": "[CREDENTIAL 1171]",
+   "write_id": "R0024313",
+   "read_id": "R0024371",
+   "channel": "hf_dataset:[REDACTED:destination:003313]",
+   "harm_share_after": 0.561
   }
  },
  "groups": [
@@ -129,14 +129,14 @@
    "record": "R0006587",
    "status": "later",
    "after": {
-    "time": "2026-07-11 11:15",
-    "record": "R0011833",
+    "time": "2026-07-11 17:59",
+    "record": "R0024371",
     "actors": [
-     "[CREDENTIAL 15]",
-     "[CREDENTIAL 169]"
+     "[CREDENTIAL 1178]",
+     "[CREDENTIAL 1171]"
     ],
-    "why": "[CREDENTIAL 15] wrote hf_dataset:[REDACTED:destination:001198] in R0010079; [CREDENTIAL 169] read it in R0011833",
-    "harm_share_after": 0.795
+    "why": "[CREDENTIAL 1178] wrote hf_dataset:[REDACTED:destination:003313] in R0024313; [CREDENTIAL 1171] read it in R0024371",
+    "harm_share_after": 0.561
    }
   },
   {
@@ -207,8 +207,8 @@
    }
   },
   {
-   "key": "replay:first: kubernetes_api",
-   "name": "Kubernetes API first called",
+   "key": "replay:first: kubernetes_token",
+   "name": "Kubernetes service-account token first read",
    "family": "single",
    "time": "2026-07-11 09:45",
    "harm_share_after": 0.82,
@@ -221,14 +221,18 @@
    }
   },
   {
-   "key": "group5",
-   "name": "A group of 5+ actors linked by messages",
-   "family": "joint",
-   "time": "2026-07-11 11:20",
-   "harm_share_after": 0.793,
-   "record": "R0012006",
-   "status": "gone",
-   "after": null
+   "key": "replay:first: kubernetes_api",
+   "name": "Kubernetes API first called",
+   "family": "single",
+   "time": "2026-07-11 11:13",
+   "harm_share_after": 0.796,
+   "record": "R0011794",
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-11 11:13",
+    "record": "R0011794",
+    "harm_share_after": 0.796
+   }
   },
   {
    "key": "replay:first: cloud_metadata",
@@ -300,6 +304,16 @@
     "why": "two agents used the named place g23619",
     "harm_share_after": 0.053
    }
+  },
+  {
+   "key": "group5",
+   "name": "A group of 5+ actors linked by messages",
+   "family": "joint",
+   "time": "2026-07-11 21:08",
+   "harm_share_after": 0.432,
+   "record": "R0031048",
+   "status": "gone",
+   "after": null
   }
  ],
  "shared_programs": {

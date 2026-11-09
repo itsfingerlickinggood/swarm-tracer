@@ -90,8 +90,8 @@ footer a{color:#cfdbe8}
     <div class="stats">
       <div class="stat"><b>59%</b><span>of 91,037 payloads given an estimated time, fitted from 1,395 timestamps the agents wrote into their own code (the release could date 3% of payloads)</span></div>
       <div class="stat"><b>2.2 h</b><span>largest gap between seven moments the tool dates from the records (matched by rules set out in the report) and the times METR and Hugging Face published</span></div>
-      <div class="stat"><b>24</b><span>messages among 11 named tokens in 16 sender-receiver pairs, all through Hugging Face datasets</span></div>
-      <div class="stat"><b>50–57%</b><span>of the 8,139 dated harmful actions were still to come when signs of shared control fired; a plain volume alarm fired with 83% to come</span></div>
+      <div class="stat"><b>19</b><span>messages among 9 named tokens in 12 sender-receiver pairs, all through Hugging Face datasets</span></div>
+      <div class="stat"><b>50–57%</b><span>of the 8,124 dated harmful actions were still to come when signs of shared control fired; a plain volume alarm fired with 83% to come</span></div>
     </div>
   </div>
 </section>
@@ -133,7 +133,7 @@ footer a{color:#cfdbe8}
     <div>
       <h2>Could it have been flagged early?</h2>
       <p>The replay steps through the incident hour by hour. In this swarm, single-agent signs such as the first write to a dataset fired a day or more ahead, a link between two tokens through a shared place fired three hours before the surge, and signs that tokens shared control came only when half the harm was still to come.</p>
-      <p class="note">The signals were chosen with hindsight. On simulated benign swarms some still fire, mostly because the pack counts every dataset commit as harm, as the <a href="validation.html">validation page</a> measures. The <a href="how-it-works.html">method</a> and the <a href="limitations.html">limits</a> say exactly what the numbers rest on.</p>
+      <p class="note">The signals were chosen with hindsight. On simulated benign swarms some still fire, mostly because the pack counts every dataset commit as harm, as the <a href="deep-dive.html">Deep dive</a> · <a href="validation.html">validation page</a> measures. The <a href="how-it-works.html">method</a> and the <a href="limitations.html">limits</a> say exactly what the numbers rest on.</p>
     </div>
   </div>
 </section>
@@ -142,7 +142,7 @@ footer a{color:#cfdbe8}
   <div class="wrap">
     <h2>Start in a minute</h2>
     <p class="lead">Python 3.9 or newer, standard library only. Nothing leaves your machine unless you turn on the AI investigator.</p>
-<pre><code>pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.2.0
+<pre><code>pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.3.0
 swarm-tracer demo                 # a small simulated swarm with known answers
 swarm-tracer serve --input my-swarm.jsonl
 # then open http://127.0.0.1:8010</code></pre>

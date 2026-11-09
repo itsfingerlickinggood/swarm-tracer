@@ -19,7 +19,7 @@ const CAP_LABELS = 70, CAP_MATRIX = 60;
 function prepare(raw) {
   const ix = Object.fromEntries(raw.columns.map((c, i) => [c, i]));
   const msgs = raw.rows.map((r) => ({ from: r[ix.from], to: r[ix.to], ch: r[ix.channel], w: r[ix.write_id], r: r[ix.read_id],
-    wt: r[ix.write_t], rt: r[ix.read_t], lat: r[ix.latency_h], how: r[ix.how] || "unknown", merged: !!r[ix.merged] }))
+    wt: r[ix.write_t], rt: r[ix.read_t], lat: r[ix.latency_h], how: r[ix.how] || "unknown", merged: !!r[ix.merged], est: ix.estimated != null && !!r[ix.estimated] }))
     .filter((m) => m.rt != null).sort((a, b) => a.rt - b.rt);
   return { msgs, named: msgs.filter((m) => isNamed(m.from) && isNamed(m.to)) };
 }
@@ -231,8 +231,8 @@ function findings(G, all, named) {
   // places the redaction may have merged can join two different places, so prefer a relay on an exact place
   const exact = named.filter((m) => !m.merged);
   const fast = [...(exact.length ? exact : named)].sort((a, b) => a.lat - b.lat || a.rt - b.rt)[0];
-  if (fast) cards.push({ big: hoursWord(fast.lat) === "0 min" ? "<1 min" : hoursWord(fast.lat), unit: "from write to read", title: "Fastest relay" + (exact.length ? " (exact place)" : ""),
-    text: `${chip(fast.to)} read what ${chip(fast.from)} wrote to ${ent.place(fast.ch)} ${fast.lat < 1 / 60 ? "within a minute" : hoursWord(fast.lat) + " later"} (${ent.rec(fast.w)} → ${ent.rec(fast.r)}).` });
+  if (fast) cards.push({ big: fast.est ? (fast.lat < 1 ? "~<1 h" : gapWord(fast.lat, true)) : hoursWord(fast.lat) === "0 min" ? "<1 min" : hoursWord(fast.lat), unit: "from write to read" + (fast.est ? " (estimated times)" : ""), title: "Fastest relay" + (exact.length ? " (exact place)" : ""),
+    text: `${chip(fast.to)} read what ${chip(fast.from)} wrote to ${ent.place(fast.ch)} ${laterWord(fast.lat, fast.est)} (${ent.rec(fast.w)} → ${ent.rec(fast.r)}).${fast.est ? " Both times are estimated from timestamps in the code, so the gap is approximate." : ""}` });
   const how = {};
   all.forEach((m) => { const k = m.how.startsWith("kept ") ? "kept earlier content" : m.how; how[k] = (how[k] || 0) + 1; });
   const code = how["read in code"] || 0;
@@ -566,7 +566,7 @@ function actorTable(host, G) {
     ["received (from named)", (x) => x.recv, (x) => fmt(x.recv), 1],
     ["named partners", (x) => x.partners, (x) => fmt(x.partners), 1],
     ["broker rank", (x) => x.btwRank ?? 1e9, (x) => (x.btwRank ? `#${x.btwRank}` : "–"), 1],
-    ["group", (x) => x.group, (x) => fmt(x.group), 1],
+    ...(new Set(rows.map((x) => x.group)).size > 1 ? [["group", (x) => x.group, (x) => fmt(x.group), 1]] : []),   // one group: the column would read "1" on every row
     ["first message", (x) => x.first, (x) => esc(when(x.first * 1000))],
     ["last message", (x) => x.last, (x) => esc(when(x.last * 1000))],
     ["messages over time", null, (x) => spark([...x.hours.entries()], { w: 120, h: 20, color: ACCENT })],
@@ -841,7 +841,7 @@ async function openConversation(a, b, scroll = true) {
       <div class="mhead">${ent.actor(it.from)} → ${ent.actor(it.to)}${it.kind === "overwrite" ? ' <span class="tag">overwrite, not a message</span>' : ""}${it.merged_place ? ` <span class="tag nw-warn" title="${esc(MERGED_TIP)}">⚠ place may be merged by redaction</span>` : ""} · ${ent.place(it.channel)} · <span class="muted">${esc(it.how || "")}</span>${it.kind === "overwrite" || !window.decCtl ? "" : decCtl("message", `${it.write_id}>${it.read_id}`)}</div>
       <div class="mrow"><span class="lab">wrote</span> ${ent.rec(it.write_id)} <span class="muted">${esc(it.write_time || "time unknown")}</span></div>
       <div class="snip">${esc(it.write_text)}</div>
-      <div class="mrow"><span class="lab">${it.kind === "overwrite" ? "replaced in" : "read in"}</span> ${ent.rec(it.read_id)} <span class="muted">${esc(it.read_time || "time unknown")}${it.latency_h != null ? ` · ${it.latency_h < 1 / 60 ? "under a minute later" : esc(hoursWord(it.latency_h)) + " later"}` : ""}</span></div>
+      <div class="mrow"><span class="lab">${it.kind === "overwrite" ? "replaced in" : "read in"}</span> ${ent.rec(it.read_id)} <span class="muted">${esc(it.read_time || "time unknown")}${it.latency_h != null ? ` · ${esc(laterWord(it.latency_h, it.estimated))}` : ""}</span></div>
       <div class="snip">${esc(it.read_text)}</div>
       ${lines ? `<div class="mrow"><span class="lab">${it.kind === "overwrite" ? "lines dropped" : "lines kept"}</span></div>${lines}` : ""}
     </div>`;

@@ -104,7 +104,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     out.innerHTML = `
       <div class="kpis">
         ${kpi(term("record", "records"), fmt(d.total), `${fmt(d.dated)} dated`)}
-        ${kpi(term("actor", "actors"), fmt(d.actors_total), `${fmt(d.named_actors)} named`)}
+        ${kpi(term("actor", "actors and runs"), fmt(d.actors_total), `${fmt(d.named_actors)} named actors; the rest are ${term("run", "anonymous runs")}`)}
         ${kpi(term("fx_as_identity", "used as identity"), fmt(d.as_identity), "records")}
         ${kpi(term("place", "places"), fmt(d.places_total), "touched by these records")}
         ${kpi(term("fx_hop", "hops"), fmt(d.hops_total), `actor to actor; ${fmt(d.hops_named_total)} between named actors`)}
@@ -131,8 +131,8 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     const hops = $("trhops");
     const drawHops = (n) => {
       const hs = hopsOf();
-      $("trhopsub").textContent = `${fmt(hopsTotal())} hops${TR.named ? " between named actors" : ""}${hopsTotal() > hs.length ? `, first ${fmt(hs.length)} listed` : ""}: actor A held it, then actor B, with the two records and the gap.`;
-      hops.innerHTML = hs.length ? table(["from", "record", "to", "record", "gap", "message"], hs.slice(0, n).map((h) => [ent.actor(h.from), `${ent.rec(h.from_record)} <span class="muted small">${esc(h.from_time)}</span>`, ent.actor(h.to), `${ent.rec(h.to_record)} <span class="muted small">${esc(h.to_time)}</span>`, hoursWord(h.gap_h), h.message ? `${ent.place(h.message.channel)} ${ent.rec(h.message.write_id)}→${ent.rec(h.message.read_id)}` : '<span class="muted small">none before</span>'])) +
+      $("trhopsub").textContent = `${fmt(hopsTotal())} hops${TR.named ? " between named actors" : ""}${hopsTotal() > hs.length ? `, first ${fmt(hs.length)} listed` : ""}: actor A held it, then actor B, with the two records and the gap (~ marks a gap between estimated times).`;
+      hops.innerHTML = hs.length ? table(["from", "record", "to", "record", "gap", "message"], hs.slice(0, n).map((h) => [ent.actor(h.from), `${ent.rec(h.from_record)} <span class="muted small">${esc(h.from_time)}</span>`, ent.actor(h.to), `${ent.rec(h.to_record)} <span class="muted small">${esc(h.to_time)}</span>`, gapWord(h.gap_h, h.estimated), h.message ? `${ent.place(h.message.channel)} ${ent.rec(h.message.write_id)}→${ent.rec(h.message.read_id)}` : '<span class="muted small">none before</span>'])) +
         (hs.length > n ? `<button type="button" class="lmore">Show ${fmt(Math.min(hs.length, n + 50) - n)} more</button>` : "") : `<p class="muted small">Only one ${TR.named ? "named " : ""}actor holds it, or no matching record has a time.</p>`;
       hops.querySelector(".lmore")?.addEventListener("click", () => drawHops(n + 50));
     };
@@ -174,7 +174,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
       const a = yi.get(h.from), b = yi.get(h.to);
       if (a == null || b == null) return;
       const xa = X(toTime(h.from_time)), xb = X(toTime(h.to_time)), ya = Y(a), yb = Y(b), mx = (xa + xb) / 2;
-      svg += `<path d="M${xa},${ya} C${mx},${ya} ${mx},${yb} ${xb},${yb}" fill="none" stroke="${h.message ? ACCENT : "#aab3bd"}" stroke-width="${h.message ? 1.6 : 1}"${h.message ? "" : ' stroke-dasharray="3 3"'} opacity=".8"><title>${esc(short(h.from))} → ${esc(short(h.to))}, ${esc(hoursWord(h.gap_h))}${h.message ? " (a message came first)" : ""}</title></path>`;
+      svg += `<path d="M${xa},${ya} C${mx},${ya} ${mx},${yb} ${xb},${yb}" fill="none" stroke="${h.message ? ACCENT : "#aab3bd"}" stroke-width="${h.message ? 1.6 : 1}"${h.message ? "" : ' stroke-dasharray="3 3"'} opacity=".8"><title>${esc(short(h.from))} → ${esc(short(h.to))}, ${esc(gapWord(h.gap_h, h.estimated))}${h.message ? " (a message came first)" : ""}</title></path>`;
     });
     rowsT.forEach((r) => {
       const i = yi.get(r.actor);
@@ -193,7 +193,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     if (!d.total) { host.innerHTML = `<p class="note">No record authenticates with an ${term("token")}: the pack finds none in this dataset, so there is no credential lifecycle to draw.</p>`; return; }
     host.innerHTML = `
       <div class="kpis">
-        ${kpi(term("token", "identity tokens"), fmt(d.total), `${fmt(d.shared.length)} ${term("shared_key", "shared keys")}`)}
+        ${kpi(term("token", "identity tokens"), fmt(d.total), `${fmt(d.shared.length)} ${term("shared_key", "shared keys")}${identityLine(s) ? "; " + identityLine(s) : ""}`)}
         ${kpi(term("seen_used", "seen before use"), fmt(d.seen_before_use), "first seen as data, then used")}
         ${kpi(term("carried", "carried edges"), fmt(d.carried_edges), "carrier → token, before its first use")}
         ${kpi(term("place", "place types"), fmt(d.place_types.length), d.place_types.map(human).join(", ") || "none")}

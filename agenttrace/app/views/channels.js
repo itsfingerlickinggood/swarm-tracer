@@ -6,10 +6,10 @@
   const HR = 3600e3;
   const TYPE_COLORS = ["#6b46c1", "#2f6fb3", "#0f766e", "#b7791f", "#c2410c", "#5d6d7e", "#b8579a", "#2e9d5b"];
   const CAT = [
-    { key: "msg", label: "carried a message", color: "#6b46c1" },
-    { key: "quiet", label: "written and read, no message between actors", color: "#cfc3ec" },
-    { key: "never", label: "written, never read by another actor", color: "#f0a57a" },
-    { key: "readonly", label: "only read (no write seen)", color: "#d9dee4" },
+    { key: "msg", label: "carried a message", color: PALETTE.place.msg },
+    { key: "quiet", label: "written and read, no message between actors", color: PALETTE.place.quiet },
+    { key: "never", label: "written, never read by another actor", color: PALETTE.place.never },
+    { key: "readonly", label: "only read (no write seen)", color: PALETTE.place.readonly },
   ];
   const st = { rank: "ops", top: 40, noMerged: false };
   let seq = 0;

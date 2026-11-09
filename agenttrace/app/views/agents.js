@@ -66,7 +66,7 @@
       <div class="aghead"><div class="agbig"><b>${fmt(e.named_actors)}</b> ${term("named", "named actors")} <span class="agarrow">→</span> about <b>${fmt(e.estimated_agents)}</b> ${term("estimated_agent", "estimated agents")}<span class="muted">${range}</span></div>
       <p class="sub">A ${term("token", "token")} or name is not an agent: one agent can hold several, and a ${term("shared_key", "shared key")} stands for many. The estimate joins actors with high-confidence or accepted ${term("merge_proposal", "merge proposals")}; the low end also joins medium ones, the high end only accepted ones. It counts named actors that ran at least one action${e.unattributed_actions ? `; ${fmt(e.unattributed_actions)} actions by ${term("run", "anonymous runs")} cannot be assigned to any agent and are not in it` : ""}${e.shared_keys ? `; ${plural(e.shared_keys, "shared key")} stand${e.shared_keys === 1 ? "s" : ""} for an unknown number of agents` : ""}.</p></div>
       <div class="kpis">
-        ${kpi(term("named", "named actors"), fmt(e.named_actors), "tokens and names that ran actions")}
+        ${kpi(term("named", "named actors"), fmt(e.named_actors), identityLine(S.summary, e) || "tokens and names that ran actions")}
         ${kpi(term("estimated_agent", "estimated agents"), fmt(e.estimated_agents), e.low === e.high ? "no medium or accepted pairs change it" : `${fmt(e.low)} to ${fmt(e.high)}`)}
         ${rep.map((x) => kpi(esc(x.label), esc(x.value), `the reports (${esc(x.source)})`)).join("")}
         ${kpi(term("merge_proposal", "proposals"), fmt(e.proposals), ["high", "medium", "low"].map((c) => `${fmt(e.by_confidence[c] || 0)} ${c}`).join(" · ") + " undecided")}

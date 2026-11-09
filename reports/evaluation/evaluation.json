@@ -83,7 +83,7 @@
         "if_signal_1h_later": 0.876
       },
       {
-        "signal": "first: kubernetes_api",
+        "signal": "first: kubernetes_token",
         "time": "2026-07-11 09:45",
         "ref": "R0009849",
         "harm_share_after": 0.82,
@@ -95,13 +95,25 @@
         "if_signal_1h_later": 0.803
       },
       {
+        "signal": "first: kubernetes_api",
+        "time": "2026-07-11 11:13",
+        "ref": "R0011794",
+        "harm_share_after": 0.796,
+        "interval_95": [
+          0.57,
+          0.86
+        ],
+        "if_signal_1h_earlier": 0.811,
+        "if_signal_1h_later": 0.731
+      },
+      {
         "signal": "first: cloud_metadata",
         "time": "2026-07-11 11:22",
         "ref": "R0012205",
         "harm_share_after": 0.789,
         "interval_95": [
           0.566,
-          0.858
+          0.857
         ],
         "if_signal_1h_earlier": 0.809,
         "if_signal_1h_later": 0.729
@@ -113,7 +125,7 @@
         "harm_share_after": 0.57,
         "interval_95": [
           0.315,
-          0.753
+          0.755
         ],
         "if_signal_1h_earlier": 0.589,
         "if_signal_1h_later": 0.558
@@ -124,8 +136,8 @@
         "ref": "flb4",
         "harm_share_after": 0.502,
         "interval_95": [
-          0.195,
-          0.67
+          0.208,
+          0.675
         ],
         "if_signal_1h_earlier": 0.546,
         "if_signal_1h_later": 0.436
@@ -135,13 +147,13 @@
   "counting_rules": [
     {
       "rule": "naive: every read after another actor's write",
-      "messages": 83,
-      "pairs": 18
+      "messages": 46,
+      "pairs": 14
     },
     {
       "rule": "+ reruns of the same program removed, + each write once per reader",
-      "messages": 24,
-      "pairs": 16
+      "messages": 19,
+      "pairs": 12
     }
   ],
   "external": {
@@ -174,8 +186,8 @@
         "event": "Kubernetes activity first seen in Hugging Face logs",
         "source": "Hugging Face blog, phase first-seen times",
         "source_time": "2026-07-11 10:10",
-        "ours": "2026-07-11 09:45",
-        "difference_h": -0.41,
+        "ours": "2026-07-11 11:13",
+        "difference_h": 1.05,
         "match": "first Kubernetes API call"
       },
       {
@@ -375,8 +387,8 @@
       "why": "160 actions in the hour from 2026-07-11 08:00, above the alarm line of 128.0 (mean + 3 standard deviations of every earlier hour); known at the end of that hour"
     },
     {
-      "key": "replay:first: kubernetes_api",
-      "name": "Kubernetes API first called",
+      "key": "replay:first: kubernetes_token",
+      "name": "Kubernetes service-account token first read",
       "family": "single",
       "kind": "harm",
       "time": "2026-07-11 09:45",
@@ -388,18 +400,17 @@
       "why": "the first harmful action of this kind"
     },
     {
-      "key": "group5",
-      "name": "A group of 5+ actors linked by messages",
-      "family": "joint",
-      "kind": "group",
-      "time": "2026-07-11 11:20",
-      "ref": "R0012006",
+      "key": "replay:first: kubernetes_api",
+      "name": "Kubernetes API first called",
+      "family": "single",
+      "kind": "harm",
+      "time": "2026-07-11 11:13",
+      "ref": "R0011794",
       "actors": [
-        "[CREDENTIAL 222]",
-        "[CREDENTIAL 220]"
+        "run:R0011794"
       ],
-      "harm_share_after": 0.793,
-      "why": "the message from [CREDENTIAL 222] to [CREDENTIAL 220] joined 5 actors into one connected group: [CREDENTIAL 169], [CREDENTIAL 170], [CREDENTIAL 220], [CREDENTIAL 15], [CREDENTIAL 222]"
+      "harm_share_after": 0.796,
+      "why": "the first harmful action of this kind"
     },
     {
       "key": "replay:first: cloud_metadata",
@@ -455,6 +466,20 @@
       ],
       "harm_share_after": 0.502,
       "why": "two identities used the same named place flb4 in different records"
+    },
+    {
+      "key": "group5",
+      "name": "A group of 5+ actors linked by messages",
+      "family": "joint",
+      "kind": "group",
+      "time": "2026-07-11 21:08",
+      "ref": "R0031048",
+      "actors": [
+        "[CREDENTIAL 170]",
+        "[CREDENTIAL 1334]"
+      ],
+      "harm_share_after": 0.432,
+      "why": "the message from [CREDENTIAL 170] to [CREDENTIAL 1334] joined 5 actors into one connected group: [CREDENTIAL 169], [CREDENTIAL 170], [CREDENTIAL 220], [CREDENTIAL 222], [CREDENTIAL 1334]"
     }
   ]
 }

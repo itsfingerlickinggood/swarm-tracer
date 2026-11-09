@@ -24,7 +24,7 @@ The overview gives short, measured answers to each question in the challenge, st
 
 Screens: `#tab=network&scroll=470`, `#tab=timeline&order=messages&rows=messages&scroll=560`
 
-Next, who talked to whom. Polling a mailbox a hundred times is still one message, so each write counts once per reader. That leaves 24 distinct messages among 11 named tokens, in 16 sender-receiver pairs. A first count said 166; reading the records by hand showed most were two tokens fetching the same dataset, and the rules were fixed. Every one of them passed through Hugging Face datasets. The graph shows the whole network, and the swimlanes show each conversation in time order, with its record ids.
+Next, who talked to whom. Polling a mailbox a hundred times is still one message, so each write counts once per reader. That leaves 19 distinct messages among 9 named tokens, in 12 sender-receiver pairs. A first count said 166; reading the records by hand showed most were two tokens fetching the same dataset, and the rules were fixed. Every one of them passed through Hugging Face datasets. The graph shows the whole network, and the swimlanes show each conversation in time order, with its record ids.
 
 ## 5. Early-flag replay
 

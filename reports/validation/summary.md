@@ -1,4 +1,4 @@
-Generated 2026-11-09T10:20:53Z by `python3 -m agenttrace.validation run --out reports/validation --seeds 1 2 3 4 5`. 40 coordinated and 10 benign simulated swarms. Cells are min–**median**–max over seeds; one value means all seeds agree.
+Generated 2026-11-09T10:49:36Z by `python3 -m agenttrace.validation run --out reports/validation --seeds 1 2 3 4 5`. 40 coordinated and 10 benign simulated swarms. Cells are min–**median**–max over seeds; one value means all seeds agree.
 
 ### Messages
 

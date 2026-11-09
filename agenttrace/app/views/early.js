@@ -116,7 +116,7 @@
     ${card("What if one place type were not watched", `<div id="efWhatIf"></div>`,
       { sub: "Drop every message on one type of place and recompute the signs that rest on messages (first message, two-way exchange, groups linked by messages) and the shared-place signs on that type. Computed in the page from the message list; the harm share for a moved sign is read at the start of its hour, so it is approximate." })}
     ${card("The whole incident at a glance", `<div id="efWhole"></div>`,
-      { sub: "Every signal on one chart: the higher a dot, the more harm was still to come when it fired. Blue: actors working together. Dark grey: a single actor. Light grey: ordinary volume monitoring, for comparison. Each dot sits at its true height; dots that fired close together are spread sideways. The numbers match the table below." })}
+      { sub: "Every signal on one chart: the higher a dot, the more harm was still to come when it fired. Blue: actors working together. Dark grey: a single actor. Orange: ordinary volume monitoring, for comparison. Each dot sits at its true height; dots that fired close together are spread sideways. The numbers match the table below." })}
     ${card("Every signal", `<div id="efTable"></div>`)}`;
 
     $("efPlay").addEventListener("click", () => {
@@ -447,9 +447,12 @@
     ((ev && ev.rules) || []).filter((r) => r.enabled !== false).forEach((r) => rows.push({
       name: r.name, sev: r.severity, t: r.fired && r.time ? toTime(r.time) / 1000 : null, share: r.fired ? r.harm_share_after : null,
       rec: r.record, saved: true, hind: r.hindsight }));
-    [1, 2, 3].forEach((N) => { const a = rule(D.sigs, N).alert; rows.push({ name: `Tracer: alert after ${plural(N, "kind")} of coordination`, sev: "alert", t: a ? a.t : null, share: a ? a.harm_share_after : null, rec: a ? recOf(a) : null, tracer: true }); });
+    // a saved rule with the same definition as a built-in one is listed once (the saved one, in bold)
+    const savedDefs = new Set(((ev && ev.rules) || []).filter((r) => r.enabled !== false && r.match !== "any" && (r.conditions || []).length === 1).map((r) => r.conditions[0].what || ""));
+    const hasSaved = (what) => savedDefs.has(what);
+    [1, 2, 3].filter((N) => !hasSaved(`${N}+ kinds of coordination`)).forEach((N) => { const a = rule(D.sigs, N).alert; rows.push({ name: `Tracer: alert after ${plural(N, "kind")} of coordination`, sev: "alert", t: a ? a.t : null, share: a ? a.harm_share_after : null, rec: a ? recOf(a) : null, tracer: true }); });
     const b = rule(D.sigs, 1).baseline;
-    rows.push({ name: "Volume alarm (baseline)", sev: "base", t: b ? b.t : null, share: b ? b.harm_share_after : null, rec: b ? recOf(b) : null });
+    if (!hasSaved("a sign of baseline, any kind")) rows.push({ name: "Volume alarm (baseline)", sev: "base", t: b ? b.t : null, share: b ? b.harm_share_after : null, rec: b ? recOf(b) : null });
     const SEVC = { alert: HARM, watch: "#d39b2c", info: "#6b7785", base: BASE };
     const W = Math.max(380, host.clientWidth || 700), rowH = 24, nameW = Math.min(260, W * 0.36), x0 = nameW + 8, x1 = W - 110, top = 8;
     const Hh = top + rows.length * rowH + 30;

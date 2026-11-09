@@ -192,10 +192,10 @@
     // the incident's own turning points
     let lastEnd = -1e9, row = 0;
     (S.summary?.phases || []).filter((p) => ["surge", "peak", "stop"].includes(p.key)).forEach((p) => {
-      const x = X(toTime(p.time)), label = { surge: "surge begins", peak: "busiest hour", stop: "falls below 15%" }[p.key];
+      const x = X(toTime(p.time)), label = { surge: "surge begins", peak: "busiest hour (all actions)", stop: "falls below 15%" }[p.key];   // the turning points are counted over every action, not over the records drawn here
       row = x < lastEnd + 4 ? row + 1 : 0;           // a label that would touch the last one goes on the next line
       lastEnd = x + 3 + textWidth(label, "9.5px -apple-system, system-ui, sans-serif");
-      svg += `<line x1="${x}" x2="${x}" y1="${yT - 4 + row * 11}" y2="${yB}" stroke="${INK}" stroke-opacity=".35" stroke-dasharray="3 3"/><text x="${x + 3}" y="${yT - 6 + row * 11}" font-size="9.5" fill="${QUIET}">${esc({ surge: "surge begins", peak: "busiest hour", stop: "falls below 15%" }[p.key])}<title>${esc(p.name)} ${esc(p.time)}${p.why ? ": " + esc(p.why) : ""}</title></text>`;
+      svg += `<line x1="${x}" x2="${x}" y1="${yT - 4 + row * 11}" y2="${yB}" stroke="${INK}" stroke-opacity=".35" stroke-dasharray="3 3"/><text x="${x + 3}" y="${yT - 6 + row * 11}" font-size="9.5" fill="${QUIET}">${esc(label)}<title>${esc(p.name)} ${esc(p.time)}${p.why ? ": " + esc(p.why) : ""}</title></text>`;
     });
     h.forEach(([k, v]) => {
       const t = toTime(k), x = X(t), on = sel && k >= selA && k <= selB;

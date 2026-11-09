@@ -153,6 +153,10 @@ class Session:
         end = min(len(text), start + width)
         return ("…" if start else "") + text[start:end] + ("…" if end < len(text) else "")
 
+    def _estimated(self, *rids):
+        """True when any of the records' times is estimated rather than from a time field."""
+        return any(not self.by_id[r].time and r in self.rec["_times"] for r in rids if r in self.by_id)
+
     def conversation(self, a, b, limit=2000):
         """Everything that passed between two actors, both directions, in time order, with record ids."""
         iso = reconstruct.iso
@@ -167,6 +171,7 @@ class Session:
                         "merged_place": any(r.search(d["channel"]) for r in coarse),
                         "write_id": d["write_id"], "write_time": iso(d["write_time"]),
                         "read_id": d["read_id"], "read_time": iso(d["read_time"]), "latency_h": d["latency_h"],
+                        "estimated": self._estimated(d["write_id"], d["read_id"]),
                         "lines": d.get("lines", []),
                         "write_text": self._snippet(d["write_id"], d["channel"]),
                         "read_text": self._snippet(d["read_id"], d["channel"])}))
@@ -361,9 +366,9 @@ class Session:
             cur = self.by_id[cur].parent
         iso = reconstruct.iso
         din = [{"channel": d["channel"], "from": d["from"], "write_id": d["write_id"], "write_time": iso(d["write_time"]),
-                "latency_h": d["latency_h"], "how": d.get("how")} for d in self.del_in.get(rid, [])]
+                "latency_h": d["latency_h"], "how": d.get("how"), "estimated": self._estimated(d["write_id"], rid)} for d in self.del_in.get(rid, [])]
         dout = [{"channel": d["channel"], "to": d["to"], "read_id": d["read_id"], "read_time": iso(d["read_time"]),
-                 "latency_h": d["latency_h"], "how": d.get("how")} for d in self.del_out.get(rid, [])]
+                 "latency_h": d["latency_h"], "how": d.get("how"), "estimated": self._estimated(rid, d["read_id"])} for d in self.del_out.get(rid, [])]
         # edits that replaced another actor's edit without keeping any of it: not messages
         overwrote = [{"channel": d["channel"], "actor": d["from"], "record": d["write_id"], "how": d["how"]}
                      for d in self.over_in.get(rid, [])]

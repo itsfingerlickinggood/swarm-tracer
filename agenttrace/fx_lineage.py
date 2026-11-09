@@ -147,7 +147,7 @@ def _hops(s, rids, named_only, cap=2000):
                             break
                     hops.append({"from": prev[2], "from_record": prev[1], "from_time": iso(prev[0]),
                                  "to": a, "to_record": rid, "to_time": iso(t), "gap_h": _gap_h(prev[0], t),
-                                 "message": msg})
+                                 "estimated": insight.is_estimated(s, prev[1], rid), "message": msg})
         if last and last[2] != a:
             other = last
         last = (t, rid, a)

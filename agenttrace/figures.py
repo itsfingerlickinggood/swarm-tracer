@@ -26,7 +26,7 @@ MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", 
 
 NAMES = {
     "registry_board": "Registry mailbox first used", "docker_registry": "Docker registry first used",
-    "hf_dataset_write": "First Hugging Face dataset write", "kubernetes_api": "Kubernetes API first called",
+    "hf_dataset_write": "First Hugging Face dataset write", "kubernetes_api": "Kubernetes API first called", "kubernetes_token": "Kubernetes service-account token first read",
     "cloud_metadata": "Cloud metadata first requested", "probe_request": "First probe request",
     "hides_page": "First page hidden", "proxy_link": "First proxy link", "recreated_after_delete": "Page recreated after a delete",
 }

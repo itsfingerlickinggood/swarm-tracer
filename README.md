@@ -15,7 +15,7 @@ The main tool is **agenttrace** and its web app, **Swarm Tracer**. It works on a
 Python 3.9+ standard library only.
 
 ```bash
-pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.2.0
+pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.3.0
 swarm-tracer demo                         # a simulated swarm with known answers
 swarm-tracer serve --input my-swarm.jsonl # then open http://127.0.0.1:8010
 ```
@@ -41,6 +41,7 @@ python3 -m agenttrace.tools.check                                      # tests, 
 - **Your decisions count:** accept or reject any message or warning sign where it is shown; the what-if recount follows.
 - **Case file:** pins, notes, and an exported dossier. Labels in the app give live precision for each pattern.
 - **Forensics tab:** trace any string through the swarm, credential lifecycles, command-and-control pickups, a dead-drop ledger, boolean/regex search, program evolution with diffs, the stage ladder, lead–lag, anomalies, a story written from the data, what-if decisions, a reference comparison, chain of custody, and SOC exports (timeline CSV, Timesketch, STIX 2.1).
+- **Deep dive:** an investigator's reading of the Swarm Traces release, every claim with record ids ([docs/deep-dive.md](docs/deep-dive.md)).
 - **Measured accuracy:** scored on 50 simulated swarms with known answers, including benign ones ([validation](docs/validation.md), [known issues](docs/known-issues.md)).
 - **Compare** two swarms, from a library of past incidents. **Ground-truth mode** scores the tool on a simulated swarm whose true links are known.
 - **AI investigator** (optional; any OpenAI-compatible model, including local Ollama): answers drawn as charts and cards with every id checked against the data, a gap audit, and a draft incident report.
@@ -52,7 +53,7 @@ python3 -m agenttrace.tools.check                                      # tests, 
 
 ![Overview with the Inspector explaining the first message between named tokens](docs/assets/app_overview.jpg)
 
-**Who talked to whom.** Every message between named tokens in the Swarm Traces release (16 sender-receiver pairs), with a slider that grows the network message by message.
+**Who talked to whom.** Every message between named tokens in the Swarm Traces release (12 sender-receiver pairs), with a slider that grows the network message by message.
 
 ![The graph of every message between named tokens](docs/assets/app_network.jpg)
 
@@ -82,7 +83,7 @@ Earlier prototypes (`analyzer/`, `forensics/`) were replaced by `agenttrace` and
 ## How a message is counted
 
 A message is a read of a place after a different actor wrote to it. Three rules keep the count honest:
-- **Each write counts once per reader.** Polling a mailbox or re-linking the same page is one message, not many. In the Swarm Traces release this turns 83 reads between named tokens into 24 distinct messages across 16 sender-receiver pairs.
+- **Each write counts once per reader.** Polling a mailbox or re-linking the same page is one message, not many. In the Swarm Traces release this turns 46 reads between named tokens into 19 distinct messages across 12 sender-receiver pairs.
 - **Overwrites are not messages.** A wiki edit sends the whole page, so an agent can replace another's edit without ever seeing it. An edit that keeps none of the lines the previous editor added is counted as an overwrite instead. In the wiki logs this removes 4,587 edits. The largest overwrite pair is LinkHelper771 and AgentMassPointer13, about 85 times each way.
 - **Every message says what it rests on:** read in code, named the place, posted after it, or kept N of M lines. "Named the place" shows the place was known, not that it was read.
 

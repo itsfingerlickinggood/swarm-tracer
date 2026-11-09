@@ -37,6 +37,15 @@ def human(name):
     return str(name or "").replace("_", " ")
 
 
+def is_estimated(s, *rids):
+    """True when any of the records' times is estimated (no time field; dated from timestamps in its code)."""
+    for rid in rids:
+        e = s.by_id.get(rid)
+        if e is not None and not e.time and rid in s.rec["_times"]:
+            return True
+    return False
+
+
 def is_named(actor):
     return bool(actor) and not str(actor).startswith("run:")
 
@@ -62,7 +71,7 @@ def tag_stage(pack):
 
 SIGNAL_NAMES = {
     "registry_board": "Registry mailbox first used", "docker_registry": "Docker registry first used",
-    "hf_dataset_write": "First Hugging Face dataset write", "kubernetes_api": "Kubernetes API first called",
+    "hf_dataset_write": "First Hugging Face dataset write", "kubernetes_api": "Kubernetes API first called", "kubernetes_token": "Kubernetes service-account token first read",
     "cloud_metadata": "Cloud metadata first requested", "probe_request": "First probe request",
     "hides_page": "First page hidden", "proxy_link": "First proxy link", "recreated_after_delete": "Page recreated after a delete",
     "runs_shell": "First shell command", "handles_secrets": "First secret handled", "sends_data": "First data sent out",
@@ -179,7 +188,8 @@ def actor_profile(s, actor, top=12):
             for a in x["adopters"]:
                 if a["actor"] == actor:
                     adopted.append({"family": x["family"], "source": x["source"], "record": a["record"], "time": a["time"],
-                                    "hours_after_source": a["hours_after_source"], "what": program_gist(s, x["source_record"])})
+                                    "hours_after_source": a["hours_after_source"], "what": program_gist(s, x["source_record"]),
+                                    "estimated": is_estimated(s, a["record"], x["source_record"])})
     ident = next((i for i in s.rec["identities"] if i["identity"] == actor), None)
     sigs = [g for g in simulate(s)["signals"] if actor in (g.get("actors") or [])]
     carried = [c for c in s.rec["carried_edges"] if actor in (c["from"], c["to"])]
@@ -243,7 +253,7 @@ def place_detail(s, channel, limit=400):
         "hourly": sorted((h, dict(c)) for h, c in hourly.items()),
         "messages": [{"from": d["from"], "to": d["to"], "write_id": d["write_id"], "read_id": d["read_id"],
                       "write_time": iso(d["write_time"]), "read_time": iso(d["read_time"]), "latency_h": d["latency_h"],
-                      "how": d.get("how")} for d in dels[:limit]],
+                      "how": d.get("how"), "estimated": is_estimated(s, d["write_id"], d["read_id"])} for d in dels[:limit]],
         "messages_total": len(dels),
         "overwrites": len(over),
     }
@@ -308,12 +318,13 @@ def message_list(s):
     rows = []
     for d in s.flow["_deliveries"]:
         rows.append([d["from"], d["to"], d["channel"], d["write_id"], d["read_id"], d["write_time"], d["read_time"],
-                     d["latency_h"], d.get("how"), 1 if any(r.search(d["channel"]) for r in coarse) else 0])
+                     d["latency_h"], d.get("how"), 1 if any(r.search(d["channel"]) for r in coarse) else 0,
+                     1 if is_estimated(s, d["write_id"], d["read_id"]) else 0])
     rows.sort(key=lambda r: r[6])
     over = [[d["from"], d["to"], d["channel"], d["write_id"], d["read_id"], d["write_time"], d["read_time"]]
             for d in s.flow.get("_overwrites", [])]
     # merged: the place is one the redaction may have merged with others, so the write and read may differ
-    return {"columns": ["from", "to", "channel", "write_id", "read_id", "write_t", "read_t", "latency_h", "how", "merged"],
+    return {"columns": ["from", "to", "channel", "write_id", "read_id", "write_t", "read_t", "latency_h", "how", "merged", "estimated"],
             "rows": rows, "overwrites": over}
 
 
@@ -480,7 +491,8 @@ def simulate(s):
     if exact:
         d = exact[0]
         add("message", "First message between named actors", "joint", d["read_time"], d["read_id"], [d["from"], d["to"]],
-            f"{d['from']} wrote {d['channel']} in {d['write_id']}; {d['to']} read it in {d['read_id']}, {d['latency_h']} h later",
+            f"{d['from']} wrote {d['channel']} in {d['write_id']}; {d['to']} read it in {d['read_id']}, "
+            + (f"about {max(1, round(d['latency_h']))} h later (estimated times)" if is_estimated(s, d["write_id"], d["read_id"]) else f"{d['latency_h']} h later"),
             "message")
     # two-way exchange, and groups linked by messages
     seen_pairs, parent = set(), {}
@@ -541,7 +553,8 @@ def simulate(s):
     if first_adopt:
         t, x, a = first_adopt
         add("program2", "First program reused by another actor", "joint", t, a["record"], [x["source"], a["actor"]],
-            f"{a['actor']} ran the program {x['source']} first ran in {x['source_record']}, {a['hours_after_source']} h later", "program")
+            f"{a['actor']} ran the program {x['source']} first ran in {x['source_record']}, "
+            + (f"about {max(1, round(a['hours_after_source']))} h later (estimated times)" if is_estimated(s, a["record"], x["source_record"]) else f"{a['hours_after_source']} h later"), "program")
     if third:
         t, x, a = third
         add("program3", "First program run by three actors", "joint", t, a["record"], [x["source"], a["actor"]],

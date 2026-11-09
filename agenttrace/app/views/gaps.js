@@ -3,7 +3,7 @@
 // them against the incident reports; its answer comes back as gap cards with checked record ids.
 "use strict";
 (() => {
-  const Q = { "who talked to whom": { c: ACCENT, tab: "network" }, "how information spread": { c: "#0f766e", tab: "spread" }, "early flag": { c: "#c2410c", tab: "early" }, all: { c: "#5b6672", tab: null } };
+  const Q = { "who talked to whom": { c: ACCENT, tab: "network" }, "how information spread": { c: C.program, tab: "spread" }, "early flag": { c: PALETTE.sign.baseline, tab: "early" }, all: { c: "#5b6672", tab: null } };
   async function gaps(el, s) {
     el.innerHTML = '<p class="muted">Loading…</p>';
     const { rows } = await cached("/api/gaps");

@@ -30,7 +30,14 @@ function cached(path) {
 
 // ------------------------------------------------------------------ design tokens
 const INK = "#1b2430", QUIET = "#66717d", GRID = "#e8ebef", AXIS = "#a3acb6", CURVE = "#b9bfb7";
-const ACCENT = "#2f6fb3", SINGLE = "#4b5157", HARM = "#c2410c", BASE = "#8a94a0";
+const ACCENT = "#2f6fb3", SINGLE = "#4b5157", HARM = "#c2410c", BASE = "#d9822b";   // BASE: the volume baseline, orange as in the report's figures
+// one palette per family of things, so the same hue never means two things on one page:
+// sign kinds (joint = blue, single = dark grey, baseline = orange), intents (INTENT_PALETTE), place status (purples and greys)
+const PALETTE = {
+  sign: { joint: ACCENT, single: SINGLE, baseline: BASE },
+  intent: ["#2f6fb3", "#e3a43b", "#c2410c", "#0f766e", "#7c4dbd", "#d35400", "#6aa5dc", "#2e9d5b", "#b8579a", "#5d6d7e", "#c9a227"],
+  place: { msg: "#6b46c1", quiet: "#cfc3ec", never: "#9d84d6", readonly: "#d9dee4" },
+};
 const C = {
   ink: INK, quiet: QUIET, grid: GRID, axis: AXIS,
   joint: ACCENT, single: SINGLE, harm: HARM, baseline: BASE,
@@ -38,7 +45,7 @@ const C = {
   record: ACCENT, recordBg: "#e8f0fa", program: "#0f766e", programBg: "#e0f2f1", message: ACCENT,
 };
 // one colour per intent, the same in every view
-const INTENT_PALETTE = ["#2f6fb3", "#e3a43b", "#c2410c", "#0f766e", "#7c4dbd", "#d35400", "#6aa5dc", "#2e9d5b", "#b8579a", "#5d6d7e", "#c9a227"];
+const INTENT_PALETTE = PALETTE.intent;
 function intentColor(name) {
   if (!name || name === "other") return "#cdd3da";
   const order = Object.keys(S.summary?.intents || {}).filter((k) => k !== "other");
@@ -64,6 +71,9 @@ const dayWord = (t) => { const d = new Date(t); return `${MONTHS[d.getUTCMonth()
 const clock = (t) => new Date(t).toISOString().slice(11, 16);
 const when = (t) => (t == null ? "–" : `${dayWord(t)} ${clock(t)}`);
 const hoursWord = (h) => (h == null ? "–" : h < 1 ? `${Math.round(h * 60)} min` : h < 48 ? `${(+h).toFixed(1)} h` : `${(h / 24).toFixed(1)} days`);
+// a gap between two records: when either time is estimated (dated from timestamps in the code), say "~" and never finer than an hour
+const gapWord = (h, estimated) => (h == null ? "–" : !estimated ? hoursWord(h) : h < 1 ? "~ within the hour" : h < 48 ? `~${Math.round(h)} h` : `~${(h / 24).toFixed(1)} days`);
+const laterWord = (h, estimated) => (h == null ? "" : estimated ? (h < 1 ? "~ within the hour" : gapWord(h, true) + " later") : h < 1 / 60 ? "under a minute later" : hoursWord(h) + " later");
 // ticks at whole days, quarter days or hours, whichever gives 3 to 10 ticks across the span
 function timeTicks(t0, t1, maxTicks = 10) {
   const H = 3600e3, span = t1 - t0;
@@ -253,13 +263,22 @@ function signalInfo(r) {
   const key = sig.replace(/^first:\s*/, "");
   return { name: SIGNAL_NAMES[key] || ("First " + key.replace(/_/g, " ")), joint: false };
 }
-const FAMILY = { joint: { label: "actors together", color: ACCENT }, single: { label: "single actor", color: SINGLE }, baseline: { label: "volume baseline", color: BASE } };
+const FAMILY = { joint: { label: "actors together", color: PALETTE.sign.joint }, single: { label: "single actor", color: PALETTE.sign.single }, baseline: { label: "volume baseline", color: PALETTE.sign.baseline } };
+// the three counts of "who": identities seen → named actors (identities that acted) → estimated agents (the Agents tab's merge groups)
+function identityLine(s, est) {
+  const seen = s?.identities_total, named = s?.actions?.named_actors;
+  if (seen == null || named == null) return "";
+  const idle = Math.max(0, seen - named);
+  return `${fmt(seen)} ${term("identity", "identities")} seen${idle ? ` (${fmt(idle)} never act)` : ""} → ${fmt(named)} ${term("named", "named actors")}${est?.estimated_agents != null ? ` → ~${fmt(est.estimated_agents)} ${term("agent", "estimated agents")}` : ""}`;
+}
 
 // ------------------------------------------------------------------ glossary: every term the app uses, in plain words
 const GLOSSARY = {
   record: ["Record", "One row of the trace: here a payload (code an agent ran), a response (what came back), or a recovered text."],
   dated: ["Dated record", "A record with a time: its own time field, or a time estimated from unix timestamps the agents wrote into their code (fitted per block of same-kind records, and kept only if the fit passes a rank-correlation and error check)."],
   action: ["Action", "A record an agent ran (here, a payload). Only actions can have an actor, an intent or count as harmful."],
+  identity: ["Identity", "A token or a name seen anywhere in the records, whether or not it ever ran an action. Identities seen → named actors (identities that acted) → estimated agents (the Agents tab's merge groups) are three counts of the same population, each smaller than the last."],
+  agent: ["Agent", "The estimated controller behind one or more identities: the Agents tab joins named actors that its evidence says one agent holds, so the count of agents is an estimate with a range, never a count of tokens."],
   actor: ["Actor", "Who did a record: an identity token it authenticates with, a name it writes, or, failing both, its own run. A token is not an agent: one agent can hold several tokens."],
   named: ["Named actor", "Any actor that is not an anonymous run: an identity token (shown as cred N), a token taken from the record's thread, or a self-chosen name."],
   token: ["Identity token", "A credential a record uses to authenticate. The release redacts it to a stable placeholder such as [CREDENTIAL 169], shown here as cred 169: the same placeholder is the same hidden token everywhere."],
@@ -494,7 +513,7 @@ function msgLine(m, dir, rid) {
   const who = dir === "in" ? m.from : m.to;
   const dec = rid && window.decCtl ? decCtl("message", dir === "in" ? `${m.write_id}>${rid}` : `${rid}>${m.read_id}`) : "";
   return `<div class="mline">${dec}${dir === "in" ? `${ent.actor(who)} wrote ${ent.place(m.channel)} in ${ent.rec(m.write_id)} <span class="muted">${esc(m.write_time || "")}</span>; this record read it`
-    : `this record wrote ${ent.place(m.channel)}; ${ent.actor(who)} read it in ${ent.rec(m.read_id)} <span class="muted">${esc(m.read_time || "")}</span>`}${m.latency_h != null ? ` <span class="muted">(${hoursWord(m.latency_h)} later)</span>` : ""} <span class="how">${esc(m.how || "")}</span></div>`;
+    : `this record wrote ${ent.place(m.channel)}; ${ent.actor(who)} read it in ${ent.rec(m.read_id)} <span class="muted">${esc(m.read_time || "")}</span>`}${m.latency_h != null ? ` <span class="muted">(${laterWord(m.latency_h, m.estimated)})</span>` : ""} <span class="how">${esc(m.how || "")}</span></div>`;
 }
 const more = (shown, total, what) => total > shown ? `<p class="small muted">Showing ${fmt(shown)} of ${fmt(total)} ${what}.</p>` : "";
 function recordDossier(t) {
@@ -592,7 +611,7 @@ function actorDossier(p) {
     <div><h4>Hears from</h4>${p.hears_from.length ? hbars(p.hears_from.map((x) => ({ label: ent.actor(x.actor), value: x.n, color: C.actor }))) + more(p.hears_from.reduce((a, x) => a + x.n, 0), p.received, "messages (the busiest partners)") : '<p class="muted small">nobody</p>'}</div></div>
   <div class="dsec"><h4>${term("place", "Places")} it used (${fmt(p.places_total)})</h4>${p.places.length ? `<div class="plist">${p.places.map((r) => `<div>${ent.place(r.channel)} <span class="muted small">${[["write", r.write], ["read", r.read], ["post", r.post]].filter(([, n]) => n).map(([k, n]) => `${fmt(n)} ${k}${n === 1 ? "" : "s"}`).join(", ")}</span></div>`).join("")}</div>` + more(p.places.length, p.places_total, "places, busiest first") : '<p class="muted small">none</p>'}</div>
   ${p.programs_started.length ? `<div class="dsec"><h4>${term("program", "Programs")} it ran first that others reused</h4>${table(["first run", "actors who ran it", "what it does"], p.programs_started.map((x) => [ent.rec(x.record), fmt(x.actors), esc(progWhat(x.what))]))}${more(p.programs_started.length, p.programs_started_total, "programs")}</div>` : ""}
-  ${p.programs_adopted.length ? `<div class="dsec"><h4>${term("program", "Programs")} it reused from others</h4>${table(["its first run", "first run by", "after", "what it does"], p.programs_adopted.map((x) => [ent.rec(x.record), ent.actor(x.source), hoursWord(x.hours_after_source), esc(progWhat(x.what))]))}${more(p.programs_adopted.length, p.programs_adopted_total, "programs")}</div>` : ""}
+  ${p.programs_adopted.length ? `<div class="dsec"><h4>${term("program", "Programs")} it reused from others</h4>${table(["its first run", "first run by", "after", "what it does"], p.programs_adopted.map((x) => [ent.rec(x.record), ent.actor(x.source), gapWord(x.hours_after_source, x.estimated), esc(progWhat(x.what))]))}${more(p.programs_adopted.length, p.programs_adopted_total, "programs")}</div>` : ""}
   ${p.carried.length ? `<div class="dsec"><h4>${term("carried", "Carried tokens")}</h4>${table(["carrier", "token", "records", "evidence"], p.carried.map((c) => [ent.actor(c.from), ent.actor(c.to), fmt(c.records), c.evidence.map(ent.rec).join(" ")]))}</div>` : ""}
   ${p.seen_then_used.length ? `<div class="dsec"><h4>${term("seen_used", "Seen as data before its first use")}</h4>${table(["first seen", "record", "first used", "lead"], p.seen_then_used.map((x) => [esc(x.first_seen), ent.rec(x.first_seen_id), esc(x.first_used), hoursWord(x.lead_hours)]))}</div>` : ""}
   <div class="dsec"><p class="small">First record ${ent.rec(p.first_record)} · last ${ent.rec(p.last_record)}</p><button type="button" class="primary" data-ask-q="${esc("Profile the actor " + p.actor + ": what it did, who it exchanged messages with, which programs it shared, and which warning signs it fired.")}">Ask the AI about this actor</button></div>`;
@@ -610,7 +629,7 @@ function placeDossier(p) {
     ${r.never_read ? '<p class="warn small">Written, but never read by another actor: a message nobody picked up, or a read the patterns could not see.</p>' : ""}</div>
   <div class="dsec two"><div><h4>Writers</h4>${p.writers.length ? hbars(p.writers.slice(0, 12).map((x) => ({ label: ent.actor(x.actor), value: x.n, color: HARM }))) : '<p class="muted small">none</p>'}</div>
     <div><h4>Readers</h4>${p.readers.length ? hbars(p.readers.slice(0, 12).map((x) => ({ label: ent.actor(x.actor), value: x.n, color: ACCENT }))) : '<p class="muted small">none</p>'}</div></div>
-  <div class="dsec"><h4>${term("message", "Messages")} through it (${fmt(p.messages_total)})</h4>${p.messages.length ? p.messages.slice(0, 60).map((m) => `<div class="mline">${ent.actor(m.from)} wrote in ${ent.rec(m.write_id)} <span class="muted">${esc(m.write_time || "")}</span> → ${ent.actor(m.to)} read in ${ent.rec(m.read_id)} <span class="muted">${esc(m.read_time || "")} (${hoursWord(m.latency_h)} later)</span> <span class="how">${esc(m.how || "")}</span></div>`).join("") + more(Math.min(60, p.messages.length), p.messages_total, "messages") : `<p class="muted small">none${(p.row?.reads || 0) ? ": no write by a different actor came before its reads" : ""}</p>`}</div>
+  <div class="dsec"><h4>${term("message", "Messages")} through it (${fmt(p.messages_total)})</h4>${p.messages.length ? p.messages.slice(0, 60).map((m) => `<div class="mline">${ent.actor(m.from)} wrote in ${ent.rec(m.write_id)} <span class="muted">${esc(m.write_time || "")}</span> → ${ent.actor(m.to)} read in ${ent.rec(m.read_id)} <span class="muted">${esc(m.read_time || "")} (${laterWord(m.latency_h, m.estimated)})</span> <span class="how">${esc(m.how || "")}</span></div>`).join("") + more(Math.min(60, p.messages.length), p.messages_total, "messages") : `<p class="muted small">none${(p.row?.reads || 0) ? ": no write by a different actor came before its reads" : ""}</p>`}</div>
   <div class="dsec"><h4>Every operation (${fmt(p.ops_total)})</h4>${table(["time", "op", "actor", "record"], p.ops.slice(0, 200).map((o) => [esc(o.time || "–"), `<span class="op ${esc(o.op)}">${esc(o.op)}</span>`, ent.actor(o.actor), ent.rec(o.record)]))}${p.ops_total > 200 ? `<p class="small muted">First 200 of ${fmt(p.ops_total)}.</p>` : ""}</div>`;
 }
 
@@ -688,7 +707,7 @@ function setSummary(s) {
   $("ribbon").innerHTML = [
     sp ? [term("dated", "span"), (() => { const a = toTime(sp[0]), b = toTime(sp[1]); const da = dayWord(a), db = dayWord(b); return da.split(" ")[0] === db.split(" ")[0] ? `${da}–${db.split(" ")[1]}` : `${da}–${db}`; })()] : null,
     [term("dated", "dated"), pct(s.timed / s.records)],
-    [term("named", "named actors"), fmt(s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0))],
+    [`${term("named", "named actors")}${s.identities_total != null && s.actions?.named_actors != null && s.identities_total !== s.actions.named_actors ? ` <em class="ribsub">of ${fmt(s.identities_total)} identities seen</em>` : ""}`, fmt(s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0))],
     [term("place", "places"), fmt(s.flow.channels)],
     s.flow.deliveries_between_named_actors != null && s.flow.deliveries_between_named_actors !== s.flow.deliveries
       ? [`${term("message", "named messages")} <em class="ribsub">${fmt(s.flow.deliveries)} incl. anonymous runs</em>`, fmt(s.flow.deliveries_between_named_actors)]
