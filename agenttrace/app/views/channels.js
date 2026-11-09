@@ -41,7 +41,7 @@
         { sub: "One row per place, hours in UTC (estimated times). In each hour the top half shows writes and the bottom half reads; darker means more. A dark dot marks an hour in which another actor read a message there. Hover a name for the whole name; click a cell to list those events." })}
       <div class="grid2">
         ${card("How long a message waited", `<div id="chLat"></div>`, { sub: `The ${term("latency", "wait")} from a write to the read of it by a different actor, for every message.` })}
-        ${card("How places were shared", `<div id="chScatter"></div>`, { sub: "Every place by how many actors wrote to it and how many read it. Both axes use log(1 + count), so 0 fits on the scale. A bigger circle holds more places; the colours are the same as on the map." })}
+        ${card("How places were shared", `<div id="chScatter"></div>`, { sub: "Every place counted by how many actors wrote to it and how many read it. Each cell prints its number of places." })}
       </div>
       ${card("Every place", `<div id="chanList"></div>`, { sub: "Busiest first. Click a row to inspect the place; filter to search all of them." })}`;
     let map, msgs;
@@ -321,37 +321,56 @@
   }
 
   // ------------------------------------------------------------------ 4b. writers vs readers, binned
+  // ------------------------------------------------------------------ how places were shared: a count grid
+  // places binned by writers (columns) and readers (rows); every cell prints its count, so a group of
+  // 3,500 places and a group of 80 never look alike and nothing overlaps
+  const GBINS = [[0, 0, "0"], [1, 1, "1"], [2, 2, "2"], [3, 5, "3–5"], [6, 20, "6–20"], [21, Infinity, "21+"]];
+  const gbin = (v) => GBINS.findIndex(([a, b]) => v >= a && v <= b);
   function drawScatter(D) {
     const host = $("chScatter");
-    const bins = new Map();
+    const N = D.P.length;
+    const cells = new Map();
     D.P.forEach((p) => {
-      const k = p.writers + "," + p.readers;
-      const b = bins.get(k) || { w: p.writers, r: p.readers, n: 0, msg: 0, msgs: 0, one: p.ch };
-      b.n++; if (p.messages) { b.msg++; b.msgs += p.messages; }
-      bins.set(k, b);
+      const k = gbin(p.readers) + "," + gbin(p.writers);
+      const c = cells.get(k) || { places: [], msg: 0, msgs: 0 };
+      c.places.push(p); if (p.messages) { c.msg++; c.msgs += p.messages; }
+      cells.set(k, c);
     });
-    const all = [...bins.values()];
-    const mxW = Math.max(1, ...all.map((b) => b.w)), mxR = Math.max(1, ...all.map((b) => b.r));
-    const W = 360, H = 230, L = 40, Rr = 18, T = 18, B = 190, PAD = 14;   // padding keeps circles off the axis labels
-    const X = (v) => L + PAD + Math.log1p(v) / Math.log1p(mxW) * (W - L - Rr - PAD), Y = (v) => B - PAD - Math.log1p(v) / Math.log1p(mxR) * (B - T - PAD);
-    const ticks = (mx) => [0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000].filter((v) => v <= mx);
-    let svg = `<svg class="chart" width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Places by number of writers and readers">`;
-    ticks(mxW).forEach((v) => { svg += `<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${B}" stroke="${GRID}"/><text x="${X(v)}" y="${B + 12}" text-anchor="middle" font-size="9.5" fill="${QUIET}">${v}</text>`; });
-    svg += `<line x1="${L}" x2="${W - Rr}" y1="${B}" y2="${B}" stroke="${AXIS}"/><line x1="${L}" x2="${L}" y1="${T}" y2="${B}" stroke="${AXIS}"/>`;
-    ticks(mxR).forEach((v) => { svg += `<line x1="${L}" x2="${W - Rr}" y1="${Y(v)}" y2="${Y(v)}" stroke="${GRID}"/><text x="${L - 5}" y="${Y(v) + 3.5}" text-anchor="end" font-size="9.5" fill="${QUIET}">${v}</text>`; });
-    svg += `<text x="${(L + W) / 2}" y="${H - 4}" text-anchor="middle" font-size="10.5" fill="${QUIET}">writers</text><text x="10" y="${(T + B) / 2}" font-size="10.5" fill="${QUIET}" transform="rotate(-90 10 ${(T + B) / 2})" text-anchor="middle">readers</text>`;
-    all.sort((a, b) => b.n - a.n).forEach((b) => {
-      const r = Math.min(16, 2.2 + 1.6 * Math.sqrt(b.n));
-      const share = b.msg / b.n;   // eslint-disable-line no-shadow
-      const cat = b.msg ? CAT[0] : b.r === 0 ? CAT[2] : b.w === 0 ? CAT[3] : CAT[1];
-      const fillC = b.msg ? `rgba(107,70,193,${(0.35 + 0.6 * share).toFixed(2)})` : cat.color;
-      svg += `<circle ${b.n === 1 ? `data-place="${esc(b.one)}"` : ""} cx="${X(b.w).toFixed(1)}" cy="${Y(b.r).toFixed(1)}" r="${r.toFixed(1)}" fill="${fillC}" stroke="#fff" stroke-width=".8"><title>${plural(b.n, "place")} with ${plural(b.w, "writer")} and ${plural(b.r, "reader")}${b.msg ? `; ${fmt(b.msg)} carried ${plural(b.msgs, "message")}` : "; none carried a message"}</title></circle>`;
+    const mx = Math.max(1, ...[...cells.values()].map((c) => c.places.length));
+    const shade = (n) => (n ? 0.08 + 0.82 * Math.log1p(n) / Math.log1p(mx) : 0);
+    // headline from the data: the biggest groups and the places that carried messages
+    const nRO = D.P.filter((p) => !p.writers && p.readers).length, nNever = D.P.filter((p) => p.never).length, nMsg = D.P.filter((p) => p.messages).length;
+    const big = [...cells.entries()].sort((a, b) => b[1].places.length - a[1].places.length)[0];
+    const pct = (n) => (N ? Math.round((100 * n) / N) : 0);
+    const head = `<p class="ch-gridhead"><b>${fmt(nRO)}</b> of ${fmt(N)} places (${pct(nRO)}%) were only read, with no write seen in the trace; <b>${fmt(nNever)}</b> (${pct(nNever)}%) were written and never read by another actor; <b>${fmt(nMsg)}</b> carried a message.</p>`;
+    let rows = "";
+    for (let ri = GBINS.length - 1; ri >= 0; ri--) {
+      rows += `<tr><th scope="row">${GBINS[ri][2]}</th>`;
+      GBINS.forEach((_, wi) => {
+        const c = cells.get(ri + "," + wi), n = c ? c.places.length : 0;
+        const edge = wi === 0 ? " ch-g-ro" : ri === 0 ? " ch-g-never" : "";
+        const a = shade(n), dark = a > 0.55;
+        const label = n ? `${fmt(n)} place${n === 1 ? "" : "s"} with ${GBINS[wi][2]} writer(s) and ${GBINS[ri][2]} reader(s)${c.msg ? `; ${fmt(c.msg)} carried ${plural(c.msgs, "message")}` : ""}` : "no places";
+        rows += n
+          ? `<td class="ch-gcell${edge}${c.msg ? " ch-g-msg" : ""}${dark ? " ch-g-dark" : ""}" style="--a:${a.toFixed(2)}" data-gcell="${ri},${wi}" tabindex="0" role="button" aria-label="${esc(label)}" title="${esc(label)}"><b>${fmt(n)}</b>${c.msg ? `<span class="ch-g-badge">${fmt(c.msg)} carried ${plural(c.msgs, "message")}</span>` : ""}</td>`
+          : `<td class="ch-gcell ch-g-empty${edge}" aria-label="no places">·</td>`;
+      });
+      rows += "</tr>";
+    }
+    const table = `<div class="tablewrap"><table class="ch-grid" aria-label="Places by number of writers and readers"><caption class="small muted">rows: actors that read the place · columns: actors that wrote to it</caption>
+      <thead><tr><th class="ch-g-corner">readers ↓ · writers →</th>${GBINS.map(([, , l], wi) => `<th scope="col"${wi === 0 ? ' class="ch-g-ro"' : ""}>${l}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>`;
+    const legend = `<div class="legend"><span><i class="ch-g-key ch-g-ro"></i>column 0: only read, no write seen</span><span><i class="ch-g-key ch-g-never"></i>row 0: written, never read by another actor</span><span><i class="ch-g-key ch-g-msg"></i>holds places that carried a message</span><span class="muted">darker = more places (log scale); click a cell for its places</span></div>`;
+    host.innerHTML = head + table + legend + `<div id="chGridList" class="ch-gridlist"></div>`;
+    const show = (td) => {
+      const [ri, wi] = td.dataset.gcell.split(",").map(Number);
+      const c = cells.get(ri + "," + wi); if (!c) return;
+      host.querySelectorAll(".ch-g-sel").forEach((x) => x.classList.remove("ch-g-sel")); td.classList.add("ch-g-sel");
+      const list = c.places.slice().sort((a, b) => (b.messages - a.messages) || (b.writes + b.reads) - (a.writes + a.reads));
+      $("chGridList").innerHTML = `<p class="small"><b>${plural(list.length, "place")}</b> with ${GBINS[wi][2]} writer(s) and ${GBINS[ri][2]} reader(s)${list.length > 30 ? ", the 30 busiest shown" : ""}${c.msg ? `; ${fmt(c.msg)} carried ${plural(c.msgs, "message")} (listed first)` : ""}:</p><div class="ch-gchips">${list.slice(0, 30).map((p) => ent.place(p.ch) + (p.messages ? ` <span class="small muted">${plural(p.messages, "message")}</span>` : "")).join(" ")}</div>`;
+    };
+    host.querySelectorAll("[data-gcell]").forEach((td) => {
+      td.addEventListener("click", () => show(td));
+      td.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(td); } });
     });
-    const rOf = (n) => Math.min(16, 2.2 + 1.6 * Math.sqrt(n));
-    const sizes = [1, 10, 100, 1000].filter((n) => n <= Math.max(...all.map((b) => b.n)));
-    let kx = 2, kparts = "";
-    sizes.forEach((n) => { const r = rOf(n); kx += r + 1; kparts += `<circle cx="${kx}" cy="18" r="${r}" fill="none" stroke="#9aa5b1"/><text x="${kx + r + 3}" y="22" font-size="9.5" fill="${QUIET}">${fmt(n)}</text>`; kx += r + 3 + textWidth(fmt(n), "9.5px sans-serif") + 12; });
-    const key = `<svg width="${Math.ceil(kx)}" height="36" class="ch-sizekey">${kparts}</svg>`;
-    host.innerHTML = svg + `</svg><div class="legend">${CAT.map((c) => `<span><i style="background:${c.color};border-radius:50%"></i>${esc(c.label)}</span>`).join("")}</div><div class="small muted ch-sizekeyrow">circle size: places in it ${key}</div>`;
   }
 })();
