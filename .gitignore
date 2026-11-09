@@ -10,7 +10,7 @@ reports/*
 !reports/findings/
 
 # Local tools, environments, and scratch
-tools/
+/tools/
 envs/
 forel-workspace/
 docent-load/
