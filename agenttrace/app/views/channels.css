@@ -41,7 +41,7 @@
 .ch-opt label{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--ink)}
 
 /* how places were shared: count grid */
-.ch-gstats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:2px 0 10px}
+.ch-gstats{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:2px 0 10px}
 .ch-gstats>div{border:1px solid var(--line,#e2e6eb);border-radius:8px;padding:6px 8px;border-left-width:4px}
 .ch-gstats b{display:block;font-size:17px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.2}
 .ch-gstats span{display:block;font-size:11px;color:var(--muted);line-height:1.3}
@@ -92,3 +92,30 @@ th.ch-g-ro{color:#5c6672}th.ch-g-never{color:#6b56a0}
 .ch-glist th.n{width:43px}.ch-glist th:last-child{width:84px}
 .ch-glist td:first-child .ent{white-space:normal;overflow-wrap:anywhere}
 .ch-glist td:last-child,.ch-glist th{white-space:nowrap}
+
+/* funnel */
+.ch-funnel{display:flex;align-items:stretch;gap:4px;flex-wrap:wrap;margin:6px 0 4px}
+.ch-fstep{position:relative;flex:1 1 120px;text-align:left;border:1px solid var(--line,#e2e6eb);border-radius:9px;background:#fff;padding:7px 9px 9px;overflow:hidden;cursor:pointer}
+.ch-fstep:hover,.ch-fstep.on{border-color:#6b46c1;box-shadow:0 0 0 1px #6b46c1}
+.ch-fstep b{display:block;font-size:19px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.15}
+.ch-fstep span{display:block;font-size:11.5px;color:var(--muted);line-height:1.25}
+.ch-fstep em{display:block;font-style:normal;font-size:10.5px;color:#6b46c1;margin-top:2px}
+.ch-fstep .ch-fbar{position:absolute;left:0;bottom:0;height:4px;width:var(--w);background:#6b46c1;opacity:.75}
+.ch-farrow{align-self:center;color:#a3acb6;font-size:15px}
+.ch-funnellist{margin:4px 0 10px}
+.ch-funnellist:empty{display:none}
+.ch-more{margin-top:6px;font-size:12px}
+.ch-tag{display:inline-block;font-size:9.5px;font-weight:600;color:#7a4d0c;background:#fdf3e1;border-radius:4px;padding:0 4px;margin-left:3px;vertical-align:1px}
+.ch-seg{display:inline-flex;border:1px solid #c9d1da;border-radius:7px;overflow:hidden;margin-left:4px}
+.ch-seg button{border:0;border-radius:0;padding:3px 9px;font-size:12px;background:#fff}
+.ch-seg button+button{border-left:1px solid #c9d1da}
+.ch-seg button.on{background:#6b46c1;color:#fff}
+/* kinds */
+.ch-kind{border-left:4px solid var(--tc);padding:2px 0 8px 10px;margin-bottom:10px}
+.ch-kindhead{display:flex;justify-content:space-between;align-items:baseline;gap:6px;text-transform:uppercase;font-size:12px;letter-spacing:.03em}
+.ch-smallkinds{width:100%;font-size:12px;border-collapse:collapse;margin:2px 0 8px;font-variant-numeric:tabular-nums}
+.ch-smallkinds th{font-size:11px;color:var(--muted);font-weight:600;text-align:left;padding:3px 4px;border-bottom:1px solid var(--line,#e2e6eb)}
+.ch-smallkinds td{padding:4px;border-bottom:1px solid #f0f2f5;vertical-align:top}
+.ch-smallkinds .n{text-align:right;white-space:nowrap}
+.ch-smallkinds td i{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--tc);margin-right:5px}
+#chScatter .ch-grid{max-width:760px}

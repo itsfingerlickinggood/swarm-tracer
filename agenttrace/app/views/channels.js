@@ -11,7 +11,7 @@
     { key: "never", label: "written, never read by another actor", color: PALETTE.place.never },
     { key: "readonly", label: "only read (no write seen)", color: PALETTE.place.readonly },
   ];
-  const st = { rank: "ops", top: 40, noMerged: false };
+  const st = { rank: "ops", top: 40, noMerged: false, named: false };
   let seq = 0;
   const catOf = (p) => (p.messages ? "msg" : p.never ? "never" : !p.writes ? "readonly" : "quiet");
   const hourKey = (t) => new Date(t).toISOString().slice(0, 13).replace("T", " ");
@@ -25,25 +25,43 @@
     [/\[REDACTED:destination:/, "“destination N”: a redacted repository an upload or commit went to"],
     [/\[REDACTED:repo_locator:/, "“repo_locator N”: a redacted repository named in a read or write URL"],
     [/\[HF REPO \d+\]/, "“HF REPO N”: a redacted Hugging Face repository"],
+    [/:\[[A-Z][A-Z ]*\]$/, `“HF REPO” with no number: the redaction kept no number, so it may ${"merge"} several repositories (flagged as merged)`],
     [/\[REDACTED:username:/, `“username N”: only the owner was kept, so it is the owner's whole namespace and may ${"merge"} several repositories`],
     [/\[REDACTED:query_value:/, "“URL value N”: a dataset named in a URL parameter rather than in the path"],
   ];
+
+  // a wait from estimated times: never finer than an hour
+  const estWait = (h, est) => (h == null ? "–" : !est ? hoursWord(h) : h < 1 ? "under an hour" : "~" + hoursWord(h));
+  const isBroadcast = (p) => p.writers === 1 && p.readers >= 5 && p.messages >= 4;
+  const bTag = (p) => (isBroadcast(p) ? ' <span class="ch-tag" title="one writer, many readers: one drop fetched by many actors, not a conversation">broadcast</span>' : "");
+  // a table of places (used by the funnel and the grid), short by default with "show all"
+  function placeTable(host, title, list, opts = {}) {
+    const L = list.slice().sort((a, b) => (b.messages - a.messages) || (b.writes + b.reads) - (a.writes + a.reads));
+    const nm = L.filter((p) => p.messages).length, limit = opts.all ? 200 : 8;
+    const rows = L.slice(0, limit).map((p) => `<tr><td>${ent.place(p.ch)}${bTag(p)}</td><td class="n">${fmt(p.writers)}</td><td class="n">${fmt(p.readers)}</td><td class="n">${fmt(p.writes)}</td><td class="n">${fmt(p.reads)}</td><td class="n">${p.messages ? `<b>${fmt(p.messages)}</b>` : "–"}</td><td class="small muted" title="${esc(p.first || "")}">${esc(p.first ? String(p.first).replace(/^\d{4}-/, "") : "–")}</td></tr>`).join("");
+    const more = L.length > limit ? `<button class="ch-more" type="button">${opts.all ? "" : `Show ${L.length > 200 ? "the busiest 200" : `all ${fmt(L.length)}`}`}</button>` : "";
+    host.innerHTML = `<p class="small"><b>${plural(L.length, "place")}</b> ${title}${nm && nm < L.length ? `; ${fmt(nm)} carried a message (listed first)` : ""}.</p>
+      <div class="tablewrap"><table class="ch-glist"><thead><tr><th>place</th><th class="n">writers</th><th class="n">readers</th><th class="n">writes</th><th class="n">reads</th><th class="n">msgs</th><th>first write</th></tr></thead><tbody>${rows}</tbody></table></div>${opts.all ? "" : more}`;
+    const b = host.querySelector(".ch-more"); if (b) b.addEventListener("click", () => placeTable(host, title, list, { all: true }));
+  }
 
   VIEWS.channels = async function channels(el, s) {
     const my = ++seq;
     el.innerHTML = `<h2>Places and how messages moved through them</h2>
       <p class="small muted ch-what">A ${term("place", "place")} (a channel) is anywhere one actor can leave something for another: a repository, a board folder, a webhook, a command file. Each mention of a place in code is judged a ${term("write", "write or a read")}, and a ${term("message", "message")} is a read after a different actor's write.</p>
-      <p class="lead" id="chLead">Loading every place…</p><p class="small muted" id="chNames"></p><p class="small ch-opt" id="chOpt"></p>
-      <div id="chTiles" class="grid3"></div>
-      ${card("Every place", `<div id="chMapKey" class="legend"></div><div id="chMap" class="ch-map"></div>`,
-        { sub: "Each tile is one place, grouped by kind. Its size grows with the reads and writes on it (square root, so small places stay visible). Kinds with very few places sit in a thin strip along the bottom. Its colour says what happened there. Hover a tile for its card; click it to inspect every write and read." })}
+      <p class="lead" id="chLead">Loading every place…</p>
+      <div id="chFunnel" class="ch-funnel"></div><div id="chFunnelList" class="ch-funnellist"></div>
+      <p class="small muted" id="chNames"></p><p class="small ch-opt" id="chOpt"></p>
+      ${card("How places were shared", `<div id="chScatter"></div>`, { sub: "Every place counted by how many actors wrote to it (columns) and read it (rows). Each cell prints its places and their share of all places; the last row and column are totals." })}
       ${card("The busiest places, hour by hour", `<div id="chHeatCtl" class="ch-ctl"></div><div id="chHeat"></div>`,
-        { sub: "One row per place, hours in UTC (estimated times). In each hour the top half shows writes and the bottom half reads; darker means more. A dark dot marks an hour in which another actor read a message there. Hover a name for the whole name; click a cell to list those events." })}
+        { sub: "One row per place, hours in UTC (estimated times). In each hour the top half shows writes and the bottom half reads; darker means more. A dark dot marks an hour in which another actor read a message there. This view counts every actor, named or not. Hover a name for the whole name; click a cell to list those events." })}
       <div class="grid2">
         ${card("How long a message waited", `<div id="chLat"></div>`, { sub: `The ${term("latency", "wait")} from a write to the read of it by a different actor, for every message.` })}
-        ${card("How places were shared", `<div id="chScatter"></div>`, { sub: "Every place counted by how many actors wrote to it (columns) and read it (rows). Each cell prints its places and their share of all places; the last row and column are totals." })}
+        ${card("Places by kind", `<div id="chTiles"></div>`, { sub: "What happened at each kind of place." })}
       </div>
-      ${card("Every place", `<div id="chanList"></div>`, { sub: "Busiest first. Click a row to inspect the place; filter to search all of them." })}`;
+      ${card("Map of places", `<div id="chMapKey" class="legend"></div><div id="chMap" class="ch-map"></div>`,
+        { sub: "Each tile is one place, grouped by kind. Its size grows with the reads and writes on it (square root, so small places stay visible). Kinds with very few places sit in a thin strip along the bottom. Its colour says what happened there. Hover a tile for its card; click it to inspect every write and read." })}
+      ${card("All places, busiest first", `<div id="chanList"></div>`, { sub: "Click a row to inspect the place; filter to search all of them." })}`;
     let map, msgs;
     try { [map, msgs] = await Promise.all([cached("/api/places_map"), cached("/api/messages")]); }
     catch (e) { $("chLead").textContent = e.message; return; }
@@ -57,6 +75,12 @@
       optHost.innerHTML = `<label><input type="checkbox" id="chNoMerged"${st.noMerged ? " checked" : ""}> Leave out places the redaction may have merged</label> <span class="muted">${plural(mergedSet.size, "place")} carrying ${plural(nm, "message")} may each join several real places (${term("merged", "merged place")}); leaving them out keeps only places known exactly.</span>`;
       $("chNoMerged").addEventListener("change", (e) => { st.noMerged = e.target.checked; VIEWS.channels(el, s); });
     } else st.noMerged = false;
+    const isNamed = (a) => !String(a).startsWith("run:");
+    const nNamedAll = msgs.rows.filter((r) => isNamed(r[0]) && isNamed(r[1])).length;
+    if (nNamedAll < msgs.rows.length) {
+      optHost.insertAdjacentHTML("beforeend", `<span class="ch-seg" role="group" aria-label="Which messages to count"><button type="button" data-named="0" class="${st.named ? "" : "on"}" aria-pressed="${!st.named}">All messages (${fmt(msgs.rows.length)})</button><button type="button" data-named="1" class="${st.named ? "on" : ""}" aria-pressed="${st.named}">Between named actors only (${fmt(nNamedAll)})</button></span>`);
+      optHost.querySelectorAll("[data-named]").forEach((b) => b.addEventListener("click", () => { st.named = b.dataset.named === "1"; VIEWS.channels(el, s); }));
+    } else st.named = false;
     const keepP = (ch) => !(st.noMerged && mergedSet.has(ch));
     const P = map.rows.filter((r) => keepP(r[0])).map((r) => ({ ch: r[0], type: String(r[0]).split(":")[0], writes: r[1], reads: r[2], writers: r[3], readers: r[4], messages: r[5], overwrites: r[6], never: !!r[7], first: r[8] }));
     if (!P.length) {
@@ -64,7 +88,11 @@
       ["chTiles"].forEach((id) => ($(id).innerHTML = ""));
       return;
     }
-    const M = msgs.rows.filter((r) => !(st.noMerged && r[9])).map((r) => ({ from: r[0], to: r[1], channel: r[2], write_id: r[3], read_id: r[4], wt: r[5] * 1000, rt: r[6] * 1000, lat: r[7], how: r[8], merged: !!r[9] }));
+    const M = msgs.rows.filter((r) => !(st.noMerged && r[9])).filter((r) => !st.named || (isNamed(r[0]) && isNamed(r[1]))).map((r) => ({ from: r[0], to: r[1], channel: r[2], write_id: r[3], read_id: r[4], wt: r[5] * 1000, rt: r[6] * 1000, lat: r[7], how: r[8], merged: !!r[9], est: !!r[10] }));
+    if (st.named) {   // count only messages between named actors on each place
+      const per = new Map(); M.forEach((m) => per.set(m.channel, (per.get(m.channel) || 0) + 1));
+      P.forEach((p) => { p.messages = per.get(p.ch) || 0; });
+    }
     const types = [...new Set(P.map((p) => p.type))].sort((a, b) => P.filter((p) => p.type === b).length - P.filter((p) => p.type === a).length);
     const tcolor = Object.fromEntries(types.map((t, i) => [t, TYPE_COLORS[i % TYPE_COLORS.length]]));
     const D = { s, P, M, types, tcolor };
@@ -73,9 +101,22 @@
     const byType = types.map((t) => [t, P.filter((p) => p.type === t).length]);
     const found = PLACEHOLDERS.filter(([rx]) => P.some((p) => rx.test(p.ch)));
     $("chNames").innerHTML = found.length ? `Place names are redaction placeholders: ${found.map(([, t]) => esc(t)).join("; ")}. Merged places are flagged (${term("merged", "what merged means")}).` : "";
-    $("chLead").innerHTML = `${plural(P.length, "place")} where one actor could leave something for another: ${byType.map(([t, n]) => `${fmt(n)} ${esc(placeType(t, n))}`).join(", ")}. ` +
-      `${fmt(nMsg)} of them carried at least one of the ${plural(M.length, "message")}; ${fmt(nNever)} were written and never read by another actor; ${fmt(nRead)} were only read.` +
-      (st.noMerged ? ` <span class="muted">Leaving out ${plural(mergedSet.size, "merged place")} and their messages.</span>` : "");
+    const W1 = P.filter((p) => p.writes), nBroad = P.filter(isBroadcast), mBroad = nBroad.reduce((a, p) => a + p.messages, 0);
+    const namedPl = new Set(msgs.rows.filter((r) => isNamed(r[0]) && isNamed(r[1]) && !(st.noMerged && r[9])).map((r) => r[2]));
+    $("chLead").innerHTML = `${plural(P.length, "place")} are named in code (${byType.map(([t, n]) => `${fmt(n)} ${esc(placeType(t, n))}`).join(", ")}), but only ${fmt(W1.length)} were written to in this trace; the rest were only read, many of them public or written outside the release. ` +
+      `${fmt(nMsg)} places carried ${plural(M.length, "message")}${st.named ? " between named actors" : ""}` + (mBroad && !st.named ? `, ${fmt(mBroad)} of them from ${plural(nBroad.length, "broadcast")} (one writer, five or more readers)` : "") + "." +
+      (st.noMerged ? ` <span class="muted">Leaving out ${plural(mergedSet.size, "merged place")} and their messages.</span>` : "") + (st.named ? ` <span class="muted">Counting only messages between named actors.</span>` : "");
+    const steps = [
+      { n: P.length, label: "named in code", list: P, title: "named in code" },
+      { n: W1.length, label: "written to", list: W1, title: "written to in this trace" },
+      { n: P.filter((p) => p.messages).length, label: st.named ? "message between named actors" : "read by another actor after a write", list: P.filter((p) => p.messages), title: "that carried a message" },
+      ...(st.named ? [] : [{ n: namedPl.size, label: "message between named actors", list: P.filter((p) => namedPl.has(p.ch)), title: "that carried a message between named actors" }]),
+    ];
+    $("chFunnel").innerHTML = steps.map((x, i) => `<button type="button" class="ch-fstep" data-fstep="${i}" style="--w:${Math.max(4, 100 * Math.log1p(x.n) / Math.log1p(P.length)).toFixed(0)}%"><span class="ch-fbar"></span><b>${fmt(x.n)}</b><span>${esc(x.label)}</span>${i ? `<em>${share(x.n / P.length)} of all</em>` : ""}</button>`).join('<span class="ch-farrow" aria-hidden="true">→</span>');
+    $("chFunnel").querySelectorAll("[data-fstep]").forEach((b) => b.addEventListener("click", () => {
+      const x = steps[+b.dataset.fstep]; $("chFunnel").querySelectorAll(".on").forEach((y) => y.classList.remove("on")); b.classList.add("on");
+      placeTable($("chFunnelList"), x.title, x.list);
+    }));
 
     tiles(D);
     drawMap(D);
@@ -85,7 +126,7 @@
     drawScatter(D);
     if (st.noMerged) $("chanList").insertAdjacentHTML("beforebegin", '<p class="small muted">This full list still includes merged places (it is read page by page from the server).</p>');
     listView($("chanList"), "channels", ["place", "writes", "reads", "writers", "readers", "messages", "overwrites", "median wait", "first write"],
-      (c) => [ent.place(c.channel), fmt(c.writes), fmt(c.reads), fmt(c.writers), fmt(c.readers), fmt(c.deliveries), fmt(c.overwrites || 0), c.median_latency_h != null ? hoursWord(c.median_latency_h) : "–", esc(c.first_write || "–")],
+      (c) => [ent.place(c.channel), fmt(c.writes), fmt(c.reads), fmt(c.writers), fmt(c.readers), fmt(c.deliveries), fmt(c.overwrites || 0), estWait(c.median_latency_h, M.some((m) => m.est)), esc(c.first_write || "–")],
       s.top_channels.slice(0, 15), s.list_totals?.channels, (c) => inspectPlace(c.channel));
     onResize($("chMap"), () => drawMap(D));
     onResize($("chHeat"), () => drawHeat(D));
@@ -126,31 +167,38 @@
   function tiles(D) {
     const { P, M, types, tcolor, s } = D;
     const ct = s.flow.channel_types || {};
-    const kindShare = (t) => M.length ? M.filter((m) => String(m.channel).split(":")[0] === t).length / M.length : 0;
-    const fine = types.some((t) => { const x = kindShare(t); return x > 0 && x < 0.01; });   // a sibling below 1%: one decimal everywhere
-    const shareOf = (x) => fine && x >= 0.01 ? (100 * x).toFixed(1) + "%" : share(x);
-    $("chTiles").innerHTML = types.map((t) => {
+    const stats = (t) => {
       const ps = P.filter((p) => p.type === t), ms = M.filter((m) => String(m.channel).split(":")[0] === t);
       const tot = ct[t] || {};
-      const writes = tot.writes ?? ps.reduce((a, p) => a + p.writes, 0), reads = tot.reads ?? ps.reduce((a, p) => a + p.reads, 0);
-      const med = median(ms.map((m) => m.lat));
-      const cats = CAT.map((c) => ({ label: c.label, value: ps.filter((p) => catOf(p) === c.key).length, color: c.color }));
-      const top = ps.slice().sort((a, b) => b.messages - a.messages || (b.writes + b.reads) - (a.writes + a.reads))[0];
-      return `<section class="card ch-tile" style="--tc:${tcolor[t]}">
-        <header><h3>${esc(placeType(t))}</h3><span class="muted small">${esc(t)}</span></header>
-        <div class="ch-big"><b>${fmt(ps.length)}</b> ${esc(placeType(t, ps.length))}</div>
+      return { t, ps, ms, writes: tot.writes ?? ps.reduce((a, p) => a + p.writes, 0), reads: tot.reads ?? ps.reduce((a, p) => a + p.reads, 0),
+        ro: ps.filter((p) => !p.writes).length, never: ps.filter((p) => p.never).length, med: median(ms.map((m) => m.lat)),
+        actors: new Set(ms.flatMap((m) => [m.from, m.to])).size, named: new Set(ms.flatMap((m) => [m.from, m.to]).filter((a) => !String(a).startsWith("run:"))).size };
+    };
+    // why a kind of place carried no message, in words an investigator can act on
+    const why = (x) => !x.ms.length && x.reads ? (x.writes
+      ? `No message: no read came after a write by a different actor.${x.ro ? ` ${fmt(x.ro)} of these ${esc(placeType(x.t, x.ro))} were read but never written in this trace: their writes happened outside the release, or through a channel it does not hold.` : ""}`
+      : "No message: no write to these places was seen in the trace.") : "";
+    const big = types.map(stats).filter((x) => x.ps.length > 10), small = types.map(stats).filter((x) => x.ps.length <= 10);
+    const tile = (x) => {
+      const cats = CAT.map((c) => ({ label: c.label, value: x.ps.filter((p) => catOf(p) === c.key).length, color: c.color }));
+      const top = x.ps.slice().sort((a, b) => b.messages - a.messages || (b.writes + b.reads) - (a.writes + a.reads))[0];
+      return `<div class="ch-kind" style="--tc:${tcolor[x.t]}">
+        <div class="ch-kindhead"><b>${esc(placeType(x.t))}</b><span class="muted small">${esc(x.t)}</span></div>
+        <div class="ch-big"><b>${fmt(x.ps.length)}</b> ${esc(placeType(x.t, x.ps.length))}</div>
         ${stackbar(cats, { legend: false, h: 9 })}
         <dl class="ch-dl">
-          <div><dt>writes</dt><dd>${fmt(writes)}</dd></div><div><dt>reads</dt><dd>${fmt(reads)}</dd></div>
-          <div><dt>messages</dt><dd>${fmt(ms.length)}<span> ${M.length ? shareOf(ms.length / M.length) : ""}</span></dd></div>
-          <div><dt>never read</dt><dd>${fmt(ps.filter((p) => p.never).length)}</dd></div>
-          <div><dt>median wait</dt><dd>${med != null ? hoursWord(med) : "–"}</dd></div>
-          <div><dt>in messages</dt><dd>${fmt(new Set(ms.flatMap((m) => [m.from, m.to])).size)}<span> actors</span></dd></div>
+          <div><dt>writes</dt><dd>${fmt(x.writes)}</dd></div><div><dt>reads</dt><dd>${fmt(x.reads)}</dd></div>
+          <div><dt>messages</dt><dd>${fmt(x.ms.length)}<span> ${M.length ? share(x.ms.length / M.length) : ""}</span></dd></div>
+          <div><dt>read, never written</dt><dd>${fmt(x.ro)}</dd></div>
+          <div><dt>median wait</dt><dd>${estWait(x.med, x.ms.some((m) => m.est))}</dd></div>
+          <div><dt>actors in messages</dt><dd>${fmt(x.actors)}<span> ${x.actors ? `(${fmt(x.named)} named)` : ""}</span></dd></div>
         </dl>
-        ${!ms.length && reads ? `<p class="small ch-why">No message here: ${writes ? "no read came after a write by a different actor" : "no write to these places was seen"}.</p>` : ""}
-        ${top ? `<div class="small muted ch-top"><span>Busiest</span>${ent.place(top.ch)}</div>` : ""}
-      </section>`;
-    }).join("") + `<div class="legend ch-catkey">${CAT.map((c) => `<span><i style="background:${c.color}"></i>${esc(c.label)}</span>`).join("")}</div>`;
+        ${why(x) ? `<p class="small ch-why">${why(x)}</p>` : ""}
+        ${top ? `<div class="small muted ch-top"><span>Busiest</span>${ent.place(top.ch)}${bTag(top)}</div>` : ""}
+      </div>`;
+    };
+    const smallRows = small.length ? `<table class="ch-smallkinds"><thead><tr><th>other kinds</th><th class="n">places</th><th class="n">writes</th><th class="n">reads</th><th class="n">messages</th></tr></thead><tbody>${small.map((x) => `<tr style="--tc:${tcolor[x.t]}"><td><i></i>${esc(placeType(x.t, x.ps.length))}${x.ps[0] ? ` <span class="small muted">e.g. ${ent.place(x.ps.slice().sort((a, b) => (b.writes + b.reads) - (a.writes + a.reads))[0].ch)}</span>` : ""}${why(x) ? `<div class="small muted">${why(x)}</div>` : ""}</td><td class="n">${fmt(x.ps.length)}</td><td class="n">${fmt(x.writes)}</td><td class="n">${fmt(x.reads)}</td><td class="n">${fmt(x.ms.length)}</td></tr>`).join("")}</tbody></table>` : "";
+    $("chTiles").innerHTML = big.map(tile).join("") + smallRows + `<div class="legend ch-catkey">${CAT.map((c) => `<span><i style="background:${c.color}"></i>${esc(c.label)}</span>`).join("")}</div>`;
   }
 
   // ------------------------------------------------------------------ 2. map of every place (squarified treemap)
@@ -292,9 +340,12 @@
     const host = $("chLat");
     const lat = D.M.map((m) => m.lat).filter((x) => x != null);
     if (!lat.length) { host.innerHTML = '<p class="muted">No dated messages.</p>'; return; }
-    const edges = [0, 5 / 60, 0.25, 1, 3, 6, 12, 24, 48, Infinity];
-    const labels = ["<5m", "5–15m", "15–60m", "1–3h", "3–6h", "6–12h", "12–24h", "1–2d", "2d+"];
-    const long = ["under 5 minutes", "5 to 15 minutes", "15 to 60 minutes", "1 to 3 hours", "3 to 6 hours", "6 to 12 hours", "12 to 24 hours", "1 to 2 days", "2 days or more"];
+    // estimated times are good to about a quarter of an hour (90% within two hours), so with any
+    // estimated time the bins start at an hour; minutes only when every time is a real timestamp
+    const anyEst = D.M.some((m) => m.est);
+    const edges = anyEst ? [0, 1, 3, 6, 12, 24, 48, Infinity] : [0, 5 / 60, 0.25, 1, 3, 6, 12, 24, 48, Infinity];
+    const labels = anyEst ? ["~<1h", "1–3h", "3–6h", "6–12h", "12–24h", "1–2d", "2d+"] : ["<5m", "5–15m", "15–60m", "1–3h", "3–6h", "6–12h", "12–24h", "1–2d", "2d+"];
+    const long = anyEst ? ["under about an hour", "1 to 3 hours", "3 to 6 hours", "6 to 12 hours", "12 to 24 hours", "1 to 2 days", "2 days or more"] : ["under 5 minutes", "5 to 15 minutes", "15 to 60 minutes", "1 to 3 hours", "3 to 6 hours", "6 to 12 hours", "12 to 24 hours", "1 to 2 days", "2 days or more"];
     const named = (a) => !String(a).startsWith("run:");
     const bins = labels.map(() => ({ n: 0, run: 0 }));
     D.M.forEach((m) => { if (m.lat == null) return; const i = edges.findIndex((e, k) => m.lat >= e && m.lat < edges[k + 1]); if (i < 0) return; if (named(m.from) && named(m.to)) bins[i].n++; else bins[i].run++; });
@@ -309,7 +360,7 @@
       if (b.n + b.run) svg += `<text x="${x + w / 2}" y="${B - h1 - h2 - 3}" text-anchor="middle" font-size="9.5" fill="${INK}">${fmt(b.n + b.run)}</text>`;
     });
     svg += `<line x1="${L}" x2="${W - Rr}" y1="${B}" y2="${B}" stroke="${AXIS}"/>`;
-    svg += `<text x="${(L + W - Rr) / 2}" y="${H - 4}" text-anchor="middle" font-size="10.5" fill="${QUIET}">wait from the write to the read</text><text x="11" y="${(T + B) / 2}" font-size="10.5" fill="${QUIET}" transform="rotate(-90 11 ${(T + B) / 2})" text-anchor="middle">messages</text></svg>`;
+    svg += `<text x="${(L + W - Rr) / 2}" y="${H - 4}" text-anchor="middle" font-size="10.5" fill="${QUIET}">wait from the write to the read${anyEst ? " (estimated times)" : ""}</text><text x="11" y="${(T + B) / 2}" font-size="10.5" fill="${QUIET}" transform="rotate(-90 11 ${(T + B) / 2})" text-anchor="middle">messages</text></svg>`;
     const sorted = lat.slice().sort((a, b) => a - b);
     const longW = D.M.filter((m) => m.lat != null && m.lat >= 48), longMerged = longW.filter((m) => m.merged).length;
     const longRuns = longW.filter((m) => !named(m.from) || !named(m.to)).length;
@@ -317,7 +368,7 @@
       (longRuns ? `; ${fmt(longRuns)} of those involve an anonymous run, which may be a later run reading an old place rather than a reply` : "") +
       (longMerged ? `; ${fmt(longMerged)} are on places the redaction may have ${term("merged", "merged")}, where the write and the read may be on two different places` : "") + "." : "";
     host.innerHTML = svg + `<div class="legend"><span><i style="background:${ACCENT}"></i>between named actors</span><span><i style="background:#b9cbe0"></i>involving an anonymous run</span></div>
-      <p class="small">Half of all ${fmt(sorted.length)} messages were read within <b>${hoursWord(sorted[Math.floor(sorted.length / 2)])}</b>; 90% within <b>${hoursWord(sorted[Math.floor(sorted.length * 0.9)])}</b>.${longNote}</p>`;
+      <p class="small">Half of all ${fmt(sorted.length)} messages were read within <b>${estWait(sorted[Math.floor(sorted.length / 2)], anyEst)}</b>; 90% within <b>${estWait(sorted[Math.floor(sorted.length * 0.9)], anyEst)}</b>.${longNote}${anyEst ? ` <span class="muted">${D.M.every((m) => m.est) ? "Every" : "Some"} wait here comes from estimated times (median error about a quarter of an hour), so waits under an hour are not split further.</span>` : ""}</p>`;
   }
 
   // ------------------------------------------------------------------ 4b. writers vs readers, binned
@@ -340,10 +391,9 @@
     const nMsgP = D.P.filter((p) => p.messages).length, nMsgs = D.P.reduce((a, p) => a + (p.messages || 0), 0);
     const ro1 = (cells.get("1,0") || { places: [] }).places.length, nv1 = (cells.get("0,1") || { places: [] }).places.length;
     const head = `<div class="ch-gstats">
-      <div><b>${fmt(N)}</b><span>places</span></div>
       <div class="g-ro"><b>${pct(nRO)}</b><span>${fmt(nRO)} only read, no write seen<br>(${fmt(ro1)} read by a single actor)</span></div>
       <div class="g-never"><b>${pct(nNever)}</b><span>${fmt(nNever)} written, never read by another actor<br>(${fmt(nv1)} with a single writer)</span></div>
-      <div class="g-msg"><b>${fmt(nMsgP)}</b><span>places carried ${plural(nMsgs, "message")} (${pct(nMsgP)})</span></div></div>`;
+      </div>`;
     const msgLine = (c) => (c && c.msg ? `<span class="ch-g-badge" title="${esc(`${plural(c.msg, "place")} here carried ${plural(c.msgs, "message")}`)}"><i></i>${fmt(c.msg)}→${fmt(c.msgs)}</span>` : "");
     const bar = (c, n) => (c && c.msg ? `<span class="ch-g-bar" style="width:${Math.max(6, (100 * c.msg) / n).toFixed(0)}%"></span>` : "");
     let rows = "";
@@ -370,10 +420,7 @@
     host.innerHTML = head + table + legend + `<div class="ch-glistbar"><button class="btn small" data-gmsg>Places that carried a message (${fmt(nMsgP)})</button></div><div id="chGridList" class="ch-gridlist"></div>`;
     const listOf = (title, list, sel) => {
       host.querySelectorAll(".ch-g-sel").forEach((x) => x.classList.remove("ch-g-sel")); if (sel) sel.classList.add("ch-g-sel");
-      const L = list.slice().sort((a, b) => (b.messages - a.messages) || (b.writes + b.reads) - (a.writes + a.reads));
-      const nm = L.filter((p) => p.messages).length;
-      $("chGridList").innerHTML = `<p class="small"><b>${plural(L.length, "place")}</b> ${title}${nm && nm < L.length ? `; ${fmt(nm)} carried a message (listed first)` : ""}${L.length > 40 ? ". The 40 busiest:" : ":"}</p>
-        <div class="tablewrap"><table class="ch-glist"><thead><tr><th>place</th><th class="n">writers</th><th class="n">readers</th><th class="n">writes</th><th class="n">reads</th><th class="n">msgs</th><th>first write</th></tr></thead><tbody>${L.slice(0, 40).map((p) => `<tr><td>${ent.place(p.ch)}</td><td class="n">${fmt(p.writers)}</td><td class="n">${fmt(p.readers)}</td><td class="n">${fmt(p.writes)}</td><td class="n">${fmt(p.reads)}</td><td class="n">${p.messages ? `<b>${fmt(p.messages)}</b>` : "–"}</td><td class="small muted" title="${esc(p.first || "")}">${esc(p.first ? String(p.first).replace(/^\d{4}-/, "") : "–")}</td></tr>`).join("")}</tbody></table></div>`;
+      placeTable($("chGridList"), title, list);
     };
     const bind = (el, fn) => { el.addEventListener("click", fn); el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); } }); };
     host.querySelectorAll("[data-gcell]").forEach((td) => bind(td, () => { const [ri, wi] = td.dataset.gcell.split(",").map(Number); listOf(`with ${gname(wi, "w")} and ${gname(ri, "r")}`, cells.get(ri + "," + wi).places, td); }));

@@ -320,7 +320,7 @@
         "[CREDENTIAL 170]"
       ],
       "harm_share_after": 0.877,
-      "why": "[CREDENTIAL 169] wrote hf_dataset:[REDACTED:destination:000536] in R0006579; [CREDENTIAL 170] read it in R0006587, 0.09 h later"
+      "why": "[CREDENTIAL 169] wrote hf_dataset:[REDACTED:destination:000536] in R0006579; [CREDENTIAL 170] read it in R0006587, about 1 h later (estimated times)"
     },
     {
       "key": "group3",
@@ -362,7 +362,7 @@
         "[CREDENTIAL 220]"
       ],
       "harm_share_after": 0.85,
-      "why": "[CREDENTIAL 220] ran the program [CREDENTIAL 265] first ran in R0008211, 0.0 h later"
+      "why": "[CREDENTIAL 220] ran the program [CREDENTIAL 265] first ran in R0008211, about 1 h later (estimated times)"
     },
     {
       "key": "rate_all",

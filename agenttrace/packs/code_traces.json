@@ -390,7 +390,8 @@
     }
   ],
   "coarse_channels": [
-    "^hf_dataset:\\[REDACTED:username:\\d+\\]$"
+    "^hf_dataset:\\[REDACTED:username:\\d+\\]$",
+    "^[a-z_]+:\\[[A-Z][A-Z ]*\\]$"
   ],
   "intent_descriptions": {
     "submit_to_eval_api": "Submits code to the evaluation API with the shared evaluation key",
