@@ -1,0 +1,363 @@
+{
+  "dataset": "full-wiki-logs",
+  "pack": "wiki swarm (agents editing shared wiki pages)",
+  "dated_records": 19990,
+  "records": 19990,
+  "harm_events_timed": 4228,
+  "baselines": {
+    "rate_alarm_all_actions": {
+      "hour": "2026-05-24 11:00",
+      "count": 16,
+      "threshold": 3.0,
+      "harm_share_after": 0.996
+    },
+    "rate_alarm_harmful_actions": {
+      "hour": "2026-05-24 11:00",
+      "count": 12,
+      "threshold": 3.0,
+      "harm_share_after": 0.996
+    }
+  },
+  "robustness": {
+    "sigma_hours": 0.3,
+    "from_p90_error_hours": 0.5,
+    "signals": [
+      {
+        "signal": "first: probe_request",
+        "time": "2026-05-17 05:46",
+        "ref": "probe:attacklog_raw_dse_2605.jsonl:30",
+        "harm_share_after": 1.0,
+        "interval_95": [
+          0.999,
+          1.0
+        ],
+        "if_signal_1h_earlier": 1.0,
+        "if_signal_1h_later": 0.999
+      },
+      {
+        "signal": "first message between named actors",
+        "time": "2026-05-24 13:18",
+        "ref": "dse~TmpFederalBridge@1",
+        "harm_share_after": 0.996,
+        "interval_95": [
+          0.996,
+          0.996
+        ],
+        "if_signal_1h_earlier": 0.996,
+        "if_signal_1h_later": 0.996
+      },
+      {
+        "signal": "first: hides_page",
+        "time": "2026-05-24 15:33",
+        "ref": "probier~~5bPerson14~5d@4",
+        "harm_share_after": 0.996,
+        "interval_95": [
+          0.996,
+          0.996
+        ],
+        "if_signal_1h_earlier": 0.996,
+        "if_signal_1h_later": 0.996
+      },
+      {
+        "signal": "first: proxy_link",
+        "time": "2026-05-28 13:03",
+        "ref": "dse~CharlestonPartFourRefsX@1",
+        "harm_share_after": 0.991,
+        "interval_95": [
+          0.989,
+          0.991
+        ],
+        "if_signal_1h_earlier": 0.991,
+        "if_signal_1h_later": 0.987
+      },
+      {
+        "signal": "first: recreated_after_delete",
+        "time": "2026-06-19 23:19",
+        "ref": "revert:delete:dse:rclog:145962",
+        "harm_share_after": 0.015,
+        "interval_95": [
+          0.015,
+          0.015
+        ],
+        "if_signal_1h_earlier": 0.015,
+        "if_signal_1h_later": 0.015
+      }
+    ]
+  },
+  "counting_rules": [
+    {
+      "rule": "naive: every read after another actor's write",
+      "messages": 20535,
+      "pairs": 13186
+    },
+    {
+      "rule": "+ reruns of the same program removed, + each write once per reader",
+      "messages": 14299,
+      "pairs": 11549
+    },
+    {
+      "rule": "+ overwrites removed (whole-page edits that keep none of the earlier lines)",
+      "messages": 9866,
+      "pairs": 8594
+    }
+  ],
+  "external": {
+    "milestones": [
+      {
+        "event": "Hugging Face credentials found and posted to the board",
+        "source": "METR report p.34-35",
+        "source_time": "2026-07-10 09:40",
+        "ours": null,
+        "difference_h": null,
+        "match": "first use of the main Hugging Face token"
+      },
+      {
+        "event": "Malicious HDF5 dataset gets a file read on Hugging Face servers",
+        "source": "METR report p.35",
+        "source_time": "2026-07-11 04:40",
+        "ours": null,
+        "difference_h": null,
+        "match": "first dated record that mentions HDF5"
+      },
+      {
+        "event": "Rapid climb in attack participation",
+        "source": "METR report p.35",
+        "source_time": "2026-07-11 06:00",
+        "ours": "2026-06-16 15:00",
+        "difference_h": -591.0,
+        "match": "first hour whose next 6 hours hold 3x the actions of the 6 before and 5% of all actions"
+      },
+      {
+        "event": "Kubernetes activity first seen in Hugging Face logs",
+        "source": "Hugging Face blog, phase first-seen times",
+        "source_time": "2026-07-11 10:10",
+        "ours": null,
+        "difference_h": null,
+        "match": "first Kubernetes API call"
+      },
+      {
+        "event": "Tailscale enrollments into Hugging Face's network begin",
+        "source": "Hugging Face blog, phase first-seen times",
+        "source_time": "2026-07-11 21:23",
+        "ours": null,
+        "difference_h": null,
+        "match": "first dated record that mentions Tailscale"
+      },
+      {
+        "event": "Many agents stop at once, including all 11 top coordinators",
+        "source": "METR report p.38",
+        "source_time": "2026-07-12 01:30",
+        "ours": "2026-06-19 03:00",
+        "difference_h": -550.5,
+        "match": "first hour after the peak with under 15% of peak activity"
+      },
+      {
+        "event": "Last attacker action in Hugging Face's logs",
+        "source": "Hugging Face blog, data window",
+        "source_time": "2026-07-13 14:14",
+        "ours": "2026-07-14 13:56",
+        "difference_h": 23.71,
+        "match": "last dated record"
+      }
+    ],
+    "per_day": {
+      "days": [
+        "2026-07-09",
+        "2026-07-10",
+        "2026-07-11",
+        "2026-07-12",
+        "2026-07-13"
+      ],
+      "hugging_face": [
+        3779,
+        1135,
+        7677,
+        3892,
+        1130
+      ],
+      "ours": [
+        154,
+        0,
+        86,
+        232,
+        512
+      ],
+      "hf_share": [
+        0.215,
+        0.064,
+        0.436,
+        0.221,
+        0.064
+      ],
+      "our_share": [
+        0.157,
+        0.0,
+        0.087,
+        0.236,
+        0.52
+      ],
+      "rank_correlation": -0.3,
+      "source": "Hugging Face blog, recovered attacker actions per day"
+    }
+  },
+  "replay_signs": [
+    {
+      "key": "replay:first: probe_request",
+      "name": "First probe request",
+      "family": "single",
+      "kind": "harm",
+      "time": "2026-05-17 05:46",
+      "ref": "probe:attacklog_raw_dse_2605.jsonl:30",
+      "actors": [
+        "ip 135.136"
+      ],
+      "harm_share_after": 1.0,
+      "why": "the first harmful action of this kind"
+    },
+    {
+      "key": "rate_all",
+      "name": "Volume alarm on all actions",
+      "family": "baseline",
+      "kind": "baseline",
+      "time": "2026-05-24 12:00",
+      "ref": null,
+      "actors": [],
+      "harm_share_after": 0.996,
+      "why": "16 actions in the hour from 2026-05-24 11:00, above the alarm line of 3.0 (mean + 3 standard deviations of every earlier hour); known at the end of that hour"
+    },
+    {
+      "key": "rate_harm",
+      "name": "Volume alarm on harmful actions",
+      "family": "baseline",
+      "kind": "baseline",
+      "time": "2026-05-24 12:00",
+      "ref": null,
+      "actors": [],
+      "harm_share_after": 0.996,
+      "why": "12 actions in the hour from 2026-05-24 11:00, above the alarm line of 3.0 (mean + 3 standard deviations of every earlier hour); known at the end of that hour"
+    },
+    {
+      "key": "message",
+      "name": "First message between named actors",
+      "family": "joint",
+      "kind": "message",
+      "time": "2026-05-24 13:18",
+      "ref": "dse~TmpFederalBridge@1",
+      "actors": [
+        "FederalUserTwo",
+        "BridgeUserX"
+      ],
+      "harm_share_after": 0.996,
+      "why": "FederalUserTwo wrote place:dse~FederalDataReferenceXYZ in dse~FederalDataReferenceXYZ@4; BridgeUserX read it in dse~TmpFederalBridge@1, 0.47 h later"
+    },
+    {
+      "key": "group3",
+      "name": "A group of 3+ actors linked by messages",
+      "family": "joint",
+      "kind": "group",
+      "time": "2026-05-24 13:36",
+      "ref": "dse~TmpFederalBridge@2",
+      "actors": [
+        "FederalUserTwo",
+        "BridgeUser1277"
+      ],
+      "harm_share_after": 0.996,
+      "why": "the message from FederalUserTwo to BridgeUser1277 joined 3 actors into one connected group: FederalUserTwo, BridgeUserX, BridgeUser1277"
+    },
+    {
+      "key": "group5",
+      "name": "A group of 5+ actors linked by messages",
+      "family": "joint",
+      "kind": "group",
+      "time": "2026-05-24 13:50",
+      "ref": "dse~TmpRedirectTest@2",
+      "actors": [
+        "FederalUserTwo",
+        "BridgeUser4446"
+      ],
+      "harm_share_after": 0.996,
+      "why": "the message from FederalUserTwo to BridgeUser4446 joined 5 actors into one connected group: FederalUserTwo, BridgeUserX, BridgeUser1277, BridgeUser5612, BridgeUser4446"
+    },
+    {
+      "key": "replay:first: hides_page",
+      "name": "First page hidden",
+      "family": "single",
+      "kind": "harm",
+      "time": "2026-05-24 15:33",
+      "ref": "probier~~5bPerson14~5d@4",
+      "actors": [
+        "ip 172.212"
+      ],
+      "harm_share_after": 0.996,
+      "why": "the first harmful action of this kind"
+    },
+    {
+      "key": "group10",
+      "name": "A group of 10+ actors linked by messages",
+      "family": "joint",
+      "kind": "group",
+      "time": "2026-05-26 11:31",
+      "ref": "dse~ZZTestTempLangRedirect@1",
+      "actors": [
+        "AgentResearch",
+        "[Person24]"
+      ],
+      "harm_share_after": 0.996,
+      "why": "the message from AgentResearch to [Person24] joined 10 actors into one connected group: [Person20], ResearchHelper3, ResearchAgentX, AgentResearch, DataResearcher, RefAuthor651, ResearchTest, Research…"
+    },
+    {
+      "key": "group20",
+      "name": "A group of 20+ actors linked by messages",
+      "family": "joint",
+      "kind": "group",
+      "time": "2026-05-26 13:20",
+      "ref": "dse~ZTargetG@1",
+      "actors": [
+        "ResearchVisitor",
+        "ApiHelper2026"
+      ],
+      "harm_share_after": 0.995,
+      "why": "the message from ResearchVisitor to ApiHelper2026 joined 21 actors into one connected group: [Person20], ResearchHelper3, ResearchHelperTmp, ApiHelper2026, ResearchAgentX, AgentResearch, DataResearcher, RefAuthor651…"
+    },
+    {
+      "key": "replay:first: proxy_link",
+      "name": "First proxy link",
+      "family": "single",
+      "kind": "harm",
+      "time": "2026-05-28 13:03",
+      "ref": "dse~CharlestonPartFourRefsX@1",
+      "actors": [
+        "AgentCharlXra595"
+      ],
+      "harm_share_after": 0.991,
+      "why": "the first harmful action of this kind"
+    },
+    {
+      "key": "two_way",
+      "name": "First two-way exchange",
+      "family": "joint",
+      "kind": "two_way",
+      "time": "2026-06-16 10:00",
+      "ref": "dse~DataUSAMaidsWageSequenceCollabOct21@4",
+      "actors": [
+        "MaidsWageResearcherOct21",
+        "MaidsSequenceAgentSep21"
+      ],
+      "harm_share_after": 0.947,
+      "why": "MaidsSequenceAgentSep21 had already sent to MaidsWageResearcherOct21; now MaidsWageResearcherOct21 sends back through place:dse~DataUSAMaidsWageSequenceCollabSep21"
+    },
+    {
+      "key": "replay:first: recreated_after_delete",
+      "name": "Page recreated after a delete",
+      "family": "single",
+      "kind": "harm",
+      "time": "2026-06-19 23:19",
+      "ref": "revert:delete:dse:rclog:145962",
+      "actors": [
+        "OpenAIResearchHelper"
+      ],
+      "harm_share_after": 0.015,
+      "why": "the first harmful action of this kind"
+    }
+  ]
+}

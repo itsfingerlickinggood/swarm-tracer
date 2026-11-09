@@ -24,11 +24,14 @@
 
   function loader(lib, packs, cmp) {
     const entries = lib.entries || [];
-    const rows = entries.map((e) => `<div class="cmplib">
+    // the entry that is the loaded dataset: same id/title as its name, or its path ends with the name
+    const nm = String(cmp.a?.name || S.summary?.name || ""), base = (p) => String(p || "").replace(/\/+$/, "").split("/").pop();
+    const isLoaded = (e) => !!nm && (e.id === nm || e.title === nm || (e.available && (e.available === nm || base(e.available) === nm)));
+    const rows = entries.map((e) => `<div class="cmplib${isLoaded(e) ? " cmploaded" : ""}">
         <div class="cmplibt"><b>${esc(e.title)}</b> <span class="muted small">${esc(e.kind || "")}${e.pack ? " · pack " + esc(e.pack) : ""}</span></div>
         <div class="small">${esc(e.description || "")}</div>
         <div class="small muted">${e.available ? `On this machine: <code>${esc(e.available)}</code>` : `Not on this machine. ${esc(e.get_it || "")} ${e.source_url ? `<a href="${/^https?:\/\//.test(e.source_url) ? esc(e.source_url) : "#"}" target="_blank" rel="noopener">${esc(e.source_url)}</a>` : ""}`}${e.context_available ? " · incident context included" : ""}</div>
-        ${e.available ? `<button type="button" class="primary small" data-lib="${esc(e.id)}">Load to compare</button>` : ""}
+        ${isLoaded(e) ? '<span class="small muted cmpalready">already loaded</span>' : e.available ? `<button type="button" class="primary small" data-lib="${esc(e.id)}">Load to compare</button>` : ""}
       </div>`).join("");
     const opts = packs.map((p) => `<option value="${esc(p.file)}">${esc(p.name)}</option>`).join("");
     return card(`Load a second dataset`, `

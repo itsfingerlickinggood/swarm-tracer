@@ -136,12 +136,56 @@ def _direct_perf(direct):
 # ------------------------------------------------------------------ channels
 
 def compile_channels(pack):
+    """(name, place pattern, write verbs, read verbs) per channel. The read verbs (the channel's "read",
+    else the pack's "read_pattern") name requests that only fetch, such as an LFS batch with
+    operation 'download' or a HEAD, so a POST that merely downloads is not taken for a write."""
     out = []
     for c in pack.raw.get("channels", []):
         flags = re.I if "i" in c.get("flags", "") else 0
         out.append((c["name"], re.compile(c["pattern"], flags),
-                    re.compile(c.get("write", pack.raw.get("write_pattern", r"(?!)")), re.I)))
+                    re.compile(c.get("write", pack.raw.get("write_pattern", r"(?!)")), re.I),
+                    re.compile(c.get("read", pack.raw.get("read_pattern", r"(?!)")), re.I)))
     return out
+
+
+REQUEST_START = re.compile(r"fetch\s*\(|\.open\s*\(|new\s+XMLHttpRequest|requests\.(?:get|post|put|patch|delete|head)\s*\(|"
+                           r"\bcurl\b|urlopen\s*\(|http\.request|axios\.|\$\.ajax|navigator\.sendBeacon", re.I)
+
+
+def judge_op(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
+    """Write or read, from the request verb nearest to the place mention at text[start:end].
+    The code examined is the request call the mention sits in: it never crosses another place mention
+    (bounds = (prev_end, next_start)) nor the start of another request (fetch(, .open(, new
+    XMLHttpRequest, requests.post( ...). So a program that fetches a dataset and then POSTs what it read
+    to a collector is a read of the dataset, not a write."""
+    lo, hi = max(0, start - before), min(len(text), end + after)
+    if bounds:
+        lo, hi = max(lo, bounds[0]), min(hi, bounds[1])
+    # clip at the request calls around the mention: the last one starting before it, the first after it
+    last = None
+    for m in REQUEST_START.finditer(text, lo, start):
+        last = m.start()
+    if last is not None:
+        lo = last
+    nxt = REQUEST_START.search(text, end, hi)
+    if nxt:
+        hi = nxt.start()
+    window = text[lo:hi]
+    pos = start - lo
+
+    def nearest(rx):
+        best = None
+        for m in rx.finditer(window):
+            d = 0 if m.start() <= pos <= m.end() else min(abs(m.start() - pos), abs(m.end() - pos))
+            if best is None or d < best:
+                best = d
+        return best
+    w, r = nearest(wrx), nearest(rrx)
+    if w is None:
+        return "read"
+    if r is not None and r < w:
+        return "read"
+    return "write"
 
 
 NAME_TOKEN = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.\-]{5,}")
@@ -198,15 +242,18 @@ def channel_ops(events, pack, rec, res):
                     if k != e.channel and k not in seen:
                         seen.add(k)
                         found.append(("place:" + k, "read"))
-        for name, rx, wrx in chans:
+        # every place mention in the record, so each one is judged only by the code between its neighbours
+        spans = sorted({(m.start(), m.end()) for _n, rx, _w, _r in chans for m in rx.finditer(e.text) if m.group(1)})
+        for name, rx, wrx, rrx in chans:
             ops_here = {}
             for m in rx.finditer(e.text):
                 if not m.group(1) or in_comment(e.text, m.start()):
                     continue
                 # judge each mention by the code around it, not the whole record: one program
                 # can read one place and write another
-                window = e.text[max(0, m.start() - 160): m.end() + 260]
-                op = "write" if wrx.search(window) else "read"
+                k = spans.index((m.start(), m.end()))
+                bounds = (spans[k - 1][1] if k else 0, spans[k + 1][0] if k + 1 < len(spans) else len(e.text))
+                op = judge_op(e.text, m.start(), m.end(), wrx, rrx, bounds)
                 key = f"{name}:{m.group(1)}"
                 if ops_here.get(key) != "write":
                     ops_here[key] = op
@@ -387,11 +434,11 @@ def content_spread(events, pack, rec, res, kinds=None, written=None):
             return False
         if intents.get(rid) in harm:
             return True
-        for name, rx, wrx in chans:
+        for name, rx, wrx, rrx in chans:
             for m in rx.finditer(e.text):
                 if not m.group(1) or in_comment(e.text, m.start()):
                     continue
-                if wrx.search(e.text[max(0, m.start() - 160): m.end() + 260]):
+                if judge_op(e.text, m.start(), m.end(), wrx, rrx) == "write":
                     return True
                 if written is None or f"{name}:{m.group(1)}" in written:
                     return True

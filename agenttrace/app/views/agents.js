@@ -36,7 +36,8 @@
       ${card("Why not merged?", '<div id="agwhy"></div>', { sub: "Pick two named actors you expect to be one agent: the score they got, what pushed it down, which kinds of evidence were not found for them, and how far they are from a merge." })}
       ${card(`${term("role", "Roles")}`, '<div id="agrolesum"></div><div id="agroles"></div>', { sub: `Each named actor's role in the messages between named actors (${fmt(roles.messages_between_named)} messages), with the numbers behind it. Click a role to filter.`, right: '<button class="link" id="agrolerules">Rules</button>' })}
       <div id="agrolerulebox" hidden></div>`;
-    const draw = (r) => { estimate(r, ctxR.context, s); proposals(r); groups(r); names(r); };
+    let cur = idr;
+    const draw = (r) => { cur = r; estimate(r, ctxR.context, s); proposals(r); groups(r); names(r); };
     draw(idr);
     whyNot(idr, roles);
     rules(idr, roles);
@@ -48,8 +49,12 @@
       if (!b) return;
       b.disabled = true;
       try {
-        await api("/api/x/identity_decide", { method: "POST", body: JSON.stringify({ a: b.dataset.a, b: b.dataset.b, decision: b.dataset.dec }) });
+        const r = await api("/api/x/identity_decide", { method: "POST", body: JSON.stringify({ a: b.dataset.a, b: b.dataset.b, decision: b.dataset.dec }) });
+        const before = cur.estimate, after = r.estimate;
         draw(await api("/api/x/identity"));
+        const wi = await api("/api/x/fx_whatif?rule=accepted").catch(() => null);
+        status(`${{ accept: "Accepted as one agent", reject: "Rejected: two agents", clear: "Decision undone" }[b.dataset.dec] || "Saved"} · recount: ${fmt(before?.estimated_agents)} → ${fmt(after?.estimated_agents)} estimated agents${wi ? `, ${fmt(wi.as_counted.messages)} → ${fmt(wi.after.messages)} messages with only accepted merges` : ""}. Decisions are saved on this server for this dataset and seen by everyone using it.`);
+        setTimeout(() => status(""), 8000);
       } catch (err) { status(err.message, true); b.disabled = false; }
     });
   }
@@ -65,7 +70,7 @@
         ${kpi(term("estimated_agent", "estimated agents"), fmt(e.estimated_agents), e.low === e.high ? "no medium or accepted pairs change it" : `${fmt(e.low)} to ${fmt(e.high)}`)}
         ${rep.map((x) => kpi(esc(x.label), esc(x.value), `the reports (${esc(x.source)})`)).join("")}
         ${kpi(term("merge_proposal", "proposals"), fmt(e.proposals), ["high", "medium", "low"].map((c) => `${fmt(e.by_confidence[c] || 0)} ${c}`).join(" · ") + " undecided")}
-        ${kpi("decisions", fmt(e.accepted + e.rejected), `${fmt(e.accepted)} accepted · ${fmt(e.rejected)} rejected`)}
+        ${kpi("decisions", fmt(e.accepted + e.rejected), `${fmt(e.accepted)} accepted · ${fmt(e.rejected)} rejected · saved on this server, seen by everyone using it`)}
       </div>
       ${rep.length && e.named_actors ? `<p class="small muted">The reports count agents from the operators' own logs; this dataset sees ${fmt(e.named_actors)} named actors. A gap between the two is what the records cannot tell apart: anonymous runs, shared keys, and agents that never authenticated.</p>` : ""}
     </section>`;

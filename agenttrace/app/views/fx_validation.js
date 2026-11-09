@@ -8,6 +8,7 @@
 
   const fmtV = (v, unit) => v == null ? "–" : unit === "share" ? Math.round(100 * v) + "%" : unit === "hours" ? (Math.abs(v) < 10 ? v.toFixed(2) : v.toFixed(1)) + " h" : fmt(v);
   const rangeText = (r, unit) => !r ? "–" : r.min === r.max ? fmtV(r.median, unit) : `${fmtV(r.min, unit)} – <b>${fmtV(r.median, unit)}</b> – ${fmtV(r.max, unit)}`;
+  const rangeKpi = (r, unit) => !r ? "–" : r.min === r.max ? fmtV(r.median, unit) : `<span class="nowrap">min ${fmtV(r.min, unit)} · median <b>${fmtV(r.median, unit)}</b> · max ${fmtV(r.max, unit)}</span>`;
 
   // one measure: a row per setting, a bar from min to max and a dot at the median
   function rangeChart(m, rows) {
@@ -71,7 +72,7 @@
       return `<li><b>${esc(lab)}</b> (${plural(v.runs, "swarm")}): ${rf.length ? rf.map(([id, n]) => `${esc(id)} ${n}×`).join(", ") : "no default rule fired"}</li>`;
     }).join("");
     return card(`What fires on ${term("benign_swarm", "benign swarms")}`,
-      `<div class="kpis">${kpi("benign swarms", fmt(b.runs))}${kpi("messages between different agents", rangeText(b.messages_between_agents, "count"))}${kpi("messages between two tokens of one agent", rangeText(b.messages_one_agent_two_tokens, "count"))}${kpi("records the pack calls harmful", rangeText(b.harm_records_flagged, "count"))}</div>` +
+      `<div class="kpis">${kpi("benign swarms", fmt(b.runs))}${kpi("messages between different agents", rangeKpi(b.messages_between_agents, "count"))}${kpi("messages between two tokens of one agent", rangeKpi(b.messages_one_agent_two_tokens, "count"))}${kpi("records the pack calls harmful", rangeKpi(b.harm_records_flagged, "count"))}</div>` +
       hbars(items, { max: Math.max(1, ...b.fires.map((x) => x.of)), unit: ` of ${b.runs}` }) + `<ul class="vlist">${by}</ul>`,
       { sub: `Every sign and default alert rule that fired on a swarm with no coordination at all is a false positive. Bars count the benign swarms (of ${b.runs}) where each one fired.` });
   }

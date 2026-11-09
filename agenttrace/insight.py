@@ -870,17 +870,27 @@ def why_spans(s, rid, text_limit=20000):
             for m in rx.finditer(text):
                 tok = m.group(1)
                 add(m, "identity", tok, f"identity {tok} used as {role}" + (" (a shared key: not counted as an actor)" if tok in shared else ""), 1)
-        for name, rx, wrx in messages.compile_channels(s.pack):
+        chans = messages.compile_channels(s.pack)
+        all_spans = sorted({(mm.start(), mm.end()) for _n, rx, _w, _r in chans for mm in rx.finditer(text) if mm.group(1)})
+        for name, rx, wrx, rrx in chans:
             for m in rx.finditer(text):
                 if not m.group(1):
                     continue
-                w0 = max(0, m.start() - 160)
-                window = text[w0: m.end() + 260]
-                wm = wrx.search(window)
+                if messages.in_comment(text, m.start()):
+                    key = f"{name}:{m.group(1)}"
+                    add(m, "place", key, f"names the place {key} inside a comment: not counted as a read or a write", op="mention")
+                    continue
+                k = all_spans.index((m.start(), m.end()))
+                bounds = (all_spans[k - 1][1] if k else 0, all_spans[k + 1][0] if k + 1 < len(all_spans) else len(text))
+                w0, w1 = max(0, m.start() - 160, bounds[0]), min(len(text), m.end() + 260, bounds[1])
+                window = text[w0:w1]
+                op = messages.judge_op(text, m.start(), m.end(), wrx, rrx, bounds)
                 key = f"{name}:{m.group(1)}"
-                add(m, "place", key, f"names the place {key}: counted as a {'write' if wm else 'read'}"
-                    + (" because of the code marked nearby" if wm else " (no write code within the 160 characters before or 260 after)"),
-                    op="write" if wm else "read")
+                wm = wrx.search(window) if op == "write" else None
+                add(m, "place", key, f"names the place {key}: counted as a {op}"
+                    + (" because of the request verb marked nearby" if op == "write" else
+                       " (no write verb nearer than a read verb, between this mention and the next)"),
+                    op=op)
                 if wm and wm.end() > wm.start():
                     spans.append({"s": w0 + wm.start(), "e": w0 + wm.end(), "type": "write_cue", "key": key,
                                   "label": f"write code: makes the mention of {key} a write"})

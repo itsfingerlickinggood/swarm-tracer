@@ -149,7 +149,12 @@ table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:auto}
 td{overflow-wrap:anywhere}
 th,td{text-align:left;padding:4px 6px;border-bottom:1px solid var(--line2);vertical-align:top}
 th{color:var(--muted);font-weight:600;position:sticky;top:0;background:#fff;font-size:11.5px;z-index:1}
-td.n{text-align:right;font-variant-numeric:tabular-nums}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tablewrap,.nw-atwrap,.fxbscroll{overflow-x:auto}
+.ribbon .ribsub{display:block;font-style:normal;text-transform:none;letter-spacing:0;color:#6f8198;font-size:9.5px}
+.efboth,.bdate{display:block}
+.cmploaded{opacity:.75}.cmpalready{font-style:italic}
+.wi-shared{margin:2px 0 8px}.wi-last{color:var(--ink)}
 tr.click{cursor:pointer} tr.click:hover{background:#f2f7fd}
 .listbar input{width:240px}
 button.lmore{margin:6px 0 10px}

@@ -64,7 +64,7 @@ def pipeline_svg():
 
 # the app figures in Appendix C: (name, window size, deep link, crop as height, width, y, x in device pixels at 2x)
 CAPTURES = [
-    ("app_overview", "1680,1050", "#tab=overview&rec=R0006786&scroll=700", None),
+    ("app_overview", "1680,1050", "#tab=overview&rec=R0006587&scroll=700", None),
     ("app_early", "1680,1300", "#tab=early&hour=2026-07-11T06", (1680, 1980, 244, 20)),
     ("app_network", "1680,1300", "#tab=network&scroll=470", (1785, 1966, 215, 20)),
     ("app_timeline", "1680,1300", "#tab=timeline&order=messages&rows=messages&scroll=600", (1277, 1980, 344, 20)),

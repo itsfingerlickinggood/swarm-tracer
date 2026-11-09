@@ -13,7 +13,7 @@ Two things work everywhere:
 
 The dataset's name, span, dated share, named actors, places and messages. The search box finds actors, places and record ids, and can search all record text. **Live** follows a growing trace, **Case file** holds your pins and notes, **Glossary** explains terms, and **Load data** analyzes a new trace (it replaces the one loaded).
 
-Links to any view can be shared: `#tab=early&hour=2026-07-11T06`, `#tab=network&rec=R0006786`, `#actor=…`, `#place=…`.
+Links to any view can be shared: `#tab=early&hour=2026-07-11T06`, `#tab=network&rec=R0006587`, `#actor=…`, `#place=…`.
 
 ## Overview
 

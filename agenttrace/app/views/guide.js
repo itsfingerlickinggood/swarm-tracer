@@ -14,7 +14,7 @@ const soft = (p) => p.catch(() => null);
 async function buildSteps(s) {
   const f = s.flow || {}, steps = [];
   const named = s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0);
-  const [sim, idn, gaps, dec] = await Promise.all([soft(cached("/api/sim")), soft(cached("/api/x/identity")), soft(cached("/api/gaps")), soft(api("/api/x/fx_whatif_decisions"))]);
+  const [sim, idn, gaps, dec, wi] = await Promise.all([soft(cached("/api/sim")), soft(cached("/api/x/identity")), soft(cached("/api/gaps")), soft(api("/api/x/fx_whatif_decisions")), whatifEstimate()]);
   steps.push({ title: "What is loaded", btn: "Open the overview", link: link({ tab: "overview" }),
     text: `${s.name} holds ${plural(s.records, "record")}, ${pct(s.records ? s.timed / s.records : null)} of them dated, from ${plural(named, "named actor")} using ${plural(f.channels || 0, "place")}.` });
   const msgs = f.deliveries_between_named_actors ?? f.deliveries ?? 0, tp = (f.top_pairs || [])[0];
@@ -24,11 +24,11 @@ async function buildSteps(s) {
       : "No message between named actors was found: no actor read a place after a different actor wrote to it." });
   const fd = f.first_named_delivery;
   if (fd) steps.push({ title: "The first message", btn: "Open it in the Inspector", link: link({ tab: "network", rec: fd.read_id }),
-    text: `${short(fd.from)} wrote ${placeLabel(fd.channel)} in ${fd.write_id} and ${short(fd.to)} read it in ${fd.read_id}${fd.read_time ? ` at ${fd.read_time} UTC` : ""}${f.harm_share_after_first_named_delivery != null ? `; ${pct(f.harm_share_after_first_named_delivery)} of the dated harm came after it` : ""}.` });
+    text: `${short(fd.from)} wrote ${placeLabel(fd.channel)} in ${fd.write_id} and ${short(fd.to)} read it in ${fd.read_id}${fd.read_time ? ` at ${fd.read_time} UTC` : ""}${f.harm_share_after_first_named_delivery != null ? `; ${bothSharesText(f.harm_share_after_first_named_delivery, wi?.after?.first_message?.harm_share_after)} of the dated harm came after it` : ""}.` });
   if (sim) {
     const sigs = sim.signals || [], joint = sigs.filter((g) => g.family === "joint").sort((a, b) => a.t - b.t)[0];
     steps.push({ title: "Could it have been flagged early?", btn: "Replay the early flag", link: link({ tab: "early" }),
-      text: `The replay tracks ${plural(sigs.length, "warning sign")}. ${joint ? `The first sign of actors working together (${joint.name.toLowerCase()}) fired ${when(joint.t * 1000)} UTC${joint.harm_share_after != null ? `, with ${pct(joint.harm_share_after)} of the harm still to come` : ""}.` : "None of them is about actors working together."}` });
+      text: `The replay tracks ${plural(sigs.length, "warning sign")}. ${joint ? `The first sign of actors working together (${joint.name.toLowerCase()}) fired ${when(joint.t * 1000)} UTC${joint.harm_share_after != null ? `, with ${bothSharesText(joint.harm_share_after, whatifSign(wi, joint.key)?.after?.harm_share_after)} of the harm still to come` : ""}.` : "None of them is about actors working together."}` });
   }
   const est = idn?.estimate;
   steps.push({ title: "A token is not an agent", btn: "Review identities in Agents", link: link({ tab: "agents" }),

@@ -1,0 +1,460 @@
+{
+  "dataset": "redacted_columns.csv",
+  "pack": "code traces (Swarm Traces release)",
+  "dated_records": 75068,
+  "records": 189579,
+  "harm_events_timed": 8124,
+  "baselines": {
+    "rate_alarm_all_actions": {
+      "hour": "2026-07-11 08:00",
+      "count": 766,
+      "threshold": 614.7,
+      "harm_share_after": 0.832
+    },
+    "rate_alarm_harmful_actions": {
+      "hour": "2026-07-11 08:00",
+      "count": 160,
+      "threshold": 128.0,
+      "harm_share_after": 0.832
+    }
+  },
+  "robustness": {
+    "sigma_hours": 3.07,
+    "from_p90_error_hours": 5.05,
+    "signals": [
+      {
+        "signal": "first: registry_board",
+        "time": "2026-07-09 13:29",
+        "ref": "R0000032",
+        "harm_share_after": 1.0,
+        "interval_95": [
+          0.958,
+          1.0
+        ],
+        "if_signal_1h_earlier": 1.0,
+        "if_signal_1h_later": 1.0
+      },
+      {
+        "signal": "spread: first use of an item seen earlier",
+        "time": "2026-07-09 15:30",
+        "ref": "[CREDENTIAL 13]",
+        "harm_share_after": 1.0,
+        "interval_95": [
+          0.943,
+          1.0
+        ],
+        "if_signal_1h_earlier": 1.0,
+        "if_signal_1h_later": 0.991
+      },
+      {
+        "signal": "first: docker_registry",
+        "time": "2026-07-09 15:33",
+        "ref": "R0000554",
+        "harm_share_after": 1.0,
+        "interval_95": [
+          0.939,
+          1.0
+        ],
+        "if_signal_1h_earlier": 1.0,
+        "if_signal_1h_later": 0.991
+      },
+      {
+        "signal": "first: hf_dataset_write",
+        "time": "2026-07-10 10:24",
+        "ref": "R0005279",
+        "harm_share_after": 0.899,
+        "interval_95": [
+          0.888,
+          0.911
+        ],
+        "if_signal_1h_earlier": 0.903,
+        "if_signal_1h_later": 0.896
+      },
+      {
+        "signal": "first message between named actors",
+        "time": "2026-07-11 00:47",
+        "ref": "R0006587",
+        "harm_share_after": 0.877,
+        "interval_95": [
+          0.848,
+          0.887
+        ],
+        "if_signal_1h_earlier": 0.878,
+        "if_signal_1h_later": 0.876
+      },
+      {
+        "signal": "first: kubernetes_api",
+        "time": "2026-07-11 09:45",
+        "ref": "R0009849",
+        "harm_share_after": 0.82,
+        "interval_95": [
+          0.601,
+          0.869
+        ],
+        "if_signal_1h_earlier": 0.834,
+        "if_signal_1h_later": 0.803
+      },
+      {
+        "signal": "first: cloud_metadata",
+        "time": "2026-07-11 11:22",
+        "ref": "R0012205",
+        "harm_share_after": 0.789,
+        "interval_95": [
+          0.566,
+          0.858
+        ],
+        "if_signal_1h_earlier": 0.809,
+        "if_signal_1h_later": 0.729
+      },
+      {
+        "signal": "coordination: one identity carries another's token",
+        "time": "2026-07-11 17:13",
+        "ref": "[CREDENTIAL 170] carried [CREDENTIAL 1069] in R0023553",
+        "harm_share_after": 0.57,
+        "interval_95": [
+          0.315,
+          0.753
+        ],
+        "if_signal_1h_earlier": 0.589,
+        "if_signal_1h_later": 0.558
+      },
+      {
+        "signal": "coordination: two identities use one place",
+        "time": "2026-07-11 20:05",
+        "ref": "flb4",
+        "harm_share_after": 0.502,
+        "interval_95": [
+          0.195,
+          0.67
+        ],
+        "if_signal_1h_earlier": 0.546,
+        "if_signal_1h_later": 0.436
+      }
+    ]
+  },
+  "counting_rules": [
+    {
+      "rule": "naive: every read after another actor's write",
+      "messages": 83,
+      "pairs": 18
+    },
+    {
+      "rule": "+ reruns of the same program removed, + each write once per reader",
+      "messages": 24,
+      "pairs": 16
+    }
+  ],
+  "external": {
+    "milestones": [
+      {
+        "event": "Hugging Face credentials found and posted to the board",
+        "source": "METR report p.34-35",
+        "source_time": "2026-07-10 09:40",
+        "ours": "2026-07-10 09:49",
+        "difference_h": 0.16,
+        "match": "first use of the main Hugging Face token"
+      },
+      {
+        "event": "Malicious HDF5 dataset gets a file read on Hugging Face servers",
+        "source": "METR report p.35",
+        "source_time": "2026-07-11 04:40",
+        "ours": "2026-07-11 02:27",
+        "difference_h": -2.2,
+        "match": "first dated record that mentions HDF5"
+      },
+      {
+        "event": "Rapid climb in attack participation",
+        "source": "METR report p.35",
+        "source_time": "2026-07-11 06:00",
+        "ours": "2026-07-11 04:00",
+        "difference_h": -2.0,
+        "match": "first hour whose next 6 hours hold 3x the actions of the 6 before and 5% of all actions"
+      },
+      {
+        "event": "Kubernetes activity first seen in Hugging Face logs",
+        "source": "Hugging Face blog, phase first-seen times",
+        "source_time": "2026-07-11 10:10",
+        "ours": "2026-07-11 09:45",
+        "difference_h": -0.41,
+        "match": "first Kubernetes API call"
+      },
+      {
+        "event": "Tailscale enrollments into Hugging Face's network begin",
+        "source": "Hugging Face blog, phase first-seen times",
+        "source_time": "2026-07-11 21:23",
+        "ours": "2026-07-11 20:01",
+        "difference_h": -1.36,
+        "match": "first dated record that mentions Tailscale"
+      },
+      {
+        "event": "Many agents stop at once, including all 11 top coordinators",
+        "source": "METR report p.38",
+        "source_time": "2026-07-12 01:30",
+        "ours": "2026-07-12 02:00",
+        "difference_h": 0.5,
+        "match": "first hour after the peak with under 15% of peak activity"
+      },
+      {
+        "event": "Last attacker action in Hugging Face's logs",
+        "source": "Hugging Face blog, data window",
+        "source_time": "2026-07-13 14:14",
+        "ours": "2026-07-13 15:50",
+        "difference_h": 1.6,
+        "match": "last dated record"
+      }
+    ],
+    "per_day": {
+      "days": [
+        "2026-07-09",
+        "2026-07-10",
+        "2026-07-11",
+        "2026-07-12",
+        "2026-07-13"
+      ],
+      "hugging_face": [
+        3779,
+        1135,
+        7677,
+        3892,
+        1130
+      ],
+      "ours": [
+        3265,
+        3253,
+        31280,
+        13515,
+        2119
+      ],
+      "hf_share": [
+        0.215,
+        0.064,
+        0.436,
+        0.221,
+        0.064
+      ],
+      "our_share": [
+        0.061,
+        0.061,
+        0.585,
+        0.253,
+        0.04
+      ],
+      "rank_correlation": 1.0,
+      "source": "Hugging Face blog, recovered attacker actions per day"
+    }
+  },
+  "replay_signs": [
+    {
+      "key": "replay:first: registry_board",
+      "name": "Registry mailbox first used",
+      "family": "single",
+      "kind": "harm",
+      "time": "2026-07-09 13:29",
+      "ref": "R0000032",
+      "actors": [
+        "run:R0000032"
+      ],
+      "harm_share_after": 1.0,
+      "why": "the first harmful action of this kind"
+    },
+    {
+      "key": "replay:spread: first use of an item seen earlier",
+      "name": "Token seen as data, then used",
+      "family": "single",
+      "kind": "token",
+      "time": "2026-07-09 15:30",
+      "ref": "[CREDENTIAL 13]",
+      "actors": [
+        "[CREDENTIAL 13]"
+      ],
+      "harm_share_after": 1.0,
+      "why": "[CREDENTIAL 13] appeared inside a record as data before any record used it to authenticate"
+    },
+    {
+      "key": "replay:first: docker_registry",
+      "name": "Docker registry first used",
+      "family": "single",
+      "kind": "harm",
+      "time": "2026-07-09 15:33",
+      "ref": "R0000554",
+      "actors": [
+        "run:R0000554"
+      ],
+      "harm_share_after": 1.0,
+      "why": "the first harmful action of this kind"
+    },
+    {
+      "key": "replay:first: hf_dataset_write",
+      "name": "First Hugging Face dataset write",
+      "family": "single",
+      "kind": "harm",
+      "time": "2026-07-10 10:24",
+      "ref": "R0005279",
+      "actors": [
+        "[CREDENTIAL 169]"
+      ],
+      "harm_share_after": 0.9,
+      "why": "the first harmful action of this kind"
+    },
+    {
+      "key": "message",
+      "name": "First message between named actors",
+      "family": "joint",
+      "kind": "message",
+      "time": "2026-07-11 00:47",
+      "ref": "R0006587",
+      "actors": [
+        "[CREDENTIAL 169]",
+        "[CREDENTIAL 170]"
+      ],
+      "harm_share_after": 0.877,
+      "why": "[CREDENTIAL 169] wrote hf_dataset:[REDACTED:destination:000536] in R0006579; [CREDENTIAL 170] read it in R0006587, 0.09 h later"
+    },
+    {
+      "key": "group3",
+      "name": "A group of 3+ actors linked by messages",
+      "family": "joint",
+      "kind": "group",
+      "time": "2026-07-11 04:32",
+      "ref": "R0006909",
+      "actors": [
+        "[CREDENTIAL 170]",
+        "[CREDENTIAL 220]"
+      ],
+      "harm_share_after": 0.871,
+      "why": "the message from [CREDENTIAL 170] to [CREDENTIAL 220] joined 3 actors into one connected group: [CREDENTIAL 169], [CREDENTIAL 170], [CREDENTIAL 220]"
+    },
+    {
+      "key": "two_way",
+      "name": "First two-way exchange",
+      "family": "joint",
+      "kind": "two_way",
+      "time": "2026-07-11 06:40",
+      "ref": "R0007323",
+      "actors": [
+        "[CREDENTIAL 220]",
+        "[CREDENTIAL 169]"
+      ],
+      "harm_share_after": 0.864,
+      "why": "[CREDENTIAL 169] had already sent to [CREDENTIAL 220]; now [CREDENTIAL 220] sends back through hf_dataset:[REDACTED:destination:000478]"
+    },
+    {
+      "key": "program2",
+      "name": "First program reused by another actor",
+      "family": "joint",
+      "kind": "program",
+      "time": "2026-07-11 08:11",
+      "ref": "R0008331",
+      "actors": [
+        "[CREDENTIAL 265]",
+        "[CREDENTIAL 220]"
+      ],
+      "harm_share_after": 0.85,
+      "why": "[CREDENTIAL 220] ran the program [CREDENTIAL 265] first ran in R0008211, 0.0 h later"
+    },
+    {
+      "key": "rate_all",
+      "name": "Volume alarm on all actions",
+      "family": "baseline",
+      "kind": "baseline",
+      "time": "2026-07-11 09:00",
+      "ref": null,
+      "actors": [],
+      "harm_share_after": 0.832,
+      "why": "766 actions in the hour from 2026-07-11 08:00, above the alarm line of 614.7 (mean + 3 standard deviations of every earlier hour); known at the end of that hour"
+    },
+    {
+      "key": "rate_harm",
+      "name": "Volume alarm on harmful actions",
+      "family": "baseline",
+      "kind": "baseline",
+      "time": "2026-07-11 09:00",
+      "ref": null,
+      "actors": [],
+      "harm_share_after": 0.832,
+      "why": "160 actions in the hour from 2026-07-11 08:00, above the alarm line of 128.0 (mean + 3 standard deviations of every earlier hour); known at the end of that hour"
+    },
+    {
+      "key": "replay:first: kubernetes_api",
+      "name": "Kubernetes API first called",
+      "family": "single",
+      "kind": "harm",
+      "time": "2026-07-11 09:45",
+      "ref": "R0009849",
+      "actors": [
+        "[CREDENTIAL 170]"
+      ],
+      "harm_share_after": 0.82,
+      "why": "the first harmful action of this kind"
+    },
+    {
+      "key": "group5",
+      "name": "A group of 5+ actors linked by messages",
+      "family": "joint",
+      "kind": "group",
+      "time": "2026-07-11 11:20",
+      "ref": "R0012006",
+      "actors": [
+        "[CREDENTIAL 222]",
+        "[CREDENTIAL 220]"
+      ],
+      "harm_share_after": 0.793,
+      "why": "the message from [CREDENTIAL 222] to [CREDENTIAL 220] joined 5 actors into one connected group: [CREDENTIAL 169], [CREDENTIAL 170], [CREDENTIAL 220], [CREDENTIAL 15], [CREDENTIAL 222]"
+    },
+    {
+      "key": "replay:first: cloud_metadata",
+      "name": "Cloud metadata first requested",
+      "family": "single",
+      "kind": "harm",
+      "time": "2026-07-11 11:22",
+      "ref": "R0012205",
+      "actors": [
+        "run:R0012205"
+      ],
+      "harm_share_after": 0.79,
+      "why": "the first harmful action of this kind"
+    },
+    {
+      "key": "program3",
+      "name": "First program run by three actors",
+      "family": "joint",
+      "kind": "program",
+      "time": "2026-07-11 14:48",
+      "ref": "R0020499",
+      "actors": [
+        "[CREDENTIAL 820]",
+        "[CREDENTIAL 930]"
+      ],
+      "harm_share_after": 0.626,
+      "why": "[CREDENTIAL 930] became the third actor to run the program first run by [CREDENTIAL 820] in R0016522"
+    },
+    {
+      "key": "replay:coordination: one identity carries another's token",
+      "name": "One identity carries another's token",
+      "family": "joint",
+      "kind": "carried",
+      "time": "2026-07-11 17:13",
+      "ref": "R0023553",
+      "actors": [
+        "[CREDENTIAL 170]",
+        "[CREDENTIAL 1069]"
+      ],
+      "harm_share_after": 0.57,
+      "why": "[CREDENTIAL 170] holds [CREDENTIAL 1069]'s token in R0023553, before that token's own first use"
+    },
+    {
+      "key": "replay:coordination: two identities use one place",
+      "name": "Two identities share place flb4",
+      "family": "joint",
+      "kind": "place",
+      "time": "2026-07-11 20:05",
+      "ref": "R0028572",
+      "actors": [
+        "[CREDENTIAL 169]",
+        "[CREDENTIAL 170]"
+      ],
+      "harm_share_after": 0.502,
+      "why": "two identities used the same named place flb4 in different records"
+    }
+  ]
+}

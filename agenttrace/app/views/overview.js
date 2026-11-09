@@ -8,9 +8,9 @@
     const names = await cached("/api/list?name=identities&limit=1000").catch(() => ({ rows: [] }));
     const lanesAll = await cached("/api/lanes").catch(() => null);
     ACTORS = new Set([...(names.rows || []).map((r) => r.identity), ...((lanesAll?.actors) || []).map((a) => a.actor)]);
-    const [ctxR, sim, lanes, gapsR] = await Promise.all([
+    const [ctxR, sim, lanes, gapsR, wi] = await Promise.all([
       cached("/api/context").catch(() => ({})), cached("/api/sim").catch(() => null),
-      cached("/api/lanes").catch(() => null), cached("/api/gaps").catch(() => ({ rows: [] }))]);
+      cached("/api/lanes").catch(() => null), cached("/api/gaps").catch(() => ({ rows: [] })), whatifEstimate()]);
     const ctx = ctxR.context, ms = ctxR.milestones;
     const f = s.flow, T = s.list_totals || {};
     const named = s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0);
@@ -31,7 +31,7 @@
       ${answer("How information spread", "spread", spreadLine(s, T),
         (s.content_spread || []).length ? hbars(s.content_spread.slice(0, 5).map((x) => ({ label: `${ent.actor(x.source)} <span class="muted small">${esc(x.what?.intent_what ? x.what.intent_what.split(" (")[0] : "")}</span>`, value: x.actors, color: C.program }))) + `<p class="small muted">actors who ran each ${term("program")} (the first + those who reused it)</p>` : "",
         s.seen_then_used?.length ? `${fmt(T.seen_then_used ?? s.seen_then_used.length)} tokens were seen as data before their first use; ${fmt(T.carried_edges ?? 0)} times one identity carried another's token.` : "")}
-      ${answer("Could it have been flagged early?", "early", j ? `The first sign of actors working together, <b>${esc(j.name.toLowerCase())}</b>, fired on ${esc(when(toTime(j.time)))} with <b>${pct(j.harm_share_after)}</b> of the harmful activity still to come.` : "No sign of actors working together fired.",
+      ${answer("Could it have been flagged early?", "early", j ? `The first sign of actors working together, <b>${esc(j.name.toLowerCase())}</b>, fired on ${esc(when(toTime(j.time)))} with ${bothShares(j.harm_share_after, whatifSign(wi, j.key)?.after?.harm_share_after, { what: "of the harmful activity still to come" })}. ${WI_LINK}` : "No sign of actors working together fired.",
         famBars(sigs), (bl ? `A ${term("volume", "volume alarm")} would have fired on ${esc(when(toTime(bl.time)))} with ${pct(bl.harm_share_after)} still to come. ` : "") + `${term("harm_left")}: the share of dated ${term("harm", "harmful actions")} that came after the sign; higher is earlier.`)}
       ${answer("What an investigator would still miss", "gaps", "The biggest blind spots, measured:",
         hbars((gapsR.rows || []).filter((g) => g.share != null).sort((a, b) => b.share - a.share).slice(0, 4).map((g) => ({ label: esc(g.gap), value: Math.round(g.share * 1000) / 10, color: HARM, title: g.hides }))) , "Share of records, messages or places affected (%).")}
@@ -89,12 +89,14 @@
   }
 
   // ---------------------------------------------------------------- incident brief from the reports
+  // "~17,600 (2026-07-09 … UTC)" -> ["~17,600", "2026-07-09 … UTC"]: only the number goes in the big slot
+  const bigNum = (v) => { const m = /^(.*?)\s*\(([^()]*\d{4}-\d\d-\d\d[^()]*)\)\s*$/.exec(String(v ?? "")); return m ? [m[1], m[2]] : [String(v ?? ""), ""]; };
   function brief(ctx) {
     const nums = (ctx.numbers || []).slice(0, 8);
     return `<section class="card brief">
       <div class="bkicker">Incident brief <span class="muted">from public reports, not from the records</span></div>
       <h2>${esc(ctx.title)}</h2>
-      <div class="bnums">${nums.map((n) => `<div title="${esc(n.source || "")}"><b>${esc(n.value)}</b><span>${esc(n.label)}</span></div>`).join("")}</div>
+      <div class="bnums">${nums.map((n) => `<div title="${esc(n.source || "")}"><b>${esc(bigNum(n.value)[0])}</b><span>${esc(n.label)}${bigNum(n.value)[1] ? `<br><span class="bdate">${esc(bigNum(n.value)[1])}</span>` : ""}</span></div>`).join("")}</div>
       <p class="bsum">${esc(ctx.summary)}</p>
       ${ctx.swarm ? `<details class="bmore"><summary>The swarm: what it was, its agents, their task, how they coordinated</summary><div class="bswarm">${[["The swarm", ctx.swarm.what], ["Agents", ctx.swarm.agents], ["Their task", ctx.swarm.task], ["How they coordinated", ctx.swarm.setup]].filter(([, v]) => v).map(([k, v]) => `<div><span>${esc(k)}</span>${esc(v)}</div>`).join("")}</div></details>` : ""}
       <p class="small muted bsrc">Sources: ${(ctx.sources || []).map((x) => `<a href="${/^https?:\/\//.test(x.url) ? esc(x.url) : "#"}" target="_blank" rel="noopener">${esc(String(x.name).split(" - ")[0].split(",")[0])}</a>`).join(" · ")}</p>

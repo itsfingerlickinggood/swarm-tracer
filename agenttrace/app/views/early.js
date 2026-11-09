@@ -161,11 +161,14 @@
     if (!host) return;
     const r = rule(D.sigs, ST.N);
     const firstJoint = D.sigs.find((g) => g.family === "joint");
+    if (D.whatif === undefined) { D.whatif = null; whatifEstimate().then((w) => { D.whatif = w; if (w && ST.data === D && host.isConnected) drawLead(); }); }
+    const afterOf = (g) => g && g.key ? whatifSign(D.whatif, g.key)?.after?.harm_share_after : null;
+    const bothLine = (g) => { const a = afterOf(g); return a == null || pct(a) === pct(g.harm_share_after) ? "" : `<div class="small muted efboth">${pct(g.harm_share_after)} as counted · <b>${pct(a)}</b> ${WI_IF} ${WI_LINK}</div>`; };
     const tile = (cls, title, g, sub) => `<div class="eftile ${cls}"><div class="eft">${title}</div>${g ? `<b>${esc(when(g.t * 1000))}</b><div class="small">${esc(g.name)}</div>
-      ${g.harm_share_after != null ? `<div class="efm">${meter(g.harm_share_after, cls === "alert" ? HARM : cls === "watch" ? "#d39b2c" : BASE, 120)} <b>${pct(g.harm_share_after)}</b> <span class="muted small">harm still to come</span></div>` : ""}` : `<b>never</b><div class="small muted">${sub}</div>`}</div>`;
+      ${g.harm_share_after != null ? `<div class="efm">${meter(g.harm_share_after, cls === "alert" ? HARM : cls === "watch" ? "#d39b2c" : BASE, 120)} <b>${pct(g.harm_share_after)}</b> <span class="muted small">harm still to come</span></div>${bothLine(g)}` : ""}` : `<b>never</b><div class="small muted">${sub}</div>`}</div>`;
     const ahead = lead(r.alert, r.baseline);
     host.innerHTML = `
-      <p class="lead">${firstJoint ? `The first sign of actors working together, <b>${esc(firstJoint.name.toLowerCase())}</b>, fired ${esc(when(firstJoint.t * 1000))} with ${pct(firstJoint.harm_share_after)} of the timed harm still to come.` : "No sign of actors working together fired."}
+      <p class="lead">${firstJoint ? `The first sign of actors working together, <b>${esc(firstJoint.name.toLowerCase())}</b>, fired ${esc(when(firstJoint.t * 1000))} with ${bothShares(firstJoint.harm_share_after, afterOf(firstJoint), { what: "of the timed harm still to come" })}. ${WI_LINK}` : "No sign of actors working together fired."}
       ${r.alert ? ` With the rule below (alert once ${plural(ST.N, "kind")} of coordination ${ST.N === 1 ? "has" : "have"} shown), the tracer raises an alert at <b>${esc(when(r.alert.t * 1000))}</b> with <b>${pct(r.alert.harm_share_after)}</b> still to come${r.baseline ? (ahead > 0 ? `, ${hoursWord(ahead)} before ordinary volume monitoring fires (${pct(r.baseline.harm_share_after)} still to come)` : ahead < 0 ? `, ${hoursWord(-ahead)} after ordinary volume monitoring (${pct(r.baseline.harm_share_after)})` : ", the same hour as volume monitoring") : ""}.` : ` With the rule below the tracer never reaches an alert: fewer than ${ST.N} kinds of coordination showed.`}</p>
       <div class="eftiles">
         ${tile("watch", "Watch: first single-actor harm sign", r.watch, "no harmful action of a known kind")}

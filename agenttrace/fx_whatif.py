@@ -4,7 +4,7 @@ Routes (served at /api/x/<name>, see extensions.py):
     GET  fx_whatif?rule=estimate|accepted   the counts and joint signs "as counted" and "after your decisions"
     GET  fx_whatif_decisions                 the decisions stored for the loaded dataset
     POST fx_whatif_decide                    {kind: "message"|"sign", ids: [...], action: "reject"|"restore", note}
-                                             or {clear: true}
+                                             or {clear: true} (messages and signs) or {reset: true} (also identity merges)
     GET  fx_reference                        the reference dataset (status, measures, deviations) and the choices
     POST fx_reference_load                   {library: id} | {path, pack} | {default: true} | {use_compare: true}
     POST fx_reference_clear
@@ -115,10 +115,17 @@ def decide(s, body):
     if not isinstance(body, dict):
         raise ValueError("send JSON: {kind, ids, action}")
     d = load_decisions(s)
-    if body.get("clear"):
+    if body.get("clear") or body.get("reset"):
         d["messages"].clear()
         d["signs"].clear()
-        return {"ok": True, "saved_to": _save_decisions(s), "messages": 0, "signs": 0}
+        merges = 0
+        if body.get("reset"):          # every decision on this server for this dataset, identity merges included
+            from . import identity
+            dec = identity._decisions(s)
+            merges = len(dec)
+            dec.clear()
+            identity._save(s)
+        return {"ok": True, "saved_to": _save_decisions(s), "messages": 0, "signs": 0, "merges_cleared": merges}
     kind, action = body.get("kind"), body.get("action") or "reject"
     ids = body.get("ids")
     if isinstance(ids, str):

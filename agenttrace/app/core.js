@@ -155,7 +155,9 @@ const card = (title, body, { sub = "", cls = "", right = "" } = {}) => `<section
 // ------------------------------------------------------------------ tables and full lists
 function table(headers, rows, onclick) {
   if (!rows.length) return '<p class="muted">None found.</p>';
-  return `<table><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r, i) => `<tr${onclick ? ` class="click" data-i="${i}"` : ""}>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  // numeric cells never wrap; the wrapper scrolls sideways instead of squeezing the columns
+  const num = (c) => typeof c === "number" || /^[\d.,]+(\s*(%|h|min|s))?$/.test(String(c).trim());
+  return `<div class="tablewrap"><table><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r, i) => `<tr${onclick ? ` class="click" data-i="${i}"` : ""}>${r.map((c) => `<td${num(c) ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 }
 function bindRows(el, onclick) { el.querySelectorAll("tr.click").forEach((tr) => tr.addEventListener("click", (e) => { if (e.target.closest(".ent,button,a")) return; onclick(+tr.dataset.i); })); }
 // a table that starts with the rows the summary carries and can page through the whole list on the server
@@ -688,7 +690,9 @@ function setSummary(s) {
     [term("dated", "dated"), pct(s.timed / s.records)],
     [term("named", "named actors"), fmt(s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0))],
     [term("place", "places"), fmt(s.flow.channels)],
-    [term("message", "messages"), fmt(s.flow.deliveries)],
+    s.flow.deliveries_between_named_actors != null && s.flow.deliveries_between_named_actors !== s.flow.deliveries
+      ? [`${term("message", "named messages")} <em class="ribsub">${fmt(s.flow.deliveries)} incl. anonymous runs</em>`, fmt(s.flow.deliveries_between_named_actors)]
+      : [term("message", "messages"), fmt(s.flow.deliveries)],
   ].filter(Boolean).map(([k, v]) => `<span><b>${v}</b>${k}</span>`).join("");
   $("loadpanel").hidden = true;
   tabCounts(s);
@@ -792,6 +796,28 @@ $("upload").addEventListener("submit", async (ev) => {
 
 // deep links: #tab=early&hour=2026-07-11T06&rec=R0006786&actor=...&place=...&scroll=600&ai=wide
 // open a view, a record, an actor or a place straight from the address (also used to capture figures)
+// Forensics › What-if: the deep link #tab=forensics&fx=whatif, honoured even when the tab was visited before
+let FX_WANT = null;
+function goWhatif() { location.hash = "tab=forensics&fx=whatif"; FX_WANT = "whatif"; goTab("forensics"); }
+document.addEventListener("click", (e) => { if (e.target.closest("[data-gowhatif]")) { e.preventDefault(); goWhatif(); } });
+
+// Both numbers on the early-flag claims: as counted, and after the high-confidence identity merges, from
+// GET /api/x/fx_whatif?rule=estimate (never hard-coded). One line; a single number when the merges change nothing.
+function whatifEstimate() { return api("/api/x/fx_whatif?rule=estimate").catch(() => null); }
+function whatifSign(w, key) { return (w?.signs || []).find((g) => g.key === key) || null; }
+const WI_IF = "if the high-confidence identity merges are one agent";
+const WI_LINK = '<button type="button" class="link small" data-gowhatif>See the recount →</button>';
+function bothShares(asCounted, after, { what = "of the harm still to come" } = {}) {
+  if (asCounted == null) return "";
+  const same = after == null || pct(after) === pct(asCounted);
+  return `<b>${pct(asCounted)}</b> ${what}${same ? "" : ` as counted · <b>${pct(after)}</b> ${WI_IF}`}`;
+}
+function bothSharesText(asCounted, after) {
+  if (asCounted == null) return "";
+  const same = after == null || pct(after) === pct(asCounted);
+  return same ? pct(asCounted) : `${pct(asCounted)} as counted, ${pct(after)} ${WI_IF}`;
+}
+
 function deepLink() {
   return Object.fromEntries(new URLSearchParams(location.hash.replace(/^#/, "")).entries());
 }
@@ -799,7 +825,10 @@ function openDeepLink() {
   const d = deepLink();
   if (d.ai === "wide") document.body.classList.add("aiwide");
   if (d.a && d.b) { S.conv = { a: d.a, b: d.b }; if (!d.tab) d.tab = "network"; }   // a conversation link
-  if (d.tab && VIEWS[d.tab]) goTab(d.tab);
+  if (d.tab === "live") $("livebtn")?.click();                       // the Live drawer is not a tab
+  else if (d.tab && VIEWS[d.tab]) goTab(d.tab);
+  else if (d.tab) { status(`no tab named ${d.tab}`); setTimeout(() => status(""), 6000); }
+  if (d.fx) FX_WANT = d.fx;
   if (d.rec) selectEvent(d.rec);
   else if (d.actor) inspectActor(d.actor);
   else if (d.place) inspectPlace(d.place);

@@ -8,6 +8,11 @@ full-wiki-logs/
 # Generated outputs (rebuild with the commands in the README)
 reports/*
 !reports/findings/
+!reports/evaluation/
+!reports/evaluation-wiki/
+!reports/validation/
+reports/validation/swarms/
+reports/validation/quick/
 
 # Local tools, environments, and scratch
 /tools/

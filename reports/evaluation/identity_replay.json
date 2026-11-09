@@ -1,0 +1,309 @@
+{
+ "about": "Replay with tokens merged into estimated agents (rule=estimate). From agenttrace.fx_whatif.whatif(session,'estimate'); the app shows the same under Forensics > What-if.",
+ "as_counted": {
+  "named_actors": 241,
+  "agents": 241,
+  "messages": 24,
+  "pairs": 16,
+  "largest_group": 7,
+  "inside_one_agent": 0,
+  "rejected_messages": 0,
+  "first_message": {
+   "time": "2026-07-11 00:47",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 170]",
+   "agent_from": "[CREDENTIAL 169]",
+   "agent_to": "[CREDENTIAL 170]",
+   "write_id": "R0006579",
+   "read_id": "R0006587",
+   "channel": "hf_dataset:[REDACTED:destination:000536]",
+   "harm_share_after": 0.877
+  }
+ },
+ "after": {
+  "named_actors": 241,
+  "agents": 234,
+  "messages": 4,
+  "pairs": 3,
+  "largest_group": 2,
+  "inside_one_agent": 20,
+  "rejected_messages": 0,
+  "first_message": {
+   "time": "2026-07-11 11:15",
+   "from": "[CREDENTIAL 15]",
+   "to": "[CREDENTIAL 169]",
+   "agent_from": "[CREDENTIAL 15]",
+   "agent_to": "[CREDENTIAL 170]",
+   "write_id": "R0010079",
+   "read_id": "R0011833",
+   "channel": "hf_dataset:[REDACTED:destination:001198]",
+   "harm_share_after": 0.795
+  }
+ },
+ "groups": [
+  {
+   "agent": "[CREDENTIAL 170]",
+   "actors": [
+    "[CREDENTIAL 170]",
+    "[CREDENTIAL 169]",
+    "[CREDENTIAL 220]",
+    "[CREDENTIAL 1623]",
+    "[CREDENTIAL 222]",
+    "[CREDENTIAL 1334]",
+    "[CREDENTIAL 1069]"
+   ],
+   "records": 18796
+  },
+  {
+   "agent": "[CREDENTIAL 1505]",
+   "actors": [
+    "[CREDENTIAL 1505]",
+    "[CREDENTIAL 1499]"
+   ],
+   "records": 56
+  }
+ ],
+ "signs": [
+  {
+   "key": "replay:first: registry_board",
+   "name": "Registry mailbox first used",
+   "family": "single",
+   "time": "2026-07-09 13:29",
+   "harm_share_after": 1.0,
+   "record": "R0000032",
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-09 13:29",
+    "record": "R0000032",
+    "harm_share_after": 1.0
+   }
+  },
+  {
+   "key": "replay:spread: first use of an item seen earlier",
+   "name": "Token seen as data, then used",
+   "family": "single",
+   "time": "2026-07-09 15:30",
+   "harm_share_after": 1.0,
+   "record": "R0000525",
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-09 15:30",
+    "record": "R0000525",
+    "harm_share_after": 1.0
+   }
+  },
+  {
+   "key": "replay:first: docker_registry",
+   "name": "Docker registry first used",
+   "family": "single",
+   "time": "2026-07-09 15:33",
+   "harm_share_after": 1.0,
+   "record": "R0000554",
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-09 15:33",
+    "record": "R0000554",
+    "harm_share_after": 1.0
+   }
+  },
+  {
+   "key": "replay:first: hf_dataset_write",
+   "name": "First Hugging Face dataset write",
+   "family": "single",
+   "time": "2026-07-10 10:24",
+   "harm_share_after": 0.9,
+   "record": "R0005279",
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-10 10:24",
+    "record": "R0005279",
+    "harm_share_after": 0.9
+   }
+  },
+  {
+   "key": "message",
+   "name": "First message between named actors",
+   "family": "joint",
+   "time": "2026-07-11 00:47",
+   "harm_share_after": 0.877,
+   "record": "R0006587",
+   "status": "later",
+   "after": {
+    "time": "2026-07-11 11:15",
+    "record": "R0011833",
+    "actors": [
+     "[CREDENTIAL 15]",
+     "[CREDENTIAL 169]"
+    ],
+    "why": "[CREDENTIAL 15] wrote hf_dataset:[REDACTED:destination:001198] in R0010079; [CREDENTIAL 169] read it in R0011833",
+    "harm_share_after": 0.795
+   }
+  },
+  {
+   "key": "group3",
+   "name": "A group of 3+ actors linked by messages",
+   "family": "joint",
+   "time": "2026-07-11 04:32",
+   "harm_share_after": 0.871,
+   "record": "R0006909",
+   "status": "gone",
+   "after": null
+  },
+  {
+   "key": "two_way",
+   "name": "First two-way exchange",
+   "family": "joint",
+   "time": "2026-07-11 06:40",
+   "harm_share_after": 0.864,
+   "record": "R0007323",
+   "status": "gone",
+   "after": null
+  },
+  {
+   "key": "program2",
+   "name": "First program reused by another actor",
+   "family": "joint",
+   "time": "2026-07-11 08:11",
+   "harm_share_after": 0.85,
+   "record": "R0008331",
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-11 08:11",
+    "record": "R0008331",
+    "actors": [
+     "[CREDENTIAL 265]",
+     "[CREDENTIAL 220]"
+    ],
+    "why": "[CREDENTIAL 220] ran the program [CREDENTIAL 265] first ran, as a different agent",
+    "harm_share_after": 0.85
+   }
+  },
+  {
+   "key": "rate_all",
+   "name": "Volume alarm on all actions",
+   "family": "baseline",
+   "time": "2026-07-11 09:00",
+   "harm_share_after": 0.832,
+   "record": null,
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-11 09:00",
+    "record": null,
+    "harm_share_after": 0.832
+   }
+  },
+  {
+   "key": "rate_harm",
+   "name": "Volume alarm on harmful actions",
+   "family": "baseline",
+   "time": "2026-07-11 09:00",
+   "harm_share_after": 0.832,
+   "record": null,
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-11 09:00",
+    "record": null,
+    "harm_share_after": 0.832
+   }
+  },
+  {
+   "key": "replay:first: kubernetes_api",
+   "name": "Kubernetes API first called",
+   "family": "single",
+   "time": "2026-07-11 09:45",
+   "harm_share_after": 0.82,
+   "record": "R0009849",
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-11 09:45",
+    "record": "R0009849",
+    "harm_share_after": 0.82
+   }
+  },
+  {
+   "key": "group5",
+   "name": "A group of 5+ actors linked by messages",
+   "family": "joint",
+   "time": "2026-07-11 11:20",
+   "harm_share_after": 0.793,
+   "record": "R0012006",
+   "status": "gone",
+   "after": null
+  },
+  {
+   "key": "replay:first: cloud_metadata",
+   "name": "Cloud metadata first requested",
+   "family": "single",
+   "time": "2026-07-11 11:22",
+   "harm_share_after": 0.79,
+   "record": "R0012205",
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-11 11:22",
+    "record": "R0012205",
+    "harm_share_after": 0.79
+   }
+  },
+  {
+   "key": "program3",
+   "name": "First program run by three actors",
+   "family": "joint",
+   "time": "2026-07-11 14:48",
+   "harm_share_after": 0.626,
+   "record": "R0020499",
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-11 14:48",
+    "record": "R0020499",
+    "actors": [
+     "[CREDENTIAL 820]",
+     "[CREDENTIAL 930]"
+    ],
+    "why": "[CREDENTIAL 930] was the third agent to run the program first run by [CREDENTIAL 820]",
+    "harm_share_after": 0.626
+   }
+  },
+  {
+   "key": "replay:coordination: one identity carries another's token",
+   "name": "One identity carries another's token",
+   "family": "joint",
+   "time": "2026-07-11 17:13",
+   "harm_share_after": 0.57,
+   "record": "R0023553",
+   "status": "later",
+   "after": {
+    "time": "2026-07-11 22:00",
+    "record": "R0033275",
+    "actors": [
+     "[CREDENTIAL 170]",
+     "[CREDENTIAL 1628]"
+    ],
+    "why": "[CREDENTIAL 170] holds [CREDENTIAL 1628]'s token in R0033275, and they are different agents",
+    "harm_share_after": 0.382
+   }
+  },
+  {
+   "key": "replay:coordination: two identities use one place",
+   "name": "Two identities share place flb4",
+   "family": "joint",
+   "time": "2026-07-11 20:05",
+   "harm_share_after": 0.502,
+   "record": "R0028572",
+   "status": "later",
+   "after": {
+    "time": "2026-07-12 18:22",
+    "record": "R0049451",
+    "actors": [
+     "[CREDENTIAL 170]",
+     "[CREDENTIAL 2475]"
+    ],
+    "why": "two agents used the named place g23619",
+    "harm_share_after": 0.053
+   }
+  }
+ ],
+ "shared_programs": {
+  "total": 253,
+  "not_routine": 40
+ }
+}

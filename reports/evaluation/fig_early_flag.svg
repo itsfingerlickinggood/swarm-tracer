@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="424" viewBox="0 0 720 424" role="img" aria-label="Share of timed harmful activity still to come, with the first time each warning sign fired">
+<rect width="720" height="424" fill="#fff"/>
+<line x1="50" x2="706" y1="222.0" y2="222.0" stroke="#e3e7ec"/>
+<text x="43.0" y="226.0" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="end" font-weight="normal">0%</text>
+<line x1="50" x2="706" y1="173.5" y2="173.5" stroke="#e3e7ec"/>
+<text x="43.0" y="177.5" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="end" font-weight="normal">25%</text>
+<line x1="50" x2="706" y1="125.0" y2="125.0" stroke="#e3e7ec"/>
+<text x="43.0" y="129.0" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="end" font-weight="normal">50%</text>
+<line x1="50" x2="706" y1="76.5" y2="76.5" stroke="#e3e7ec"/>
+<text x="43.0" y="80.5" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="end" font-weight="normal">75%</text>
+<line x1="50" x2="706" y1="28.0" y2="28.0" stroke="#e3e7ec"/>
+<text x="43.0" y="32.0" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="end" font-weight="normal">100%</text>
+<line x1="50" x2="706" y1="222" y2="222" stroke="#9aa5b1"/>
+<line x1="125.8" x2="125.8" y1="222" y2="227" stroke="#9aa5b1"/>
+<text x="125.8" y="240.0" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="middle" font-weight="normal">Jul 10</text>
+<line x1="284.1" x2="284.1" y1="222" y2="227" stroke="#9aa5b1"/>
+<text x="284.1" y="240.0" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="middle" font-weight="normal">Jul 11</text>
+<line x1="442.3" x2="442.3" y1="222" y2="227" stroke="#9aa5b1"/>
+<text x="442.3" y="240.0" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="middle" font-weight="normal">Jul 12</text>
+<line x1="600.5" x2="600.5" y1="222" y2="227" stroke="#9aa5b1"/>
+<text x="600.5" y="240.0" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="middle" font-weight="normal">Jul 13</text>
+<text x="50.0" y="16.0" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="start" font-weight="normal">Share of timed harmful actions still to come (UTC)</text>
+<path d="M53.3 28.0L66.5 28.9L73.1 30.7L79.7 32.7L86.3 34.9L92.9 36.8L99.4 40.8L106.0 42.9L112.6 43.4L119.2 43.8L125.8 44.5L132.4 45.1L139.0 45.1L152.2 45.3L158.8 45.6L165.4 46.0L172.0 46.5L178.6 46.8L185.2 47.2L191.7 48.1L198.3 48.3L204.9 48.6L211.5 49.0L218.1 49.3L224.7 49.4L231.3 49.6L237.9 49.9L244.5 50.1L251.1 50.5L257.7 50.7L264.3 50.9L270.9 51.5L277.5 51.8L284.1 51.9L290.6 52.2L297.2 52.4L303.8 52.9L310.4 53.4L317.0 53.7L323.6 54.9L330.2 56.7L336.8 60.5L343.4 63.9L350.0 67.0L356.6 78.8L363.2 82.1L369.8 87.9L376.4 101.4L382.9 106.7L389.5 111.1L396.1 113.2L402.7 115.9L409.3 121.8L415.9 135.9L422.5 147.7L429.1 158.7L435.7 172.2L442.3 186.1L448.9 194.1L455.5 196.1L462.1 201.4L468.7 204.5L475.2 204.9L481.8 205.7L488.4 206.0L495.0 206.5L501.6 206.9L508.2 207.0L514.8 207.7L521.4 208.0L528.0 208.7L534.6 209.5L541.2 209.8L547.8 210.3L554.4 210.8L561.0 212.9L567.5 214.9L574.1 215.1L587.3 215.3L593.9 215.5L600.5 215.7L607.1 215.9L613.7 216.0L620.3 216.3L626.9 217.4L633.5 217.8L640.1 218.4L646.7 218.9L653.3 219.1L659.8 219.3L666.4 219.5L673.0 219.9L679.6 220.1L686.2 220.4L692.8 220.4L699.4 222.0" fill="none" stroke="#b8beb6" stroke-width="2.6"/>
+<line x1="56.5" x2="56.5" y1="28.0" y2="36.1" stroke="#4b5157" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+<line x1="69.8" x2="69.8" y1="28.0" y2="39.1" stroke="#4b5157" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+<line x1="70.1" x2="70.1" y1="28.0" y2="39.8" stroke="#4b5157" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+<line x1="194.4" x2="194.4" y1="45.3" y2="49.7" stroke="#4b5157" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+<line x1="289.2" x2="289.2" y1="49.9" y2="57.5" stroke="#2f6fb3" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+<line x1="348.3" x2="348.3" y1="53.4" y2="105.4" stroke="#4b5157" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+<line x1="359.0" x2="359.0" y1="55.5" y2="112.2" stroke="#4b5157" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+<line x1="397.6" x2="397.6" y1="75.9" y2="160.9" stroke="#2f6fb3" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+<line x1="416.5" x2="416.5" y1="92.0" y2="184.2" stroke="#2f6fb3" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+<line x1="56.5" y1="28.0" x2="60.5" y2="56.5" stroke="#4b5157" stroke-opacity=".55" stroke-width="1"/>
+<circle cx="56.5" cy="28.0" r="3.6" fill="#4b5157" stroke="#fff" stroke-width="1"/>
+<line x1="69.8" y1="28.0" x2="84.5" y2="56.5" stroke="#4b5157" stroke-opacity=".55" stroke-width="1"/>
+<circle cx="69.8" cy="28.0" r="3.6" fill="#4b5157" stroke="#fff" stroke-width="1"/>
+<line x1="70.1" y1="28.0" x2="108.5" y2="62.5" stroke="#4b5157" stroke-opacity=".55" stroke-width="1"/>
+<circle cx="70.1" cy="28.0" r="3.6" fill="#4b5157" stroke="#fff" stroke-width="1"/>
+<line x1="194.4" y1="47.6" x2="186.5" y2="62.5" stroke="#4b5157" stroke-opacity=".55" stroke-width="1"/>
+<circle cx="194.4" cy="47.6" r="3.6" fill="#4b5157" stroke="#fff" stroke-width="1"/>
+<line x1="289.2" y1="51.9" x2="282.5" y2="68.5" stroke="#2f6fb3" stroke-opacity=".55" stroke-width="1"/>
+<circle cx="289.2" cy="51.9" r="3.6" fill="#2f6fb3" stroke="#fff" stroke-width="1"/>
+<line x1="343.4" y1="60.6" x2="318.5" y2="74.5" stroke="#c0662b" stroke-opacity=".55" stroke-width="1"/>
+<path d="M343.4 56.1l4.5 4.5l-4.5 4.5l-4.5 -4.5z" fill="#fff" stroke="#c0662b" stroke-width="1.6"/>
+<line x1="343.4" y1="60.6" x2="336.5" y2="32.5" stroke="#c0662b" stroke-opacity=".55" stroke-width="1"/>
+<path d="M343.4 56.1l4.5 4.5l-4.5 4.5l-4.5 -4.5z" fill="#fff" stroke="#c0662b" stroke-width="1.6"/>
+<line x1="348.3" y1="62.9" x2="360.5" y2="32.5" stroke="#4b5157" stroke-opacity=".55" stroke-width="1"/>
+<circle cx="348.3" cy="62.9" r="3.6" fill="#4b5157" stroke="#fff" stroke-width="1"/>
+<line x1="359.0" y1="68.9" x2="378.5" y2="62.5" stroke="#4b5157" stroke-opacity=".55" stroke-width="1"/>
+<circle cx="359.0" cy="68.9" r="3.6" fill="#4b5157" stroke="#fff" stroke-width="1"/>
+<line x1="397.6" y1="111.4" x2="384.5" y2="128.5" stroke="#2f6fb3" stroke-opacity=".55" stroke-width="1"/>
+<circle cx="397.6" cy="111.4" r="3.6" fill="#2f6fb3" stroke="#fff" stroke-width="1"/>
+<line x1="416.5" y1="124.6" x2="426.5" y2="110.5" stroke="#2f6fb3" stroke-opacity=".55" stroke-width="1"/>
+<circle cx="416.5" cy="124.6" r="3.6" fill="#2f6fb3" stroke="#fff" stroke-width="1"/>
+<circle cx="60.5" cy="56.5" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="60.5" y="60.1" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
+<circle cx="84.5" cy="56.5" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="84.5" y="60.1" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
+<circle cx="108.5" cy="62.5" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="108.5" y="66.1" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+<circle cx="186.5" cy="62.5" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="186.5" y="66.1" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+<circle cx="282.5" cy="68.5" r="8" fill="#2f6fb3" stroke="#2f6fb3" stroke-width="1.4"/>
+<text x="282.5" y="72.1" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
+<circle cx="318.5" cy="74.5" r="8" fill="#fff" stroke="#c0662b" stroke-width="1.4"/>
+<text x="318.5" y="78.1" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#c0662b" text-anchor="middle" font-weight="bold">6</text>
+<circle cx="336.5" cy="32.5" r="8" fill="#fff" stroke="#c0662b" stroke-width="1.4"/>
+<text x="336.5" y="36.1" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#c0662b" text-anchor="middle" font-weight="bold">7</text>
+<circle cx="360.5" cy="32.5" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="360.5" y="36.1" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
+<circle cx="378.5" cy="62.5" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="378.5" y="66.1" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
+<circle cx="384.5" cy="128.5" r="8" fill="#2f6fb3" stroke="#2f6fb3" stroke-width="1.4"/>
+<text x="384.5" y="132.1" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
+<circle cx="426.5" cy="110.5" r="8" fill="#2f6fb3" stroke="#2f6fb3" stroke-width="1.4"/>
+<text x="426.5" y="114.1" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">11</text>
+<text x="50.0" y="252.0" font-family="Helvetica, Arial, sans-serif" font-size="1" fill="#1d2329" text-anchor="start" font-weight="normal"></text>
+<circle cx="58.0" cy="258.0" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="58.0" y="261.6" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
+<text x="72.0" y="259.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="bold">Registry mailbox first used</text>
+<text x="72.0" y="272.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="start" font-weight="normal">Jul 9 13:29 · 100% still to come (95%: 96-100%)</text>
+<circle cx="58.0" cy="285.0" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="58.0" y="288.6" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
+<text x="72.0" y="286.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="bold">Token seen as data, then used</text>
+<text x="72.0" y="299.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="start" font-weight="normal">Jul 9 15:30 · 100% still to come (95%: 94-100%)</text>
+<circle cx="58.0" cy="312.0" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="58.0" y="315.6" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+<text x="72.0" y="313.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="bold">Docker registry first used</text>
+<text x="72.0" y="326.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="start" font-weight="normal">Jul 9 15:33 · 100% still to come (95%: 94-100%)</text>
+<circle cx="58.0" cy="339.0" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="58.0" y="342.6" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+<text x="72.0" y="340.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="bold">First Hugging Face dataset write</text>
+<text x="72.0" y="353.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="start" font-weight="normal">Jul 10 10:24 · 90% still to come (95%: 89-91%)</text>
+<circle cx="58.0" cy="366.0" r="8" fill="#2f6fb3" stroke="#2f6fb3" stroke-width="1.4"/>
+<text x="58.0" y="369.6" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
+<text x="72.0" y="367.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="bold">First message between named actors</text>
+<text x="72.0" y="380.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="start" font-weight="normal">Jul 11 00:47 · 88% still to come (95%: 85-89%)</text>
+<circle cx="58.0" cy="393.0" r="8" fill="#fff" stroke="#c0662b" stroke-width="1.4"/>
+<text x="58.0" y="396.6" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#c0662b" text-anchor="middle" font-weight="bold">6</text>
+<text x="72.0" y="394.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="bold">Volume alarm on all actions (baseline)</text>
+<text x="72.0" y="407.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="start" font-weight="normal">Jul 11 09:00 · 83% still to come</text>
+<circle cx="386.0" cy="258.0" r="8" fill="#fff" stroke="#c0662b" stroke-width="1.4"/>
+<text x="386.0" y="261.6" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#c0662b" text-anchor="middle" font-weight="bold">7</text>
+<text x="400.0" y="259.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="bold">Volume alarm on harmful actions (baseline)</text>
+<text x="400.0" y="272.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="start" font-weight="normal">Jul 11 09:00 · 83% still to come</text>
+<circle cx="386.0" cy="285.0" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="386.0" y="288.6" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
+<text x="400.0" y="286.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="bold">Kubernetes API first called</text>
+<text x="400.0" y="299.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="start" font-weight="normal">Jul 11 09:45 · 82% still to come (95%: 60-87%)</text>
+<circle cx="386.0" cy="312.0" r="8" fill="#4b5157" stroke="#4b5157" stroke-width="1.4"/>
+<text x="386.0" y="315.6" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
+<text x="400.0" y="313.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="bold">Cloud metadata first requested</text>
+<text x="400.0" y="326.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="start" font-weight="normal">Jul 11 11:22 · 79% still to come (95%: 57-86%)</text>
+<circle cx="386.0" cy="339.0" r="8" fill="#2f6fb3" stroke="#2f6fb3" stroke-width="1.4"/>
+<text x="386.0" y="342.6" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">10</text>
+<text x="400.0" y="340.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="bold">One token carries another&#x27;s token</text>
+<text x="400.0" y="353.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="start" font-weight="normal">Jul 11 17:13 · 57% still to come (95%: 32-75%)</text>
+<circle cx="386.0" cy="366.0" r="8" fill="#2f6fb3" stroke="#2f6fb3" stroke-width="1.4"/>
+<text x="386.0" y="369.6" font-family="Helvetica, Arial, sans-serif" font-size="9.5" fill="#fff" text-anchor="middle" font-weight="bold">11</text>
+<text x="400.0" y="367.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="bold">Two tokens share the name flb4</text>
+<text x="400.0" y="380.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="start" font-weight="normal">Jul 11 20:05 · 50% still to come (95%: 20-67%)</text>
+</svg>

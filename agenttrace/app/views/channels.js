@@ -126,6 +126,9 @@
   function tiles(D) {
     const { P, M, types, tcolor, s } = D;
     const ct = s.flow.channel_types || {};
+    const kindShare = (t) => M.length ? M.filter((m) => String(m.channel).split(":")[0] === t).length / M.length : 0;
+    const fine = types.some((t) => { const x = kindShare(t); return x > 0 && x < 0.01; });   // a sibling below 1%: one decimal everywhere
+    const shareOf = (x) => fine && x >= 0.01 ? (100 * x).toFixed(1) + "%" : share(x);
     $("chTiles").innerHTML = types.map((t) => {
       const ps = P.filter((p) => p.type === t), ms = M.filter((m) => String(m.channel).split(":")[0] === t);
       const tot = ct[t] || {};
@@ -139,7 +142,7 @@
         ${stackbar(cats, { legend: false, h: 9 })}
         <dl class="ch-dl">
           <div><dt>writes</dt><dd>${fmt(writes)}</dd></div><div><dt>reads</dt><dd>${fmt(reads)}</dd></div>
-          <div><dt>messages</dt><dd>${fmt(ms.length)}<span> ${M.length ? share(ms.length / M.length) : ""}</span></dd></div>
+          <div><dt>messages</dt><dd>${fmt(ms.length)}<span> ${M.length ? shareOf(ms.length / M.length) : ""}</span></dd></div>
           <div><dt>never read</dt><dd>${fmt(ps.filter((p) => p.never).length)}</dd></div>
           <div><dt>median wait</dt><dd>${med != null ? hoursWord(med) : "–"}</dd></div>
           <div><dt>in messages</dt><dd>${fmt(new Set(ms.flatMap((m) => [m.from, m.to])).size)}<span> actors</span></dd></div>

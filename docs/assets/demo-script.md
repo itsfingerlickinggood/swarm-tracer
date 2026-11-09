@@ -10,13 +10,13 @@ In July 2026, a swarm of AI agents coordinated in a way nobody saw coming. The S
 
 ## 2. The tool
 
-Screens: `#tab=overview&scroll=760&rec=R0006786`
+Screens: `#tab=overview&scroll=760&rec=R0006587`
 
 Swarm Tracer is our answer. It is a forensics tool for AI agent swarms. Point it at any agent trace, in JSON, CSV, a folder of logs, or common framework formats, and it rebuilds the story: messages between agents, what spread, when the warning signs fired, and which identities might be the same agent. It runs on the Python standard library alone, in your browser.
 
 ## 3. Overview and Inspector
 
-Screens: `#tab=overview`, `#tab=overview&scroll=760&rec=R0006786`
+Screens: `#tab=overview`, `#tab=overview&scroll=760&rec=R0006587`
 
 The overview gives short, measured answers to each question in the challenge, straight from the records. Click any record and the Inspector explains it in plain words: what it does, its role in the swarm, and how much harm was still to come. Many records have no reliable time, so Swarm Tracer estimates one, with a likely range. Fifty-nine percent of payloads get an estimated time, against three percent before. And seven key moments land within two point two hours of the times METR and Hugging Face later reported.
 
@@ -24,7 +24,7 @@ The overview gives short, measured answers to each question in the challenge, st
 
 Screens: `#tab=network&scroll=470`, `#tab=timeline&order=messages&rows=messages&scroll=560`
 
-Next, who talked to whom. Polling a mailbox a hundred times is still one message, so each write counts once per reader. That leaves 166 distinct messages among 36 named tokens, in 95 sender-receiver pairs. Every one of them passed through Hugging Face datasets. The graph shows the whole network, and the swimlanes show each conversation in time order, with its record ids.
+Next, who talked to whom. Polling a mailbox a hundred times is still one message, so each write counts once per reader. That leaves 24 distinct messages among 11 named tokens, in 16 sender-receiver pairs. A first count said 166; reading the records by hand showed most were two tokens fetching the same dataset, and the rules were fixed. Every one of them passed through Hugging Face datasets. The graph shows the whole network, and the swimlanes show each conversation in time order, with its record ids.
 
 ## 5. Early-flag replay
 

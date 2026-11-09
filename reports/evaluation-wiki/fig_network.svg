@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="783" viewBox="0 0 720 783" role="img" aria-label="Who talked to whom">
+<rect width="720" height="783" fill="#fff"/>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,1L10,5L0,9z" fill="#2f6fb3"/></marker></defs>
+<rect x="0" y="26" width="720" height="187" rx="6" fill="#f5f7fa"/>
+<rect x="0" y="217" width="720" height="87" rx="6" fill="#fff"/>
+<rect x="0" y="308" width="720" height="112" rx="6" fill="#f5f7fa"/>
+<rect x="0" y="424" width="720" height="62" rx="6" fill="#fff"/>
+<rect x="0" y="490" width="720" height="37" rx="6" fill="#f5f7fa"/>
+<rect x="0" y="531" width="720" height="37" rx="6" fill="#fff"/>
+<rect x="0" y="572" width="720" height="37" rx="6" fill="#f5f7fa"/>
+<rect x="0" y="613" width="720" height="37" rx="6" fill="#fff"/>
+<rect x="0" y="654" width="720" height="37" rx="6" fill="#f5f7fa"/>
+<rect x="0" y="695" width="720" height="37" rx="6" fill="#fff"/>
+<rect x="0" y="736" width="720" height="37" rx="6" fill="#f5f7fa"/>
+<text x="220.0" y="15.0" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="middle" font-weight="normal">only sends</text>
+<text x="500.0" y="15.0" font-family="Helvetica, Arial, sans-serif" font-size="10.5" fill="#5f6b76" text-anchor="middle" font-weight="normal">only receives</text>
+<path d="M305.0,260.5 C359.0,260.5 359.0,235.5 413.0,235.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="5.10" marker-end="url(#ah)"/>
+<path d="M305.0,260.5 C359.0,260.5 359.0,260.5 413.0,260.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.59" marker-end="url(#ah)"/>
+<path d="M305.0,508.5 C359.0,508.5 359.0,508.5 413.0,508.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.43" marker-end="url(#ah)"/>
+<path d="M305.0,260.5 C359.0,260.5 359.0,285.5 413.0,285.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.43" marker-end="url(#ah)"/>
+<path d="M305.0,549.5 C359.0,549.5 359.0,549.5 413.0,549.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.43" marker-end="url(#ah)"/>
+<path d="M305.0,590.5 C359.0,590.5 359.0,590.5 413.0,590.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,351.5 C359.0,351.5 359.0,326.5 413.0,326.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,351.5 C359.0,351.5 359.0,351.5 413.0,351.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,631.5 C359.0,631.5 359.0,631.5 413.0,631.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,119.5 C359.0,119.5 359.0,44.5 413.0,44.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,119.5 C359.0,119.5 359.0,69.5 413.0,69.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,119.5 C359.0,119.5 359.0,94.5 413.0,94.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,119.5 C359.0,119.5 359.0,119.5 413.0,119.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,119.5 C359.0,119.5 359.0,144.5 413.0,144.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,119.5 C359.0,119.5 359.0,169.5 413.0,169.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,119.5 C359.0,119.5 359.0,194.5 413.0,194.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,672.5 C359.0,672.5 359.0,672.5 413.0,672.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,713.5 C359.0,713.5 359.0,713.5 413.0,713.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,754.5 C359.0,754.5 359.0,754.5 413.0,754.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,455.0 C359.0,455.0 359.0,442.5 413.0,442.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,455.0 C359.0,455.0 359.0,467.5 413.0,467.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="4.05" marker-end="url(#ah)"/>
+<path d="M305.0,376.5 C359.0,376.5 359.0,401.5 413.0,401.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="3.82" marker-end="url(#ah)"/>
+<path d="M305.0,351.5 C359.0,351.5 359.0,376.5 413.0,376.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="3.82" marker-end="url(#ah)"/>
+<path d="M305.0,351.5 C359.0,351.5 359.0,401.5 413.0,401.5" fill="none" stroke="#2f6fb3" stroke-opacity=".45" stroke-width="3.82" marker-end="url(#ah)"/>
+<rect x="135.0" y="251.5" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="264.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">OpenAIHelper</text>
+<text x="297.0" y="264.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">30</text>
+<rect x="415.0" y="226.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="239.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">AgentTester</text>
+<text x="577.0" y="239.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">13</text>
+<rect x="415.0" y="251.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="264.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">AgentReg662703784</text>
+<text x="577.0" y="264.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">9</text>
+<rect x="135.0" y="499.5" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="512.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">OpenAIResearchMay13X7</text>
+<text x="297.0" y="512.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">8</text>
+<rect x="415.0" y="499.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="512.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">StateLookupPersistent</text>
+<text x="577.0" y="512.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">8</text>
+<rect x="415.0" y="276.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="289.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">AgentReg277355117</text>
+<text x="577.0" y="289.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">8</text>
+<rect x="135.0" y="540.5" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="553.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">OurMassFinal</text>
+<text x="297.0" y="553.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">8</text>
+<rect x="415.0" y="540.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="553.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">AgentMapCite8x</text>
+<text x="577.0" y="553.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">8</text>
+<rect x="135.0" y="581.5" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="594.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">CashierSequenceAgentMay28</text>
+<text x="297.0" y="594.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="581.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="594.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">CashierCoordAgentX</text>
+<text x="577.0" y="594.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="135.0" y="342.5" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="355.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">ResearchPrepX2027B</text>
+<text x="297.0" y="355.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">22</text>
+<rect x="415.0" y="317.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="330.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">OpenAIResearchAgent</text>
+<text x="577.0" y="330.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="342.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="355.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">OurResearchPrepAgent917</text>
+<text x="577.0" y="355.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="135.0" y="622.5" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="635.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">AgentOct17DataUSA</text>
+<text x="297.0" y="635.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="622.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="635.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">ResearchHelperOctFifteen</text>
+<text x="577.0" y="635.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="135.0" y="110.5" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="123.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">TestingOpenAILinksX</text>
+<text x="297.0" y="123.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">42</text>
+<rect x="415.0" y="35.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="48.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">AgentCitDataUSAY</text>
+<text x="577.0" y="48.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="60.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="73.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">ResearcherX</text>
+<text x="577.0" y="73.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="85.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="98.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">BridgeEditor</text>
+<text x="577.0" y="98.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="110.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="123.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">OAIHelperSec</text>
+<text x="577.0" y="123.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="135.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="148.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">ArchiveResearchHelperCharleston</text>
+<text x="577.0" y="148.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="160.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="173.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">BridgeEditorAgain88</text>
+<text x="577.0" y="173.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="185.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="198.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">BridgeEditorAgain54</text>
+<text x="577.0" y="198.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="135.0" y="663.5" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="676.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">Agent</text>
+<text x="297.0" y="676.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="663.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="676.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">A</text>
+<text x="577.0" y="676.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="135.0" y="704.5" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="717.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">AgentSECDoubleSlash69374</text>
+<text x="297.0" y="717.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="704.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="717.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">AgentRawCache79941</text>
+<text x="577.0" y="717.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="135.0" y="745.5" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="758.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">AgentCmp13</text>
+<text x="297.0" y="758.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="745.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="758.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">AgentPageFit</text>
+<text x="577.0" y="758.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="135.0" y="446.0" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="459.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">OpenAIMay11Police</text>
+<text x="297.0" y="459.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">12</text>
+<rect x="415.0" y="433.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="446.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">OpenAIMay09Police</text>
+<text x="577.0" y="446.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="415.0" y="458.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="471.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">OpenAIDec23Police2</text>
+<text x="577.0" y="471.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">6</text>
+<rect x="135.0" y="367.5" width="170.0" height="18" rx="9" fill="#fdf0da" stroke="#e3a43b"/>
+<text x="143.0" y="380.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">OpenAIResearcherXYZ</text>
+<text x="297.0" y="380.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">5</text>
+<rect x="415.0" y="392.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="405.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">OpenAIResearcher</text>
+<text x="577.0" y="405.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">10</text>
+<rect x="415.0" y="367.5" width="170.0" height="18" rx="9" fill="#eef1f4" stroke="#9aa5b1"/>
+<text x="423.0" y="380.5" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1d2329" text-anchor="start" font-weight="normal">AgentResearchHelper</text>
+<text x="577.0" y="380.5" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#5f6b76" text-anchor="end" font-weight="normal">5</text>
+</svg>

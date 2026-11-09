@@ -50,8 +50,9 @@ function drawWhatif(host, w) {
       <span class="small muted">Merges to apply:</span>
       <button type="button" data-rule="estimate" class="${WI.rule === "estimate" ? "on" : ""}" title="High-confidence pairs you did not reject, plus pairs you accepted">${term("agent_estimate", "the Agents tab's estimate")}</button>
       <button type="button" data-rule="accepted" class="${WI.rule === "accepted" ? "on" : ""}" title="Only the pairs you accepted in the Agents tab">only merges you accepted</button>
-      <span class="small muted wi-dec">Your decisions: ${plural(d.merges_accepted, "merge")} accepted, ${fmt(d.merges_rejected)} rejected in the <button type="button" class="link" data-go="agents">Agents tab</button> · ${plural(d.messages_rejected, "message")} and ${plural(d.signs_rejected, "sign")} rejected here</span>
+      <span class="small muted wi-dec">Your decisions: ${plural(d.merges_accepted, "merge")} accepted, ${fmt(d.merges_rejected)} rejected in the <button type="button" class="link" data-go="agents">Agents tab</button> · ${plural(d.messages_rejected, "message")} and ${plural(d.signs_rejected, "sign")} rejected here${anyDecision ? ' <button type="button" class="wi-reset small" title="Forget every merge, message and sign decision for this dataset on this server">Reset all decisions</button>' : ""}</span>
     </div>
+    <p class="small muted wi-shared">Decisions are saved on this server for this dataset and seen by everyone using it.${w.note ? ` <span class="wi-last">${esc(w.note)}</span>` : ""}</p>
     ${!anyDecision && WI.rule === "accepted" ? '<p class="warn small">You have made no decision yet, so both columns match. Accept or reject merges in the Agents tab, reject a message from a record in the Inspector, or reject a sign below.</p>' : ""}
     <div class="grid2">
       ${card("As counted, and after your decisions", `<table class="wi-tab"><thead><tr><th></th><th class="num">as counted</th><th class="num">after</th><th class="num">change</th></tr></thead><tbody>
@@ -81,9 +82,25 @@ function drawWhatif(host, w) {
   host.querySelectorAll("[data-rule]").forEach((x) => x.addEventListener("click", () => { WI.rule = x.dataset.rule; renderWhatif(host); }));
   host.querySelectorAll("[data-go]").forEach((x) => x.addEventListener("click", () => goTab(x.dataset.go)));
   host.querySelectorAll("[data-sign]").forEach((x) => x.addEventListener("click", async () => {
-    try { const r = await api(`/api/x/fx_whatif_decide?rule=${WI.rule}`, { method: "POST", body: JSON.stringify({ kind: "sign", ids: [x.dataset.sign], action: x.dataset.act, by: investigator() }) }); drawWhatif(host, r.whatif); }
-    catch (e) { status(e.message, true); }
+    try {
+      const r = await api(`/api/x/fx_whatif_decide?rule=${WI.rule}`, { method: "POST", body: JSON.stringify({ kind: "sign", ids: [x.dataset.sign], action: x.dataset.act, by: investigator() }) });
+      const fj = r.whatif.first_joint?.after;
+      r.whatif.note = `${x.dataset.act === "reject" ? "Rejected" : "Restored"} the sign · recount: messages ${fmt(w.after.messages)} → ${fmt(r.whatif.after.messages)}, first joint sign ${fj ? `${fj.name} (${hl(fj.harm_share_after)} of harm still to come)` : "none"}.`;
+      drawWhatif(host, r.whatif);
+      window.DECISIONS?.reload?.();
+    } catch (e) { status(e.message, true); }
   }));
+  const rst = host.querySelector(".wi-reset");
+  if (rst) rst.addEventListener("click", async () => {
+    if (!confirm("Reset every decision for this dataset on this server: identity merges accepted or rejected in the Agents tab, and every message and sign rejected here? Everyone using this server sees the reset.")) return;
+    try {
+      const r = await api(`/api/x/fx_whatif_decide?rule=${WI.rule}`, { method: "POST", body: JSON.stringify({ reset: true }) });
+      S.cache.delete("/api/x/identity");
+      r.whatif.note = `Reset: ${plural(r.merges_cleared || 0, "merge decision")} and every rejected message and sign forgotten · recount: messages ${fmt(w.after.messages)} → ${fmt(r.whatif.after.messages)}.`;
+      drawWhatif(host, r.whatif);
+      window.DECISIONS?.reload?.();
+    } catch (e) { status(e.message, true); }
+  });
   drawDecisions($("wiDecs"), host);
 }
 function investigator() {
@@ -102,14 +119,14 @@ async function drawDecisions(box, host) {
     <p class="small muted">Saved to <code>${esc(d.file)}</code>. Identity merges stay in the Agents tab's own file.</p>`,
     { sub: "Each is left out of every count above; restore one to count it again." });
   box.querySelectorAll("[data-msg]").forEach((x) => x.addEventListener("click", async () => {
-    try { const r = await api(`/api/x/fx_whatif_decide?rule=${WI.rule}`, { method: "POST", body: JSON.stringify({ kind: "message", ids: [x.dataset.msg], action: "restore" }) }); drawWhatif(host, r.whatif); }
+    try { const r = await api(`/api/x/fx_whatif_decide?rule=${WI.rule}`, { method: "POST", body: JSON.stringify({ kind: "message", ids: [x.dataset.msg], action: "restore" }) }); r.whatif.note = `Restored the message · recount: messages ${fmt(d.messages.length ? r.whatif.as_counted.messages - d.messages.length + 1 : r.whatif.as_counted.messages)} → ${fmt(r.whatif.after.messages)}.`; drawWhatif(host, r.whatif); }
     catch (e) { status(e.message, true); }
   }));
   box.querySelector(".wi-add").addEventListener("submit", async (e) => {
     e.preventDefault();
     const v = e.target.querySelector("input").value.trim().replace(/\s*>\s*/, ">");
     if (!v) return;
-    try { const r = await api(`/api/x/fx_whatif_decide?rule=${WI.rule}`, { method: "POST", body: JSON.stringify({ kind: "message", ids: [v], action: "reject", by: investigator() }) }); drawWhatif(host, r.whatif); }
+    try { const r = await api(`/api/x/fx_whatif_decide?rule=${WI.rule}`, { method: "POST", body: JSON.stringify({ kind: "message", ids: [v], action: "reject", by: investigator() }) }); r.whatif.note = `Rejected the message · recount: ${fmt(r.whatif.as_counted.messages)} → ${fmt(r.whatif.after.messages)} messages.`; drawWhatif(host, r.whatif); }
     catch (err) { status(err.message, true); }
   });
   const clr = box.querySelector(".wi-clear");

@@ -51,6 +51,7 @@ SMALL_THREAD = 3           # threads with at most this many named actors count a
 PROGRAM_MAX_ACTORS = 12    # programs run by more named actors are templates, not identity evidence
 NAME_FAMILY_MAX = 40       # numbered-name stems with more names than this are not paired
 SWEEP_TOKENS = 4           # a record that uses this many tokens at once may be trying collected keys
+SWEEP_TEXT = re.compile(r"whoami|/api/me\b|token.{0,20}(valid|check|test)|(valid|check|test).{0,20}token", re.I)  # trying out collected keys
 MAX_PROPOSALS = 400
 HIGH, MEDIUM, LOW = 6, 4, 2
 
@@ -167,14 +168,18 @@ def _base(s):
         return pairs[(a, b) if a < b else (b, a)]
 
     # (a) one record, one thread
+    text_of = {e.id: e.text for e in s.events}
     for rid, toks in s.rec["_ids"].items():
         tk = sorted(t for t in toks if t in named and t not in shared)
         if len(tk) < 2:
             continue
+        # a record that tries several tokens against whoami (or a validity check) is a key sweep whatever
+        # its size: an agent testing stolen keys is in contact with their owners, not identical to them
+        sweep = len(tk) >= SWEEP_TOKENS or bool(SWEEP_TEXT.search(text_of.get(rid, "")))
         for i in range(len(tk)):
             for j in range(i + 1, len(tk)):
                 p = P(tk[i], tk[j])
-                (p.sweep_records if len(tk) >= SWEEP_TOKENS else p.same_record).append(rid)
+                (p.sweep_records if sweep else p.same_record).append(rid)
     root = s.res["_root"]
     by_thread = defaultdict(set)
     for e in s.events:

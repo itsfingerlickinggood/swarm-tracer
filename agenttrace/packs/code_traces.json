@@ -302,8 +302,7 @@
     },
     {
       "name": "cloud_metadata",
-      "pattern": "169\\.254\\.169\\.254|IMDS",
-      "flags": "i"
+      "pattern": "169\\.254\\.169\\.254|\\bIMDS(?:v[12])?\\b|/latest/meta-data/|metadata\\.google\\.internal|169\\.254\\.170\\.2"
     },
     {
       "name": "registry_board",
@@ -360,8 +359,9 @@
   "channels": [
     {
       "name": "hf_dataset",
-      "pattern": "huggingface\\.co/(?:api/)?datasets/((?:\\[[^\\]]+\\]|[\\w.-]+)(?:/?(?:\\[[^\\]]+\\]|[\\w.-]+))?)",
-      "write": "/commit/|x-ndjson|preupload|operation:\\s*'upload'|hfcommit|upload_file|create_commit|method:\\s*['\"](POST|PUT|PATCH|DELETE)|\\.open\\(['\"](POST|PUT|PATCH)"
+      "pattern": "huggingface\\.co/(?:api/)?datasets/((?:\\[[^\\]]+\\](?:\\]? ?REPO \\d+\\])?|[\\w.-]+)(?:/?(?:\\[[^\\]]+\\]|[\\w.-]+))?)",
+      "write": "/commit/|x-ndjson|preupload|operation:\\s*'upload'|hfcommit|upload_file|create_commit|method:\\s*['\"](POST|PUT|PATCH|DELETE)|\\.open\\(['\"](POST|PUT|PATCH)",
+      "read": "operation:\\s*['\"]download['\"]|method:\\s*['\"](GET|HEAD)|\\.open\\(['\"](GET|HEAD)|/resolve/|/tree/|/rows\\?|/parquet|urlopen\\s*\\(|\\.read\\(\\)|requests\\.(get|head)\\s*\\(|\\.get\\s*\\("
     },
     {
       "name": "hf_dataset",
@@ -397,5 +397,6 @@
     "search_for_secrets": "Searches public sites for secrets",
     "shortener_chain": "Follows a chain of link-shortener redirects",
     "other": "No known pattern"
-  }
+  },
+  "read_pattern": "method:\\s*['\"](GET|HEAD)|\\.open\\(['\"](GET|HEAD)|operation:\\s*['\"]download['\"]|urlopen\\s*\\(|\\.read\\(\\)|requests\\.(get|head)\\s*\\("
 }
