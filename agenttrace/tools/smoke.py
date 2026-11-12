@@ -286,7 +286,7 @@ class Browser:
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PKG = os.path.join(ROOT, "agenttrace")
-TABS = ["overview", "network", "timeline", "channels", "spread", "early", "events", "agents", "forensics", "compare", "gaps"]
+TABS = ["trace", "overview", "network", "timeline", "channels", "spread", "early", "events", "agents", "forensics", "compare", "gaps"]
 TAB_BUDGET_S = 2.0
 LIST_NAMES = ["identities", "channels", "content_spread", "seen_then_used", "carried_edges", "shared_places", "reply_edges", "overwrites"]
 BUSY_JS = r"""(() => { const el = document.querySelector('#left'); if (!el) return true;

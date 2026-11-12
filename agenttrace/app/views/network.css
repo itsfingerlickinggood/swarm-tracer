@@ -77,3 +77,17 @@ code.nw-name{background:var(--place-bg);color:#4c2f94}
 .nw-win{position:absolute;top:0;height:24px;background:rgba(47,111,179,.08);border-left:1px solid rgba(47,111,179,.35);border-right:1px solid rgba(47,111,179,.35);pointer-events:none;margin:0 8px;max-width:calc(100% - 16px)}
 .nw-froml{justify-self:end}
 .nw-from input[type=range]{width:100%;margin:0;accent-color:#8f9aa6}
+/* counting by estimated agent */
+.nw-graph g.node.agent{cursor:pointer}
+.nw-graph text.nwlab.agent{font-weight:650;fill:#0b5a54}
+.nw-graph g.nwinside{cursor:pointer}
+.nw-insk{font:600 10.5px/1.5 -apple-system,system-ui,sans-serif;color:#0b5a54;background:#e0f2f1;border:1px solid #9fd4cd;border-radius:8px;padding:0 6px}
+.nw-instag{display:inline-block;font-size:11px;font-weight:600;color:#0b5a54;background:#e0f2f1;border:1px solid #9fd4cd;border-radius:8px;padding:0 7px;white-space:nowrap}
+tr.nw-insrow td{background:#f6fbfa}
+.nw-aconv{border:1px solid #9fd4cd;background:#f0f9f8;border-radius:8px;padding:8px 10px;margin-bottom:8px}
+.nw-atok{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:6px}
+.nw-atok button{font:11.5px/1.5 var(--mono);padding:1px 7px;border-radius:6px;background:#fff;border:1px solid #c9d1da;cursor:pointer}
+.nw-atok button.on{border-color:#0f766e;background:#e0f2f1;color:#0b5a54}
+.nw-now{max-width:46%}
+.nw-now span{text-align:right}
+.nw-scrub{grid-template-columns:auto minmax(140px,1fr) minmax(0,auto)}

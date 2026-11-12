@@ -72,15 +72,15 @@
       },
       {
         "signal": "first message between named actors",
-        "time": "2026-07-11 00:47",
-        "ref": "R0006587",
-        "harm_share_after": 0.877,
+        "time": "2026-07-10 11:51",
+        "ref": "R0005421",
+        "harm_share_after": 0.895,
         "interval_95": [
-          0.848,
-          0.887
+          0.887,
+          0.909
         ],
-        "if_signal_1h_earlier": 0.878,
-        "if_signal_1h_later": 0.876
+        "if_signal_1h_earlier": 0.897,
+        "if_signal_1h_later": 0.894
       },
       {
         "signal": "first: kubernetes_token",
@@ -147,13 +147,13 @@
   "counting_rules": [
     {
       "rule": "naive: every read after another actor's write",
-      "messages": 46,
-      "pairs": 14
+      "messages": 5,
+      "pairs": 4
     },
     {
       "rule": "+ reruns of the same program removed, + each write once per reader",
-      "messages": 19,
-      "pairs": 12
+      "messages": 5,
+      "pairs": 4
     }
   ],
   "external": {
@@ -313,56 +313,28 @@
       "name": "First message between named actors",
       "family": "joint",
       "kind": "message",
-      "time": "2026-07-11 00:47",
-      "ref": "R0006587",
-      "actors": [
-        "[CREDENTIAL 169]",
-        "[CREDENTIAL 170]"
-      ],
-      "harm_share_after": 0.877,
-      "why": "[CREDENTIAL 169] wrote hf_dataset:[REDACTED:destination:000536] in R0006579; [CREDENTIAL 170] read it in R0006587, about 1 h later (estimated times)"
-    },
-    {
-      "key": "group3",
-      "name": "A group of 3+ actors linked by messages",
-      "family": "joint",
-      "kind": "group",
-      "time": "2026-07-11 04:32",
-      "ref": "R0006909",
+      "time": "2026-07-10 11:51",
+      "ref": "R0005421",
       "actors": [
         "[CREDENTIAL 170]",
-        "[CREDENTIAL 220]"
-      ],
-      "harm_share_after": 0.871,
-      "why": "the message from [CREDENTIAL 170] to [CREDENTIAL 220] joined 3 actors into one connected group: [CREDENTIAL 169], [CREDENTIAL 170], [CREDENTIAL 220]"
-    },
-    {
-      "key": "two_way",
-      "name": "First two-way exchange",
-      "family": "joint",
-      "kind": "two_way",
-      "time": "2026-07-11 06:40",
-      "ref": "R0007323",
-      "actors": [
-        "[CREDENTIAL 220]",
         "[CREDENTIAL 169]"
       ],
-      "harm_share_after": 0.864,
-      "why": "[CREDENTIAL 169] had already sent to [CREDENTIAL 220]; now [CREDENTIAL 220] sends back through hf_dataset:[REDACTED:destination:000478]"
+      "harm_share_after": 0.895,
+      "why": "[CREDENTIAL 170] wrote hf_dataset:[REDACTED:username:000002]] REPO 1] in R0005366; [CREDENTIAL 169] read it in R0005421, about 1 h later (estimated times)"
     },
     {
       "key": "program2",
       "name": "First program reused by another actor",
       "family": "joint",
       "kind": "program",
-      "time": "2026-07-11 08:11",
-      "ref": "R0008331",
+      "time": "2026-07-11 00:24",
+      "ref": "R0006554",
       "actors": [
-        "[CREDENTIAL 265]",
-        "[CREDENTIAL 220]"
+        "[CREDENTIAL 169]",
+        "[CREDENTIAL 170]"
       ],
-      "harm_share_after": 0.85,
-      "why": "[CREDENTIAL 220] ran the program [CREDENTIAL 265] first ran in R0008211, about 1 h later (estimated times)"
+      "harm_share_after": 0.877,
+      "why": "[CREDENTIAL 170] ran the program [CREDENTIAL 169] first ran in R0006513, about 1 h later (estimated times)"
     },
     {
       "key": "rate_all",
@@ -468,18 +440,18 @@
       "why": "two identities used the same named place flb4 in different records"
     },
     {
-      "key": "group5",
-      "name": "A group of 5+ actors linked by messages",
+      "key": "group3",
+      "name": "A group of 3+ actors linked by messages",
       "family": "joint",
       "kind": "group",
-      "time": "2026-07-11 21:08",
-      "ref": "R0031048",
+      "time": "2026-07-12 13:06",
+      "ref": "R0046969",
       "actors": [
-        "[CREDENTIAL 170]",
-        "[CREDENTIAL 1334]"
+        "[CREDENTIAL 1720]",
+        "[CREDENTIAL 1602]"
       ],
-      "harm_share_after": 0.432,
-      "why": "the message from [CREDENTIAL 170] to [CREDENTIAL 1334] joined 5 actors into one connected group: [CREDENTIAL 169], [CREDENTIAL 170], [CREDENTIAL 220], [CREDENTIAL 222], [CREDENTIAL 1334]"
+      "harm_share_after": 0.072,
+      "why": "the message from [CREDENTIAL 1720] to [CREDENTIAL 1602] joined 3 actors into one connected group: [CREDENTIAL 1720], [CREDENTIAL 1623], [CREDENTIAL 1602]"
     }
   ]
 }

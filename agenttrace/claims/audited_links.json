@@ -1,0 +1,4702 @@
+{
+ "about": "Hand-audited message links on the Swarm Traces release (redacted_columns.csv, 189,579 records, pack code_traces.json). Every link between two named tokens that Swarm Tracer v1.1.0 reported (166), plus every link the current code reports that v1.1.0 did not (12).",
+ "made": "2026-11-13",
+ "how": "v1.1.0 was checked out in a git worktree and run on the file to list its 166 named deliveries; the current code was run the same way (19). For each link the write record and the read record were read: is the write a commit/upload/POST/PUT to that same place, is the read a fetch of it, is it the same repository. A separate script (not the tool's rules) parsed the request around each mention as a cross-check (script_check); where the script and the reading differed, the reading decided. Snippets are the first mention of the place in each record, at most 120 characters.",
+ "labelled_by": "tool-assisted reading by the authors' assistant; not independently double-labelled",
+ "limits": [
+  "one labeller, no second opinion",
+  "only links some version of the tool reported were audited, so recall is against the true links in this pool, not against every true message in the data",
+  "record text is redacted and sometimes cut; tokens are the first non-shared token in a record, which is not always the token that made the request"
+ ],
+ "dataset": {
+  "name": "redacted_columns.csv",
+  "records": 189579
+ },
+ "versions": {
+  "v1.1.0": {
+   "reported": 166
+  },
+  "at_audit": {
+   "reported": 19,
+   "shared_with_v1.1.0": 7
+  }
+ },
+ "labels": {
+  "true_message": "a real write to the place, then a real read of the same place by another token",
+  "false_write": "the 'write' record only reads the place (GET), and POSTs or commits what it got somewhere else",
+  "false_write_lfs_or_urlopen": "the 'write' is a request that only fetches: an LFS batch download, Python urlopen(url), or a POST that only queries",
+  "different_repo": "write and read are on different repositories under one owner (the redaction kept only the owner in v1.1.0's place name)",
+  "comment_only": "the place is named only in a comment",
+  "read_not_a_read": "the write is real, but the 'read' record does not read the place (it writes to it too)",
+  "unclear": "cannot be decided from the two records (text cut or ambiguous); left out of precision and recall"
+ },
+ "counts": {
+  "different_repo": 4,
+  "false_write_lfs_or_urlopen": 9,
+  "read_not_a_read": 14,
+  "true_message": 5,
+  "false_write": 149,
+  "unclear": 1
+ },
+ "counts_by_version": {
+  "v1.1.0": {
+   "true_message": 1,
+   "false_write": 149,
+   "false_write_lfs_or_urlopen": 8,
+   "different_repo": 4,
+   "comment_only": 0,
+   "read_not_a_read": 3,
+   "unclear": 1
+  },
+  "at_audit": {
+   "true_message": 0,
+   "false_write": 0,
+   "false_write_lfs_or_urlopen": 4,
+   "different_repo": 0,
+   "comment_only": 0,
+   "read_not_a_read": 14,
+   "unclear": 1
+  }
+ },
+ "disagreements": [
+  [
+   "R0006579",
+   "R0006587"
+  ],
+  [
+   "R0006584",
+   "R0006786"
+  ],
+  [
+   "R0006836",
+   "R0006909"
+  ],
+  [
+   "R0006968",
+   "R0006978"
+  ],
+  [
+   "R0007146",
+   "R0007323"
+  ],
+  [
+   "R0007714",
+   "R0007891"
+  ],
+  [
+   "R0008284",
+   "R0008151"
+  ],
+  [
+   "R0010191",
+   "R0010235"
+  ],
+  [
+   "R0011694",
+   "R0012006"
+  ],
+  [
+   "R0011694",
+   "R0015561"
+  ],
+  [
+   "R0023143",
+   "R0023556"
+  ],
+  [
+   "R0024313",
+   "R0024371"
+  ],
+  [
+   "R0022732",
+   "R0024514"
+  ],
+  [
+   "R0025102",
+   "R0036991"
+  ],
+  [
+   "R0036456",
+   "R0037253"
+  ],
+  [
+   "R0026881",
+   "R0038233"
+  ],
+  [
+   "R0038810",
+   "R0041450"
+  ],
+  [
+   "R0038810",
+   "R0042979"
+  ],
+  [
+   "R0048302",
+   "R0048322"
+  ]
+ ],
+ "links": [
+  {
+   "write_id": "R0005267",
+   "read_id": "R0005276",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "different_repo",
+   "reason": "write is an LFS upload batch on repository 'REPO 14'; the read fetches a file of 'REPO 5' under the same owner",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "LFSUP"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": ">{let u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 14]/info/lfs/objects/",
+   "read_snippet": "';fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 5]/resolve/main/proje",
+   "latency_h": 0.09,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0005309",
+   "read_id": "R0005329",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write_lfs_or_urlopen",
+   "reason": "write record is an LFS batch POST with operation 'download': it fetches, it does not write",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "LFSDL"
+    ],
+    "read_verbs": [
+     "HEAD"
+    ]
+   },
+   "write_snippet": "170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/info/lfs/objects/b",
+   "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/resolve/main/train",
+   "latency_h": 0.2,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0005417",
+   "read_id": "R0005421",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "different_repo",
+   "reason": "write is an LFS upload batch on 'REPO 16'; the read fetches train.jsonl of 'REPO 1' under the same owner",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "LFSUP"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 16]/info/lfs/objects/",
+   "read_snippet": "u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/resolve/main/train.jsonl",
+   "latency_h": 0.04,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0006579",
+   "read_id": "R0006587",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000536]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write POSTs a saved SQL query to the dataset; the 'read' POSTs its own query and PATCHes it: two writes, no read",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "PATCH/POST"
+    ]
+   },
+   "write_snippet": "fetch('//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000536]',{method:'POST',headers:{Aut",
+   "read_snippet": "NTIAL 170]';u='//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000536]';h={authorization:'B",
+   "latency_h": 0.09,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0006584",
+   "read_id": "R0006786",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[REDACTED:repo_locator:000055]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "true_message",
+   "reason": "write POSTs grant/handle on the repository's access requests; 2.3 h later another token GETs the pending/accepted/rejected lists of the same repository (an access change, not file content)",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "NTIAL 170]';b='//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:repo_locator:000055]/';async function f(",
+   "read_snippet": "n('GET','https://[SERVICE HOST 9]/https://huggingface.co/api/datasets/[REDACTED:repo_locator:000055]/'+s,false);x.setReq",
+   "latency_h": 2.35,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0006727",
+   "read_id": "R0006842",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "different_repo",
+   "reason": "write is a POST ask-access on 'REPO 23'; the read fetches a file of 'REPO 29' under the same owner",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "U='https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 23]/ask-access?next=ZZ';x=n",
+   "read_snippet": "169]';U='https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 29]/resolve/main/cybe",
+   "latency_h": 1.34,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0006836",
+   "read_id": "R0006909",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000454]",
+   "channel_now": "hf_dataset:[REDACTED:destination:000454]",
+   "reported_v110": true,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a real commit; the 'read' calls the same commit URL with a method set (text cut at '{metho') after collecting rows elsewhere: a second commit, not a read",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t();u=new [ENCODED BLOB] fetch(B+'https://huggingface.co/api/datasets/[REDACTED:destination:000454]',{method:'POST',head",
+   "read_snippet": "eta])}let [ENCODED BLOB] fetch(P+'https://huggingface.co/api/datasets/[REDACTED:destination:000454]',{metho [PROXY 4 URL",
+   "latency_h": 0.85,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0006968",
+   "read_id": "R0006978",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000478]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a real commit; the 'read' is Python urlopen(Request(url, data=body)) with x-ndjson: an upload, not a read",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "POST"
+    ]
+   },
+   "write_snippet": "';fetch('https://[SERVICE HOST 9]/https://huggingface.co/api/datasets/[REDACTED:destination:000478]',{method:'POST',head",
+   "read_snippet": "ary':'glm20494 [ENCODED BLOB] v='https://huggingface.co/api/datasets/[REDACTED:destination:000478]' z=urllib.request.url",
+   "latency_h": 0.12,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0007146",
+   "read_id": "R0007323",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000478]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a real commit; the 'read' keeps the URL in a variable and calls fetch(u,{method:'POST'}) with x-ndjson: a commit",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "POST"
+    ]
+   },
+   "write_snippet": "n fetch('https://[SERVICE HOST 9]/https://huggingface.co/api/datasets/[REDACTED:destination:000478]',{method:'POST',head",
+   "read_snippet": "wrap';u='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000478]';a={key:'header',val",
+   "latency_h": 0.13,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0006727",
+   "read_id": "R0007854",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "different_repo",
+   "reason": "write is a POST ask-access on 'REPO 23'; the read fetches a parquet file of 'REPO 1' under the same owner",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "U='https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 23]/ask-access?next=ZZ';x=n",
+   "read_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/resolve/refs%2Fconve",
+   "latency_h": 5.35,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0007714",
+   "read_id": "R0007891",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000407]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "both records commit to the dataset (URL in a variable, fetch(u,{method:'POST'})); the write's commit also uses the reader's token",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "POST"
+    ]
+   },
+   "write_snippet": "] fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000407]',{method:'POST',head",
+   "read_snippet": "+'\\n';u='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000407]';fetch(u,{method:'PO",
+   "latency_h": 0.47,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0008096",
+   "read_id": "R0008313",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "n('GET',\"https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/resolve/main/ext.",
+   "read_snippet": "let U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/resolve/main/ext.h5",
+   "latency_h": 0.0,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0008284",
+   "read_id": "R0008151",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000407]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "both records commit to the dataset with the same token; the 'read' is fetch(u,{method:'POST'}) with x-ndjson",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "POST"
+    ]
+   },
+   "write_snippet": "ary:'c608 [ENCODED BLOB] fetch(P+'https://huggingface.co/api/datasets/[REDACTED:destination:000407]',{method:'POST',head",
+   "read_snippet": "003]',tok='[CREDENTIAL 169]',u=P+'https://huggingface.co/api/datasets/[REDACTED:destination:000407]',txt='HELLO_FROM_C60",
+   "latency_h": 0.0,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0009458",
+   "read_id": "R0009849",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/raw/main/README.md'",
+   "read_snippet": "nix'],u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 50]/resolve/main/resu",
+   "latency_h": 0.07,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0009667",
+   "read_id": "R0009886",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 222]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/resolve/main/READ",
+   "read_snippet": "nd(i);u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 46]/resolve/main/envf",
+   "latency_h": 0.03,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0010191",
+   "read_id": "R0010235",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000668]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a real commit; the 'read' is another commit (URL in a variable, fetch(U,{method:'POST'}))",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "POST"
+    ]
+   },
+   "write_snippet": "\\\"}}\\n\";fetch('//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000668]',{method:'POST',head",
+   "read_snippet": "+'\\n';U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000668]';r=await fetch(U,{me",
+   "latency_h": 0.03,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0009667",
+   "read_id": "R0010561",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/resolve/main/READ",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 54]/resolve/main/arvo/3",
+   "latency_h": 0.38,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0009667",
+   "read_id": "R0010568",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/resolve/main/READ",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 54]/resolve/main/arvo/3",
+   "latency_h": 0.39,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0009870",
+   "read_id": "R0010765",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000625]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "ew XMLHttpRequest();a.open('GET',\"https://huggingface.co/datasets/[REDACTED:destination:000625]\",false);a.setRequestHead",
+   "read_snippet": ",hashlib HF='[CREDENTIAL 220]' u='https://huggingface.co/datasets/[REDACTED:destination:000625]' r=Q.Request(u,headers={",
+   "latency_h": 0.57,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0009322",
+   "read_id": "R0011538",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000727]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000727]',{headers:{Authorizati",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[REDACTED:destination:000727]',{headers:{Authorization:'Bearer [CREDENTIAL 22",
+   "latency_h": 1.29,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0008815",
+   "read_id": "R0011702",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000774]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "h5','mount.h5','maps.h5']){let u='https://huggingface.co/datasets/[REDACTED:destination:000774]'+f,r=await fetch('[SERVI",
+   "read_snippet": "ponent(location.hash.slice(1));u='https://huggingface.co/datasets/[REDACTED:destination:000774]'+p;document.body.innerTe",
+   "latency_h": 1.92,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0011694",
+   "read_id": "R0012006",
+   "from": "[CREDENTIAL 222]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000668]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a real commit; the 'read' is another commit (URL in a variable, fetch(U,{method:'POST'}))",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "POST"
+    ]
+   },
+   "write_snippet": ",encoding:'base64'}})+'\\n';fetch('https://huggingface.co/api/datasets/[REDACTED:destination:000668]',{method:'POST',head",
+   "read_snippet": "+'\\n';U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000668]';r=await fetch(U,{me",
+   "latency_h": 0.22,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0009870",
+   "read_id": "R0013221",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 15]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000625]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "ew XMLHttpRequest();a.open('GET',\"https://huggingface.co/datasets/[REDACTED:destination:000625]\",false);a.setRequestHead",
+   "read_snippet": "ERR '+e.stack)}})(); { \"u\": \"https://huggingface.co/datasets/[REDACTED:destination:000625]\", \"t\": \"[CREDENTIAL 220]\", \"t",
+   "latency_h": 1.87,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0011694",
+   "read_id": "R0015561",
+   "from": "[CREDENTIAL 222]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000668]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a real commit; the 'read' is another commit (URL in a variable, fetch(U,{method:'POST'}))",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "POST"
+    ]
+   },
+   "write_snippet": ",encoding:'base64'}})+'\\n';fetch('https://huggingface.co/api/datasets/[REDACTED:destination:000668]',{method:'POST',head",
+   "read_snippet": "U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000668]';fetch(U,{method:'POST',he",
+   "latency_h": 0.87,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0010206",
+   "read_id": "R0017057",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000768]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "]'+encodeURIComponent(u);fetch(P('https://huggingface.co/api/datasets/[REDACTED:destination:000768]'),{headers:{Authoriz",
+   "read_snippet": "u='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000768]';fetch(u,{headers:{Authori",
+   "latency_h": 3.86,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0009554",
+   "read_id": "R0018804",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000600]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "art(2,'0')}o.innerText=t}; fetch('https://huggingface.co/datasets/[REDACTED:destination:000600]').then(r=>r.arrayBuffer(",
+   "read_snippet": "t='[CREDENTIAL 170]';fetch('https://huggingface.co/datasets/[REDACTED:destination:000600]').then(r=>r.arrayBuffer()).the",
+   "latency_h": 4.47,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0022560",
+   "read_id": "R0022565",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[HF REPO 37]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "ED:destination:000008]]';r=await fetch(z+'huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CRE",
+   "read_snippet": "ts,socket T='[CREDENTIAL 220]' u='https://huggingface.co/api/datasets/[HF REPO 37]' r=requests.get(u,headers={'Authoriza",
+   "latency_h": 0.0,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0022612",
+   "read_id": "R0022625",
+   "from": "[CREDENTIAL 222]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[HF REPO 37]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "ED:destination:000008]]';r=await fetch(z+'huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CRE",
+   "read_snippet": "(async()=>{let u='https://huggingface.co/api/datasets/[HF REPO 37]';try{let r=await fetch(u,{headers:{Authorization:'Bea",
+   "latency_h": 0.01,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0022658",
+   "read_id": "R0022661",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:002181]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "a='https://huggingface.co/datasets/[REDACTED:destination:002181]';fetch('//[SERVICE 1 URL [ENCODED BLOB] XMLHttpRequest;",
+   "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/datasets/[REDACTED:destination:002181]',false);x.setRequestHead",
+   "latency_h": 0.0,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0022751",
+   "read_id": "R0022809",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:002181]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "a='https://huggingface.co/datasets/[REDACTED:destination:002181]';fetch(a,{headers:{Authorization:'Bearer [CREDENTIAL [E",
+   "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:002181]',{headers:{Authorization:'Bearer [CREDENTIAL 220]',",
+   "latency_h": 0.05,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0022818",
+   "read_id": "R0022978",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:002181]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "a='https://huggingface.co/datasets/[REDACTED:destination:002181]';fetch('//[SERVICE 1 URL 2]'+a,{headers:{Authorization:",
+   "read_snippet": "-wrap';o.innerText='START';try{u='https://huggingface.co/datasets/[REDACTED:destination:002181]';r=await fetch(u,{header",
+   "latency_h": 0.15,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0022818",
+   "read_id": "R0023080",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 222]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:002181]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "a='https://huggingface.co/datasets/[REDACTED:destination:002181]';fetch('//[SERVICE 1 URL 2]'+a,{headers:{Authorization:",
+   "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:002181]',{headers:{Authorization:'Bearer [CREDENTIAL 222]'}",
+   "latency_h": 0.25,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023123",
+   "read_id": "R0023126",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[HF REPO 37]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CREDENTIAL 170]'}}).then(async",
+   "latency_h": 0.0,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023123",
+   "read_id": "R0023220",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[HF REPO 37]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CREDENTIAL 169]'}}).then(async",
+   "latency_h": 0.09,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023329",
+   "read_id": "R0023402",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 222]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000660]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "://huggingface.co/api/whoami-v2','https://huggingface.co/api/datasets/[REDACTED:destination:000660]','https://huggingfac",
+   "read_snippet": "ent.body.innerText='START';fetch('https://huggingface.co/api/datasets/[REDACTED:destination:000660]',{headers:{Authoriza",
+   "latency_h": 0.07,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023329",
+   "read_id": "R0023484",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 222]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:002181]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
+   "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:destination:002181]';fetch(u,{headers:{Authorization:'Bearer [CREDENTIAL 22",
+   "latency_h": 0.15,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023143",
+   "read_id": "R0023556",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000715]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a real commit through a proxy; the 'read' is fetch(P(u),{method:'POST'}) with x-ndjson: a commit",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "POST"
+    ]
+   },
+   "write_snippet": "ICE 9 URL 2]'+encodeURIComponent('https://huggingface.co/api/datasets/[REDACTED:destination:000715]'),d,{Authorization:'",
+   "read_snippet": "8239.json',encoding:'base64'}},u='https://huggingface.co/api/datasets/[REDACTED:destination:000715]',c=await fetch(P(u),",
+   "latency_h": 0.39,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0023123",
+   "read_id": "R0023728",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 222]",
+   "channel_v110": "hf_dataset:[HF REPO 37]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "HEAD"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 37]',{method:'HEAD',headers:{Authorization:'Bearer [CREDENTIAL 222]'",
+   "latency_h": 0.57,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023329",
+   "read_id": "R0023991",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:002181]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
+   "read_snippet": "get20176_private_search.txt' raw='https://huggingface.co/datasets/[REDACTED:destination:002181]' common='[CREDENTIAL 220",
+   "latency_h": 0.62,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0008461",
+   "read_id": "R0024169",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000820]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000820]',{headers:{Authoriza",
+   "read_snippet": "://huggingface.co/api/whoami-v2','https://huggingface.co/api/datasets/[REDACTED:destination:000820]']){try{let r=await f",
+   "latency_h": 9.46,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0024313",
+   "read_id": "R0024371",
+   "from": "[CREDENTIAL 1178]",
+   "to": "[CREDENTIAL 1171]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:003313]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "both records POST comments to the dataset with the same token pair; nothing is read from it",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "POST"
+    ]
+   },
+   "write_snippet": "+'[CREDENTIAL 1179]';await fetch('https://huggingface.co/api/datasets/[REDACTED:destination:003313]',{method:'POST',head",
+   "read_snippet": "IAL 1178]'+'[CREDENTIAL 1179]',U='https://huggingface.co/api/datasets/[REDACTED:destination:003313]',P=x=>fetch(U,{metho",
+   "latency_h": 0.06,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0009870",
+   "read_id": "R0024452",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000625]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "HEAD"
+    ]
+   },
+   "write_snippet": "ew XMLHttpRequest();a.open('GET',\"https://huggingface.co/datasets/[REDACTED:destination:000625]\",false);a.setRequestHead",
+   "read_snippet": "(async()=>{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:000625]',{method:'HEAD',headers:{Aut",
+   "latency_h": 8.31,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0022732",
+   "read_id": "R0024514",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:003114]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a real commit; the 'read' is Python requests.post(url, data=nd) with x-ndjson: a commit",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "POST"
+    ]
+   },
+   "write_snippet": "w XMLHttpRequest();y.open('POST','https://huggingface.co/api/datasets/[REDACTED:destination:003114]',false);y.setRequest",
+   "read_snippet": "e(); tok='[CREDENTIAL 170]'; url='https://huggingface.co/api/datasets/[REDACTED:destination:003114]'; [ENCODED BLOB] pri",
+   "latency_h": 1.68,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0024654",
+   "read_id": "R0024903",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:003092]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": ";r.open('GET','//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:003092]',false);r.setRequest",
+   "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[REDACTED:destination:003092]',false);x.setRequest",
+   "latency_h": 0.16,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023329",
+   "read_id": "R0024930",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:002181]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
+   "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:002181]',{headers:{Authorization:'Bearer [CREDENTIAL 169]',",
+   "latency_h": 1.43,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023329",
+   "read_id": "R0025225",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 1098]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:002181]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
+   "read_snippet": "(async()=>{try{r=await fetch(\"https://huggingface.co/datasets/[REDACTED:destination:002181]\",{headers:{Authorization:'Be",
+   "latency_h": 1.68,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0024699",
+   "read_id": "R0025311",
+   "from": "[CREDENTIAL 222]",
+   "to": "[CREDENTIAL 1098]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000660]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "IAL 222]',B='[CREDENTIAL 170]',u='https://huggingface.co/api/datasets/[REDACTED:destination:000660]',r=await fetch('[SER",
+   "read_snippet": "(async()=>{try{r=await fetch(\"https://huggingface.co/api/datasets/[REDACTED:destination:000660]\",{headers:{Authorization",
+   "latency_h": 0.46,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023123",
+   "read_id": "R0026406",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 1337]",
+   "channel_v110": "hf_dataset:[HF REPO 37]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
+   "read_snippet": "(async()=>{try{r=await fetch(\"https://huggingface.co/api/datasets/[HF REPO 37]\",{headers:{Authorization:'Bearer '+'[CRED",
+   "latency_h": 2.7,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0024699",
+   "read_id": "R0026409",
+   "from": "[CREDENTIAL 222]",
+   "to": "[CREDENTIAL 1337]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:000660]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "IAL 222]',B='[CREDENTIAL 170]',u='https://huggingface.co/api/datasets/[REDACTED:destination:000660]',r=await fetch('[SER",
+   "read_snippet": "(async()=>{try{r=await fetch(\"https://huggingface.co/api/datasets/[REDACTED:destination:000660]\",{headers:{Authorization",
+   "latency_h": 1.21,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023123",
+   "read_id": "R0026786",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 1334]",
+   "channel_v110": "hf_dataset:[HF REPO 37]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CREDE",
+   "latency_h": 2.89,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023329",
+   "read_id": "R0027196",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 1334]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:002181]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
+   "read_snippet": "ce.co/api/datasets/[HF REPO 37]','https://huggingface.co/datasets/[REDACTED:destination:002181]']: try: r=u.urlopen(u.Re",
+   "latency_h": 2.84,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0029553",
+   "read_id": "R0031048",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 1334]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:003075]",
+   "channel_now": "hf_dataset:[REDACTED:destination:003075]",
+   "reported_v110": true,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write is a real commit; the second record names the commit URL and builds file entries, but its text is cut before any call on it",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "oin('\\n')+'\\n';let r=await fetch('https://huggingface.co/api/datasets/[REDACTED:destination:003075]',{method:'POST',head",
+   "read_snippet": "[REDACTED:destination:004758]',O='https://huggingface.co/api/datasets/[REDACTED:destination:003075]',z=[];for(let f of [",
+   "latency_h": 0.63,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023329",
+   "read_id": "R0033297",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 1623]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:002181]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "HEAD"
+    ]
+   },
+   "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
+   "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:002181]',{method:'HEAD',headers:{Authorization:'Bearer [CRE",
+   "latency_h": 5.01,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0025102",
+   "read_id": "R0036991",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:003608]",
+   "channel_now": "hf_dataset:[REDACTED:destination:003608]",
+   "reported_v110": true,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a real commit; the 'read' calls req(url, token, 'POST', data) with x-ndjson: a commit",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "OB] XMLHttpRequest;y.open('POST','https://huggingface.co/api/datasets/[REDACTED:destination:003608]',false);y.setRequest",
+   "read_snippet": "lines)+'\\n').encode(); s,h,b=req('https://huggingface.co/api/datasets/[REDACTED:destination:003608]',wt,'POST',data,limi",
+   "latency_h": 5.14,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0036456",
+   "read_id": "R0037253",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:005057]",
+   "channel_now": "hf_dataset:[REDACTED:destination:005057]",
+   "reported_v110": true,
+   "reported_now": true,
+   "label": "false_write_lfs_or_urlopen",
+   "reason": "both records read the file with Python urlopen(url); the commits in the write record go to other datasets",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "uest as U,ssl,json,gzip,base64 u='https://huggingface.co/datasets/[REDACTED:destination:005057]' b=U.urlopen(u,timeout=3",
+   "read_snippet": ",9);raise SystemExit b=u.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7",
+   "latency_h": 0.21,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0037979",
+   "read_id": "R0038118",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:005057]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write_lfs_or_urlopen",
+   "reason": "write record reads the file with Python urlopen(url); the commit in the same record goes to another dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": ",json,gzip,base64,os b=u.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7",
+   "read_snippet": "turn 0,repr(e) try: b=U.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7c",
+   "latency_h": 0.07,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0038120",
+   "read_id": "R0038225",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:005057]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write_lfs_or_urlopen",
+   "reason": "write record reads the file with Python urlopen(url); the commit in the same record goes to another dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": ",json,gzip,base64,os b=u.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7",
+   "read_snippet": "turn 0,repr(e) try: b=U.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7c",
+   "latency_h": 0.06,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0026881",
+   "read_id": "R0038233",
+   "from": "[CREDENTIAL 1334]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:001640]",
+   "channel_now": "hf_dataset:[REDACTED:destination:001640]",
+   "reported_v110": true,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a real commit; the 'read' pairs the commit URL with x-ndjson file entries to upload: a commit",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "x)).join('\\n')+'\\n';return fetch('https://huggingface.co/api/datasets/[REDACTED:destination:001640]',{method:'POST',head",
+   "read_snippet": "r=[];for(z of [[\"https://huggingface.co/api/datasets/[REDACTED:destination:001640]\", [ENCODED BLOB] BLOB 28862]\\\",\\\"path",
+   "latency_h": 4.48,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0038266",
+   "read_id": "R0038725",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:005826]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005826]';fetch(U,{headers:{Authori",
+   "read_snippet": "fetch(\"https://huggingface.co/api/datasets/[REDACTED:destination:005826]\",{headers:{Authorization:\"Bearer [CREDENTIAL 22",
+   "latency_h": 0.18,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0038266",
+   "read_id": "R0038891",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 222]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:005826]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005826]';fetch(U,{headers:{Authori",
+   "read_snippet": "fetch(\"https://huggingface.co/api/datasets/[REDACTED:destination:005826]\",{headers:{Authorization:\"Bearer [CREDENTIAL 22",
+   "latency_h": 0.19,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0038266",
+   "read_id": "R0038972",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:005826]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005826]';fetch(U,{headers:{Authori",
+   "read_snippet": "fetch(\"https://huggingface.co/api/datasets/[REDACTED:destination:005826]\",{headers:{Authorization:\"Bearer [CREDENTIAL 17",
+   "latency_h": 0.2,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0039373",
+   "read_id": "R0039480",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 1623]",
+   "channel_v110": "hf_dataset:[HF REPO 579]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "status try: for n,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('metaCase','https://huggingface.co",
+   "read_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 579]',{headers:{Authorization:'Bearer [CR",
+   "latency_h": 0.02,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0039373",
+   "read_id": "R0039986",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[HF REPO 579]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "status try: for n,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('metaCase','https://huggingface.co",
+   "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 579]',false);x.setRequestHeader('Authoriz",
+   "latency_h": 0.11,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0038992",
+   "read_id": "R0040250",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[HF REPO 579]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "let x='';try{x=await(await fetch('https://huggingface.co/api/datasets/[HF REPO 579]',{headers:{Authorization:'Bearer [CR",
+   "read_snippet": "),b try: for name,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('tree','https://huggingface.co/api",
+   "latency_h": 0.2,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0039373",
+   "read_id": "R0040458",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[HF REPO 579]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "status try: for n,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('metaCase','https://huggingface.co",
+   "read_snippet": "425-private-source-audit'}; base='https://huggingface.co/api/datasets/[HF REPO 579]' meta=req(base,headers=H,limit=50000",
+   "latency_h": 0.23,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0038437",
+   "read_id": "R0041357",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:005057]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write_lfs_or_urlopen",
+   "reason": "write record reads the file with Python urlopen(url); the commit in the same record goes to another dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": ",json,gzip,base64,os b=u.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7",
+   "read_snippet": "turn 0,repr(e) try: b=U.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7c",
+   "latency_h": 0.64,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0038810",
+   "read_id": "R0041450",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:005898][USER 46]",
+   "channel_now": "hf_dataset:[REDACTED:destination:005898][USER 46]",
+   "reported_v110": true,
+   "reported_now": true,
+   "label": "false_write_lfs_or_urlopen",
+   "reason": "the 'write' reads sec.bin with Python urlopen(url); its commit goes to another dataset. Two readers of one file",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "est as u,gzip,json,base64,os url='https://huggingface.co/datasets/[REDACTED:destination:005898][USER 46]sec.bin' b=u.url",
+   "read_snippet": "RL 1]';document.body.append(i);u='https://huggingface.co/datasets/[REDACTED:destination:005898][USER 46]sec.bin';fetch(u",
+   "latency_h": 0.58,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0042842",
+   "read_id": "R0042855",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[HF REPO 555]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 555]',{headers:{Authorization:'Bearer [CREDENTIAL 1623]'}}).then(r=>",
+   "read_snippet": "://huggingface.co/api/whoami-v2','https://huggingface.co/api/datasets/[HF REPO 555]','https://huggingface.co/api/dataset",
+   "latency_h": 0.04,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0038810",
+   "read_id": "R0042979",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:005898][USER 46]",
+   "channel_now": "hf_dataset:[REDACTED:destination:005898][USER 46]",
+   "reported_v110": true,
+   "reported_now": true,
+   "label": "false_write_lfs_or_urlopen",
+   "reason": "the 'write' reads sec.bin with Python urlopen(url); its commit goes to another dataset. Two readers of one file",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "est as u,gzip,json,base64,os url='https://huggingface.co/datasets/[REDACTED:destination:005898][USER 46]sec.bin' b=u.url",
+   "read_snippet": "d read-only [USER 46] secret url='https://huggingface.co/datasets/[REDACTED:destination:005898][USER 46]sec.bin' st,b=ge",
+   "latency_h": 2.31,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0042952",
+   "read_id": "R0043455",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[HF REPO 555]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 555]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "://datasets-server.huggingface.co/'+h[0]+'?dataset=[HF REPO 555]&config=default&split=train&'+h[1];fetch(u,{headers:{Aut",
+   "latency_h": 1.1,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0042952",
+   "read_id": "R0043612",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[HF REPO 555]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 555]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "thorization':'Bearer '+HT} base='https://huggingface.co/api/datasets/[HF REPO 555]' for suf in ['', '/tree/main?recursiv",
+   "latency_h": 1.32,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0043677",
+   "read_id": "R0043703",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[HF REPO 555]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
+   "read_snippet": "try{q=location.hash.slice(1);u='rows?dataset=[HF REPO 555]&config=default&split=train&offset='+q+'&length=1';fetch('http",
+   "latency_h": 0.03,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0043677",
+   "read_id": "R0043714",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": "hf_dataset:[HF REPO 555]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
+   "read_snippet": "ENTIAL 1872]').decode()}) q(\"hf\",'https://huggingface.co/api/datasets/[HF REPO 555]',{\"Authorization\":'Bearer [CREDENTIA",
+   "latency_h": 0.05,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0043677",
+   "read_id": "R0043939",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 1720]",
+   "channel_v110": "hf_dataset:[HF REPO 555]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
+   "read_snippet": "=new XMLHttpRequest;x.open('GET',\"https://huggingface.co/api/datasets/[HF REPO 555]\",false);x.setRequestHeader('Authoriz",
+   "latency_h": 0.37,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0042883",
+   "read_id": "R0043998",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006408]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "AL 1623]',W='[CREDENTIAL 170]',u='https://huggingface.co/api/datasets/[REDACTED:destination:006408]',r=await fetch(u,{he",
+   "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[REDACTED:destination:006408]',false);x.setRequest",
+   "latency_h": 2.22,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0042964",
+   "read_id": "R0044097",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006409]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "://huggingface.co/api/whoami-v2','https://huggingface.co/api/datasets/[REDACTED:destination:006409]']){let r=await fetch",
+   "read_snippet": "e.co/api/datasets/[HF REPO 555]','https://huggingface.co/api/datasets/[REDACTED:destination:006409]','https://huggingfac",
+   "latency_h": 2.31,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0043677",
+   "read_id": "R0044342",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 1602]",
+   "channel_v110": "hf_dataset:[HF REPO 555]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
+   "read_snippet": ">{let u='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]';let r=await fetch(u,{headers:{Autho",
+   "latency_h": 1.83,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0044548",
+   "read_id": "R0044582",
+   "from": "[CREDENTIAL 1602]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006393]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[REDACTED:destination:006393]',{headers:{Authorization:'Bearer [CREDENTIAL 16",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:006393]',{headers:{Authorizati",
+   "latency_h": 0.04,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0045115",
+   "read_id": "R0045143",
+   "from": "[CREDENTIAL 1720]",
+   "to": "[CREDENTIAL 1623]",
+   "channel_v110": "hf_dataset:[HF REPO 646]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "()=>{let t='[CREDENTIAL 1720]',u='https://huggingface.co/api/datasets/[HF REPO 646]';let r=await fetch(u,{headers:{Autho",
+   "read_snippet": "s/[REDACTED:destination:030317]','https://huggingface.co/api/datasets/[HF REPO 646]','https://huggingface.co/api/dataset",
+   "latency_h": 0.15,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0043677",
+   "read_id": "R0045225",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 1702]",
+   "channel_v110": "hf_dataset:[HF REPO 555]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
+   "read_snippet": ">{let u='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]',o='';await fetch(u,{headers:{Author",
+   "latency_h": 4.18,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0042964",
+   "read_id": "R0045991",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 1681]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006409]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "://huggingface.co/api/whoami-v2','https://huggingface.co/api/datasets/[REDACTED:destination:006409]']){let r=await fetch",
+   "read_snippet": ".co/api/datasets/[HF REPO 555]', 'https://huggingface.co/api/datasets/[REDACTED:destination:006409]', 'https://huggingfa",
+   "latency_h": 8.27,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0043677",
+   "read_id": "R0045991",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 1681]",
+   "channel_v110": "hf_dataset:[HF REPO 555]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
+   "read_snippet": "//huggingface.co/api/whoami-v2', 'https://huggingface.co/api/datasets/[HF REPO 555]', 'https://huggingface.co/api/datase",
+   "latency_h": 6.91,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0045976",
+   "read_id": "R0046095",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006408]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "T='[CREDENTIAL 1623]';u='https://huggingface.co/api/datasets/[REDACTED:destination:006408]';(async()=>{try{r=await fetch",
+   "read_snippet": "let t='[CREDENTIAL 220]';let u='https://huggingface.co/api/datasets/[REDACTED:destination:006408]';fetch(u,{headers:{Aut",
+   "latency_h": 0.42,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0040240",
+   "read_id": "R0046689",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:005979]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[REDACTED:destination:005979]\",{headers:{Authoriza",
+   "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005979]',{headers:{Authoriza",
+   "latency_h": 11.8,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0039373",
+   "read_id": "R0046825",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 1704]",
+   "channel_v110": "hf_dataset:[HF REPO 579]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "status try: for n,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('metaCase','https://huggingface.co",
+   "read_snippet": "ization':'Bearer '+ht};meta=jreq('https://huggingface.co/api/datasets/[HF REPO 579]',headers=hh);tree=jreq('https://hugg",
+   "latency_h": 12.19,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0045680",
+   "read_id": "R0046969",
+   "from": "[CREDENTIAL 1720]",
+   "to": "[CREDENTIAL 1602]",
+   "channel_v110": "hf_dataset:[HF REPO 646]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "TIAL 1720]';u='//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 646]';fetch(u,{headers:{Authorization:'Be",
+   "read_snippet": "';fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 646]',{headers:{Authorization:'Bearer [CR",
+   "latency_h": 3.2,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0046926",
+   "read_id": "R0047461",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 1723]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write_lfs_or_urlopen",
+   "reason": "write record is an LFS batch POST with operation 'download': it fetches, it does not write",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "LFSDL"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "let u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 632]/info/lfs/objects/b",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/task_",
+   "latency_h": 1.08,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048152",
+   "read_id": "R0048174",
+   "from": "[CREDENTIAL 2497]",
+   "to": "[CREDENTIAL 2479]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "ew XMLHttpRequest();x.open('GET','https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
+   "latency_h": 0.06,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048152",
+   "read_id": "R0048195",
+   "from": "[CREDENTIAL 2497]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
+   "latency_h": 0.12,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048152",
+   "read_id": "R0048202",
+   "from": "[CREDENTIAL 2497]",
+   "to": "[CREDENTIAL 2475]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
+   "latency_h": 0.13,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048152",
+   "read_id": "R0048206",
+   "from": "[CREDENTIAL 2497]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "(async()=>{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDEN",
+   "latency_h": 0.15,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0047930",
+   "read_id": "R0048245",
+   "from": "[CREDENTIAL 1702]",
+   "to": "[CREDENTIAL 2446]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
+   "read_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/arv",
+   "latency_h": 0.85,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048214",
+   "read_id": "R0048251",
+   "from": "[CREDENTIAL 2504]",
+   "to": "[CREDENTIAL 2479]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": ";x.open('GET','//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',0);x.setRequestHeader('authorizatio",
+   "latency_h": 0.1,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048279",
+   "read_id": "R0048298",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2479]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
+   "read_snippet": ";x.open('GET','//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',0);x.setRequestHeader('authorizatio",
+   "latency_h": 0.05,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048279",
+   "read_id": "R0048314",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
+   "read_snippet": "se.all(['https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]','https://[SERVICE HOST 1]/https://h",
+   "latency_h": 0.09,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048302",
+   "read_id": "R0048322",
+   "from": "[CREDENTIAL 2495]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:007653]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write_lfs_or_urlopen",
+   "reason": "both records POST a file-listing query (paths, expand) with read-only tokens: a POST that only fetches, like an LFS download batch",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "POST"
+    ],
+    "read_verbs": [
+     "POST"
+    ]
+   },
+   "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:007653]',{method:'POST',header",
+   "read_snippet": "(async()=>{let u='https://huggingface.co/api/datasets/[REDACTED:destination:007653]',r=await fetch(u,{method:'POST',head",
+   "latency_h": 0.05,
+   "disagrees_with_current_code": true
+  },
+  {
+   "write_id": "R0048337",
+   "read_id": "R0048340",
+   "from": "[CREDENTIAL 2515]",
+   "to": "[CREDENTIAL 2475]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2475]..[ENCODED BL",
+   "latency_h": 0.01,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048337",
+   "read_id": "R0048356",
+   "from": "[CREDENTIAL 2515]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
+   "read_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
+   "latency_h": 0.05,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048354",
+   "read_id": "R0048359",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:'Bearer [CR",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
+   "latency_h": 0.01,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048337",
+   "read_id": "R0048360",
+   "from": "[CREDENTIAL 2515]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
+   "latency_h": 0.06,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048219",
+   "read_id": "R0048362",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2475]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:007662]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "]',Range:'bytes='+a+'-'+b};fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:h}).then(asy",
+   "read_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:007662]\"+f,{headers:{Authorizati",
+   "latency_h": 0.39,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048337",
+   "read_id": "R0048364",
+   "from": "[CREDENTIAL 2515]",
+   "to": "[CREDENTIAL 2464]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
+   "read_snippet": "(async()=>{let r=await fetch(\"https://huggingface.co/api/datasets/[HF REPO 630]\",{headers:{Authorization:\"Bearer [CREDEN",
+   "latency_h": 0.07,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0047930",
+   "read_id": "R0048365",
+   "from": "[CREDENTIAL 1702]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/arvo_",
+   "latency_h": 1.17,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048370",
+   "read_id": "R0048372",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:007660]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:007660]\",{headers:{Authorization",
+   "read_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007660]',{headers:{Authorization",
+   "latency_h": 0.01,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048370",
+   "read_id": "R0048393",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 2515]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:007660]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:007660]\",{headers:{Authorization",
+   "read_snippet": "/[REDACTED:destination:007658]\", \"https://huggingface.co/datasets/[REDACTED:destination:007660]\", \"https://huggingface.c",
+   "latency_h": 0.06,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048354",
+   "read_id": "R0048395",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:'Bearer [CR",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
+   "latency_h": 0.11,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048354",
+   "read_id": "R0048399",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 2517]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:'Bearer [CR",
+   "read_snippet": "t u of [\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\", \"https://[SERVICE HOST 1]/https://",
+   "latency_h": 0.12,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048370",
+   "read_id": "R0048402",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 2464]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:007660]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:007660]\",{headers:{Authorization",
+   "read_snippet": "(async()=>{let r=await fetch(\"https://huggingface.co/datasets/[REDACTED:destination:007660]\",{headers:{Authorization:\"Be",
+   "latency_h": 0.09,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048354",
+   "read_id": "R0048414",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 2495]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:'Bearer [CR",
+   "read_snippet": ");fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]?blobs=[REDACTED:query_value:000123]'",
+   "latency_h": 0.16,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0047930",
+   "read_id": "R0048425",
+   "from": "[CREDENTIAL 1702]",
+   "to": "[CREDENTIAL 2495]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
+   "read_snippet": "u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/';T='Bearer [CREDENTIA",
+   "latency_h": 1.33,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0047930",
+   "read_id": "R0048426",
+   "from": "[CREDENTIAL 1702]",
+   "to": "[CREDENTIAL 1720]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
+   "read_snippet": "=>fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 569]/resolve/main/REA",
+   "latency_h": 1.34,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048329",
+   "read_id": "R0048456",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 2464]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006590]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006590]\"+f,{headers:{Authorizati",
+   "read_snippet": "LSearchParams(location.search),u='https://huggingface.co/datasets/[REDACTED:destination:006590]'+decodeURIComponent(loca",
+   "latency_h": 0.34,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048444",
+   "read_id": "R0048491",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 217]..[ENCODED BLO",
+   "latency_h": 0.13,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048435",
+   "read_id": "R0048540",
+   "from": "[CREDENTIAL 2497]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{authorization:'Bearer [CRED",
+   "latency_h": 0.28,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0047930",
+   "read_id": "R0048548",
+   "from": "[CREDENTIAL 1702]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/arvo_",
+   "latency_h": 1.67,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048444",
+   "read_id": "R0048571",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2464]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
+   "read_snippet": "(async()=>{let r=await fetch(\"https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CREDEN",
+   "latency_h": 0.34,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048444",
+   "read_id": "R0048583",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2497]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
+   "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
+   "latency_h": 0.37,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048329",
+   "read_id": "R0048585",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006590]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006590]\"+f,{headers:{Authorizati",
+   "read_snippet": "]',Range:'bytes=0-1048575'},base='https://huggingface.co/datasets/[REDACTED:destination:006590]',o=[];for(let f of ['REA",
+   "latency_h": 0.69,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048219",
+   "read_id": "R0048593",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2464]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:007662]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "]',Range:'bytes='+a+'-'+b};fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:h}).then(asy",
+   "read_snippet": "LSearchParams(location.search),u='https://huggingface.co/datasets/[REDACTED:destination:007662]'+decodeURIComponent(loca",
+   "latency_h": 1.01,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048512",
+   "read_id": "R0048595",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2464]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
+   "latency_h": 0.22,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048619",
+   "read_id": "R0048620",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 217]..[ENCODED BLO",
+   "latency_h": 0.0,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0047930",
+   "read_id": "R0048624",
+   "from": "[CREDENTIAL 1702]",
+   "to": "[CREDENTIAL 2464]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/summa",
+   "latency_h": 1.87,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048444",
+   "read_id": "R0048629",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2475]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
+   "read_snippet": "ODED BLOB 43822]'},r=await fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:h}),x=await r.json();docum",
+   "latency_h": 0.5,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048449",
+   "read_id": "R0048630",
+   "from": "[CREDENTIAL 217]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006999]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:006999]',{headers:{Authorization",
+   "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:006999]',{headers:{Authorization:'Bearer [CREDENTIAL 2466].",
+   "latency_h": 0.49,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048444",
+   "read_id": "R0048635",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2479]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
+   "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
+   "latency_h": 0.52,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048329",
+   "read_id": "R0048644",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006590]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006590]\"+f,{headers:{Authorizati",
+   "read_snippet": ",'all.jsonl']){try{r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:006590]'+f,{headers:{Authorizati",
+   "latency_h": 0.85,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048444",
+   "read_id": "R0048647",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2547]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
+   "latency_h": 0.55,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048370",
+   "read_id": "R0048660",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:007660]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:007660]\",{headers:{Authorization",
+   "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:007660]',{headers:{Authorization:'Bearer [CREDENTIAL 217]..",
+   "latency_h": 0.78,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048329",
+   "read_id": "R0048667",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 1720]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006590]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006590]\"+f,{headers:{Authorizati",
+   "read_snippet": " 2475]..[ENCODED BLOB 43209]'; U='https://huggingface.co/datasets/[REDACTED:destination:006590]' for f in ['summary.json",
+   "latency_h": 0.91,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048655",
+   "read_id": "R0048674",
+   "from": "[CREDENTIAL 2504]",
+   "to": "[CREDENTIAL 2495]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
+   "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/arv",
+   "latency_h": 0.05,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048219",
+   "read_id": "R0048680",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:007662]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "]',Range:'bytes='+a+'-'+b};fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:h}).then(asy",
+   "read_snippet": ".tar.gz']){try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:{Authorizati",
+   "latency_h": 1.24,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048655",
+   "read_id": "R0048684",
+   "from": "[CREDENTIAL 2504]",
+   "to": "[CREDENTIAL 2547]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
+   "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/arv",
+   "latency_h": 0.08,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048655",
+   "read_id": "R0048693",
+   "from": "[CREDENTIAL 2504]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
+   "read_snippet": ");fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/'+q",
+   "latency_h": 0.1,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0039373",
+   "read_id": "R0048698",
+   "from": "[CREDENTIAL 169]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 579]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "status try: for n,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('metaCase','https://huggingface.co",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 579]',{headers:{authorization:'Bearer [CRED",
+   "latency_h": 16.89,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048655",
+   "read_id": "R0048703",
+   "from": "[CREDENTIAL 2504]",
+   "to": "[CREDENTIAL 2464]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/summa",
+   "latency_h": 0.13,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048655",
+   "read_id": "R0048729",
+   "from": "[CREDENTIAL 2504]",
+   "to": "[CREDENTIAL 2475]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
+   "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/'+f",
+   "latency_h": 0.2,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048731",
+   "read_id": "R0048733",
+   "from": "[CREDENTIAL 2504]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
+   "latency_h": 0.01,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048724",
+   "read_id": "R0048734",
+   "from": "[CREDENTIAL 217]",
+   "to": "[CREDENTIAL 2553]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006999]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
+   "read_snippet": "llib.request as U,time,re,json u=\"https://huggingface.co/datasets/[REDACTED:destination:006999]\" h={\"Authorization\":\"Bea",
+   "latency_h": 0.03,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048724",
+   "read_id": "R0048752",
+   "from": "[CREDENTIAL 217]",
+   "to": "[CREDENTIAL 2475]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006999]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
+   "read_snippet": "B 43930]',Range:'bytes=0-999'},u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{header",
+   "latency_h": 0.08,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048724",
+   "read_id": "R0048755",
+   "from": "[CREDENTIAL 217]",
+   "to": "[CREDENTIAL 2479]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006999]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
+   "read_snippet": "llib.request,json,hashlib,time u=\"https://huggingface.co/datasets/[REDACTED:destination:006999]\" r=urllib.request.urlope",
+   "latency_h": 0.08,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048655",
+   "read_id": "R0048763",
+   "from": "[CREDENTIAL 2504]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 654]/resolve/main/[REDA",
+   "latency_h": 0.29,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048731",
+   "read_id": "R0048764",
+   "from": "[CREDENTIAL 2504]",
+   "to": "[CREDENTIAL 2497]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
+   "latency_h": 0.09,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048646",
+   "read_id": "R0048774",
+   "from": "[CREDENTIAL 2515]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[HF REPO 36]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 36]',{headers:{Authorization:'Bearer [CRE",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 36]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BLO",
+   "latency_h": 0.35,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048783",
+   "read_id": "R0048785",
+   "from": "[CREDENTIAL 217]",
+   "to": "[CREDENTIAL 2497]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:007662]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": ".tar.gz']){try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:{Authorizati",
+   "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,false);x.setRequestHe",
+   "latency_h": 0.01,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048724",
+   "read_id": "R0048811",
+   "from": "[CREDENTIAL 217]",
+   "to": "[CREDENTIAL 2464]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006999]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
+   "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:006999]',{headers:{Authorization:'Bearer [CREDENTIAL 2464].",
+   "latency_h": 0.23,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0047930",
+   "read_id": "R0048834",
+   "from": "[CREDENTIAL 1702]",
+   "to": "[CREDENTIAL 2504]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
+   "read_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/oss",
+   "latency_h": 2.44,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048803",
+   "read_id": "R0048848",
+   "from": "[CREDENTIAL 2497]",
+   "to": "[CREDENTIAL 2475]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2475]..[ENCODED BL",
+   "latency_h": 0.12,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048541",
+   "read_id": "R0048857",
+   "from": "[CREDENTIAL 2479]",
+   "to": "[CREDENTIAL 2475]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006395]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "place appears in Python (urlopen of a Request with no data: a read) carried in the body of a PUT to another host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "HEAD"
+    ]
+   },
+   "write_snippet": "as u,json\\nr=u.urlopen(u.Request('https://huggingface.co/datasets/[REDACTED:destination:006395]',headers={'Authorization",
+   "read_snippet": "(async()=>{try{let r=await fetch(\"https://huggingface.co/datasets/[REDACTED:destination:006395]\",{method:'HEAD',headers:",
+   "latency_h": 0.85,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048619",
+   "read_id": "R0048880",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2464]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
+   "read_snippet": "Promise.all([fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2464]",
+   "latency_h": 0.67,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048803",
+   "read_id": "R0048883",
+   "from": "[CREDENTIAL 2497]",
+   "to": "[CREDENTIAL 2479]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
+   "latency_h": 0.18,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048619",
+   "read_id": "R0048887",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2489]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
+   "read_snippet": "quest as u r=u.urlopen(u.Request('https://huggingface.co/api/datasets/[HF REPO 630]',headers={'Authorization':'Bearer [C",
+   "latency_h": 0.68,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048724",
+   "read_id": "R0048901",
+   "from": "[CREDENTIAL 217]",
+   "to": "[CREDENTIAL 2497]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006999]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
+   "read_snippet": "llib.request as U,time,re,json u=\"https://huggingface.co/datasets/[REDACTED:destination:006999]\";h={\"Authorization\":\"Bea",
+   "latency_h": 0.41,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048803",
+   "read_id": "R0048903",
+   "from": "[CREDENTIAL 2497]",
+   "to": "[CREDENTIAL 2583]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
+   "read_snippet": "h('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTI",
+   "latency_h": 0.2,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048724",
+   "read_id": "R0048964",
+   "from": "[CREDENTIAL 217]",
+   "to": "[CREDENTIAL 2489]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006999]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
+   "read_snippet": "ED:destination:007773]'),('HEAD','https://huggingface.co/datasets/[REDACTED:destination:006999]')]: try: r=u.urlopen(u.R",
+   "latency_h": 0.47,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048329",
+   "read_id": "R0049012",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 2489]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006590]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006590]\"+f,{headers:{Authorizati",
+   "read_snippet": "L 2489].[ENCODED BLOB 44388]'};B='https://huggingface.co/datasets/[REDACTED:destination:006590]';o={} for f in ['README.",
+   "latency_h": 1.58,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0040240",
+   "read_id": "R0049054",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:005979]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[REDACTED:destination:005979]\",{headers:{Authoriza",
+   "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005979]',{headers:{Authoriza",
+   "latency_h": 17.35,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0023123",
+   "read_id": "R0049083",
+   "from": "[CREDENTIAL 220]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 37]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then commits what it got to a different dataset",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CREDE",
+   "latency_h": 25.2,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0049116",
+   "read_id": "R0049118",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
+   "read_snippet": "';fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CR",
+   "latency_h": 0.0,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0049119",
+   "read_id": "R0049121",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
+   "read_snippet": "(async()=>{o='';for(u of ['https://huggingface.co/api/datasets/[HF REPO 631]','https://huggingface.co/api/datasets/[REDA",
+   "latency_h": 0.0,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0049119",
+   "read_id": "R0049124",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2495]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
+   "read_snippet": "(async()=>{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{authorization:'Bearer [CREDEN",
+   "latency_h": 0.0,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0049066",
+   "read_id": "R0049179",
+   "from": "[CREDENTIAL 2495]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2495]..[ENCODED BL",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
+   "latency_h": 0.11,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0049145",
+   "read_id": "R0049207",
+   "from": "[CREDENTIAL 2495]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2495]..[ENCODED BL",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 217]..[ENCODED BLO",
+   "latency_h": 0.06,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048783",
+   "read_id": "R0049210",
+   "from": "[CREDENTIAL 217]",
+   "to": "[CREDENTIAL 2466]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:007662]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": ".tar.gz']){try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:{Authorizati",
+   "read_snippet": "nt(location.hash.slice(1));fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+p,{headers:{Authorizati",
+   "latency_h": 0.55,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0049145",
+   "read_id": "R0049212",
+   "from": "[CREDENTIAL 2495]",
+   "to": "[CREDENTIAL 2489]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2495]..[ENCODED BL",
+   "read_snippet": "https://huggingface.co/api/datasets/[HF REPO 630]' r=urllib.request.urlopen(urllib.request.Request(u,headers={'Authoriza",
+   "latency_h": 0.06,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0049119",
+   "read_id": "R0049269",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2626]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
+   "read_snippet": "sh/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2626]",
+   "latency_h": 0.14,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0049119",
+   "read_id": "R0049277",
+   "from": "[CREDENTIAL 2466]",
+   "to": "[CREDENTIAL 2464]",
+   "channel_v110": "hf_dataset:[HF REPO 631]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
+   "latency_h": 0.15,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0049265",
+   "read_id": "R0049520",
+   "from": "[CREDENTIAL 217]",
+   "to": "[CREDENTIAL 2644]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{try{r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDEN",
+   "read_snippet": "fetch('//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{authorization:'Bearer [CREDENTIAL",
+   "latency_h": 0.24,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0049566",
+   "read_id": "R0049976",
+   "from": "[CREDENTIAL 2495]",
+   "to": "[CREDENTIAL 2695]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2495]..[ENCODED BL",
+   "read_snippet": ",100)]),fetch('//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{authorization:'Bearer [CR",
+   "latency_h": 0.39,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0046288",
+   "read_id": "R0050007",
+   "from": "[CREDENTIAL 1723]",
+   "to": "[CREDENTIAL 2698]",
+   "channel_v110": "hf_dataset:[HF REPO 668]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "?"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "1723]';(async()=>{o='';for(u of ['https://huggingface.co/api/datasets/[HF REPO 668]','https://huggingface.co/api/dataset",
+   "read_snippet": "fetch('//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 668]',{headers:{authorization:'Bearer [CREDENTIAL",
+   "latency_h": 7.14,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048458",
+   "read_id": "R0050044",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:007624]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007624]',{headers:{Authorization:'Be",
+   "read_snippet": "fetch('//[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:destination:007624]',{headers:{authorization:'Bearer",
+   "latency_h": 2.22,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048935",
+   "read_id": "R0050140",
+   "from": "[CREDENTIAL 1720]",
+   "to": "[CREDENTIAL 1721]",
+   "channel_v110": "hf_dataset:[HF REPO]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": ",'[USER 52]']){let r=await fetch('https://huggingface.co/api/datasets/[HF REPO]/'+d,{headers:{Authorization:'Bearer '+t}",
+   "read_snippet": "=>fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO]/'+n,{headers:{Authorization:'Bearer '+T}",
+   "latency_h": 1.15,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048655",
+   "read_id": "R0050203",
+   "from": "[CREDENTIAL 2504]",
+   "to": "[CREDENTIAL 2496]",
+   "channel_v110": "hf_dataset:[REDACTED:username:000002]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [
+    "different_repo"
+   ],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
+   "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 720]/resolve/main/READM",
+   "latency_h": 1.84,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0049566",
+   "read_id": "R0050592",
+   "from": "[CREDENTIAL 2495]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2495]..[ENCODED BL",
+   "read_snippet": "fetch(\"https://huggingface.co/api/datasets/[HF REPO 630]\",{headers:{Authorization:\"Bearer [CREDENTIAL 217]..[ENCODED BLO",
+   "latency_h": 0.84,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048825",
+   "read_id": "R0050644",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006395]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006395]\",{headers:{Authorization",
+   "read_snippet": "nerText='START';(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006395]';let r=await fetch(u,{he",
+   "latency_h": 1.68,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0048825",
+   "read_id": "R0050682",
+   "from": "[CREDENTIAL 2475]",
+   "to": "[CREDENTIAL 1704]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:006395]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006395]\",{headers:{Authorization",
+   "read_snippet": "earch(\"T='([^']+)\",b).group(1);u='https://huggingface.co/datasets/[REDACTED:destination:006395]';r=urllib.request.urlope",
+   "latency_h": 1.74,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0050357",
+   "read_id": "R0051150",
+   "from": "[CREDENTIAL 2515]",
+   "to": "[CREDENTIAL 2475]",
+   "channel_v110": "hf_dataset:[REDACTED:destination:007983]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "(async()=>{try{let r=await fetch(\"https://huggingface.co/datasets/[REDACTED:destination:007983]\",{headers:{Authorization",
+   "read_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007983]',{headers:{Authorization",
+   "latency_h": 3.86,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0050568",
+   "read_id": "R0051243",
+   "from": "[CREDENTIAL 217]",
+   "to": "[CREDENTIAL 2547]",
+   "channel_v110": "hf_dataset:[HF REPO 630]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "?"
+    ]
+   },
+   "write_snippet": "fetch(\"https://huggingface.co/api/datasets/[HF REPO 630]\",{headers:{Authorization:\"Bearer [CREDENTIAL 217]..[ENCODED BLO",
+   "read_snippet": ".urlopen(urllib.request.Request(\\'https://huggingface.co/api/datasets/[HF REPO 630]\\',headers={\\'Authorization\\':\\'Beare",
+   "latency_h": 4.29,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0046323",
+   "read_id": "R0051363",
+   "from": "[CREDENTIAL 1623]",
+   "to": "[CREDENTIAL 217]",
+   "channel_v110": "hf_dataset:[HF REPO 38]",
+   "channel_now": null,
+   "reported_v110": true,
+   "reported_now": false,
+   "label": "false_write",
+   "reason": "write record only GETs this place, then POSTs what it got to a collector host",
+   "also": [],
+   "script_check": {
+    "write_verbs": [
+     "GET"
+    ],
+    "read_verbs": [
+     "GET"
+    ]
+   },
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 38]',{headers:{Authorization:'Bearer [CREDENTIAL 1623]'}}).then(r=>r",
+   "read_snippet": "e(1)||'WzAsNTBd')),r=await fetch(\"https://huggingface.co/api/datasets/[HF REPO 38]\",{headers:{Authorization:\"Bearer [CRE",
+   "latency_h": 12.44,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0005366",
+   "read_id": "R0005421",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "true_message",
+   "reason": "write is a Git LFS batch call with operation 'upload' to this repository; 33 min later another token GETs resolve/main/train.jsonl from the same repository",
+   "also": "added 2026-11-13 after the rule change that judges variable-held URLs by their request calls; both records read",
+   "script_check": null,
+   "write_snippet": "",
+   "read_snippet": "",
+   "latency_h": null,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0044824",
+   "read_id": "R0045143",
+   "from": "[CREDENTIAL 1720]",
+   "to": "[CREDENTIAL 1623]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO 646]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "true_message",
+   "reason": "write is a commit (POST …/commit/main, x-ndjson) to this dataset; an hour later another token GETs the dataset's API entry in a loop over several datasets (reads its metadata, not a named file)",
+   "also": "added 2026-11-13 after the rule change that judges variable-held URLs by their request calls; both records read",
+   "script_check": null,
+   "write_snippet": "",
+   "read_snippet": "",
+   "latency_h": null,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0044824",
+   "read_id": "R0046969",
+   "from": "[CREDENTIAL 1720]",
+   "to": "[CREDENTIAL 1602]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO 646]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "true_message",
+   "reason": "write is a commit to this dataset; 6 h later another token GETs the dataset's API entry",
+   "also": "added 2026-11-13 after the rule change that judges variable-held URLs by their request calls; both records read",
+   "script_check": null,
+   "write_snippet": "",
+   "read_snippet": "",
+   "latency_h": null,
+   "disagrees_with_current_code": false
+  },
+  {
+   "write_id": "R0044999",
+   "read_id": "R0045751",
+   "from": "[CREDENTIAL 1722]",
+   "to": "[CREDENTIAL 1721]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO 672]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "true_message",
+   "reason": "write is a commit to this dataset; 3 h later another token GETs the dataset's API entry in a loop over three URLs",
+   "also": "added 2026-11-13 after the rule change that judges variable-held URLs by their request calls; both records read",
+   "script_check": null,
+   "write_snippet": "",
+   "read_snippet": "",
+   "latency_h": null,
+   "disagrees_with_current_code": false
+  }
+ ],
+ "amendments": [
+  "2026-11-13: after this audit the rule was changed (URLs held in variables are judged by the calls that use them; calls are bounded by their own parentheses; LFS batches by their operation; API path words are not part of a place). 4 links the new rule reports were read and added as true_message. 'reported_now' in each row records the code at audit time; run `python3 -m agenttrace.benchmark run <data>` for the current verdicts."
+ ]
+}

@@ -1,0 +1,61 @@
+/* trace: the front door, the chain swimlane, the harm provenance graph */
+.trc{max-width:1500px}
+.trc-door{background:linear-gradient(180deg,#f4f8fc,#fff);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px 14px;margin-bottom:12px}
+.trc-door h2{margin:0 0 10px;font-size:19px;letter-spacing:-.2px}
+.trc-form{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin-bottom:8px}
+.trc-form input{flex:1 1 380px;min-width:220px;font:16px var(--mono);padding:11px 14px;border-radius:10px;border-width:1.5px}
+.trc-form button{padding:0 18px;border-radius:10px;font-size:14px;min-height:44px}
+.trc-starthead{margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px;font-size:11px}
+.trc-starts{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.trc-start{display:grid;grid-template-columns:18px 1fr;column-gap:7px;row-gap:1px;text-align:left;padding:9px 11px;border-radius:9px;background:#fff;align-items:start}
+.trc-start .trc-ic{grid-row:1/span 3;margin-top:1px}
+.trc-start .tl{font-weight:600;font-size:13px}
+.trc-start .td{grid-column:2;font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.trc-start .tt{grid-column:2;font:11px var(--mono);color:var(--faint)}
+.trc-start:hover{background:var(--accent-bg)}
+.trc-start.k-first_harm{border-left:3px solid var(--harm)}
+.trc-starts.compact{display:flex;flex-wrap:wrap;gap:6px}
+.trc-starts.compact .trc-start{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-left-width:1px}
+.trc-starts.compact .trc-start.k-first_harm{border-left:3px solid var(--harm)}
+.trc-starts.compact .td,.trc-starts.compact .tt{display:none}
+.trc-starts.compact .tl{font-weight:500;font-size:12px}
+.trc-ic{flex:none;vertical-align:-3px}
+.trc-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:2px 0 10px;font-size:14px}
+.trc-head .trc-go{margin-left:auto}
+.trc-head .badge.harmb{background:var(--harm-bg);color:#9a3412}
+.trc-q{background:#f1f4f8;border-radius:5px;padding:1px 6px}
+.trc-strip{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.trc-strip .kpi b{font-size:17px}
+.trc-strip .kpi b small{font-size:12px;font-weight:500;color:var(--muted)}
+.trc-strip .kpi em{white-space:normal;overflow-wrap:anywhere}
+.trc-scroll{overflow-x:auto}
+.trc-lanes,.trc-dag{display:block}
+.trc-n,.trc-dn,.trc-lane{cursor:pointer}
+.trc-lane:hover text{text-decoration:underline}
+.trc-n.hot>circle:first-child{fill:rgba(47,111,179,.16)}
+#trclanes.dim .trc-e:not(.hot){opacity:.18}
+.trc-e.hot .ln{stroke-width:2.6}
+.trc-e:hover .ln{stroke-width:2.6}
+.trc-dn:hover rect:first-child,.trc-dn.hot rect:first-child{filter:brightness(.97);stroke-width:2}
+#trcdag.dim .trc-de:not(.hot){stroke-opacity:.12}
+.trc-de.hot{stroke-opacity:1;stroke-width:2.2}
+.trc-legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:#4b5866;margin-top:8px;align-items:center}
+.trc-legend span{display:inline-flex;align-items:center;gap:4px}
+.trc-legend .sw{width:12px;height:12px;border-radius:3px;border:1.5px solid;display:inline-block}
+.trc-tip{position:fixed;z-index:60;pointer-events:none;background:#16212f;color:#fff;font-size:12px;line-height:1.4;padding:7px 10px;border-radius:7px;max-width:340px;box-shadow:0 4px 14px rgba(0,0,0,.22);overflow-wrap:anywhere}
+.trc-tip b{display:block;margin-bottom:2px}
+.trc-tip div{color:#d5dde6}
+.trc-story{list-style:none;margin:0;padding:0}
+.trc-story li{display:grid;grid-template-columns:18px 104px 1fr;gap:8px;padding:6px 6px;border-top:1px solid var(--line2);align-items:start;border-radius:5px}
+.trc-story.back li{grid-template-columns:104px 1fr}
+.trc-story li:first-child{border-top:none}
+.trc-story li.hot{background:#f2f6fb}
+.trc-story li.k-harm .trc-what{border-left:2px solid var(--harm);padding-left:8px}
+.trc-when{font:11.5px var(--mono);color:var(--muted);white-space:nowrap;padding-top:2px}
+.trc-what{min-width:0;line-height:1.7}
+.trc-text{display:block;color:#5b6672;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.trc-text.block{background:#f7f9fb;border:1px solid var(--line2);border-radius:6px;padding:6px 9px;margin:0 0 10px;white-space:normal;overflow-wrap:anywhere}
+.trc-more{margin-top:8px}
+.trc-none{border:1px dashed #c9d1da;border-radius:var(--radius);padding:22px 20px;text-align:center;background:#fff}
+.trc-none h3{margin:0 0 6px;font-size:16px}
+.chipbtn{border-radius:12px;padding:2px 10px;font:12px var(--mono);margin:2px}

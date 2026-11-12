@@ -1,0 +1,406 @@
+{
+ "about": "Message links reported by an older version's rules and by the current code on the same simulated swarms (agenttrace.validation old-rules). Pooled over seeds; intervals are Wilson 95%.",
+ "old_version": "v1.1.0",
+ "generated": "2026-11-12T19:57:10Z",
+ "settings": [
+  {
+   "name": "base",
+   "label": "40 agents, defaults",
+   "mode": "coordinated",
+   "runs": 5,
+   "old": {
+    "found": 877,
+    "correct": 696,
+    "true": 953,
+    "between_agents": 868,
+    "precision": 0.7936,
+    "precision_ci": [
+     0.7656,
+     0.8191
+    ],
+    "recall": 0.7303,
+    "recall_ci": [
+     0.7013,
+     0.7575
+    ]
+   },
+   "now": {
+    "found": 877,
+    "correct": 696,
+    "true": 953,
+    "between_agents": 868,
+    "precision": 0.7936,
+    "precision_ci": [
+     0.7656,
+     0.8191
+    ],
+    "recall": 0.7303,
+    "recall_ci": [
+     0.7013,
+     0.7575
+    ]
+   },
+   "seeds": [
+    {
+     "seed": 1,
+     "old": {
+      "found": 163,
+      "correct": 122,
+      "true": 181,
+      "between_agents": 161,
+      "precision": 0.7485,
+      "recall": 0.674
+     },
+     "now": {
+      "found": 163,
+      "correct": 122,
+      "true": 181,
+      "between_agents": 161,
+      "precision": 0.7485,
+      "recall": 0.674
+     }
+    },
+    {
+     "seed": 2,
+     "old": {
+      "found": 204,
+      "correct": 168,
+      "true": 218,
+      "between_agents": 202,
+      "precision": 0.8235,
+      "recall": 0.7706
+     },
+     "now": {
+      "found": 204,
+      "correct": 168,
+      "true": 218,
+      "between_agents": 202,
+      "precision": 0.8235,
+      "recall": 0.7706
+     }
+    },
+    {
+     "seed": 3,
+     "old": {
+      "found": 146,
+      "correct": 116,
+      "true": 168,
+      "between_agents": 146,
+      "precision": 0.7945,
+      "recall": 0.6905
+     },
+     "now": {
+      "found": 146,
+      "correct": 116,
+      "true": 168,
+      "between_agents": 146,
+      "precision": 0.7945,
+      "recall": 0.6905
+     }
+    },
+    {
+     "seed": 4,
+     "old": {
+      "found": 169,
+      "correct": 135,
+      "true": 179,
+      "between_agents": 165,
+      "precision": 0.7988,
+      "recall": 0.7542
+     },
+     "now": {
+      "found": 169,
+      "correct": 135,
+      "true": 179,
+      "between_agents": 165,
+      "precision": 0.7988,
+      "recall": 0.7542
+     }
+    },
+    {
+     "seed": 5,
+     "old": {
+      "found": 195,
+      "correct": 155,
+      "true": 207,
+      "between_agents": 194,
+      "precision": 0.7949,
+      "recall": 0.7488
+     },
+     "now": {
+      "found": 195,
+      "correct": 155,
+      "true": 207,
+      "between_agents": 194,
+      "precision": 0.7949,
+      "recall": 0.7488
+     }
+    }
+   ]
+  },
+  {
+   "name": "realworld",
+   "label": "40 agents, real-world payload patterns",
+   "mode": "coordinated",
+   "runs": 5,
+   "old": {
+    "found": 869,
+    "correct": 574,
+    "true": 1009,
+    "between_agents": 852,
+    "precision": 0.6605,
+    "precision_ci": [
+     0.6284,
+     0.6912
+    ],
+    "recall": 0.5689,
+    "recall_ci": [
+     0.5381,
+     0.5991
+    ]
+   },
+   "now": {
+    "found": 985,
+    "correct": 788,
+    "true": 1009,
+    "between_agents": 968,
+    "precision": 0.8,
+    "precision_ci": [
+     0.7739,
+     0.8238
+    ],
+    "recall": 0.781,
+    "recall_ci": [
+     0.7544,
+     0.8054
+    ]
+   },
+   "seeds": [
+    {
+     "seed": 1,
+     "old": {
+      "found": 173,
+      "correct": 107,
+      "true": 215,
+      "between_agents": 173,
+      "precision": 0.6185,
+      "recall": 0.4977
+     },
+     "now": {
+      "found": 200,
+      "correct": 158,
+      "true": 215,
+      "between_agents": 200,
+      "precision": 0.79,
+      "recall": 0.7349
+     }
+    },
+    {
+     "seed": 2,
+     "old": {
+      "found": 180,
+      "correct": 111,
+      "true": 195,
+      "between_agents": 173,
+      "precision": 0.6167,
+      "recall": 0.5692
+     },
+     "now": {
+      "found": 199,
+      "correct": 157,
+      "true": 195,
+      "between_agents": 194,
+      "precision": 0.7889,
+      "recall": 0.8051
+     }
+    },
+    {
+     "seed": 3,
+     "old": {
+      "found": 218,
+      "correct": 152,
+      "true": 258,
+      "between_agents": 217,
+      "precision": 0.6972,
+      "recall": 0.5891
+     },
+     "now": {
+      "found": 246,
+      "correct": 203,
+      "true": 258,
+      "between_agents": 245,
+      "precision": 0.8252,
+      "recall": 0.7868
+     }
+    },
+    {
+     "seed": 4,
+     "old": {
+      "found": 188,
+      "correct": 130,
+      "true": 225,
+      "between_agents": 179,
+      "precision": 0.6915,
+      "recall": 0.5778
+     },
+     "now": {
+      "found": 219,
+      "correct": 179,
+      "true": 225,
+      "between_agents": 208,
+      "precision": 0.8174,
+      "recall": 0.7956
+     }
+    },
+    {
+     "seed": 5,
+     "old": {
+      "found": 110,
+      "correct": 74,
+      "true": 116,
+      "between_agents": 110,
+      "precision": 0.6727,
+      "recall": 0.6379
+     },
+     "now": {
+      "found": 121,
+      "correct": 91,
+      "true": 116,
+      "between_agents": 121,
+      "precision": 0.7521,
+      "recall": 0.7845
+     }
+    }
+   ]
+  },
+  {
+   "name": "benign_realworld",
+   "label": "benign: 40 agents, real-world payload patterns",
+   "mode": "benign",
+   "runs": 5,
+   "old": {
+    "found": 292,
+    "correct": 0,
+    "true": 0,
+    "between_agents": 282,
+    "precision": 0.0,
+    "precision_ci": [
+     0.0,
+     0.013
+    ],
+    "recall": null,
+    "recall_ci": null
+   },
+   "now": {
+    "found": 9,
+    "correct": 0,
+    "true": 0,
+    "between_agents": 0,
+    "precision": 0.0,
+    "precision_ci": [
+     0.0,
+     0.2992
+    ],
+    "recall": null,
+    "recall_ci": null
+   },
+   "seeds": [
+    {
+     "seed": 1,
+     "old": {
+      "found": 53,
+      "correct": 0,
+      "true": 0,
+      "between_agents": 52,
+      "precision": 0.0,
+      "recall": null
+     },
+     "now": {
+      "found": 1,
+      "correct": 0,
+      "true": 0,
+      "between_agents": 0,
+      "precision": 0.0,
+      "recall": null
+     }
+    },
+    {
+     "seed": 2,
+     "old": {
+      "found": 56,
+      "correct": 0,
+      "true": 0,
+      "between_agents": 52,
+      "precision": 0.0,
+      "recall": null
+     },
+     "now": {
+      "found": 4,
+      "correct": 0,
+      "true": 0,
+      "between_agents": 0,
+      "precision": 0.0,
+      "recall": null
+     }
+    },
+    {
+     "seed": 3,
+     "old": {
+      "found": 70,
+      "correct": 0,
+      "true": 0,
+      "between_agents": 70,
+      "precision": 0.0,
+      "recall": null
+     },
+     "now": {
+      "found": 0,
+      "correct": 0,
+      "true": 0,
+      "between_agents": 0,
+      "precision": null,
+      "recall": null
+     }
+    },
+    {
+     "seed": 4,
+     "old": {
+      "found": 53,
+      "correct": 0,
+      "true": 0,
+      "between_agents": 51,
+      "precision": 0.0,
+      "recall": null
+     },
+     "now": {
+      "found": 2,
+      "correct": 0,
+      "true": 0,
+      "between_agents": 0,
+      "precision": 0.0,
+      "recall": null
+     }
+    },
+    {
+     "seed": 5,
+     "old": {
+      "found": 60,
+      "correct": 0,
+      "true": 0,
+      "between_agents": 57,
+      "precision": 0.0,
+      "recall": null
+     },
+     "now": {
+      "found": 2,
+      "correct": 0,
+      "true": 0,
+      "between_agents": 0,
+      "precision": 0.0,
+      "recall": null
+     }
+    }
+   ]
+  }
+ ]
+}

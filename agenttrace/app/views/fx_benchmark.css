@@ -1,0 +1,37 @@
+/* fx_benchmark: audited links on the real release */
+.bmk{min-width:210px}
+.bmk em{display:block}
+.bmci{position:relative;display:inline-block;width:120px;height:10px;background:#f2f4f6;border-radius:3px;vertical-align:middle}
+.bmk .bmci{display:block;width:100%;margin-top:6px}
+.bmci .band{position:absolute;top:3px;height:4px;border-radius:2px;opacity:.45}
+.bmci .dot{position:absolute;top:0;width:10px;height:10px;margin-left:-5px;border-radius:50%;border:1px solid #fff;box-sizing:border-box}
+.bmdot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:baseline}
+.bmlist{margin:10px 0 0;padding-left:18px;font-size:12px;color:#555}
+.bmlist li{margin:2px 0}
+.bmbad{color:#c2410c}
+.bmtn{display:grid;grid-template-columns:150px 1fr 170px;gap:10px;align-items:center;padding:3px 0;font-size:12px}
+.bmtt{display:block;background:#f2f4f6;border-radius:3px;height:16px}
+.bmts{display:flex;height:16px;min-width:3px;border-radius:3px;overflow:hidden}
+.bmts i{display:block;height:100%}
+.bmtv{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.bmrow{border-top:1px solid #e4e7eb;padding:9px 0 8px;font-size:12.5px}
+.bmrow:first-of-type{border-top:0}
+.bmtag{display:inline-block;color:#fff;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:600}
+.bmverdict{color:#555}
+.bmpair{margin:5px 0 3px}
+.bmwhy{color:#333;margin-bottom:5px}
+.bmsn{display:grid;grid-template-columns:40px 1fr;gap:3px 8px;align-items:baseline;color:#8a94a0;font-size:11px}
+.bmsnip{display:block;font-size:11px;color:#333;background:#f6f7f9;border-radius:3px;padding:2px 6px;white-space:pre-wrap;word-break:break-all}
+.bmsim{padding:6px 0 8px;border-top:1px solid #e4e7eb;font-size:12px}
+.bmsim:first-of-type{border-top:0}
+.bmsim h4{margin:2px 0 6px;font-size:12px;font-weight:600;color:#333}
+.bmsr{display:grid;grid-template-columns:60px 1fr auto;gap:10px;align-items:center;padding:2px 0}
+.bmsr>span:first-child{color:#555;font-weight:600}
+.bmtwo{display:flex;gap:26px;flex-wrap:wrap}
+.bmtwo em{font-style:normal}
+.bmcnt{display:inline-block;width:min(46vw,420px);height:10px;background:#f2f4f6;border-radius:3px;vertical-align:middle;overflow:hidden}
+.bmcnt i{display:block;height:100%;min-width:1px}
+.bmsr .bmcnt+b{margin-left:4px}
+
+/* tiles: never let the text of one run under the next */
+#left [class*='bmk'],#left [class*='bmt']{min-width:0}

@@ -1,43 +1,43 @@
 {
- "about": "Replay with tokens merged into estimated agents (rule=estimate). From agenttrace.fx_whatif.whatif(session,'estimate'); the app shows the same under Forensics > What-if.",
+ "about": "Replay with tokens merged into estimated agents (agenttrace.fx_whatif.whatif(session,'estimate')).",
  "as_counted": {
   "named_actors": 241,
   "agents": 241,
-  "messages": 19,
-  "pairs": 12,
-  "largest_group": 5,
+  "messages": 5,
+  "pairs": 4,
+  "largest_group": 3,
   "inside_one_agent": 0,
   "rejected_messages": 0,
   "first_message": {
-   "time": "2026-07-11 00:47",
-   "from": "[CREDENTIAL 169]",
-   "to": "[CREDENTIAL 170]",
-   "agent_from": "[CREDENTIAL 169]",
-   "agent_to": "[CREDENTIAL 170]",
-   "write_id": "R0006579",
-   "read_id": "R0006587",
-   "channel": "hf_dataset:[REDACTED:destination:000536]",
-   "harm_share_after": 0.877
+   "time": "2026-07-10 11:51",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 169]",
+   "agent_from": "[CREDENTIAL 170]",
+   "agent_to": "[CREDENTIAL 169]",
+   "write_id": "R0005366",
+   "read_id": "R0005421",
+   "channel": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "harm_share_after": 0.895
   }
  },
  "after": {
   "named_actors": 241,
   "agents": 234,
-  "messages": 2,
-  "pairs": 2,
-  "largest_group": 2,
-  "inside_one_agent": 17,
+  "messages": 3,
+  "pairs": 3,
+  "largest_group": 3,
+  "inside_one_agent": 2,
   "rejected_messages": 0,
   "first_message": {
-   "time": "2026-07-11 17:59",
-   "from": "[CREDENTIAL 1178]",
-   "to": "[CREDENTIAL 1171]",
-   "agent_from": "[CREDENTIAL 1178]",
-   "agent_to": "[CREDENTIAL 1171]",
-   "write_id": "R0024313",
-   "read_id": "R0024371",
-   "channel": "hf_dataset:[REDACTED:destination:003313]",
-   "harm_share_after": 0.561
+   "time": "2026-07-12 07:47",
+   "from": "[CREDENTIAL 1720]",
+   "to": "[CREDENTIAL 1623]",
+   "agent_from": "[CREDENTIAL 1720]",
+   "agent_to": "[CREDENTIAL 170]",
+   "write_id": "R0044824",
+   "read_id": "R0045143",
+   "channel": "hf_dataset:[HF REPO 646]",
+   "harm_share_after": 0.083
   }
  },
  "groups": [
@@ -124,49 +124,29 @@
    "key": "message",
    "name": "First message between named actors",
    "family": "joint",
-   "time": "2026-07-11 00:47",
-   "harm_share_after": 0.877,
-   "record": "R0006587",
+   "time": "2026-07-10 11:51",
+   "harm_share_after": 0.895,
+   "record": "R0005421",
    "status": "later",
    "after": {
-    "time": "2026-07-11 17:59",
-    "record": "R0024371",
+    "time": "2026-07-12 07:47",
+    "record": "R0045143",
     "actors": [
-     "[CREDENTIAL 1178]",
-     "[CREDENTIAL 1171]"
+     "[CREDENTIAL 1720]",
+     "[CREDENTIAL 1623]"
     ],
-    "why": "[CREDENTIAL 1178] wrote hf_dataset:[REDACTED:destination:003313] in R0024313; [CREDENTIAL 1171] read it in R0024371",
-    "harm_share_after": 0.561
+    "why": "[CREDENTIAL 1720] wrote hf_dataset:[HF REPO 646] in R0044824; [CREDENTIAL 1623] read it in R0045143",
+    "harm_share_after": 0.083
    }
-  },
-  {
-   "key": "group3",
-   "name": "A group of 3+ actors linked by messages",
-   "family": "joint",
-   "time": "2026-07-11 04:32",
-   "harm_share_after": 0.871,
-   "record": "R0006909",
-   "status": "gone",
-   "after": null
-  },
-  {
-   "key": "two_way",
-   "name": "First two-way exchange",
-   "family": "joint",
-   "time": "2026-07-11 06:40",
-   "harm_share_after": 0.864,
-   "record": "R0007323",
-   "status": "gone",
-   "after": null
   },
   {
    "key": "program2",
    "name": "First program reused by another actor",
    "family": "joint",
-   "time": "2026-07-11 08:11",
-   "harm_share_after": 0.85,
-   "record": "R0008331",
-   "status": "unchanged",
+   "time": "2026-07-11 00:24",
+   "harm_share_after": 0.877,
+   "record": "R0006554",
+   "status": "later",
    "after": {
     "time": "2026-07-11 08:11",
     "record": "R0008331",
@@ -306,18 +286,23 @@
    }
   },
   {
-   "key": "group5",
-   "name": "A group of 5+ actors linked by messages",
+   "key": "group3",
+   "name": "A group of 3+ actors linked by messages",
    "family": "joint",
-   "time": "2026-07-11 21:08",
-   "harm_share_after": 0.432,
-   "record": "R0031048",
-   "status": "gone",
-   "after": null
+   "time": "2026-07-12 13:06",
+   "harm_share_after": 0.072,
+   "record": "R0046969",
+   "status": "unchanged",
+   "after": {
+    "time": "2026-07-12 13:06",
+    "record": "R0046969",
+    "actors": [
+     "[CREDENTIAL 1720]",
+     "[CREDENTIAL 1602]"
+    ],
+    "why": "the message from [CREDENTIAL 1720] to [CREDENTIAL 1602] joined 3 agents into one group",
+    "harm_share_after": 0.072
+   }
   }
- ],
- "shared_programs": {
-  "total": 253,
-  "not_routine": 40
- }
+ ]
 }

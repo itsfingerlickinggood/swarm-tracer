@@ -149,22 +149,108 @@ def compile_channels(pack):
 
 
 REQUEST_START = re.compile(r"fetch\s*\(|\.open\s*\(|new\s+XMLHttpRequest|requests\.(?:get|post|put|patch|delete|head)\s*\(|"
-                           r"\bcurl\b|urlopen\s*\(|http\.request|axios\.|\$\.ajax|navigator\.sendBeacon", re.I)
+                           r"\bcurl\b|urlopen\s*\(|http\.request|axios\.|\$\.ajax|navigator\.sendBeacon|createElement\(['\"]form", re.I)
 
 
-def judge_op(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
-    """Write or read, from the request verb nearest to the place mention at text[start:end].
-    The code examined is the request call the mention sits in: it never crosses another place mention
-    (bounds = (prev_end, next_start)) nor the start of another request (fetch(, .open(, new
-    XMLHttpRequest, requests.post( ...). So a program that fetches a dataset and then POSTs what it read
-    to a collector is a read of the dataset, not a write."""
+HTTP_WRITE = re.compile(r"['\"](POST|PUT|PATCH|DELETE)['\"]")
+ASSIGNED = re.compile(r"([A-Za-z_$][\w$]*)\s*=\s*(?:[\w$.]+\s*\+\s*)?['\"`][^'\"`;]*$")
+
+
+def _call_end(text, open_pos, cap=600):
+    """Index just past the parenthesis that closes the call opened at or after open_pos (capped)."""
+    i = text.find("(", open_pos)
+    if i < 0:
+        return min(len(text), open_pos + cap)
+    depth, end = 0, min(len(text), i + cap)
+    nx = REQUEST_START.search(text, i + 1, end)      # redaction can swallow the closing parenthesis:
+    if nx:                                           # never run on into the next request
+        end = nx.start()
+    for k in range(i, end):
+        c = text[k]
+        if c == "(":
+            depth += 1
+        elif c == ")":
+            depth -= 1
+            if depth == 0:
+                return k + 1
+    return end
+
+
+def _opts_write(text, seg, wrx, before):
+    """fetch(u, o): the options sit in a variable. True when that variable's object literal has a write verb."""
+    m = re.search(r",\s*([A-Za-z_$][\w$]*)\s*\)\s*$", seg)
+    if not m or m.group(1) in ("false", "true", "null", "undefined", "None", "True", "False") or seg.lstrip().startswith(".open"):
+        return False
+    d = None
+    for d in re.finditer(r"(?<![\w$.])" + re.escape(m.group(1)) + r"\s*=\s*\{", text[:before]):
+        pass
+    if d:
+        return bool(wrx.search(text[d.start():d.start() + 300]))
+    # the options are a parameter of a wrapper function (function f(p, o) { fetch(b + p, o) }):
+    # the wrapper's callers carry the verb, so look at the code that follows the wrapper
+    o = re.escape(m.group(1))
+    param = re.search(r"function\s*[\w$]*\s*\([^)]*\b" + o + r"\b[^)]*\)\s*\{|\([^()]*\b" + o + r"\b[^()]*\)\s*=>|\b" + o + r"\s*=>",
+                      text[max(0, before - 200):before])
+    return bool(param and wrx.search(text[before:before + 500]))
+
+
+def judge_span(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
+    """(op, lo, hi): write or read for the place mention at text[start:end], and the span of code judged.
+
+    1. The mention sits inside a request call (fetch('…place…', {...})): the verb nearest to it decides,
+       looking only at that call: never past another place mention (bounds) nor into another request.
+       So a program that fetches a dataset and then POSTs what it read elsewhere reads the dataset.
+    2. The mention is assigned to a variable (u='…place…'; … fetch(u, {method:'POST'})): the calls that
+       use the variable decide. Any call with a write verb makes it a write; otherwise it is a read.
+       Without this a commit whose URL sits in a variable looks like a read, and two actors committing
+       to one dataset look like a message."""
     lo, hi = max(0, start - before), min(len(text), end + after)
     if bounds:
         lo, hi = max(lo, bounds[0]), min(hi, bounds[1])
-    # clip at the request calls around the mention: the last one starting before it, the first after it
     last = None
     for m in REQUEST_START.finditer(text, lo, start):
         last = m.start()
+    direct = last is not None and not re.search(r"[;\n]", text[last:start])
+    # a Git LFS batch call is a POST either way: its "operation" says whether it uploads or downloads
+    nreq = REQUEST_START.search(text, end, min(len(text), end + 400))
+    region_hi = _call_end(text, nreq.start()) if nreq else min(len(text), end + 300)
+    region_lo = max(0, start - 300) if "info/lfs" in text[end:end + 40] else (last if direct else start)
+    lfs = re.search(r"operation['\"]?\s*:\s*['\"](download|upload)['\"]", text[region_lo:region_hi])
+    if lfs:
+        return ("read" if lfs.group(1) == "download" else "write"), start, region_hi
+    if not direct:
+        am = ASSIGNED.search(text, max(0, start - 200), start)
+        if am:
+            # every place the variable is passed as an argument: fetch(u, …), x.open('POST', U), Q('GET', S), req(url, …)
+            use = re.compile(r"[(,+]\s*" + re.escape(am.group(1)) + r"\s*(?=[,)+])")
+            verdict, span = None, None
+            limit = min(len(text), end + 8000)
+            for um in use.finditer(text, end, limit):
+                near = text[max(0, um.start() - 80):um.end() + 120]
+                rs = None
+                for r0 in REQUEST_START.finditer(text, max(0, um.start() - 60), um.end()):
+                    rs = r0
+                if rs is not None:                     # passed straight to a request call: judge that call
+                    seg_hi = _call_end(text, rs.start())
+                    seg = text[rs.start():seg_hi]
+                    if wrx.search(seg) or _opts_write(text, seg, wrx, rs.start()):
+                        return "write", rs.start(), seg_hi
+                    if verdict is None:
+                        verdict, span = "read", (rs.start(), seg_hi)
+                elif HTTP_WRITE.search(near):          # passed to a helper with the verb as an argument
+                    return "write", max(0, um.start() - 80), um.end() + 120
+                elif verdict is None:
+                    verdict, span = "read", (max(0, um.start() - 80), um.end() + 120)
+            if verdict:
+                return verdict, span[0], span[1]
+            return "mention", start, end      # assigned and never passed to a call: named, not opened
+    if not direct:
+        # the place is a literal argument of a helper call with the verb beside it: req('…place…', tok, 'POST', data)
+        tail = re.match(r"[^();{}]{0,70}['\"](POST|PUT|PATCH|DELETE)['\"]", text[end:end + 90])
+        if tail:
+            return "write", start, end + tail.end()
+    if re.match(r"[^)]{0,12}\{\s*metho(?!d)", text[end:end + 30]):
+        return "mention", start, end      # the call is cut off before its verb: unknown, so not counted
     if last is not None:
         lo = last
     nxt = REQUEST_START.search(text, end, hi)
@@ -181,11 +267,13 @@ def judge_op(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
                 best = d
         return best
     w, r = nearest(wrx), nearest(rrx)
-    if w is None:
-        return "read"
-    if r is not None and r < w:
-        return "read"
-    return "write"
+    if w is None or (r is not None and r < w):
+        return "read", lo, hi
+    return "write", lo, hi
+
+
+def judge_op(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
+    return judge_span(text, start, end, wrx, rrx, bounds, before, after)[0]
 
 
 NAME_TOKEN = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.\-]{5,}")
@@ -213,6 +301,7 @@ def channel_ops(events, pack, rec, res):
       there and writes to it
     - mentions: naming another structural channel in the text reads it"""
     chans = compile_channels(pack)
+    shared_ids = set(pack.raw.get("shared_identities", []))
     times = rec["_times"]
     structural = pack.raw.get("structural_channels", True)
     mentions = pack.raw.get("mention_channels", False)
@@ -242,6 +331,7 @@ def channel_ops(events, pack, rec, res):
                     if k != e.channel and k not in seen:
                         seen.add(k)
                         found.append(("place:" + k, "read"))
+        seg_of = {}
         # every place mention in the record, so each one is judged only by the code between its neighbours
         spans = sorted({(m.start(), m.end()) for _n, rx, _w, _r in chans for m in rx.finditer(e.text) if m.group(1)})
         for name, rx, wrx, rrx in chans:
@@ -253,16 +343,26 @@ def channel_ops(events, pack, rec, res):
                 # can read one place and write another
                 k = spans.index((m.start(), m.end()))
                 bounds = (spans[k - 1][1] if k else 0, spans[k + 1][0] if k + 1 < len(spans) else len(e.text))
-                op = judge_op(e.text, m.start(), m.end(), wrx, rrx, bounds)
+                op, slo, shi = judge_span(e.text, m.start(), m.end(), wrx, rrx, bounds)
                 key = f"{name}:{m.group(1)}"
+                if op == "mention":
+                    continue
                 if ops_here.get(key) != "write":
                     ops_here[key] = op
+                    seg_of[key] = e.text[slo:shi]
             found += list(ops_here.items())
         if not found:
             continue
         a, ak = actor_of(e, rec, res, pack)
+        toks = [t for t in rec["_ids"][e.id] if t not in shared_ids] if ak == "token" else []
         for ch, op in found:
-            ops.append((ch, op, a, ak, times.get(e.id), i, e.id))
+            a2 = a
+            if len(toks) > 1 and ch in seg_of:
+                # a record that holds several tokens: the one named in the judged call is the actor
+                here = [t for t in toks if t in seg_of[ch]]
+                if len(here) == 1:
+                    a2 = here[0]
+            ops.append((ch, op, a2, ak, times.get(e.id), i, e.id))
     # logged direct messages: the sender writes to the recipient's inbox, the recipient's reply reads it
     for d in direct_messages(events, pack, rec, res):
         ops.append((d["channel"], "write", d["from"], d["from_kind"], d["write_time"], d["_i"], d["write_id"]))

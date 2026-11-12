@@ -8,10 +8,11 @@
     const names = await cached("/api/list?name=identities&limit=1000").catch(() => ({ rows: [] }));
     const lanesAll = await cached("/api/lanes").catch(() => null);
     ACTORS = new Set([...(names.rows || []).map((r) => r.identity), ...((lanesAll?.actors) || []).map((a) => a.actor)]);
-    const [ctxR, sim, lanes, gapsR, wi, idr] = await Promise.all([
+    const [ctxR, sim, lanes, gapsR, wi, idr, us] = await Promise.all([
       cached("/api/context").catch(() => ({})), cached("/api/sim").catch(() => null),
       cached("/api/lanes").catch(() => null), cached("/api/gaps").catch(() => ({ rows: [] })), whatifEstimate(),
-      cached("/api/x/identity").catch(() => null)]);
+      cached("/api/x/identity").catch(() => null), unitSummary()]);
+    const ag = byAgent() && us ? us : null;   // counting by estimated agent: the agent-level recount leads, the token counts follow
     const est = idr?.estimate || null;     // the Agents tab's estimate, for the identities → actors → agents line
     const ctx = ctxR.context, ms = ctxR.milestones;
     const f = s.flow, T = s.list_totals || {};
@@ -19,6 +20,8 @@
     const sigs = sim?.signals || [];
     const firstOf = (fam) => sigs.find((g) => g.family === fam);
     const j = firstOf("joint"), sg = firstOf("single"), bl = firstOf("baseline");
+    // the first sign of working together in the current unit: by agent it may be a different sign, later, or none at all
+    const ja = ag ? us.first_joint?.after : null, jc = us?.first_joint?.as_counted || j;
     const host = $("ovw");
     if (!host || S.tab !== "overview") return;      // the user moved on while the data loaded
     host.innerHTML = `
@@ -27,14 +30,14 @@
       { sub: `Dated actions per hour (UTC; most times are ${term("dated", "estimated")} from timestamps in the code, so long flat stretches come from the fit), coloured by what the code does${ctx ? "; the investigators' phases above; " : "; "}warning signs as dots (blue: actors together, dark: a single actor, orange: volume baseline)${ms?.milestones?.length ? "; below, each time the reports give against the tool's estimate" : ""}. Click an hour to list its events.` })}
     <h3 class="ovh">What the records answer</h3>
     <div class="grid2 answers">
-      ${answer("Who talked to whom", "network", f.named_actor_pairs ? `<b>${fmt(f.named_actor_pairs)}</b> named sender-receiver pairs exchanged <b>${fmt(f.deliveries_between_named_actors)}</b> messages, read a median <b>${hoursWord(f.latency_hours.median)}</b> after they were written.` : "No message between two named actors was found.",
+      ${ag ? talkedByAgent(us, f) : answer("Who talked to whom", "network", f.named_actor_pairs ? `<b>${fmt(f.named_actor_pairs)}</b> named sender-receiver pairs exchanged <b>${fmt(f.deliveries_between_named_actors)}</b> messages, read a median <b>${hoursWord(f.latency_hours.median)}</b> after they were written.${us && !us.no_merges ? ` <span class="usub">Counting tokens. By estimated agent: ${plural(us.by_agent.messages, "message")} in ${plural(us.by_agent.pairs, "pair")}; ${fmt(us.by_agent.inside_one_agent)} stay inside one agent. <button type="button" class="link small" data-setunit="agent">Count by estimated agents</button></span>` : ""}` : "No message between two named actors was found.",
         (f.top_pairs || []).length ? hbars(f.top_pairs.slice(0, 5).map((p) => ({ label: `${ent.actor(p.from)} → ${ent.actor(p.to)}`, value: p.deliveries, color: ACCENT }))) : "",
         f.first_named_delivery ? `First: ${ent.actor(f.first_named_delivery.from)} wrote ${ent.rec(f.first_named_delivery.write_id)}, ${ent.actor(f.first_named_delivery.to)} read it in ${ent.rec(f.first_named_delivery.read_id)} (${esc(f.first_named_delivery.read_time)})` : "")}
       ${answer("How information spread", "spread", spreadLine(s, T),
         (s.content_spread || []).length ? hbars(s.content_spread.slice(0, 5).map((x) => ({ label: `${ent.actor(x.source)} <span class="muted small">${esc(x.what?.intent_what ? x.what.intent_what.split(" (")[0] : "")}</span>`, value: x.actors, color: C.program }))) + `<p class="small muted">actors who ran each ${term("program")} (the first + those who reused it)</p>` : "",
         s.seen_then_used?.length ? `${fmt(T.seen_then_used ?? s.seen_then_used.length)} tokens were seen as data before their first use; ${fmt(T.carried_edges ?? 0)} times one identity carried another's token.` : "")}
-      ${answer("Could it have been flagged early?", "early", j ? `The first sign of actors working together, <b>${esc(j.name.toLowerCase())}</b>, fired on ${esc(when(toTime(j.time)))} with ${bothShares(j.harm_share_after, whatifSign(wi, j.key)?.after?.harm_share_after, { what: "of the harmful activity still to come" })}. ${WI_LINK}` : "No sign of actors working together fired.",
-        famBars(sigs), (bl ? `A ${term("volume", "volume alarm")} would have fired on ${esc(when(toTime(bl.time)))} with ${pct(bl.harm_share_after)} still to come. ` : "") + `${term("harm_left")}: the share of dated ${term("harm", "harmful actions")} that came after the sign; higher is earlier.`)}
+      ${answer("Could it have been flagged early?", "early", ag ? earlyByAgent(us, ja, jc) : j ? `The first sign of actors working together, <b>${esc(j.name.toLowerCase())}</b>, fired on ${esc(when(toTime(j.time)))} with ${bothShares(j.harm_share_after, whatifSign(wi, j.key)?.after?.harm_share_after, { what: "of the harmful activity still to come" })}. ${WI_LINK}` : "No sign of actors working together fired.",
+        famBars(sigs, ag ? { time: ja?.time, share: ja?.harm_share_after, name: ja?.name, none: !ja } : null), (bl ? `A ${term("volume", "volume alarm")} would have fired on ${esc(when(toTime(bl.time)))} with ${pct(bl.harm_share_after)} still to come. ` : "") + `${term("harm_left")}: the share of dated ${term("harm", "harmful actions")} that came after the sign; higher is earlier.`)}
       ${answer("What an investigator would still miss", "gaps", "The biggest blind spots, measured:",
         hbars((gapsR.rows || []).filter((g) => g.share != null).sort((a, b) => b.share - a.share).slice(0, 4).map((g) => ({ label: esc(g.gap), value: Math.round(g.share * 1000) / 10, color: HARM, title: g.hides }))) , "Share of records, messages or places affected (%).")}
     </div>
@@ -42,10 +45,12 @@
     <div class="kpis">
       ${kpi(term("record", "records"), fmt(s.records), Object.entries(s.kinds).map(([k, v]) => `${fmt(v)} ${esc(k)}`).join(" · "))}
       ${kpi(term("dated", "dated"), pct(s.timed / s.records), `${fmt(s.timed)} records`)}
-      ${kpi(term("named", "named actors"), fmt(named), `${identityLine(s, est) || term("actor", "tokens and names, not agents")}${ctxAgents(ctx) ? `; the reports count ${esc(ctxAgents(ctx))} agents` : ""}`)}
+      ${ag ? kpi(`${term("agent", "estimated agents")} ${estMark()}`, fmt(us.agents), `${us.no_merges ? UNIT_NONE : `${fmt(us.tokens)} tokens and names (${term("named", "named actors")}), ${fmt(us.merged_agents)} agents hold two or more`}${ctxAgents(ctx) ? `; the reports count ${esc(ctxAgents(ctx))} agents` : ""}`)
+        : kpi(term("named", "named actors"), fmt(named), `${identityLine(s, est) || term("actor", "tokens and names, not agents")}${ctxAgents(ctx) ? `; the reports count ${esc(ctxAgents(ctx))} agents` : ""}`)}
       ${kpi(term("action", "actions"), fmt(s.actions?.total), `${pct((s.actions?.unattributed || 0) / Math.max(1, s.actions?.total || 1))} by ${term("run", "anonymous runs")}`)}
       ${kpi(term("place", "places"), fmt(f.channels), `${fmt(f.records_on_channels)} records touch one`)}
-      ${kpi(term("message", "messages"), fmt(f.deliveries), `${fmt(f.deliveries_between_named_actors)} between named actors`)}
+      ${ag ? kpi(`${term("message", "messages between agents")} ${estMark()}`, fmt(us.messages), us.no_merges ? `${fmt(f.deliveries)} with anonymous runs included` : `${fmt(us.as_counted.messages)} between tokens, ${fmt(us.inside_one_agent)} of them inside one agent; ${fmt(f.deliveries)} with anonymous runs included`)
+        : kpi(term("message", "messages"), fmt(f.deliveries), `${fmt(f.deliveries_between_named_actors)} between named actors`)}
       ${kpi(term("program", "programs shared"), fmt(T.content_spread ?? f.content_families_moving), "run by 2+ named actors")}
       ${kpi(term("sign", "warning signs"), fmt(sigs.length), `${sigs.filter((g) => g.family === "joint").length} of actors together`)}
       ${kpi(term("harm", "harmful actions"), fmt(sim?.harm_total ?? s.harm_events_timed), "dated")}
@@ -77,9 +82,32 @@
     const last = Math.max(...w.adopters.map((a) => a.hours_after_source));
     return `<b>${fmt(T.content_spread ?? s.content_spread.length)}</b> programs were run by more than one named actor. The widest, first run by ${ent.actor(w.source)} (${ent.rec(w.source_record)}), reached <b>${fmt(w.actors - 1)}</b> more actors within <b>${hoursWord(last)}</b>.`;
   }
-  function famBars(sigs) {
+  // counting by estimated agent: who talked to whom, agent to agent, with the token counts as the second line
+  function talkedByAgent(us, f) {
+    const tok = us.as_counted, fm = us.first_message;
+    const line = us.messages
+      ? `<b>${fmt(us.pairs)}</b> sender-receiver ${us.pairs === 1 ? "pair" : "pairs"} of estimated agents exchanged <b>${plural(us.messages, "message")}</b> ${estMark()}.`
+      : `No message passed between two different estimated agents ${estMark()}.`;
+    const second = us.no_merges ? `<span class="usub">${esc(UNIT_NONE[0].toUpperCase() + UNIT_NONE.slice(1))}, so counting tokens gives the same numbers.</span>`
+      : `<span class="usub">Counting tokens: ${plural(tok.messages, "message")} in ${plural(tok.pairs, "pair")}; <b>${fmt(us.inside_one_agent)}</b> of them pass between two tokens of one agent, so they are one agent reading its own writing. <button type="button" class="link small" data-setunit="token">Count by tokens</button></span>`;
+    const bars = us.top_pairs.slice(0, 5).map((p) => ({ label: `${ent.agent(p.from)} → ${ent.agent(p.to)}`, value: p.messages, color: ACCENT }))
+      .concat(us.inside.slice(0, 2).map((x) => ({ label: `${ent.agent(x.agent)} <span class="muted small">inside one agent</span>`, value: x.messages, color: "#9fd4cd", title: `${x.messages} messages between tokens of ${agentLabel(x.agent)}: not counted as messages between agents` })));
+    return answer("Who talked to whom", "network", line + second, bars.length ? hbars(bars) : "",
+      fm ? `First between agents: ${ent.agent(fm.agent_from)} wrote ${ent.rec(fm.write_id)}, ${ent.agent(fm.agent_to)} read it in ${ent.rec(fm.read_id)} (${esc(fm.time)})` : "");
+  }
+  function earlyByAgent(us, ja, jc) {
+    if (!ja) return `Counting by estimated agent ${estMark()}, no sign of agents working together fires${jc ? `. <span class="usub">Counting tokens: ${esc(String(jc.name).toLowerCase())} on ${esc(when(toTime(jc.time)))}, ${pct(jc.harm_share_after)} of the harmful activity still to come; it joins two tokens of one agent.</span>` : "."} ${WI_LINK}`;
+    const same = jc && jc.key === ja.key && jc.time === ja.time;
+    return `The first sign of agents working together, <b>${esc(String(ja.name).toLowerCase())}</b>, fired on ${esc(when(toTime(ja.time)))} with <b>${pct(ja.harm_share_after)}</b> of the harmful activity still to come ${estMark()}.` +
+      (same || !jc ? "" : `<span class="usub">Counting tokens: ${esc(String(jc.name).toLowerCase())} on ${esc(when(toTime(jc.time)))}, ${pct(jc.harm_share_after)} still to come.</span>`) + ` ${WI_LINK}`;
+  }
+  function famBars(sigs, agentJoint) {
     const rows = ["single", "joint", "baseline"].map((fam) => {
       const xs = sigs.filter((g) => g.family === fam && g.harm_share_after != null);
+      if (fam === "joint" && agentJoint) {
+        if (agentJoint.none || agentJoint.share == null) return null;
+        return { label: `agents together <span class="muted small">${esc(when(toTime(agentJoint.time)))}</span> ${estMark()}`, value: Math.round(agentJoint.share * 100), color: FAMILY[fam].color, title: agentJoint.name };
+      }
       if (!xs.length) return null;
       const first = xs[0];
       return { label: `${FAMILY[fam].label} <span class="muted small">${esc(when(toTime(first.time)))}</span>`, value: Math.round(first.harm_share_after * 100), color: FAMILY[fam].color, title: first.name };

@@ -46,9 +46,14 @@ SETTINGS = [
     ("naming_notes", "40 agents, many place-naming notes", {"agents": 40, "mention_share": 0.25}),
     ("quiet", "40 agents, no hidden reads, no notes", {"agents": 40, "hidden_share": 0.0, "mention_share": 0.0}),
     ("field_times", "40 agents, a time field on every record", {"agents": 40, "time_mode": "field"}),
+    # the payload shapes found when the real release's links were audited (agenttrace.benchmark): read-then-exfiltrate,
+    # LFS downloads, Python urlopen, URLs kept in variables, several places in a record, proxies, redacted paths
+    ("realworld", "40 agents, real-world payload patterns", {"agents": 40, "realworld": 0.6}),
     ("benign", "benign: 40 agents, half save results", {"agents": 40, "mode": "benign"}),
     ("benign_readonly", "benign: 40 agents, read-only", {"agents": 40, "mode": "benign", "own_writes": 0.0}),
+    ("benign_realworld", "benign: 40 agents, real-world payload patterns", {"agents": 40, "mode": "benign", "realworld": 0.6}),
 ]
+REALWORLD = ("realworld", "benign_realworld")
 QUICK_AGENTS = 20
 
 # measures: key, label, unit ("share" 0..1 or "hours" or "count"), which way is better
@@ -439,6 +444,92 @@ def markdown(sm):
     return "\n".join(L) + "\n"
 
 
+# ------------------------------------------------------------------ an older version's rules on the same swarms
+
+_DUMP = ("import json,os,sys;os.environ['SWARM_TRACER_NO_CACHE']='1';from agenttrace.session import Session;"
+         "s=Session();s.load(sys.argv[1],'code_traces.json',{},'x');"
+         "print(json.dumps([[d['write_id'],d['read_id']] for d in s.flow['_deliveries']]))")
+
+
+def _links_by(code_root, trace):
+    """The (write, read) links another checkout of the tool reports on a trace file (run in its own process)."""
+    import subprocess
+    import tempfile
+    env = dict(os.environ, PYTHONPATH=code_root, SWARM_TRACER_NO_CACHE="1", SWARM_TRACER_HOME=tempfile.mkdtemp(prefix="st_old_"))
+    out = subprocess.run([sys.executable, "-c", _DUMP, os.path.abspath(trace)], cwd=code_root, env=env, capture_output=True, text=True, timeout=900)
+    if out.returncode:
+        raise RuntimeError(out.stderr.strip()[-400:])
+    return [tuple(x) for x in json.loads(out.stdout.strip().splitlines()[-1])]
+
+
+def score_links(links, truth):
+    """Links against a truth file: precision/recall on a coordinated swarm; on a benign one, how many links
+    join two different agents (every one is false)."""
+    true = {(w, r) for w, r, _ in truth["messages"]}
+    found = set(links)
+    ok = len(found & true)
+    agent_of = {r: x["agent"] for r, x in truth["records"].items()}
+    cross = sum(1 for w, r in found if agent_of.get(w) and agent_of.get(r) and agent_of[w] != agent_of[r])
+    return {"found": len(found), "correct": ok, "true": len(true), "between_agents": cross,
+            "precision": round(ok / len(found), 4) if found else None, "recall": round(ok / len(true), 4) if true else None}
+
+
+def compare_old_rules(worktree, out, label="v1.1.0", settings=("base", "realworld", "benign_realworld"), log=print):
+    """Run an older checkout's message rules on swarms the suite already generated under <out>/swarms, next to
+    the current code's, and save <out>/old_rules.json. Shows whether a setting can tell the two apart."""
+    from .session import Session
+    swarm_root = os.path.join(out, "swarms")
+    labels = {n: l for n, l, _ in SETTINGS}
+    rows = []
+    no_cache = os.environ.get("SWARM_TRACER_NO_CACHE")
+    os.environ["SWARM_TRACER_NO_CACHE"] = "1"
+    try:
+        for name in settings:
+            seeds = []
+            for folder in sorted(f for f in os.listdir(swarm_root) if f.rsplit("-s", 1)[0] == name):
+                tp = groundtruth.truth_path_for(os.path.join(swarm_root, folder))
+                truth = groundtruth.load_truth(tp)
+                trace = tp[:-len(groundtruth.TRUTH_EXT)]
+                s = Session()
+                s.load(trace, "code_traces.json", {}, folder)
+                now = score_links([(d["write_id"], d["read_id"]) for d in s.flow["_deliveries"]], truth)
+                old = score_links(_links_by(worktree, trace), truth)
+                seeds.append({"seed": int(folder.rsplit("-s", 1)[1]), "old": old, "now": now})
+                log(f"{folder:<22} old P {_p(old['precision'])} R {_p(old['recall'])} ({old['found']} links, {old['between_agents']} between agents)"
+                    f"   now P {_p(now['precision'])} R {_p(now['recall'])} ({now['found']} links, {now['between_agents']} between agents)")
+            if not seeds:
+                continue
+
+            def pool(k):
+                f, c, t = (sum(x[k][j] for x in seeds) for j in ("found", "correct", "true"))
+                return {"found": f, "correct": c, "true": t, "between_agents": sum(x[k]["between_agents"] for x in seeds),
+                        "precision": round(c / f, 4) if f else None, "precision_ci": groundtruth._wilson(c, f),
+                        "recall": round(c / t, 4) if t else None, "recall_ci": groundtruth._wilson(c, t)}
+            rows.append({"name": name, "label": labels.get(name, name), "mode": "benign" if name.startswith("benign") else "coordinated",
+                         "runs": len(seeds), "old": pool("old"), "now": pool("now"), "seeds": seeds})
+    finally:
+        if no_cache is None:
+            os.environ.pop("SWARM_TRACER_NO_CACHE", None)
+        else:
+            os.environ["SWARM_TRACER_NO_CACHE"] = no_cache
+    doc = {"about": "Message links reported by an older version's rules and by the current code on the same simulated swarms "
+                    "(agenttrace.validation old-rules). Pooled over seeds; intervals are Wilson 95%.",
+           "old_version": label, "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "settings": rows}
+    with open(os.path.join(out, "old_rules.json"), "w", encoding="utf-8") as f:
+        json.dump(doc, f, indent=1)
+    return doc
+
+
+def old_rules_summary():
+    """The saved old-versus-current comparison, or None."""
+    for p in _summary_paths():
+        q = os.path.join(os.path.dirname(p), "old_rules.json")
+        if os.path.isfile(q):
+            with open(q, encoding="utf-8") as f:
+                return json.load(f)
+    return None
+
+
 # ------------------------------------------------------------------ routes
 
 def _summary_paths(quick=False):
@@ -512,8 +603,17 @@ def main(argv=None):
     r.add_argument("--quick", action="store_true", help=f"at most {QUICK_AGENTS} agents per swarm")
     r.add_argument("--settings", nargs="+", default=None, choices=[x[0] for x in SETTINGS])
     r.add_argument("--drop-swarms", action="store_true", help="delete the generated swarms after scoring")
+    o = sub.add_parser("old-rules", help="run an older checkout's message rules on the generated swarms, next to the current code's")
+    o.add_argument("--worktree", required=True, help="a checkout of the older version (for example: git worktree add DIR v1.1.0)")
+    o.add_argument("--label", default="v1.1.0")
+    o.add_argument("--out", default=None, help="the suite's output folder (default reports/validation)")
+    o.add_argument("--settings", nargs="+", default=["base", "realworld", "benign_realworld"], choices=[x[0] for x in SETTINGS])
     a = ap.parse_args(argv)
     out = a.out or default_out()
+    if a.cmd == "old-rules":
+        doc = compare_old_rules(a.worktree, out, a.label, a.settings)
+        print(f"wrote {os.path.join(out, 'old_rules.json')}")
+        return 0 if doc["settings"] else 1
     sm = run_suite(out, seeds=a.seeds, quick=a.quick, settings=a.settings, keep_swarms=not a.drop_swarms)
     print()
     print(markdown(sm))

@@ -24,6 +24,14 @@
   const PHASE_WHY = { first: "the first dated action", stop: "after the busiest hour, the first hour with under 15% of its actions", last: "the last dated action" };
   const refChip = (g) => (recOf(g) ? ent.rec(recOf(g)) : g.ref ? `<code>${esc(short(g.ref))}</code>` : "");
 
+  // what counting by estimated agent changes on this tab, or the offer to switch to it
+  function unitNote(D) {
+    if (!byAgent()) return hasMerges() ? `<div class="unitnote token">Counting <b>tokens</b>: every sign below treats each token as its own actor. By estimated agent the signs that join two tokens of one agent move later or do not fire. <button type="button" class="link" data-setunit="agent">Count by estimated agents</button></div>` : "";
+    if (!D.unit) return `<div class="unitnote">Counting by <b>estimated agents</b> ${estMark()}: ${esc(UNIT_NONE)}, so every sign is the same as counting tokens.</div>`;
+    const u = D.unit;
+    return `<div class="unitnote">Counting by <b>estimated agents</b> ${estMark()}: every time and share below is the agent-level one. ${u.moved ? `${plural(u.moved, "sign")} fire${u.moved === 1 ? "s" : ""} later than counting tokens (the token-level time and share are on the second line)` : "No sign moves"}${u.gone.length ? `; ${plural(u.gone.length, "sign")} no longer fire${u.gone.length === 1 ? "s" : ""}, because ${u.gone.length === 1 ? "it joins" : "they join"} tokens of one agent: ${u.gone.map((g) => `${esc(g.name.toLowerCase())} <span class="muted">(tokens: ${esc(when(g.t * 1000))}, ${pct(g.harm_share_after)})</span>`).join("; ")}` : ""}. ${fmt(u.inside)} messages inside one agent are left out of the replay. <button type="button" class="link" data-setunit="token">Count by tokens</button> ${WI_LINK}</div>`;
+  }
+
   function stop() { clearInterval(ST.timer); ST.timer = null; ST.playing = false; const b = $("efPlay"); if (b) b.innerHTML = "▶ Play"; }
 
   // the tracer's rule: watch on the first single-actor harmful sign, alert once N kinds of coordination have shown
@@ -52,18 +60,35 @@
       return;
     }
     const n = sim.hours;
-    const sigs = sim.signals.map((g, k) => ({ ...g, num: k + 1 }));
+    // Counting by estimated agent (the default): each sign takes the time and harm share of the agent-level recount
+    // (GET /api/x/fx_whatif, the same rule as the top bar), keeps its token-level values as g.tok for the second
+    // line, and is left out when it no longer fires once tokens are merged. Messages are mapped token → agent.
+    const wiU = byAgent() && hasMerges() ? await whatifEstimate() : null;
+    if (my !== RUN || !el.isConnected || S.tab !== "early") return;
+    const gone = [];
+    let sigs = sim.signals.map((g) => ({ ...g }));
+    if (wiU) {
+      sigs = sigs.map((g) => {
+        const u = unitSign(wiU, g);
+        if (u.gone) { gone.push(g); return null; }
+        return u.tok ? { ...g, t: u.t, time: u.time, harm_share_after: u.share, record: u.record || g.record, ref: u.record || g.ref, why: u.why || g.why, tok: u.tok } : g;
+      }).filter(Boolean).sort((a, b) => a.t - b.t);
+    }
+    sigs.forEach((g, k) => { g.num = k + 1; });
+    const unitRows = wiU ? msgs.rows.map((r) => { const c = r.slice(); c[0] = agentOf(r[0]); c[1] = agentOf(r[1]); return c; }).filter((r) => r[0] !== r[1]) : msgs.rows;
+    const insideN = msgs.rows.length - unitRows.length;
     const cum = (xs) => { let a = 0; return xs.map((v) => (a += v || 0)); };
     const D = {
       sim, sigs, n, hasHarm: !!sim.harm_total,
       cumActions: cum(sim.actions), cumHarm: cum(sim.harmful), cumActors: cum(sim.new_actors), 
       // named messages on exact places, the same set the warning signs count; places the redaction may
       // have merged are counted apart, since their write and read may be on two different places
-      named: msgs.rows.filter((r) => !String(r[0]).startsWith("run:") && !String(r[1]).startsWith("run:") && !r[9]),
-      mergedNamed: msgs.rows.filter((r) => !String(r[0]).startsWith("run:") && !String(r[1]).startsWith("run:") && r[9]).map((r) => r[6]).sort((a, b) => a - b),
-      anonMsgs: msgs.rows.filter((r) => String(r[0]).startsWith("run:") || String(r[1]).startsWith("run:")).map((r) => r[6]).sort((a, b) => a - b),
-      mergedAll: msgs.rows.filter((r) => r[9]).length,
-      allPairs: new Set(msgs.rows.filter((r) => !String(r[0]).startsWith("run:") && !String(r[1]).startsWith("run:")).map((r) => r[0] + "\u0000" + r[1])).size,
+      named: unitRows.filter((r) => !String(r[0]).startsWith("run:") && !String(r[1]).startsWith("run:") && !r[9]),
+      mergedNamed: unitRows.filter((r) => !String(r[0]).startsWith("run:") && !String(r[1]).startsWith("run:") && r[9]).map((r) => r[6]).sort((a, b) => a - b),
+      anonMsgs: unitRows.filter((r) => String(r[0]).startsWith("run:") || String(r[1]).startsWith("run:")).map((r) => r[6]).sort((a, b) => a - b),
+      mergedAll: unitRows.filter((r) => r[9]).length,
+      allPairs: new Set(unitRows.filter((r) => !String(r[0]).startsWith("run:") && !String(r[1]).startsWith("run:")).map((r) => r[0] + "\u0000" + r[1])).size,
+      unit: wiU ? { gone, inside: insideN, moved: sigs.filter((g) => g.tok).length } : null,
     };
     D.layout = netLayout(D.named);
     {   // named messages, pairs and the largest group linked by messages, hour by hour
@@ -90,6 +115,7 @@
     el.innerHTML = `
     <h2>Could it have been flagged early?</h2>
     <p class="small muted efdef">${term("harm", "Harmful actions")}: actions of the kinds in the pack's harm list${harmList ? ` (${esc(harmList)})` : ""}. ${term("harm_left", "Harm still to come")}: the share of the ${fmt(sim.harm_total)} dated harmful actions that came after a moment, so a higher share means an earlier warning. Times are UTC and, for most records, ${term("dated", "estimated")} from timestamps in the agents' code; each replay step is one hour (for example 13:00–14:00).</p>
+    ${unitNote(D)}
     <div id="efLead"></div>
     ${card("Replay the incident", `
       <div class="efctl">
@@ -162,13 +188,17 @@
     const r = rule(D.sigs, ST.N);
     const firstJoint = D.sigs.find((g) => g.family === "joint");
     if (D.whatif === undefined) { D.whatif = null; whatifEstimate().then((w) => { D.whatif = w; if (w && ST.data === D && host.isConnected) drawLead(); }); }
-    const afterOf = (g) => g && g.key ? whatifSign(D.whatif, g.key)?.after?.harm_share_after : null;
-    const bothLine = (g) => { const a = afterOf(g); return a == null || pct(a) === pct(g.harm_share_after) ? "" : `<div class="small muted efboth">${pct(g.harm_share_after)} as counted · <b>${pct(a)}</b> ${WI_IF} ${WI_LINK}</div>`; };
+    // by agent the signs already carry the agent-level numbers (g.tok is the token-level one); by token, the What-if recount is the second number
+    const afterOf = (g) => !g ? null : D.unit ? g.harm_share_after : g.key ? whatifSign(D.whatif, g.key)?.after?.harm_share_after : null;
+    const countedOf = (g) => (g?.tok ? g.tok.share : g?.harm_share_after);
+    const bothLine = (g) => {
+      if (D.unit) return g.tok ? `<div class="small muted efboth">by estimated agent ${estMark()} · counting tokens: ${esc(when(g.tok.t * 1000))}, ${pct(g.tok.share)} ${WI_LINK}</div>` : "";
+      const a = afterOf(g); return a == null || pct(a) === pct(g.harm_share_after) ? "" : `<div class="small muted efboth">${pct(g.harm_share_after)} as counted · <b>${pct(a)}</b> ${WI_IF} ${WI_LINK}</div>`; };
     const tile = (cls, title, g, sub) => `<div class="eftile ${cls}"><div class="eft">${title}</div>${g ? `<b>${esc(when(g.t * 1000))}</b><div class="small">${esc(g.name)}</div>
       ${g.harm_share_after != null ? `<div class="efm">${meter(g.harm_share_after, cls === "alert" ? HARM : cls === "watch" ? "#d39b2c" : BASE, 120)} <b>${pct(g.harm_share_after)}</b> <span class="muted small">harm still to come</span></div>${bothLine(g)}` : ""}` : `<b>never</b><div class="small muted">${sub}</div>`}</div>`;
     const ahead = lead(r.alert, r.baseline);
     host.innerHTML = `
-      <p class="lead">${firstJoint ? `The first sign of actors working together, <b>${esc(firstJoint.name.toLowerCase())}</b>, fired ${esc(when(firstJoint.t * 1000))} with ${bothShares(firstJoint.harm_share_after, afterOf(firstJoint), { what: "of the timed harm still to come" })}. ${WI_LINK}` : "No sign of actors working together fired."}
+      <p class="lead">${firstJoint ? `The first sign of ${D.unit ? "agents" : "actors"} working together, <b>${esc(firstJoint.name.toLowerCase())}</b>, fired ${esc(when(firstJoint.t * 1000))} with ${bothShares(countedOf(firstJoint), afterOf(firstJoint), { what: "of the timed harm still to come" })}${D.unit && !firstJoint.tok ? " " + estMark() : ""}. ${WI_LINK}` : `No sign of ${D.unit ? "agents" : "actors"} working together fired.`}
       ${r.alert ? ` With the rule below (alert once ${plural(ST.N, "kind")} of coordination ${ST.N === 1 ? "has" : "have"} shown), the tracer raises an alert at <b>${esc(when(r.alert.t * 1000))}</b> with <b>${pct(r.alert.harm_share_after)}</b> still to come${r.baseline ? (ahead > 0 ? `, ${hoursWord(ahead)} before ordinary volume monitoring fires (${pct(r.baseline.harm_share_after)} still to come)` : ahead < 0 ? `, ${hoursWord(-ahead)} after ordinary volume monitoring (${pct(r.baseline.harm_share_after)})` : ", the same hour as volume monitoring") : ""}.` : ` With the rule below the tracer never reaches an alert: fewer than ${ST.N} kinds of coordination showed.`}</p>
       <div class="eftiles">
         ${tile("watch", "Watch: first single-actor harm sign", r.watch, "no harmful action of a known kind")}
@@ -227,21 +257,21 @@
       ["harmful so far", fmt(D.cumHarm[i]), D.hasHarm ? `${pct(D.cumHarm[i] / sim.harm_total)} of ${fmt(sim.harm_total)}` : "none defined"],
       ["harm still to come", harmLeft != null ? pct(harmLeft) : "–", "after this hour"],
       ["actors seen", fmt(D.cumActors[i]), `${fmt(sim.active_actors[i])} active this hour`],
-      ["named messages", fmt(D.cumMsgs[i]), `on exact places; +${fmt(merged)} on merged places, +${fmt(anon)} with anonymous runs`],
-      ["sender-receiver pairs", fmt(D.pairs[i]), "between named actors"],
-      ["largest linked group", fmt(D.group[i]), "actors joined by messages"],
-      ["signs fired", `${fired.length}/${sigs.length}`, `${fired.filter((g) => g.family === "joint").length} of them about actors working together`],
+      [D.unit ? `messages between agents ${estMark()}` : "named messages", fmt(D.cumMsgs[i]), `${D.unit ? `${fmt(D.unit.inside)} more inside one agent, not counted; ` : ""}on exact places; +${fmt(merged)} on merged places, +${fmt(anon)} with anonymous runs`],
+      ["sender-receiver pairs", fmt(D.pairs[i]), D.unit ? "between estimated agents" : "between named actors"],
+      ["largest linked group", fmt(D.group[i]), D.unit ? "estimated agents joined by messages" : "actors joined by messages"],
+      ["signs fired", `${fired.length}/${sigs.length}`, `${fired.filter((g) => g.family === "joint").length} of them about ${D.unit ? "agents" : "actors"} working together`],
     ].map(([l, v, sub]) => kpi(l, v, esc(sub))).join("");
     const rec = $("efReconcile");
     if (rec) {
       const all = D.named.length + D.mergedNamed.length;
-      rec.innerHTML = `The replay counts messages between named actors on exact places, the same set the warning signs use: by the end ${fmt(D.named.length)} of ${fmt(all)} messages and ${fmt(D.pairs[n - 1])} of ${fmt(D.allPairs)} sender-receiver pairs (Who talked to whom counts all ${fmt(all)} and ${fmt(D.allPairs)}). The other ${fmt(D.mergedNamed.length)} are on ${term("merged", "places the redaction may have merged")}; What's missing counts ${fmt(D.mergedAll)} such messages because it includes those with anonymous runs. Grey dots in the network are actors that have not yet exchanged a message.`;
+      rec.innerHTML = `The replay counts messages between ${D.unit ? "estimated agents" : "named actors"} on exact places, the same set the warning signs use: by the end ${fmt(D.named.length)} of ${fmt(all)} messages and ${fmt(D.pairs[n - 1])} of ${fmt(D.allPairs)} sender-receiver pairs (Who talked to whom counts all ${fmt(all)} and ${fmt(D.allPairs)}). The other ${fmt(D.mergedNamed.length)} are on ${term("merged", "places the redaction may have merged")}; What's missing counts ${fmt(D.mergedAll)} such messages because it includes those with anonymous runs. Grey dots in the network are actors that have not yet exchanged a message.`;
     }
     // signal board
     $("efBoard").innerHTML = sigs.map((g) => {
       const on = g.t < now, c = FAMILY[g.family]?.color || SINGLE;
       return `<div class="efsig${on ? " on" : ""}" data-t="${g.t}"><span class="efnum" style="${on ? `background:${c};color:#fff` : `border-color:${c};color:${c}`}">${g.num}</span>
-        <div class="efsm"><div class="efsn">${esc(g.name)}</div><div class="small muted">${esc(when(g.t * 1000))} · ${esc(KIND[g.kind] || g.kind)}${g.harm_share_after != null ? ` · ${pct(g.harm_share_after)} still to come` : ""}</div></div></div>`;
+        <div class="efsm"><div class="efsn">${esc(g.name)}</div><div class="small muted">${esc(when(g.t * 1000))} · ${esc(KIND[g.kind] || g.kind)}${g.harm_share_after != null ? ` · ${pct(g.harm_share_after)} still to come` : ""}${g.tok ? ` ${estMark()}<div class="eftok">counting tokens: ${esc(when(g.tok.t * 1000))} · ${pct(g.tok.share)}</div>` : ""}</div></div></div>`;
     }).join("") || '<p class="muted small">No warning sign fired.</p>';
     $("efBoard").querySelectorAll(".efsig").forEach((d) => d.addEventListener("click", () => { stop(); ST.i = Math.min(n - 1, Math.max(0, Math.floor((+d.dataset.t - sim.start_t) / HR))); update(); }));
     const onb = $("efBoard").querySelectorAll(".efsig.on");
@@ -542,8 +572,8 @@
     host.innerHTML = table(["#", "signal", "first fired", "harm still to come", "record", "why it counts", "your decision"], sigs.map((g) => [
       `<span class="efnum sm" style="background:${FAMILY[g.family]?.color};color:#fff">${g.num}</span>`,
       `<b>${esc(g.name)}</b><div class="small muted">${esc(FAMILY[g.family]?.label || g.family)} · ${esc(KIND[g.kind] || g.kind)}</div>${(g.actors || []).length ? `<div class="chips">${g.actors.filter((a) => a && !/ carried /.test(a)).slice(0, 3).map((a) => ent.actor(a)).join(" ")}</div>` : ""}`,
-      `<span class="nowrap">${esc(when(g.t * 1000))}</span>`,
-      g.harm_share_after != null ? `<span class="nowrap">${meter(g.harm_share_after, FAMILY[g.family]?.color, 46)} ${pct(g.harm_share_after)}</span>` : "–",
+      `<span class="nowrap">${esc(when(g.t * 1000))}</span>${g.tok ? ` ${estMark()}<div class="small muted nowrap">tokens: ${esc(when(g.tok.t * 1000))}</div>` : ""}`,
+      (g.harm_share_after != null ? `<span class="nowrap">${meter(g.harm_share_after, FAMILY[g.family]?.color, 46)} ${pct(g.harm_share_after)}</span>` : "–") + (g.tok ? `<div class="small muted nowrap">tokens: ${pct(g.tok.share)}</div>` : ""),
       refChip(g), `<span class="small">${esc(plain(g.why))}${g.kind === "token" ? `. <span class="muted">${esc(TOKEN_NOTE)}</span>` : ""}</span>`,
       g.key && window.decCtl ? decCtl("sign", g.key) : ""]));
   }

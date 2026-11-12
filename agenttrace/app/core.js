@@ -10,7 +10,8 @@ const short = (a) => String(a ?? "").replace(/\[CREDENTIAL (\d+)\]/g, "cred $1")
 const plural = (n, w, ws) => `${fmt(n)} ${n === 1 ? w : (ws || w + "s")}`;
 const human = (s) => String(s ?? "").replace(/_/g, " ");
 const VIEWS = {};
-const S = { summary: null, tab: "overview", selected: null, chat: [], cache: new Map(),
+const S = { summary: null, tab: "trace", selected: null, chat: [], cache: new Map(),
+  unit: "agent", units: null,     // what the app counts by: "agent" (estimated agents, the default) or "token"; units: GET /api/x/units_map
   ev: { q: "", kind: "", intent: "", tag: "", actor: "", hour: "", channels: false, offset: 0 } };
 
 async function api(path, opts) {
@@ -115,6 +116,8 @@ const ent = {
   actor: (a, extra = "") => a ? `<span class="ent actor${String(a).startsWith("run:") ? " run" : ""}" data-actor="${esc(a)}"><i></i>${esc(short(a))}${xtra(extra)}</span>` : "–",
   place: (ch, extra = "") => ch ? `<span class="ent place" data-place="${esc(ch)}" title="${esc(ch)}"><i></i>${esc(placeLabel(ch))}${xtra(extra)}</span>` : "–",
   rec: (id, extra = "") => id ? `<span class="ent rec" data-id="${esc(id)}">${esc(id)}${xtra(extra)}</span>` : "–",
+  // an estimated agent: a chip that opens a card of its tokens; a token no merge touches is drawn as the actor it is
+  agent: (id, extra = "") => { const g = agentInfo(id); return !id ? "–" : !g ? ent.actor(id, extra) : `<span class="ent agent" data-agent="${esc(g.id)}" title="${esc(`${g.label}: ${UNIT_TIP}`)}"><i></i>${esc(g.name)}<em>${fmt(g.tokens.length)}</em>${xtra(extra)}</span>`; },
   intent: (k) => k ? `<span class="pill" style="--c:${intentColor(k)}" title="${esc(intentName(k))}"><i></i>${esc(human(k))}</span>` : "",
 };
 const idlink = (id) => ent.rec(id);
@@ -129,6 +132,79 @@ function placeLabel(ch) {
 const PLACE_TYPES = { hf_dataset: ["Hugging Face dataset", "Hugging Face datasets"], board: ["board folder (registry mailbox)", "board folders (registry mailbox)"],
   webhook: ["webhook", "webhooks"], command_file: ["command file", "command files"], page: ["wiki page", "wiki pages"], thread: ["thread", "threads"], talk: ["talk page", "talk pages"] };
 const placeType = (t, n = 1) => (PLACE_TYPES[t] ? PLACE_TYPES[t][n === 1 ? 0 : 1] : human(t) + (n === 1 ? "" : "s"));
+
+// ------------------------------------------------------------------ units: count by estimated agent (default) or by token
+// A token is not an agent. S.units (GET /api/x/units_map) maps each merged token to its estimated agent, by the
+// same rule as What-if "estimate" and honouring the Agents tab's decisions. Views read S.unit and these helpers.
+const UNIT_TIP = "estimated agents: tokens merged on direct evidence; change in Agents";
+const UNIT_NONE = "no tokens are merged in this trace";
+try { const u = localStorage.getItem("st.unit"); if (u === "agent" || u === "token") S.unit = u; } catch { /* storage may be blocked */ }
+const byAgent = () => S.unit === "agent";
+const hasMerges = () => !!(S.units && S.units.agent_list && S.units.agent_list.length);
+const agentOf = (a) => (S.units?.of && S.units.of[a]) || a;              // the agent a token is counted as; itself if unmerged
+const unitOf = (a) => (byAgent() ? agentOf(a) : a);                       // the same, only while counting by agent
+const agentInfo = (id) => S.units?.byId?.get(agentOf(id)) || null;        // {id, name, label, tokens, records, confidence} of a merged agent
+const agentName = (id) => { const g = agentInfo(id); return g ? g.name : short(id); };
+const agentLabel = (id) => { const g = agentInfo(id); return g ? g.label : short(id); };   // "Agent A · 7 tokens"
+const unitName = (a) => (byAgent() ? agentName(a) : short(a));
+const unitChip = (a, extra = "") => (byAgent() ? ent.agent(agentOf(a), extra) : ent.actor(a, extra));
+// the small marker every agent-level number carries
+const estMark = () => `<span class="est" tabindex="0" title="${esc(hasMerges() || !S.units ? UNIT_TIP : UNIT_NONE)}">est.</span>`;
+const unitWord = (n = 2) => (byAgent() ? (n === 1 ? "estimated agent" : "estimated agents") : (n === 1 ? "named actor" : "named actors"));
+let UNITS_P = Promise.resolve();
+function loadUnits() {
+  UNITS_P = api("/api/x/units_map").then((u) => { u.byId = new Map((u.agent_list || []).map((g) => [g.id, g])); S.units = u; })
+    .catch(() => { S.units = null; })
+    .then(() => { document.dispatchEvent(new CustomEvent("unitchange", { detail: { unit: S.unit, map: true } })); });
+  return UNITS_P;
+}
+// the recount by agent, with the as-counted numbers alongside (one request serves both units)
+const unitSummary = () => cached("/api/x/units_summary?unit=agent").catch(() => null);
+// after a merge decision: the mapping and every agent-level count are stale
+function reloadUnits() {
+  [...S.cache.keys()].filter((k) => k.startsWith("/api/x/units_")).forEach((k) => S.cache.delete(k));
+  return loadUnits().then(() => { if (S.summary) drawRibbon(S.summary); document.dispatchEvent(new CustomEvent("unitchange", { detail: { unit: S.unit, reload: true } })); });
+}
+function setUnit(u) {
+  if (u !== "agent" && u !== "token") return;
+  const same = u === S.unit;
+  S.unit = u;
+  try { localStorage.setItem("st.unit", u); } catch { /* not saved */ }
+  document.dispatchEvent(new CustomEvent("unitchange", { detail: { unit: u } }));
+  if (same || !S.summary) return;
+  drawRibbon(S.summary);
+  closeAgentCard();
+  render();
+}
+// the card behind an agent chip: its tokens, how sure the weakest merge is, and the way to the evidence
+function closeAgentCard() { const c = $("agentcard"); if (c) c.hidden = true; }
+function openAgentCard(id, x, y) {
+  const g = agentInfo(id);
+  if (!g) return;
+  let c = $("agentcard");
+  if (!c) { c = document.createElement("div"); c.id = "agentcard"; c.className = "agentcard"; c.setAttribute("role", "dialog"); document.body.appendChild(c); }
+  c.setAttribute("aria-label", g.label);
+  const wk = g.weakest;
+  c.innerHTML = `<div class="ach"><b>${esc(g.name)}</b><span class="muted">${plural(g.tokens.length, "token")} · ${plural(g.records, "record")}</span><button type="button" class="link" data-agentclose aria-label="Close">×</button></div>
+    <p class="small muted">An estimated agent: these tokens and names are counted as one because the records give direct evidence that one agent holds them. Counted under ${esc(short(g.id))}, its busiest token.</p>
+    <div class="actoks">${g.tokens.map((t) => ent.actor(t)).join(" ")}</div>
+    <p class="small">Weakest merge: <b>${esc(g.confidence || "–")}</b>${wk ? ` <span class="muted">(${esc(short(wk.a))} + ${esc(short(wk.b))}${wk.score ? `, ${fmt(wk.score)} points` : ""}${wk.decision === "accept" ? ", accepted by the investigator" : ""})</span>` : ""}</p>
+    <button type="button" class="link" data-goagents>See the evidence in Agents →</button>`;
+  c.hidden = false;
+  const r = c.getBoundingClientRect();
+  c.style.left = Math.max(8, Math.min(innerWidth - r.width - 8, x + 10)) + "px";
+  c.style.top = Math.max(8, Math.min(innerHeight - r.height - 8, y + 12)) + "px";
+}
+document.addEventListener("click", (e) => {
+  const sw = e.target.closest("[data-setunit]");
+  if (sw) { e.preventDefault(); setUnit(sw.dataset.setunit); return; }
+  if (e.target.closest("[data-agentclose]")) { closeAgentCard(); return; }
+  if (e.target.closest("[data-goagents]")) { closeAgentCard(); goTab("agents"); return; }
+  const a = e.target.closest("[data-agent]");
+  if (a) { openAgentCard(a.dataset.agent, e.clientX, e.clientY); return; }
+  if (!e.target.closest("#agentcard")) closeAgentCard();
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAgentCard(); });
 
 // ------------------------------------------------------------------ small charts (HTML or SVG strings)
 // sparkline of [[isoHour, n], ...] across [t0, t1]; mark = time to highlight
@@ -659,6 +735,7 @@ function goEvents(filters) {
   Object.assign(S.ev, { q: "", kind: "", intent: "", tag: "", actor: "", hour: "", channels: false }, filters, { offset: 0 });
   goTab("events");
 }
+let RENDER_SEQ = 0;
 function render() {
   const el = $("left");
   if (!S.summary) return;
@@ -667,7 +744,8 @@ function render() {
   el.scrollTop = 0;
   if (!f) { el.innerHTML = `<p class="warn">No view named ${esc(S.tab)}.</p>`; return; }
   const back = S.scroll?.[S.tab];
-  Promise.resolve(f(el, S.summary)).then(() => { if (back) setTimeout(() => { if ($("left").scrollHeight > back) $("left").scrollTop = back; }, 400); })
+  const my = ++RENDER_SEQ;      // the unit map loads once per dataset; a view is drawn after it, and only the latest request draws
+  UNITS_P.then(() => (my === RENDER_SEQ ? f(el, S.summary) : null)).then(() => { if (back) setTimeout(() => { if ($("left").scrollHeight > back) $("left").scrollTop = back; }, 400); })
     .catch((e) => { el.insertAdjacentHTML("beforeend", `<p class="warn">${esc(e.message)}</p>`); console.error(e); });
 }
 function tabCounts(s) {
@@ -693,6 +771,22 @@ function tabCounts(s) {
 }
 
 // ------------------------------------------------------------------ top bar
+// the ribbon's headline counts: by estimated agent (with the token counts beside them) or by token
+function drawRibbon(s) {
+  const sp = s.time_test?.span, u = S.units, agent = byAgent() && u;
+  const named = s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0);
+  $("ribbon").innerHTML = [
+    sp ? [term("dated", "span"), (() => { const a = toTime(sp[0]), b = toTime(sp[1]); const da = dayWord(a), db = dayWord(b); return da.split(" ")[0] === db.split(" ")[0] ? `${da}–${db.split(" ")[1]}` : `${da}–${db}`; })()] : null,
+    [term("dated", "dated"), pct(s.timed / s.records)],
+    agent ? [`${term("agent", "estimated agents")} ${estMark()} <em class="ribsub">${u.no_merges ? UNIT_NONE : `(${fmt(u.tokens)} tokens)`}</em>`, fmt(u.agents)]
+      : [`${term("named", "named actors")}${s.identities_total != null && s.actions?.named_actors != null && s.identities_total !== s.actions.named_actors ? ` <em class="ribsub">of ${fmt(s.identities_total)} identities seen</em>` : ""}`, fmt(named)],
+    [term("place", "places"), fmt(s.flow.channels)],
+    agent ? [`${term("message", u.messages.agent === 1 ? "message between agents" : "messages between agents")} ${estMark()} <em class="ribsub">${u.no_merges ? "the same counting tokens" : `(${fmt(u.messages.token)} between tokens; ${fmt(u.messages.inside_one_agent)} inside one agent)`}</em>`, fmt(u.messages.agent)]
+      : s.flow.deliveries_between_named_actors != null && s.flow.deliveries_between_named_actors !== s.flow.deliveries
+        ? [`${term("message", "named messages")} <em class="ribsub">${fmt(s.flow.deliveries)} incl. anonymous runs</em>`, fmt(s.flow.deliveries_between_named_actors)]
+        : [term("message", "messages"), fmt(s.flow.deliveries)],
+  ].map((x, i) => (x ? `<span class="rb${i === 2 || i === 4 ? " rbkey" : ""}"><b>${x[1]}</b>${x[0]}</span>` : "")).join("");
+}
 function status(t, bad) { const el = $("status"); el.textContent = t || ""; el.className = "status" + (bad ? " bad" : t ? " busy" : ""); }
 function setSummary(s) {
   S.summary = s;
@@ -704,15 +798,8 @@ function setSummary(s) {
   S.ev = { q: "", kind: "", intent: "", tag: "", actor: "", hour: "", channels: false, offset: 0 };
   const sp = s.time_test?.span;
   $("dsname").innerHTML = `<b title="${esc(s.name)}">${esc(s.name)}</b><span title="${esc(`${fmt(s.records)} records · pack: ${s.pack}${s.pack_choice ? " (picked automatically: " + s.pack_choice.why + ")" : ""}`)}">${fmt(s.records)} records · ${esc(s.pack)}${s.pack_choice ? " (auto)" : ""}</span>`;
-  $("ribbon").innerHTML = [
-    sp ? [term("dated", "span"), (() => { const a = toTime(sp[0]), b = toTime(sp[1]); const da = dayWord(a), db = dayWord(b); return da.split(" ")[0] === db.split(" ")[0] ? `${da}–${db.split(" ")[1]}` : `${da}–${db}`; })()] : null,
-    [term("dated", "dated"), pct(s.timed / s.records)],
-    [`${term("named", "named actors")}${s.identities_total != null && s.actions?.named_actors != null && s.identities_total !== s.actions.named_actors ? ` <em class="ribsub">of ${fmt(s.identities_total)} identities seen</em>` : ""}`, fmt(s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((a, [, v]) => a + v, 0))],
-    [term("place", "places"), fmt(s.flow.channels)],
-    s.flow.deliveries_between_named_actors != null && s.flow.deliveries_between_named_actors !== s.flow.deliveries
-      ? [`${term("message", "named messages")} <em class="ribsub">${fmt(s.flow.deliveries)} incl. anonymous runs</em>`, fmt(s.flow.deliveries_between_named_actors)]
-      : [term("message", "messages"), fmt(s.flow.deliveries)],
-  ].filter(Boolean).map(([k, v]) => `<span><b>${v}</b>${k}</span>`).join("");
+  loadUnits().then(() => { if (S.summary === s) drawRibbon(s); });
+  drawRibbon(s);
   $("loadpanel").hidden = true;
   tabCounts(s);
   render();
@@ -813,7 +900,7 @@ $("upload").addEventListener("submit", async (ev) => {
   finally { $("analyze").disabled = false; }
 });
 
-// deep links: #tab=early&hour=2026-07-11T06&rec=R0006786&actor=...&place=...&scroll=600&ai=wide
+// deep links: #tab=early&hour=2026-07-11T06&rec=R0006786&actor=...&place=...&scroll=600&ai=wide&unit=token
 // open a view, a record, an actor or a place straight from the address (also used to capture figures)
 // Forensics › What-if: the deep link #tab=forensics&fx=whatif, honoured even when the tab was visited before
 let FX_WANT = null;
@@ -824,16 +911,31 @@ document.addEventListener("click", (e) => { if (e.target.closest("[data-gowhatif
 // GET /api/x/fx_whatif?rule=estimate (never hard-coded). One line; a single number when the merges change nothing.
 function whatifEstimate() { return api("/api/x/fx_whatif?rule=estimate").catch(() => null); }
 function whatifSign(w, key) { return (w?.signs || []).find((g) => g.key === key) || null; }
+// one warning sign in the current unit: {t, time, share, record} to lead with, the token-level {t, share} when it
+// differs (tok), and gone: true when the sign does not fire once tokens are merged. g is a /api/sim signal.
+function unitSign(w, g) {
+  const tokenLevel = { t: g.t, time: g.time, share: g.harm_share_after, record: g.record, tok: null, gone: false };
+  const x = byAgent() && g.key ? whatifSign(w, g.key) : null;
+  if (!x || x.status === "unchanged" || x.status === "rejected") return tokenLevel;
+  if (!x.after) return { ...tokenLevel, gone: true };
+  const t = toTime(x.after.time);
+  return { t: t == null ? g.t : t / 1000, time: x.after.time, share: x.after.harm_share_after, record: x.after.record || g.record, why: x.after.why,
+    tok: { t: g.t, time: g.time, share: g.harm_share_after }, gone: false };
+}
 const WI_IF = "if the high-confidence identity merges are one agent";
 const WI_LINK = '<button type="button" class="link small" data-gowhatif>See the recount →</button>';
+// Counting by estimated agent (the default) the agent-level number leads and the token-level one follows;
+// counting by token it is the other way round, as before.
 function bothShares(asCounted, after, { what = "of the harm still to come" } = {}) {
   if (asCounted == null) return "";
   const same = after == null || pct(after) === pct(asCounted);
+  if (byAgent()) return `<b>${pct(same ? asCounted : after)}</b> ${what}${same ? "" : ` by estimated agent ${estMark()} · ${pct(asCounted)} counting tokens`}`;
   return `<b>${pct(asCounted)}</b> ${what}${same ? "" : ` as counted · <b>${pct(after)}</b> ${WI_IF}`}`;
 }
 function bothSharesText(asCounted, after) {
   if (asCounted == null) return "";
   const same = after == null || pct(after) === pct(asCounted);
+  if (byAgent()) return same ? pct(asCounted) : `${pct(after)} by estimated agent, ${pct(asCounted)} counting tokens`;
   return same ? pct(asCounted) : `${pct(asCounted)} as counted, ${pct(after)} ${WI_IF}`;
 }
 
@@ -843,6 +945,7 @@ function deepLink() {
 function openDeepLink() {
   const d = deepLink();
   if (d.ai === "wide") document.body.classList.add("aiwide");
+  if (d.unit === "agent" || d.unit === "token") setUnit(d.unit);     // #unit=token: count by tokens (also used to capture figures)
   if (d.a && d.b) { S.conv = { a: d.a, b: d.b }; if (!d.tab) d.tab = "network"; }   // a conversation link
   if (d.tab === "live") $("livebtn")?.click();                       // the Live drawer is not a tab
   else if (d.tab && VIEWS[d.tab]) goTab(d.tab);

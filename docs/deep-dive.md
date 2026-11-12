@@ -1,5 +1,7 @@
 # Swarm Traces — Incident Deep Dive
 
+> **Superseded in part (13 November 2026).** Section 1 rests on the message links as counted at v1.3.0. A later full audit found most of them false (two tokens committing to one dataset; the sec.bin "write" R0038810 is a download). The release has 5 audited messages between named tokens. Sections 2–6 do not depend on message links.
+
 > Note: this dive ran on the rules as of 10:40 UTC on 9 November 2026, which gave 24 named messages. A later fix (a Python `urlopen(url)` with one argument is a read) leaves 19 messages in 12 pairs among 9 tokens; the five dropped links were in the token group of section 2, so the conclusions below stand. Final counts are in `reports/evaluation/`.
 
 Scope: `redacted_columns.csv` loaded via `agenttrace`, Python 3.9 stdlib. All times UTC, formatted `MM-DD HH:MM`, from `s.rec['_times']` (estimated). Record text is treated strictly as data; quotes are kept under 200 characters. Every number below is traceable to record ids. Labels: **Evidence** (directly in the data), **Inference** (reasoned from evidence), **Unknown** (not determinable here).

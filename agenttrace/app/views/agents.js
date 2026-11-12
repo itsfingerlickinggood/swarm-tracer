@@ -25,6 +25,7 @@
     const host = $("agw");
     if (!host || S.tab !== "agents") return;
     host.innerHTML = `
+      <div id="agunit"></div>
       <div id="agest"></div>
       ${card(`${term("merge_proposal", "Merge proposals")}`, '<div id="agbar"></div><div id="agprops"></div>',
         { sub: `Pairs of named actors that may be one agent, highest score first. Every point comes from evidence counted in the records (the record chips open them); evidence against is subtracted. Accept or reject a pair to change the estimate; decisions stay for this dataset.`, right: '<button class="link" id="agrules">How the score is counted</button>' })}
@@ -39,6 +40,7 @@
     let cur = idr;
     const draw = (r) => { cur = r; estimate(r, ctxR.context, s); proposals(r); groups(r); names(r); };
     draw(idr);
+    unitBanner();
     whyNot(idr, roles);
     rules(idr, roles);
     roleView(roles);
@@ -52,11 +54,26 @@
         const r = await api("/api/x/identity_decide", { method: "POST", body: JSON.stringify({ a: b.dataset.a, b: b.dataset.b, decision: b.dataset.dec }) });
         const before = cur.estimate, after = r.estimate;
         draw(await api("/api/x/identity"));
+        await reloadUnits();      // the decision changes which tokens are one agent: the top bar and every tab recount
+        unitBanner();
         const wi = await api("/api/x/fx_whatif?rule=accepted").catch(() => null);
         status(`${{ accept: "Accepted as one agent", reject: "Rejected: two agents", clear: "Decision undone" }[b.dataset.dec] || "Saved"} · recount: ${fmt(before?.estimated_agents)} → ${fmt(after?.estimated_agents)} estimated agents${wi ? `, ${fmt(wi.as_counted.messages)} → ${fmt(wi.after.messages)} messages with only accepted merges` : ""}. Decisions are saved on this server for this dataset and seen by everyone using it.`);
         setTimeout(() => status(""), 8000);
       } catch (err) { status(err.message, true); b.disabled = false; }
     });
+  }
+
+  // what the app is counting by, what that changes, and the switch
+  function unitBanner() {
+    const host = $("agunit"), u = S.units;
+    if (!host) return;
+    if (!u) { host.innerHTML = ""; return; }
+    const m = u.messages, sw = (unit, label) => `<button type="button" class="link" data-setunit="${unit}">${label}</button>`;
+    const changes = u.no_merges ? `${esc(UNIT_NONE)}: no merge proposal is high-confidence or accepted, so both ways of counting give the same numbers (${fmt(u.tokens)} named actors, ${plural(m.token, "message")}). Accept a proposal below to merge two tokens.`
+      : `${plural(u.merges, "merge")} join ${fmt(u.merged_tokens)} tokens into ${plural(u.merged_agents, "agent")} (${u.agent_list.slice(0, 6).map((g) => ent.agent(g.id)).join(" ")}${u.agent_list.length > 6 ? " …" : ""}), so ${fmt(u.tokens)} tokens count as <b>${fmt(u.agents)}</b> estimated agents. Of ${plural(m.token, "message")} between tokens, <b>${fmt(m.inside_one_agent)}</b> pass inside one agent and <b>${fmt(m.agent)}</b> between two agents${m.rejected ? ` (${fmt(m.rejected)} rejected in What-if)` : ""}; warning signs that only join tokens of one agent move later or do not fire.`;
+    host.innerHTML = byAgent()
+      ? `<div class="unitnote agunit"><b>The app is counting by estimated agents</b> ${estMark()} in every tab. ${changes} Accepting or rejecting a proposal below changes these counts everywhere. ${sw("token", "Count by tokens instead")}</div>`
+      : `<div class="unitnote token agunit"><b>The app is counting by tokens</b>: each token or name is treated as its own actor. ${u.no_merges ? changes : `Counting by estimated agents would use: ${changes}`} ${sw("agent", "Count by estimated agents")}</div>`;
   }
 
   function estimate(r, ctx, s) {

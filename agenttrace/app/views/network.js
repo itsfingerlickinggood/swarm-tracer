@@ -10,8 +10,16 @@ const ROLES = [
   { label: "sends and receives", fill: ACCENT },
   { label: "only receives", fill: "#8f9aa6" },
 ];
+ROLES.push({ label: "only messages inside itself", fill: "#2a9187" });
+const AGENT = "#0f766e";    // estimated agents that hold several tokens: a teal ring, as on their chips
+// counting by estimated agent: ids in the graph are agent ids (a merged agent is named "Agent A"); by token they are the tokens
+const merged = (id) => (byAgent() ? agentInfo(id) : null);
+const nameOf = (id) => (merged(id) ? agentName(id) : short(id));
+const chipOf = (id) => (merged(id) ? ent.agent(id) : ent.actor(id));
+const nidAttr = (id) => (merged(id) ? `data-agent="${esc(id)}"` : `data-actor="${esc(id)}"`);
+const WHO = (n = 2) => unitWord(n);
 const RUN_FILL = "#ffffff", RUN_STROKE = "#9aa5b1", RUN_EDGE = "#aab3bc";   // anonymous runs: hollow, so they never read as "only receives"
-const NW = { mode: "named", T: null, F: null, playing: false, raf: 0, noMerged: false, mergedByPair: new Map(), colour: "role", focus: null, hops: 1, clickFocus: false };   // kept across redraws and tab switches
+const NW = { mode: "named", T: null, F: null, playing: false, raf: 0, noMerged: false, mergedByPair: new Map(), tp: new Map(), rows: null, colour: "role", focus: null, hops: 1, clickFocus: false };   // kept across redraws and tab switches
 const MERGED_TIP = "On a place the redaction may have merged: it kept only the owner's name, so the write and the read may be on two different repositories.";
 const CAP_LABELS = 70, CAP_MATRIX = 60;
 
@@ -21,14 +29,18 @@ function prepare(raw) {
   const msgs = raw.rows.map((r) => ({ from: r[ix.from], to: r[ix.to], ch: r[ix.channel], w: r[ix.write_id], r: r[ix.read_id],
     wt: r[ix.write_t], rt: r[ix.read_t], lat: r[ix.latency_h], how: r[ix.how] || "unknown", merged: !!r[ix.merged], est: ix.estimated != null && !!r[ix.estimated] }))
     .filter((m) => m.rt != null).sort((a, b) => a.rt - b.rt);
-  return { msgs, named: msgs.filter((m) => isNamed(m.from) && isNamed(m.to)) };
+  // by estimated agent: each token becomes its agent; a message between two tokens of one agent is kept apart
+  // (inside), since it is one agent reading its own writing, not a message between two
+  msgs.forEach((m) => { m.tf = m.from; m.tt = m.to; if (byAgent()) { m.from = agentOf(m.tf); m.to = agentOf(m.tt); } });
+  const cross = msgs.filter((m) => m.from !== m.to || m.tf === m.tt);
+  return { msgs: cross, named: cross.filter((m) => isNamed(m.from) && isNamed(m.to)), inside: msgs.filter((m) => m.from === m.to && m.tf !== m.tt) };
 }
 
-function buildGraph(msgs) {
+function buildGraph(msgs, inside = []) {
   const nodes = new Map(), edges = new Map();
   const node = (id) => {
     let n = nodes.get(id);
-    if (!n) { n = { id, named: isNamed(id), sent: 0, recv: 0, out: new Set(), inn: new Set(), first: Infinity, last: -Infinity, hours: new Map() }; nodes.set(id, n); }
+    if (!n) { n = { id, named: isNamed(id), sent: 0, recv: 0, inside: 0, itimes: [], itp: new Map(), out: new Set(), inn: new Set(), first: Infinity, last: -Infinity, hours: new Map() }; nodes.set(id, n); }
     return n;
   };
   for (const m of msgs) {
@@ -40,13 +52,20 @@ function buildGraph(msgs) {
     }
     const k = m.from + "\u0001" + m.to;
     let e = edges.get(k);
-    if (!e) { e = { a: m.from, b: m.to, n: 0, merged: 0, times: [], first: m.rt, ch: new Set(), key: k }; edges.set(k, e); }
-    e.n++; e.times.push(m.rt); e.ch.add(m.ch); if (m.merged) e.merged++;
+    if (!e) { e = { a: m.from, b: m.to, n: 0, merged: 0, times: [], first: m.rt, last: m.rt, ch: new Set(), tp: new Map(), key: k }; edges.set(k, e); }
+    e.n++; e.times.push(m.rt); e.ch.add(m.ch); if (m.merged) e.merged++; e.last = m.rt;
+    const tk = (m.tf ?? m.from) + "\u0001" + (m.tt ?? m.to); e.tp.set(tk, (e.tp.get(tk) || 0) + 1);
+  }
+  // messages inside one estimated agent: counted on its node, never drawn as an arrow
+  for (const m of inside) {
+    const x = node(m.from);
+    x.inside++; x.itimes.push(m.rt); { const h = isoHour(m.rt); x.hours.set(h, (x.hours.get(h) || 0) + 1); } x.first = Math.min(x.first, m.rt); x.last = Math.max(x.last, m.rt);
+    const tk = m.tf + "\u0001" + m.tt; x.itp.set(tk, (x.itp.get(tk) || 0) + 1);
   }
   for (const n of nodes.values()) {
-    n.total = n.sent + n.recv;
+    n.total = n.sent + n.recv + n.inside;
     n.partners = new Set([...n.out, ...n.inn]).size;
-    n.role = n.sent && n.recv ? 1 : n.sent ? 0 : 2;
+    n.role = n.sent && n.recv ? 1 : n.sent ? 0 : n.recv ? 2 : 3;
   }
   // groups: actors connected by any message, biggest first
   const root = new Map();
@@ -205,23 +224,30 @@ function exportSvg(host, title) {
 }
 
 // ------------------------------------------------------------------ findings
-function findings(G, all, named) {
+function findings(G, all, named, inside = []) {
   const N = [...G.nodes.values()];
   if (!N.length) return "";
   const cards = [];
-  const chip = (id) => ent.actor(id);
+  const chip = (id) => chipOf(id);
+  const est = byAgent() ? " " + estMark() : "";
+  if (byAgent() && hasMerges()) {
+    const top = N.filter((x) => x.inside).sort((a, b) => b.inside - a.inside)[0];
+    cards.push({ big: fmt(inside.length), unit: "messages inside one agent", title: "One agent, several tokens",
+      text: inside.length ? `Counting tokens these look like messages; counting estimated agents${est} they are one agent reading what it wrote under another of its tokens. ${top ? `Most: ${chip(top.id)}, ${fmt(top.inside)} between its ${fmt(agentInfo(top.id)?.tokens.length)} tokens.` : ""} They are shown as a loop on the agent, not as arrows.`
+        : `No message passes between two tokens of one estimated agent${est}: counting tokens gives the same graph.` });
+  }
   const more = (ids, k) => ids.slice(0, k).map(chip).join(" ") + (ids.length > k ? ` <span class="muted small">+${fmt(ids.length - k)} more</span>` : "");
   const hub = [...N].sort((a, b) => b.partners - a.partners || b.total - a.total)[0];
-  cards.push({ big: fmt(hub.partners), unit: "partners", title: "Biggest hub",
-    text: `${chip(hub.id)} exchanged messages with ${plural(hub.partners, "other named actor")}: sent ${fmt(hub.sent)} to them and received ${fmt(hub.recv)} from them.` });
+  if (hub.partners) cards.push({ big: fmt(hub.partners), unit: "partners", title: "Biggest hub",
+    text: `${chip(hub.id)} exchanged messages with ${plural(hub.partners, "other " + WHO(1))}: sent ${fmt(hub.sent)} to them and received ${fmt(hub.recv)} from them.` });
   const br = [...N].sort((a, b) => b.btw - a.btw)[0];
   if (br && br.btw > 0) {
     const parts = splitWithout(G, br.id);
     cards.push({ big: pct(br.btwShare), unit: "of routes", title: "Top " + term("broker", "broker"),
-      text: `${chip(br.id)} sits on the shortest chain of messages between ${pct(br.btwShare)} of the other pairs of named actors (direction ignored).${parts > 1 ? ` Without it, its ${term("group", "group")} falls into ${fmt(parts)} pieces.` : ` Its ${term("group", "group")} stays connected without it.`}` });
+      text: `${chip(br.id)} sits on the shortest chain of messages between ${pct(br.btwShare)} of the other pairs of ${WHO()} (direction ignored).${parts > 1 ? ` Without it, its ${term("group", "group")} falls into ${fmt(parts)} pieces.` : ` Its ${term("group", "group")} stays connected without it.`}` });
   }
   const g0 = G.groups[0];
-  cards.push({ big: fmt(g0.length), unit: `of ${fmt(N.length)} actors in messages`, title: "Largest " + term("group", "group"),
+  cards.push({ big: fmt(g0.length), unit: `of ${fmt(N.length)} ${byAgent() ? "agents" : "actors"} in messages`, title: "Largest " + term("group", "group"),
     text: `${G.groups.length === 1 ? `Every one of the ${fmt(N.length)} actors that exchanged messages is linked to every other through a chain of messages (in either direction).` : `The biggest of ${fmt(G.groups.length)} separate groups of actors linked by messages.`} Busiest members: ${more(g0, 4)}` });
   const two = [];
   for (const e of G.edges.values()) { const back = G.edges.get(e.b + "\u0001" + e.a); if (back && e.a < e.b) two.push([e, back]); }
@@ -247,9 +273,10 @@ function findings(G, all, named) {
 // Groups of four or more actors are laid out by a force model; small groups that only talk among
 // themselves (often pairs of anonymous runs) are lined up in a strip below, so they do not shrink the rest.
 function layout(G, W, H, radius, gap = 3) {
-  const big = G.groups.filter((g) => g.length >= 4);
+  const isBig = (g) => g.length >= 4 || g.some((id) => G.nodes.get(id).inside);   // an agent with messages inside itself carries a badge, so it is never squeezed into the strip
+  const big = G.groups.some((g) => g.length >= 4) ? G.groups.filter(isBig) : [];
   const major = big.length ? big : G.groups;
-  const minor = big.length ? G.groups.filter((g) => g.length < 4) : [];
+  const minor = big.length ? G.groups.filter((g) => !isBig(g)) : [];
   const out = new Map();
   // the strip of small groups
   let stripH = 0;
@@ -374,9 +401,10 @@ function drawGraph(host, G, mode, opts = {}) {
   if (!G.nodes.size) { host.innerHTML = '<p class="muted nw-empty">No messages to draw.</p>'; return null; }
   const W = Math.max(340, host.clientWidth || 720);
   const nNamed = [...G.nodes.values()].filter((x) => x.named).length;
-  const H0 = Math.round(mode === "all" ? Math.min(900, Math.max(500, W * 0.85)) : Math.min(720, Math.max(440, W * 0.8 + nNamed * 1.5)));
+  const H1 = Math.round(mode === "all" ? Math.min(900, Math.max(500, W * 0.85)) : Math.min(720, Math.max(440, W * 0.8 + nNamed * 1.5)));
+  const H0 = byAgent() && G.nodes.size <= 10 ? Math.min(H1, 220 + 22 * G.nodes.size) : H1;   // a handful of agents does not need the full canvas
   const maxT = Math.max(...[...G.nodes.values()].filter((x) => x.named).map((x) => x.total), 1);
-  const radius = (x) => (x.named ? 4 + 10 * Math.sqrt(x.total / maxT) : 2.6);
+  const radius = (x) => (x.named ? Math.max(merged(x.id) ? 8.5 : 0, 4 + 10 * Math.sqrt(x.total / maxT)) : 2.6);
   const lay = layout(G, W, H0, radius, mode === "named" && nNamed <= 200 ? 16 : 3), pos = lay.pos, H = lay.H;
   const maxE = Math.max(...[...G.edges.values()].map((e) => e.n), 1);
   const ew = (n) => (0.9 + 3.4 * Math.log1p(n) / Math.log1p(maxE)).toFixed(2);
@@ -404,7 +432,7 @@ function drawGraph(host, G, mode, opts = {}) {
     const x1 = a.x + (sx0 / sl) * (a.r + 1), y1 = a.y + (sy0 / sl) * (a.r + 1), x2 = b.x - (ex / el) * (b.r + 2.5), y2 = b.y - (ey / el) * (b.r + 2.5);
     const d = `M${x1.toFixed(1)},${y1.toFixed(1)} Q${mx.toFixed(1)},${my.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}`;
     const nm = isNamed(e.a) && isNamed(e.b);
-    const tip = `${short(e.a)} → ${short(e.b)}: ${plural(e.n, "message")} over ${plural(e.ch.size, "place")}, first ${when(e.first * 1000)}.` +
+    const tip = `${nameOf(e.a)} → ${nameOf(e.b)}: ${plural(e.n, "message")} over ${plural(e.ch.size, "place")}, first ${when(e.first * 1000)}.` +
       (e.merged ? ` ⚠ ${e.merged === e.n ? "All" : fmt(e.merged) + " of them"} on places the redaction may have merged (dashed line).` : "") + " Click for the whole conversation.";
     const tiny = len < 26;   // dots side by side in the strip: a plain link, no arrowhead
     edgeSvg.push(`<path class="edge${nm ? "" : " run"}" data-k="${esc(e.key)}" data-a="${esc(e.a)}" data-b="${esc(e.b)}" d="${tiny ? `M${a.x.toFixed(1)},${a.y.toFixed(1)} L${b.x.toFixed(1)},${b.y.toFixed(1)}` : d}" fill="none" stroke="${nm ? ACCENT : RUN_EDGE}" stroke-width="${tiny ? 1.4 : ew(e.n)}"${e.merged && e.merged === e.n ? ' stroke-dasharray="4 3"' : ""}${tiny ? "" : ` marker-end="url(#nwah${nm ? "n" : "r"})"`}><title>${esc(tip)}</title></path>`);
@@ -413,19 +441,33 @@ function drawGraph(host, G, mode, opts = {}) {
   if (lay.strip) svg += `<line x1="10" x2="${W - 10}" y1="${lay.strip.y + 4}" y2="${lay.strip.y + 4}" stroke="${GRID}"/><text x="10" y="${lay.strip.y + 16}" font-size="10.5" fill="${QUIET}">${plural(lay.strip.groups, "small group")} (${plural(lay.strip.actors, "actor")}) that only talk among themselves</text>`;
   svg += edgeSvg.join("");
   // dots: size is messages, colour is role; anonymous runs are small grey dots
-  const nodeSvg = [];
+  const nodeSvg = [], badges = [];
   for (const x of [...G.nodes.values()].sort((p, q) => p.total - q.total)) {
     const p = pos.get(x.id);
     const comm = opts.colour === "community" && x.comm;
     const fill = comm ? x.comm.color : x.named ? ROLES[x.role].fill : RUN_FILL;
     const ring = opts.focus === x.id ? ' stroke="#1b2430" stroke-width="2.6"' : ` stroke="${x.named || comm ? "#fff" : RUN_STROKE}" stroke-width="${x.named ? 1.5 : 1}"`;
+    const ag = merged(x.id);
+    if (ag) {
+      // an estimated agent holding several tokens: a teal ring with the token count; messages inside it as a loop with a count
+      let extra = `<circle class="nwhalo" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(p.r + 3.5).toFixed(1)}" fill="#fff" stroke="${AGENT}" stroke-width="2"/>`;
+      if (x.inside) {
+        const lx = p.x + (p.r + 7) * 0.72, ly = p.y - (p.r + 7) * 0.72, text = `${fmt(x.inside)} inside`, tw = textWidth(text, "600 10.5px -apple-system, system-ui, sans-serif") + 10;
+        extra = `<circle class="nwloop" cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="8" fill="none" stroke="${AGENT}" stroke-width="1.7"/>` + extra;
+        badges.push({ id: x.id, x: lx + 10, y: ly - 9, w: tw, h: 16, text });
+      }
+      nodeSvg.push(`<g class="node agent" data-agent="${esc(x.id)}" data-nid="${esc(x.id)}">${extra}<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${p.r.toFixed(1)}" fill="${fill}" stroke="#fff" stroke-width="1"/><text x="${p.x.toFixed(1)}" y="${(p.y + 3.4).toFixed(1)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff" pointer-events="none">${fmt(ag.tokens.length)}</text><title>${esc(`${ag.label}: ${plural(x.sent, "message")} sent to other agents, ${fmt(x.recv)} received, ${fmt(x.inside)} inside it (between its own tokens). ${UNIT_TIP}. Click for its tokens.`)}</title></g>`);
+      continue;
+    }
     nodeSvg.push(`<g class="node${x.named ? "" : " run"}" data-actor="${esc(x.id)}" data-nid="${esc(x.id)}"><circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${p.r.toFixed(1)}" fill="${fill}"${ring}/>${comm ? `<title>${esc(short(x.id))} · ${esc(x.comm.name)}</title>` : ""}</g>`);
   }
   svg += nodeSvg.join("");
+  svg += badges.map((b) => `<g class="nwinside" data-nid="${esc(b.id)}" data-agent="${esc(b.id)}"><rect x="${b.x.toFixed(1)}" y="${b.y.toFixed(1)}" width="${b.w.toFixed(1)}" height="${b.h}" rx="8" fill="#e0f2f1" stroke="#9fd4cd"/><text x="${(b.x + b.w / 2).toFixed(1)}" y="${(b.y + 11.5).toFixed(1)}" text-anchor="middle" font-size="10.5" font-weight="600" fill="#0b5a54">${esc(b.text)}</text><title>${esc(`${b.text} one estimated agent: messages between two of its own tokens, not drawn as arrows`)}</title></g>`).join("");
   // names of the named actors (busiest first when there are too many to name)
-  const toLabel = [...G.nodes.values()].filter((x) => x.named || opts.focus).sort((p, q) => (q.id === opts.focus) - (p.id === opts.focus) || q.total - p.total).slice(0, CAP_LABELS).map((x) => ({ id: x.id, text: short(x.id) }));
-  labelSpots(toLabel, pos, W, H, lay.strip ? [{ x: 0, y: lay.strip.y, w: W, h: 20 }] : []);
-  svg += toLabel.filter((l) => l.at).map((l) => `<text class="nwlab" data-nid="${esc(l.id)}" data-actor="${esc(l.id)}" x="${(l.at.x + 1).toFixed(1)}" y="${(l.at.y + 9.5).toFixed(1)}" font-size="11">${esc(l.text)}</text>`).join("");
+  const toLabel = [...G.nodes.values()].filter((x) => x.named || opts.focus).sort((p, q) => (q.id === opts.focus) - (p.id === opts.focus) || q.total - p.total).slice(0, CAP_LABELS).map((x) => ({ id: x.id, text: nameOf(x.id) }));
+  [...pos.entries()].forEach(([id, p]) => { if (merged(id)) p.r += 4; });      // labels keep clear of the ring
+  labelSpots(toLabel, pos, W, H, (lay.strip ? [{ x: 0, y: lay.strip.y, w: W, h: 20 }] : []).concat(badges.map((b) => ({ x: b.x - 18, y: b.y - 6, w: b.w + 18, h: b.h + 8 }))));
+  svg += toLabel.filter((l) => l.at).map((l) => `<text class="nwlab${merged(l.id) ? " agent" : ""}" data-nid="${esc(l.id)}" ${nidAttr(l.id)} x="${(l.at.x + 1).toFixed(1)}" y="${(l.at.y + 9.5).toFixed(1)}" font-size="11">${esc(l.text)}</text>`).join("");
   host.innerHTML = svg + "</svg>";
   const el = host.querySelector("svg");
   // hover: keep the chosen actor (or line) and what it touches, fade the rest
@@ -463,7 +505,17 @@ function applyTime(view, T, F = -Infinity) {
     p.classList.toggle("off", n === 0);
     if (n && p.classList.contains("edge")) { if (p.hasAttribute("marker-end")) p.setAttribute("stroke-width", (0.9 + 3.4 * Math.log1p(n) / Math.log1p(maxE)).toFixed(2)); active.add(e.a); active.add(e.b); }
   });
+  const insideNow = new Map();
+  for (const x of G.nodes.values()) {
+    if (!x.inside) continue;
+    let n = 0;
+    for (const t of x.itimes) if (t <= T && t >= F) n++;
+    insideNow.set(x.id, n);
+    if (n) active.add(x.id);
+  }
   el.querySelectorAll("[data-nid]").forEach((g) => g.classList.toggle("off", !active.has(g.dataset.nid)));
+  el.querySelectorAll("g.nwinside").forEach((g) => { const n = insideNow.get(g.dataset.nid) || 0; g.classList.toggle("off", !n); g.querySelector("text").textContent = `${fmt(n)} inside`; });
+  el.querySelectorAll("g.node.agent").forEach((g) => { const lp = g.querySelector(".nwloop"); if (lp) lp.style.display = insideNow.get(g.dataset.nid) ? "" : "none"; });
 }
 
 function scrubStats(msgs, T, F = -Infinity) {
@@ -494,13 +546,13 @@ function histogram(msgs, t0, t1) {
 // ------------------------------------------------------------------ the matrix of every sender and receiver
 function drawMatrix(host, G) {
   const all = [...G.nodes.values()].filter((x) => x.named);
-  if (!all.length) { host.innerHTML = '<p class="muted">No messages between named actors.</p>'; return; }
   const order = (a, b) => a.group - b.group || b.total - a.total || (a.id < b.id ? -1 : 1);
   const senders = all.filter((x) => x.sent).sort(order), receivers = all.filter((x) => x.recv).sort(order);
+  if (!senders.length || !receivers.length) { host.innerHTML = `<p class="muted">No messages between ${WHO()}.</p>`; return; }
   const rows = senders.slice(0, CAP_MATRIX), cols = receivers.slice(0, CAP_MATRIX);
   const R = rows.length, N = cols.length, W = Math.max(360, host.clientWidth || 720);
   const font = "11px -apple-system, system-ui, sans-serif";
-  const rn = rows.map((x) => short(x.id)), cn = cols.map((x) => short(x.id));
+  const rn = rows.map((x) => nameOf(x.id)), cn = cols.map((x) => nameOf(x.id));
   const labW = Math.min(150, Math.max(...rn.map((t) => textWidth(t, font))) + 14);
   const totW = 56;
   const cs = Math.max(9, Math.min(22, Math.floor((W - labW - totW - 10) / N)));
@@ -509,6 +561,7 @@ function drawMatrix(host, G) {
   const recvNums = cs >= 11;
   const gx = labW, gy = topH, Wd = gx + cs * N + totW, Hd = gy + cs * R + 34 + (recvNums ? 14 : 0);
   let mx = 1;
+  const showNum = cs >= 15;
   const cell = (a, b) => G.edges.get(a + "\u0001" + b);
   rows.forEach((r) => cols.forEach((c) => { const e = cell(r.id, c.id); if (e) mx = Math.max(mx, e.n); }));
   const shade = (n) => { const t = Math.log1p(n) / Math.log1p(mx); const lerp = (a, b) => Math.round(a + (b - a) * t); return `rgb(${lerp(206, 23)},${lerp(223, 70)},${lerp(242, 128)})`; };
@@ -517,21 +570,20 @@ function drawMatrix(host, G) {
   for (let i = 1; i < R; i++) svg += `<line x1="${gx}" x2="${gx + cs * N}" y1="${gy + i * cs}" y2="${gy + i * cs}" stroke="${rows[i].group !== rows[i - 1].group ? "#9aa5b1" : "#f0f2f5"}"${rows[i].group !== rows[i - 1].group ? ' stroke-dasharray="3 2"' : ""}/>`;
   for (let j = 1; j < N; j++) svg += `<line y1="${gy}" y2="${gy + cs * R}" x1="${gx + j * cs}" x2="${gx + j * cs}" stroke="${cols[j].group !== cols[j - 1].group ? "#9aa5b1" : "#f0f2f5"}"${cols[j].group !== cols[j - 1].group ? ' stroke-dasharray="3 2"' : ""}/>`;
   svg += `<rect class="nw-xh-r" x="0" y="0" width="${gx + cs * N + totW}" height="${cs}" fill="#2f6fb3" opacity="0" pointer-events="none"/><rect class="nw-xh-c" x="0" y="0" width="${cs}" height="${gy + cs * R + 30}" fill="#2f6fb3" opacity="0" pointer-events="none"/>`;
-  const showNum = cs >= 15;
   const maxSent = Math.max(...rows.map((x) => x.sent), 1), maxRecv = Math.max(...cols.map((x) => x.recv), 1);
   cols.forEach((c, j) => {
-    svg += `<text class="nw-cl" data-j="${j}" data-actor="${esc(c.id)}" transform="translate(${gx + j * cs + cs / 2 + cf * 0.35},${gy - 5}) rotate(-90)" font-size="${cf}">${esc(fitName(cn[j], 128, cfont))}</text>`;
+    svg += `<text class="nw-cl" data-j="${j}" ${nidAttr(c.id)} transform="translate(${gx + j * cs + cs / 2 + cf * 0.35},${gy - 5}) rotate(-90)" font-size="${cf}">${esc(fitName(cn[j], 128, cfont))}</text>`;
     const rh = (c.recv / maxRecv) * 22;
-    svg += `<rect x="${gx + j * cs + cs * 0.2}" y="${gy + cs * R + 4}" width="${cs * 0.6}" height="${Math.max(1, rh)}" fill="${ACCENT}" opacity=".7"><title>${esc(short(c.id))} received ${fmt(c.recv)}</title></rect>`;
+    svg += `<rect x="${gx + j * cs + cs * 0.2}" y="${gy + cs * R + 4}" width="${cs * 0.6}" height="${Math.max(1, rh)}" fill="${ACCENT}" opacity=".7"><title>${esc(nameOf(c.id))} received ${fmt(c.recv)}</title></rect>`;
     if (recvNums) svg += `<text x="${gx + j * cs + cs / 2}" y="${gy + cs * R + 4 + Math.max(1, rh) + 10}" text-anchor="middle" font-size="9" fill="${QUIET}" pointer-events="none">${c.recv}</text>`;
   });
   rows.forEach((r, i) => {
-    svg += `<text class="nw-rl" data-i="${i}" data-actor="${esc(r.id)}" x="${gx - 6}" y="${gy + i * cs + cs / 2 + 4}" text-anchor="end" font-size="11">${esc(fitName(rn[i], labW - 14, font))}</text>`;
+    svg += `<text class="nw-rl" data-i="${i}" ${nidAttr(r.id)} x="${gx - 6}" y="${gy + i * cs + cs / 2 + 4}" text-anchor="end" font-size="11">${esc(fitName(rn[i], labW - 14, font))}</text>`;
     cols.forEach((c, j) => {
-      if (r.id === c.id) { svg += `<rect x="${gx + j * cs + 0.5}" y="${gy + i * cs + 0.5}" width="${cs - 1}" height="${cs - 1}" fill="#e6e9ee"><title>${esc(short(r.id))} (itself)</title></rect>`; return; }
+      if (r.id === c.id) { svg += `<rect x="${gx + j * cs + 0.5}" y="${gy + i * cs + 0.5}" width="${cs - 1}" height="${cs - 1}" fill="${r.inside ? "#bfe3de" : "#e6e9ee"}"><title>${esc(nameOf(r.id))} (itself)${r.inside ? `: ${plural(r.inside, "message")} inside this estimated agent, between its own tokens` : ""}</title></rect>${r.inside && showNum ? `<text x="${gx + j * cs + cs / 2}" y="${gy + i * cs + cs / 2 + 3.5}" text-anchor="middle" font-size="9.5" fill="#0b5a54" pointer-events="none">${r.inside}</text>` : ""}`; return; }
       const e = cell(r.id, c.id);
       if (!e) return;
-      svg += `<rect class="nw-cell" data-i="${i}" data-j="${j}" data-a="${esc(r.id)}" data-b="${esc(c.id)}" x="${gx + j * cs + 0.5}" y="${gy + i * cs + 0.5}" width="${cs - 1}" height="${cs - 1}" rx="1.5" fill="${shade(e.n)}"><title>${esc(short(r.id))} → ${esc(short(c.id))}: ${plural(e.n, "message")} over ${plural(e.ch.size, "place")}. Click for the conversation.</title></rect>`;
+      svg += `<rect class="nw-cell" data-i="${i}" data-j="${j}" data-a="${esc(r.id)}" data-b="${esc(c.id)}" x="${gx + j * cs + 0.5}" y="${gy + i * cs + 0.5}" width="${cs - 1}" height="${cs - 1}" rx="1.5" fill="${shade(e.n)}"><title>${esc(nameOf(r.id))} → ${esc(nameOf(c.id))}: ${plural(e.n, "message")} over ${plural(e.ch.size, "place")}. Click for the conversation.</title></rect>`;
       if (showNum) svg += `<text x="${gx + j * cs + cs / 2}" y="${gy + i * cs + cs / 2 + 3.5}" text-anchor="middle" font-size="9.5" fill="${Math.log1p(e.n) / Math.log1p(mx) > 0.45 ? "#fff" : INK}" pointer-events="none">${e.n}</text>`;
     });
     const sw = (r.sent / maxSent) * (totW - 26);
@@ -541,8 +593,8 @@ function drawMatrix(host, G) {
   const cut = [senders.length > R ? `${fmt(R)} of ${fmt(senders.length)} senders` : "", receivers.length > N ? `${fmt(N)} of ${fmt(receivers.length)} receivers` : ""].filter(Boolean);
   // colour scale: the same log shading as the cells
   const steps = [...new Set([1, Math.round(Math.sqrt(mx)), mx])].filter((v) => v >= 1);
-  const key = `<div class="nw-mkey"><span class="muted small">messages per cell</span>${steps.map((v) => `<span><i style="background:${shade(v)}"></i>${fmt(v)}</span>`).join("")}<span><i style="background:#e6e9ee"></i>itself</span></div>`;
-  host.innerHTML = key + svg + "</svg>" + `<p class="small muted">${plural(R, "actor")} sent and ${plural(N, "actor")} received; ${fmt(all.length - senders.length)} only received${cut.length ? `. Showing the most active: ${cut.join(", ")}; every actor is in the table below` : ""}.</p>`;
+  const key = `<div class="nw-mkey"><span class="muted small">messages per cell</span>${steps.map((v) => `<span><i style="background:${shade(v)}"></i>${fmt(v)}</span>`).join("")}<span><i style="background:#e6e9ee"></i>itself</span>${byAgent() && all.some((x) => x.inside) ? '<span><i style="background:#bfe3de"></i>messages inside one estimated agent</span>' : ""}</div>`;
+  host.innerHTML = key + svg + "</svg>" + `<p class="small muted">${plural(R, "actor")} sent and ${plural(N, "actor")} received; ${fmt(all.filter((x) => !x.sent && x.recv).length)} only received${cut.length ? `. Showing the most active: ${cut.join(", ")}; every actor is in the table below` : ""}.</p>`;
   const el = host.querySelector("svg"), xr = el.querySelector(".nw-xh-r"), xc = el.querySelector(".nw-xh-c");
   el.querySelectorAll(".nw-cell").forEach((c) => {
     c.addEventListener("mouseenter", () => {
@@ -561,7 +613,7 @@ function actorTable(host, G) {
   const rows = [...G.nodes.values()].filter((x) => x.named);
   if (!rows.length) { host.innerHTML = '<p class="muted">None found.</p>'; return; }
   const cols = [
-    ["actor", (x) => short(x.id), (x) => ent.actor(x.id)],
+    [byAgent() ? "agent or token" : "actor", (x) => nameOf(x.id), (x) => chipOf(x.id)],
     ["sent (to named)", (x) => x.sent, (x) => fmt(x.sent), 1],
     ["received (from named)", (x) => x.recv, (x) => fmt(x.recv), 1],
     ["named partners", (x) => x.partners, (x) => fmt(x.partners), 1],
@@ -570,6 +622,7 @@ function actorTable(host, G) {
     ["first message", (x) => x.first, (x) => esc(when(x.first * 1000))],
     ["last message", (x) => x.last, (x) => esc(when(x.last * 1000))],
     ["messages over time", null, (x) => spark([...x.hours.entries()], { w: 120, h: 20, color: ACCENT })],
+    ...(byAgent() && rows.some((x) => x.inside) ? [["inside one agent", (x) => x.inside, (x) => (x.inside ? fmt(x.inside) : "–"), 1]] : []),
   ];
   const st = { key: 1, dir: -1, all: false };
   const draw = () => {
@@ -603,11 +656,11 @@ async function network(el, s) {
     <p class="sub" id="nwMatSub"></p>
     <div id="nwMatrix" class="nw-mwrap"></div></section>
   <section class="card"><header><h3>Every actor in a message</h3></header>
-    <p class="sub">Only messages between named actors count here, as in the graph's "Named actors" view. Click a column to sort. Broker rank orders actors by how often they sit on the shortest chain of messages between two others. Hover or click an actor for its full profile, which also counts messages with anonymous runs.</p>
+    <p class="sub">Only messages between ${WHO()} count here, as in the graph's "${byAgent() ? "Estimated agents" : "Named actors"}" view. Click a column to sort. Broker rank orders actors by how often they sit on the shortest chain of messages between two others. Hover or click an actor for its full profile, which also counts messages with anonymous runs.</p>
     <div id="nwActors"></div></section>
   <section class="card"><header><h3>All sender-receiver pairs</h3></header>
     <p class="small"><input id="pairQ" placeholder="Find an actor, e.g. cred 169" style="width:220px"> <label class="muted"><input type="checkbox" id="pairAll"> also show pairs with an anonymous run</label> <span id="pairCount" class="muted"></span></p>
-    <p class="sub">Click a pair to open its conversation. "Back" is how many messages went the other way. ⚠ marks pairs with messages on places the redaction may have merged.</p>
+    <p class="sub">Click a pair to open its conversation. "Back" is how many messages went the other way. ⚠ marks pairs with messages on places the redaction may have merged.${byAgent() && hasMerges() ? ` Counting by estimated agent ${estMark()}: each row is agent → agent, with the token pairs behind it listed under it; rows marked "inside one agent" are not messages between agents.` : ""}</p>
     <div id="pairs"></div></section>
   <section class="card"><header><h3>One identity carrying another's token</h3></header>
     <p class="sub">A record that authenticates as one identity and also holds another identity's token, before that token's own first use (see ${term("carried", "carried token")}).</p><div id="carriedList"></div></section>
@@ -628,9 +681,10 @@ async function network(el, s) {
   if (S.tab !== "network" || !$("nwGraph")) return;
   const base = prepare(raw);
   NW.mergedByPair = new Map();
-  base.msgs.forEach((m) => { if (m.merged) { const k = m.from + "\u0001" + m.to; NW.mergedByPair.set(k, (NW.mergedByPair.get(k) || 0) + 1); } });
-  pairList();
-  if (!base.msgs.length) {
+  base.msgs.forEach((m) => { if (m.merged) { const k = m.tf + "\u0001" + m.tt; NW.mergedByPair.set(k, (NW.mergedByPair.get(k) || 0) + 1); } });
+  NW.rows = null;
+  if (!base.msgs.length && !base.inside.length) {
+    pairList();
     $("nwLead").innerHTML = "No messages found: no place was written by one actor and later read by a different one. The lists below still show tokens carried between identities and names two identities shared.";
     ["nwFinds", "nwMatrix", "nwActors"].forEach((id) => ($(id).innerHTML = '<p class="muted">Nothing to show.</p>'));
     $("nwGraph").innerHTML = '<p class="muted nw-empty">No messages to draw.</p>';
@@ -640,14 +694,24 @@ async function network(el, s) {
   $("nwOpt").innerHTML = mergedAll ? `<label><input type="checkbox" id="nwNoMerged"${NW.noMerged ? " checked" : ""}> Leave out places the redaction may have merged</label> <span class="muted">⚠ ${plural(mergedNamed, "message")} between named actors (${fmt(mergedAll)} in all) sit on a ${term("merged", "merged place")}, where the write and the read may be on two different repositories.</span>` : "";
   if ($("nwNoMerged")) $("nwNoMerged").addEventListener("change", (e) => { NW.noMerged = e.target.checked; NW.T = null; rebuild(); });
 
-  const t0 = base.msgs[0].rt, t1 = base.msgs.at(-1).rt;
+  const allT = base.msgs.concat(base.inside).map((m) => m.rt);
+  const t0 = Math.min(...allT), t1 = Math.max(...allT);
   let view = null, D = null;
   const compute = () => {
     const keep = (m) => !(NW.noMerged && m.merged);
-    const msgs = base.msgs.filter(keep), named = base.named.filter(keep);
-    const Gn = buildGraph(named), Ga = buildGraph(msgs);
+    const msgs = base.msgs.filter(keep), named = base.named.filter(keep), inside = base.inside.filter(keep);
+    const Gn = buildGraph(named, inside), Ga = buildGraph(msgs, inside);
     betweenness(Gn);
-    D = { msgs, named, Gn, Ga, commN: communities(Gn), commA: communities(Ga), runs: [...Ga.nodes.values()].filter((x) => !x.named).length, withRuns: msgs.length - named.length };
+    // by estimated agent the pair table and the conversations are built here, from the same messages as the graph
+    NW.tp = new Map(); NW.rows = null;
+    if (byAgent() && hasMerges()) {
+      for (const e of Gn.edges.values()) NW.tp.set(e.key, e.tp);
+      for (const x of Gn.nodes.values()) if (x.inside) NW.tp.set(x.id + "\u0001" + x.id, x.itp);
+      NW.rows = [...Gn.edges.values()].map((e) => ({ from: e.a, to: e.b, messages: e.n, back: Gn.edges.get(e.b + "\u0001" + e.a)?.n || 0, channels: e.ch.size, first: e.first, last: e.last, tp: e.tp, merged: e.merged }))
+        .concat([...Gn.nodes.values()].filter((x) => x.inside).map((x) => ({ from: x.id, to: x.id, messages: x.inside, back: null, channels: null, first: Math.min(...x.itimes), last: Math.max(...x.itimes), tp: x.itp, inside: true })))
+        .sort((a, b) => (a.inside ? 1 : 0) - (b.inside ? 1 : 0) || b.messages - a.messages);
+    }
+    D = { msgs, named, inside, Gn, Ga, commN: communities(Gn), commA: communities(Ga), runs: [...Ga.nodes.values()].filter((x) => !x.named).length, withRuns: msgs.length - named.length };
     if (!Gn.nodes.size && NW.mode === "named") NW.mode = "all";
   };
   const sources = () => (NW.mode === "named" ? D.named : D.msgs);
@@ -655,19 +719,30 @@ async function network(el, s) {
   const lead = () => {
     const tot = s.actions?.named_actors ?? Object.entries(s.actor_kinds || {}).filter(([k]) => k !== "run").reduce((x, [, v]) => x + v, 0);
     const left = NW.noMerged ? ` Leaving out ${plural(mergedAll, "message")} on merged places.` : (mergedNamed ? ` ⚠ ${fmt(mergedNamed)} of the ${fmt(D.named.length)} sit on places the redaction may have merged.` : "");
+    const u = S.units;
+    if (byAgent() && u) {
+      const pairs = D.Gn.edges.size, talk = [...D.Gn.nodes.values()].filter((x) => x.sent || x.recv).length;
+      $("nwLead").innerHTML = (D.named.length ? `${fmt(talk)} of the ${fmt(u.agents)} ${term("agent", "estimated agents")} ${estMark()} exchanged ${plural(D.named.length, term("message", "message"))} in ${plural(pairs, "sender-receiver pair")}` : `No message passed between two different ${term("agent", "estimated agents")} ${estMark()}`) +
+        (u.no_merges ? `. ${UNIT_NONE[0].toUpperCase() + UNIT_NONE.slice(1)}, so every named actor counts as its own agent and counting tokens gives the same numbers.`
+          : `; ${plural(D.inside.length, "more message")} pass${D.inside.length === 1 ? "es" : ""} inside one agent, between two of its own tokens.<span class="usub">Counting tokens: ${plural(u.messages.token, "message")} in ${plural(u.pairs.token, "pair")} between ${fmt(tot)} ${term("named", "named actors")}. An estimated agent joins tokens the records directly tie to one holder (see the Agents tab). <button type="button" class="link small" data-setunit="token">Count by tokens</button></span>`) +
+        (D.withRuns ? ` ${plural(D.withRuns, "more message")} involve ${plural(D.runs, term("run", "anonymous run"))}.` : "") + left;
+      $("nwLead").classList.remove("muted");
+      return;
+    }
     $("nwLead").innerHTML = `${fmt(D.Gn.nodes.size)} of the ${fmt(tot)} ${term("named", "named actors")} exchanged ${plural(D.named.length, term("message", "message"))} in ${plural(D.Gn.edges.size, "sender-receiver pair")}` +
       (D.withRuns ? `; ${plural(D.withRuns, "more message")} involve ${plural(D.runs, term("run", "anonymous run"))}.` : ".") + left +
-      ` An ${term("actor", "actor")} is an identity token or a self-chosen name seen in the code, not an agent: one agent may hold several tokens, so a message can be one agent talking to itself.`;
+      ` An ${term("actor", "actor")} is an identity token or a self-chosen name seen in the code, not an agent: one agent may hold several tokens, so a message can be one agent talking to itself.` +
+      (u && !u.no_merges ? `<span class="usub">Counting tokens. By estimated agent: ${plural(u.messages.agent, "message")} in ${plural(u.pairs.agent, "pair")}; ${fmt(u.messages.inside_one_agent)} of the ${fmt(u.messages.token)} pass inside one agent. <button type="button" class="link small" data-setunit="agent">Count by estimated agents</button></span>` : "");
     $("nwLead").classList.remove("muted");
   };
   const drawMode = () => {
     const { Gn, Ga } = D;
-    $("nwMode").innerHTML = [["named", `Named actors <span>${fmt(Gn.nodes.size)}</span>`], ["all", `Everyone <span>${fmt(Ga.nodes.size)}</span>`]]
+    $("nwMode").innerHTML = [["named", `${byAgent() ? "Estimated agents" : "Named actors"} <span>${fmt(Gn.nodes.size)}</span>`], ["all", `Everyone <span>${fmt(Ga.nodes.size)}</span>`]]
       .map(([k, label]) => `<button type="button" data-m="${k}" class="${NW.mode === k ? "on" : ""}"${k === "named" && !Gn.nodes.size ? " disabled" : ""}>${label}</button>`).join("");
     $("nwMode").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { NW.mode = b.dataset.m; drawMode(); tools(); redraw(); }));
     const G = graphOf();
     $("nwSub").innerHTML = NW.mode === "named"
-      ? `All ${plural(G.edges.size, "sender-receiver pair")} between ${plural(G.nodes.size, "named actor")}. Each arrow runs from the writer to the reader; thicker means more messages, dashed means every message on it sits on a merged place. Dot size is an actor's messages. Hover a dot to pick out its messages, click it for its profile; click an arrow for the whole conversation, with every record id.`
+      ? `All ${plural(G.edges.size, "sender-receiver pair")} between ${plural(G.nodes.size, WHO(1))}${byAgent() ? " " + estMark() : ""}. Each arrow runs from the writer to the reader; thicker means more messages, dashed means every message on it sits on a merged place. Dot size is an ${byAgent() ? "agent" : "actor"}'s messages.${byAgent() && hasMerges() ? " A ringed dot is one estimated agent holding the number of tokens written on it; messages between its own tokens are a loop with a count, not arrows." : ""} Hover a dot to pick out its messages, click it for its profile; click an arrow for the whole conversation, with every record id.`
       : `Everything: ${plural(G.edges.size, "pair")} among ${plural(G.nodes.size, "actor")}, including ${plural(D.runs, "anonymous run")} as small hollow dots. Small groups that only talk among themselves are lined up at the bottom.`;
     const roles = new Set([...G.nodes.values()].filter((x) => x.named).map((x) => x.role));
     const anyMerged = [...G.edges.values()].some((e) => e.merged && e.merged === e.n);
@@ -687,6 +762,10 @@ async function network(el, s) {
     $("nwLegend").innerHTML = ROLES.map((r, i) => (roles.has(i) ? `<span><i style="background:${r.fill}"></i>${r.label}</span>` : "")).join("") +
       (NW.mode === "all" && D.runs ? `<span><i style="background:${RUN_FILL};border:1.2px solid ${RUN_STROKE}"></i>anonymous run</span>` : "") +
       (anyMerged ? `<span><svg width="22" height="8"><line x1="0" x2="22" y1="4" y2="4" stroke="${ACCENT}" stroke-width="2" stroke-dasharray="4 3"/></svg>only on merged places</span>` : "") +
+      (byAgent() ? (hasMerges()
+        ? `<span><svg width="20" height="20"><circle cx="10" cy="10" r="8.5" fill="#fff" stroke="${AGENT}" stroke-width="2"/><circle cx="10" cy="10" r="5.5" fill="${ACCENT}"/></svg>estimated agent holding several tokens (number: its tokens) ${estMark()}</span>` +
+          (D.inside.length ? `<span><svg width="20" height="18"><circle cx="9" cy="9" r="6.5" fill="none" stroke="${AGENT}" stroke-width="1.7"/></svg><b class="nw-insk">${fmt(D.inside.length)} inside</b> messages between two tokens of one agent: a loop, not arrows</span>` : "")
+        : `<span class="muted">${esc(UNIT_NONE)}: every dot is one token ${estMark()}</span>`) : "") +
       `<span class="muted">line thickness and dot size: messages</span>`;
   };
   // focus: the chosen actor and everyone within 1 or 2 hops, drawn on their own
@@ -754,7 +833,8 @@ async function network(el, s) {
     const st = scrubStats(sources(), t, F);
     $("nwFromWhen").textContent = NW.F == null ? "the start" : when(NW.F * 1000);
     $("nwWhen").textContent = NW.F != null ? `${when(NW.F * 1000)} → ${when(t * 1000)}` : T >= t1 ? `All, to ${when(t1 * 1000)}` : when(t * 1000);
-    $("nwStats").textContent = `${plural(st.n, "message")} · ${plural(st.pairs, "pair")} · ${plural(st.actors, NW.mode === "named" ? "named actor" : "actor")} · largest group ${fmt(st.big)}`;
+    const insideNow = byAgent() ? D.inside.filter((m) => m.rt <= t && m.rt >= F).length : 0;
+    $("nwStats").textContent = `${plural(st.n, "message")} · ${plural(st.pairs, "pair")} · ${plural(st.actors, NW.mode === "named" ? WHO(1) : "actor")} · largest group ${fmt(st.big)}${byAgent() && D.inside.length ? ` · ${fmt(insideNow)} inside one agent` : ""}`;
   }
   slider.addEventListener("input", () => {
     stop();
@@ -785,15 +865,16 @@ async function network(el, s) {
     NW.raf = requestAnimationFrame(step);
   });
   const matrix = () => {
-    $("nwMatSub").innerHTML = `One row per named actor that sent, one column per named actor that received; darker means more messages. Bars at the right count what each actor sent, bars below what it received${D.Gn.groups.length > 1 ? "; dashed lines split separate groups" : ""}. Hover a cell to follow its row and column; click it for the conversation.`;
+    $("nwMatSub").innerHTML = `One row per ${WHO(1)} that sent, one column per ${WHO(1)} that received; darker means more messages. Bars at the right count what each actor sent, bars below what it received${D.Gn.groups.length > 1 ? "; dashed lines split separate groups" : ""}. Hover a cell to follow its row and column; click it for the conversation.`;
     drawMatrix($("nwMatrix"), D.Gn);
   };
   function rebuild() {
     stop();
     compute();
     lead();
-    $("nwFinds").innerHTML = D.Gn.nodes.size ? findings(D.Gn, D.msgs, D.named) : "";
-    $("nwHist").innerHTML = histogram(D.msgs, t0, t1);
+    $("nwFinds").innerHTML = D.Gn.nodes.size ? findings(D.Gn, D.msgs, D.named, D.inside) : "";
+    pairList();
+    $("nwHist").innerHTML = histogram(D.msgs.concat(D.inside), t0, t1);
     drawMode();
     tools();
     redraw();
@@ -811,6 +892,8 @@ async function pairList(offset = 0) {
   const box = $("pairs");
   if (!box) return;
   const q = $("pairQ").value.trim(), all = $("pairAll").checked;
+  $("pairAll").disabled = !!NW.rows; $("pairAll").parentElement.title = NW.rows ? "Counting by estimated agents lists pairs of agents; switch to tokens to list pairs with anonymous runs" : "";
+  if (NW.rows) { agentPairs(box, q); return; }
   const r = await api(`/api/pairs?q=${encodeURIComponent(q)}${all ? "&all=1" : ""}&offset=${offset}&limit=50`);
   if (!$("pairQ") || $("pairQ").value.trim() !== q) return;
   $("pairCount").textContent = `${plural(r.total, "pair")}${all ? ", anonymous runs included" : " between named actors"}${q ? " matching" : ""}`;
@@ -825,8 +908,41 @@ async function pairList(offset = 0) {
   if ($("pairMoreBtn")) $("pairMoreBtn").addEventListener("click", () => pairList(shown));
 }
 
+// counting by estimated agent: every agent → agent pair, with the token pairs behind each listed under it
+const tokPairs = (tp, max = 8) => { const xs = [...tp.entries()].sort((p, q) => q[1] - p[1]); return `<div class="tokpairs">${xs.slice(0, max).map(([k, n]) => { const [f, t] = k.split("\u0001"); return `<span>${esc(short(f))} → ${esc(short(t))} <b>${fmt(n)}</b></span>`; }).join("")}${xs.length > max ? `<span>+${fmt(xs.length - max)} more token pairs</span>` : ""}</div>`; };
+function agentPairs(box, q) {
+  const ql = q.toLowerCase();
+  const hit = (r) => !ql || [r.from, r.to, ...[...r.tp.keys()].flatMap((k) => k.split("\u0001"))].some((x) => (short(x) + " " + agentName(x) + " " + x).toLowerCase().includes(ql));
+  const rows = NW.rows.filter(hit), cross = rows.filter((r) => !r.inside);
+  $("pairCount").innerHTML = `${plural(cross.length, "pair")} between estimated agents ${estMark()}${rows.length > cross.length ? `, ${plural(rows.length - cross.length, "agent")} with messages inside` : ""}${q ? " matching" : ""}`;
+  if (!rows.length) { box.innerHTML = '<p class="muted">None found.</p>'; return; }
+  const shown = rows.slice(0, 300);
+  box.innerHTML = `<div class="nw-atwrap"><table><thead><tr><th>sender</th><th>receiver</th><th style="text-align:right">messages</th><th style="text-align:right">back</th><th style="text-align:right">places</th><th>first read</th><th>last read</th></tr></thead><tbody>${shown.map((r) => {
+    const multi = r.inside || merged(r.from) || merged(r.to);
+    return `<tr class="click${r.inside ? " nw-insrow" : ""}" data-a="${esc(r.from)}" data-b="${esc(r.to)}"><td>${chipOf(r.from)}${multi ? tokPairs(r.tp) : ""}</td><td>${r.inside ? '<span class="nw-instag">inside one agent</span>' : chipOf(r.to)}</td><td class="n">${fmt(r.messages)}${r.merged ? ` <span class="nw-warn" title="${esc(`${fmt(r.merged)} of these on places the redaction may have merged. ${MERGED_TIP}`)}">⚠ ${fmt(r.merged)}</span>` : ""}</td><td class="n">${r.back == null ? "–" : fmt(r.back)}</td><td class="n">${r.channels == null ? "–" : fmt(r.channels)}</td><td class="nowrap">${esc(when(r.first * 1000))}</td><td class="nowrap">${esc(when(r.last * 1000))}</td></tr>`; }).join("")}</tbody></table></div>${rows.length > shown.length ? `<p class="small muted">Showing the busiest ${fmt(shown.length)} of ${fmt(rows.length)}; filter to find the rest.</p>` : ""}`;
+  box.querySelectorAll("tr.click").forEach((tr) => tr.addEventListener("click", (e) => { if (e.target.closest(".ent")) return; openConversation(tr.dataset.a, tr.dataset.b); }));
+}
+
+// Counting by estimated agent a pair may stand for several token pairs: name the agents, list the token pairs
+// behind them, and show the conversation of the chosen one. a and b may be agents or tokens.
+function openConversation(a, b, scroll = true) {
+  const A = unitOf(a), B = unitOf(b);
+  if (!NW.rows || !(merged(A) || merged(B))) return tokenConversation(a, b, scroll);
+  const un = new Map();     // token pairs, direction ignored: a conversation shows both ways
+  for (const k of new Set([A + "\u0001" + B, B + "\u0001" + A])) for (const [tk, n] of NW.tp.get(k) || []) {
+    const [f, t] = tk.split("\u0001"), key = f < t ? tk : t + "\u0001" + f;
+    un.set(key, (un.get(key) || 0) + n);
+  }
+  const list = [...un.entries()].sort((p, q) => q[1] - p[1]).map(([k, n]) => [...k.split("\u0001"), n]);
+  if (!list.length) return tokenConversation(a, b, scroll);
+  const cur = list.find(([f, t]) => (f === a && t === b) || (f === b && t === a)) || list[0];
+  const total = list.reduce((x, r) => x + r[2], 0);
+  const head = `<div class="nw-aconv"><div>${A === B ? `${chipOf(A)} <span class="nw-instag">inside one agent</span>` : `${chipOf(A)} ⇄ ${chipOf(B)}`} <span class="muted small">${plural(total, "message")} ${A === B ? "between this estimated agent's own tokens: one agent reading its own writing, not a message between agents" : "between these estimated agents"} ${estMark()}</span></div>
+    <div class="nw-atok"><span class="small muted">${plural(list.length, "token pair")} behind it:</span>${list.map(([f, t, n]) => `<button type="button" class="${f === cur[0] && t === cur[1] ? "on" : ""}" data-f="${esc(f)}" data-t="${esc(t)}">${esc(short(f))} ⇄ ${esc(short(t))} <b>${fmt(n)}</b></button>`).join("")}</div></div>`;
+  return tokenConversation(cur[0], cur[1], scroll, head);
+}
 // the whole conversation between two actors: every message both ways, in time order, with record ids
-async function openConversation(a, b, scroll = true) {
+async function tokenConversation(a, b, scroll = true, head = "") {
   const box = $("conv");
   if (!box) return;
   S.conv = { a, b };
@@ -855,7 +971,7 @@ async function openConversation(a, b, scroll = true) {
     strip = `<svg class="nw-cstrip" role="img" aria-label="${esc(`Messages over time: ${short(a)} to ${short(b)} above the line, ${short(b)} to ${short(a)} below`)}" viewBox="0 0 ${W} 46" preserveAspectRatio="none" width="100%" height="46"><line x1="8" x2="${W - 8}" y1="23" y2="23" stroke="${GRID}"/>${ts.map((x) => `<line x1="${X(x.t).toFixed(1)}" x2="${X(x.t).toFixed(1)}" y1="${x.dir > 0 ? 6 : x.dir < 0 ? 23 : 15}" y2="${x.dir > 0 ? 23 : x.dir < 0 ? 40 : 31}" stroke="${x.dir > 0 ? "#e3a43b" : x.dir < 0 ? ACCENT : BASE}" stroke-width="2"/>`).join("")}</svg>
       <div class="nw-cax small muted"><span>${esc(when(t0))}</span><span>above: ${esc(short(a))} → ${esc(short(b))} · below: ${esc(short(b))} → ${esc(short(a))}</span><span>${esc(when(ts.at(-1).t))}</span></div>`;
   }
-  box.innerHTML = `<div class="conv">
+  box.innerHTML = `<div class="conv">${head}
     <div class="convhead">
       <div>${ent.actor(a)} ⇄ ${ent.actor(b)}<br><span class="muted small">${plural(c.a_to_b, "message")} from ${esc(short(a))} (left), ${fmt(c.b_to_a)} from ${esc(short(b))} (right)${c.overwrites ? `, ${plural(c.overwrites, "overwrite")} (centre)` : ""}${c.on_merged_places ? `; ${fmt(c.on_merged_places)} on places the redaction may have merged` : ""} · ${plural(c.places.length, "place")} · ${esc(c.first || "")} to ${esc(c.last || "")}</span></div>
       <div class="convbtns"><button id="convAsk">Ask the AI about this</button> <button id="convCopy">Copy ${fmt(c.record_ids.length)} record ids</button> <button id="convClose">Close</button></div>
@@ -867,6 +983,7 @@ async function openConversation(a, b, scroll = true) {
     ${c.items.length > PAGE ? `<button id="convMore">Show all ${fmt(c.items.length)}</button>` : ""}
     ${c.truncated ? `<p class="muted small">Showing the first ${fmt(c.items.length)} of ${fmt(c.total)}.</p>` : ""}
   </div>`;
+  box.querySelectorAll(".nw-atok button").forEach((bt) => bt.addEventListener("click", () => openConversation(bt.dataset.f, bt.dataset.t, false)));
   if ($("convMore")) $("convMore").addEventListener("click", () => { $("thread").innerHTML = c.items.map(item).join(""); $("convMore").remove(); });
   $("convClose").addEventListener("click", () => { S.conv = null; box.innerHTML = ""; });
   $("convCopy").addEventListener("click", async () => {
