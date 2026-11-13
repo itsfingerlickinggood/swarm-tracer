@@ -5,7 +5,7 @@
 Honest list of what is known to be wrong, weak or untested, kept up to date.
 
 ## Accuracy
-- **The submitted report's message count (19) is superseded.** A full audit found most of those links false; the current rule reports 5 between named tokens. The deep dive (docs/deep-dive.md) was written before this and its message threads should be read with that in mind.
+- **The submitted report's message count (19) is superseded.** A full audit found most of those links false; the final rule reports 24, 6 between named tokens. The deep dive (docs/deep-dive.md) was written before this and its message threads should be read with that in mind.
 - **Simulated precision is an upper bound.** The simulator never writes the read-then-exfiltrate pattern that produced most false links on the Swarm Traces release (166 reported at v1.1.0, 19 at v1.3.0, 5 after a full audit of both; see validation). Audit real links before quoting them.
 - **Messages that only name a place.** Fixed for code comments: a place named only in a comment no longer counts as a read (simulated message precision 66% → 79%). A place named in a printed string or a variable that is never fetched can still count. See [validation](validation.md).
 - **Coordination signs can fire early.** On simulated swarms the first message is now within an hour of the truth in 40 of 40 swarms; groups of 20+ still fire early in some, because a false message joins two groups.

@@ -10,14 +10,14 @@ The main tool is **agenttrace** and its web app, **Swarm Tracer**. It works on a
 
 **Website and documentation:** <https://itsfingerlickinggood.github.io/swarm-tracer/>
 
-> **Correction, 13 November 2026.** The report and slides submitted to the hackathon say the tool finds 19 messages between named tokens in the Swarm Traces release. A full audit after the deadline (every link read, both records) found that count wrong: most of the 19 were two tokens committing to the same dataset. The rule was fixed and scored against the audit; the release shows **5 messages between named tokens**. Details: [docs/validation.md](docs/validation.md#audited-links-on-the-real-release). The PDF is left as submitted.
+> **Correction, 13 November 2026.** The report and slides submitted to the hackathon say the tool finds 19 messages between named tokens in the Swarm Traces release. A full audit after the deadline (every link read, both records) found that count wrong: most of the 19 were two tokens committing to the same dataset. The rule was fixed and scored against the audit; the release shows **24 messages, 6 of them between named tokens**. Details: [docs/validation.md](docs/validation.md#audited-links-on-the-real-release). The PDF is left as submitted.
 
 ## Quick start
 
 Python 3.9+ standard library only.
 
 ```bash
-pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.5.0
+pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.0.0
 swarm-tracer demo                         # a simulated swarm with known answers
 swarm-tracer serve --input my-swarm.jsonl # then open http://127.0.0.1:8010
 ```
@@ -49,6 +49,10 @@ python3 -m agenttrace.tools.check                                      # tests, 
 - **Was it used?** Grades each message by whether what was written shows up in the reader's later code, and finds hand-overs that used no shared place.
 - **Coordination without messages:** behaviour-based links (technique adoption, synchrony) against a chance model.
 - **Audited links:** the tool's message links on the real release scored against hand-read labels (`python3 -m agenttrace.benchmark run <data>`).
+- **Spread map, three kinds of evidence, stages:** what spread furthest and fastest, how many agent pairs are connected by content or behaviour but not by a message, and which item unlocked which attack stage.
+- **The message board, rebuilt:** the board folders in the release, their naming conventions, and how little of the board the release shows.
+- **Early warning, tested forward:** frozen signs scored on swarms they were not written on, false-alarm rates, a lead-time against false-alarm curve, and an online (streaming) monitor.
+- **What is still missing, with sizes:** ranges for every headline answer under the best and worst case of each gap, a scoring of 41 insider findings, and a list of what to log next time ([docs/collect-next-time.md](docs/collect-next-time.md)).
 - **Deep dive:** an investigator's reading of the Swarm Traces release, every claim with record ids ([docs/deep-dive.md](docs/deep-dive.md)).
 - **Measured accuracy:** scored on 60 simulated swarms with known answers, including benign ones ([validation](docs/validation.md), [known issues](docs/known-issues.md)).
 - **Compare** two swarms, from a library of past incidents. **Ground-truth mode** scores the tool on a simulated swarm whose true links are known.
@@ -61,7 +65,7 @@ python3 -m agenttrace.tools.check                                      # tests, 
 
 ![Overview with the Inspector explaining the first message between named tokens](docs/assets/app_overview.jpg)
 
-**Who talked to whom.** Every message between named tokens in the Swarm Traces release (12 sender-receiver pairs), with a slider that grows the network message by message.
+**Who talked to whom.** Every message between named tokens in the Swarm Traces release (5 sender-receiver pairs), with a slider that grows the network message by message.
 
 ![The graph of every message between named tokens](docs/assets/app_network.jpg)
 
@@ -91,7 +95,7 @@ Earlier prototypes (`analyzer/`, `forensics/`) were replaced by `agenttrace` and
 ## How a message is counted
 
 A message is a read of a place after a different actor wrote to it. Three rules keep the count honest:
-- **Each write counts once per reader.** Polling a mailbox or re-linking the same page is one message, not many. In the Swarm Traces release polling does not multiply messages; the Swarm Traces release has 5 messages between named tokens once reads and writes are judged call by call.
+- **Each write counts once per reader.** Polling a mailbox or re-linking the same page is one message, not many. In the Swarm Traces release polling does not multiply messages; the Swarm Traces release has 24 messages (6 between named tokens) once reads and writes are judged call by call.
 - **Overwrites are not messages.** A wiki edit sends the whole page, so an agent can replace another's edit without ever seeing it. An edit that keeps none of the lines the previous editor added is counted as an overwrite instead. In the wiki logs this removes 4,587 edits. The largest overwrite pair is LinkHelper771 and AgentMassPointer13, about 85 times each way.
 - **Every message says what it rests on:** read in code, named the place, posted after it, or kept N of M lines. "Named the place" shows the place was known, not that it was read.
 
