@@ -691,7 +691,7 @@ async function network(el, s) {
     return;
   }
   const mergedAll = base.msgs.filter((m) => m.merged).length, mergedNamed = base.named.filter((m) => m.merged).length;
-  $("nwOpt").innerHTML = mergedAll ? `<label><input type="checkbox" id="nwNoMerged"${NW.noMerged ? " checked" : ""}> Leave out places the redaction may have merged</label> <span class="muted">⚠ ${plural(mergedNamed, "message")} between named actors (${fmt(mergedAll)} in all) sit on a ${term("merged", "merged place")}, where the write and the read may be on two different repositories.</span>` : "";
+  $("nwOpt").innerHTML = mergedAll ? `<label><input type="checkbox" id="nwNoMerged"${NW.noMerged ? " checked" : ""}> Leave out places the redaction may have merged</label> <span class="muted">${mergedNamed ? "⚠ " + plural(mergedNamed, "message") + " between named actors (" + fmt(mergedAll) + " in all)" : plural(mergedAll, "message") + " (none between named actors)"} sit on a ${term("merged", "merged place")}, where the write and the read may be on two different repositories.</span>` : "";
   if ($("nwNoMerged")) $("nwNoMerged").addEventListener("change", (e) => { NW.noMerged = e.target.checked; NW.T = null; rebuild(); });
 
   const allT = base.msgs.concat(base.inside).map((m) => m.rt);

@@ -114,7 +114,10 @@ $("guidebtn")?.addEventListener("click", () => { const el = $("guide"); if (el &
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && $("guide") && !$("guide").hidden && !e.target.closest?.("#omni")) close(); });
 // first visit: open once the dataset is in, unless a deep link asked for a specific view
 window.addEventListener("load", () => {
-  if (isDismissed() || location.hash.length > 1) return;
+  // the Trace tab is the front door now: the guide no longer opens over it. On a first visit the
+  // button is highlighted instead.
+  if (!isDismissed()) { const b = document.getElementById("guidebtn"); if (b) b.classList.add("fresh"); }
+  return;
   const t = setInterval(() => { if (S.summary) { clearInterval(t); open(false); } }, 300);
   setTimeout(() => clearInterval(t), 60000);
 });

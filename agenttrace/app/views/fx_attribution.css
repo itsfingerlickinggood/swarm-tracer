@@ -32,3 +32,5 @@
 .fxa-pair pre{margin:2px 0 0;font-size:11px;white-space:pre-wrap;word-break:break-all;background:#f7f8fa;border-radius:4px;padding:5px 7px;max-height:84px;overflow:hidden}
 .fxa-pair mark,.fxa-ev mark{background:#ffe08a;border-radius:2px;padding:0 1px}
 .fxa-trust{margin:0 0 10px;padding-left:18px;font-size:12.5px;line-height:1.5}
+.fxa-two{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.fxa-two>*,.fxa-pair>*,.fxa-row>*{min-width:0}

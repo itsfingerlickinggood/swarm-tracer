@@ -350,7 +350,7 @@
   const START_ICON = { first_message: "read", widest_program: "run", found_credential: "seen", first_harm: "harm", broadcast_place: "write" };
   function startCards(st, compact) {
     if (!st.starts.length) return '<p class="muted small">No starting point could be counted from this dataset: it has no messages, shared programs, credentials or harmful actions. Type any text from a record above.</p>';
-    return `<div class="trc-starts${compact ? " compact" : ""}">${st.starts.map((x) => `<button type="button" class="trc-start trc-go k-${esc(x.key)}" ${x.harm ? `data-harm="${esc(x.harm)}"` : `data-q="${esc(x.q)}"`} title="${esc(short(x.detail || ""))}">${icon(START_ICON[x.key] || "use")}<span class="tl">${esc(x.label)}</span><span class="td">${esc(cut(short(x.detail || ""), 110))}</span>${x.time ? `<span class="tt">${esc(whenE(toTime(x.time), x.estimated))}${x.record ? " · " + esc(x.record) : ""}</span>` : ""}</button>`).join("")}</div>`;
+    return `<div class="trc-starts${compact ? " compact" : ""}">${st.starts.map((x) => `<button type="button" class="trc-start trc-go k-${esc(x.key)}" ${x.harm ? `data-harm="${esc(x.harm)}"` : `data-q="${esc(x.q)}"`} title="${esc(short(x.detail || ""))}">${icon(START_ICON[x.key] || "use")}<span class="tl">${esc(x.label)}</span><span class="td">${esc(cut(short(x.place ? String(x.detail || "").split(x.place).join(placeLabel(x.place)) : (x.detail || "")), 110))}</span>${x.time ? `<span class="tt">${esc(whenE(toTime(x.time), x.estimated))}${x.record ? " · " + esc(x.record) : ""}</span>` : ""}</button>`).join("")}</div>`;
   }
   function setHash(q, harm) {
     const h = "#tab=trace" + (harm ? "&harm=" + enc(harm) : q ? "&q=" + enc(q) : "");

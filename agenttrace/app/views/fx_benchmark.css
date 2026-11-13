@@ -35,3 +35,4 @@
 
 /* tiles: never let the text of one run under the next */
 #left [class*='bmk'],#left [class*='bmt']{min-width:0}
+.bmcnt{width:min(100%,420px);max-width:calc(100% - 60px)}

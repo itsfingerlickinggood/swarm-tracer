@@ -119,3 +119,7 @@ th.ch-g-ro{color:#5c6672}th.ch-g-never{color:#6b56a0}
 .ch-smallkinds .n{text-align:right;white-space:nowrap}
 .ch-smallkinds td i{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--tc);margin-right:5px}
 #chScatter .ch-grid{max-width:760px}
+.ch-smallkinds{table-layout:fixed}
+.ch-smallkinds th.n{width:52px}
+.ch-smallkinds td{overflow-wrap:anywhere}
+.ch-smallkinds .ent{white-space:normal}

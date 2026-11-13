@@ -725,10 +725,19 @@ $("tabs").addEventListener("keydown", (e) => {
   b.focus(); goTab(b.dataset.tab);
 });
 S.scroll = {};
+// the tab row scrolls sideways when it cannot fit: fade the edge that hides more tabs
+function tabsCue() {
+  const t = $("tabs"); if (!t) return;
+  t.classList.toggle("more", t.scrollWidth - t.scrollLeft - t.clientWidth > 4);
+  t.classList.toggle("less", t.scrollLeft > 4);
+}
+window.addEventListener("resize", tabsCue);
+document.addEventListener("DOMContentLoaded", () => { const t = $("tabs"); if (t) { t.addEventListener("scroll", tabsCue, { passive: true }); setTimeout(tabsCue, 300); setTimeout(tabsCue, 2500); } });
 function goTab(tab) {
   if (S.tab && $("left")) S.scroll[S.tab] = $("left").scrollTop;
   S.tab = tab;
-  document.querySelectorAll("#tabs button").forEach((x) => { const on = x.dataset.tab === tab; x.classList.toggle("on", on); x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1; });
+  document.querySelectorAll("#tabs button").forEach((x) => { const on = x.dataset.tab === tab; x.classList.toggle("on", on); x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1; if (on && x.scrollIntoView) x.scrollIntoView({ block: "nearest", inline: "nearest" }); });
+  tabsCue();
   render();
 }
 function goEvents(filters) {

@@ -15,3 +15,6 @@
 .vaxin{display:flex;justify-content:space-between}
 .vaxin em{font-style:normal}
 .vlist{margin:8px 0 0;padding-left:18px;font-size:12px;color:#555}
+.vm{min-width:0;overflow-x:auto}
+.vr{grid-template-columns:minmax(90px,34%) minmax(0,1fr) minmax(0,156px)}
+.vgrid{grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr))}
