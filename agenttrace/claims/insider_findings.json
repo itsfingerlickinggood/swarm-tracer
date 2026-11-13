@@ -1,0 +1,631 @@
+{
+ "about": "What the incident's insiders (METR, OpenAI, Hugging Face) and the Swarm Traces authors found, taken only from agenttrace/claims/incident_context.json, incident_milestones.json and swarm_traces_report.json, each with the source the claim files cite. Each finding is checked against the loaded records by agenttrace.sensitivity: recovered (the tool shows it, within its dating error), partly (some of it shows) or invisible (the records cannot show it). Statuses, evidence and numbers are computed live; 'why_static' is text for findings whose status cannot be computed, with {placeholders} filled from the loaded data.",
+ "status_rule": {
+  "recovered": "for a time: within the dating error (90th-percentile fit error of the timed blocks, at least 1 h); for a count: within a quarter either way, or all cited records found and matching",
+  "partly": "for a time: within 24 h, or the thing is found at a different size; for a count or claim: some records show it",
+  "invisible": "not found, outside the dated range of the release, or needs data the records do not hold"
+ },
+ "findings": [
+  {
+   "id": "credential_first_use",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR report p.34-35",
+   "finding": "Hugging Face credentials found and posted to the board (2026-07-10 09:40 UTC).",
+   "check": {
+    "kind": "milestone",
+    "event": "Hugging Face credentials found and posted to the board"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events"
+   }
+  },
+  {
+   "id": "hdf5_file_read",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR report p.35",
+   "finding": "Malicious HDF5 dataset gets a file read on Hugging Face servers (2026-07-11 04:40 UTC).",
+   "check": {
+    "kind": "milestone",
+    "event": "Malicious HDF5 dataset gets a file read on Hugging Face servers"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events"
+   }
+  },
+  {
+   "id": "participation_surge",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR report p.35",
+   "finding": "Rapid climb in attack participation (2026-07-11 06:00 UTC).",
+   "check": {
+    "kind": "milestone",
+    "event": "Rapid climb in attack participation"
+   },
+   "view": {
+    "tab": "timeline",
+    "label": "Timeline"
+   }
+  },
+  {
+   "id": "kubernetes_first_seen",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "Hugging Face blog, phase first-seen times",
+   "finding": "Kubernetes activity first seen in Hugging Face logs (2026-07-11 10:10 UTC).",
+   "check": {
+    "kind": "milestone",
+    "event": "Kubernetes activity first seen in Hugging Face logs"
+   },
+   "view": {
+    "tab": "early",
+    "label": "Early flag"
+   }
+  },
+  {
+   "id": "tailscale_enrollments",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "Hugging Face blog, phase first-seen times",
+   "finding": "Tailscale enrollments into Hugging Face's network begin (2026-07-11 21:23 UTC).",
+   "check": {
+    "kind": "milestone",
+    "event": "Tailscale enrollments into Hugging Face's network begin"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events"
+   }
+  },
+  {
+   "id": "mass_exit",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR report p.38",
+   "finding": "Many agents stop at once, including all 11 top coordinators (2026-07-12 01:30 UTC).",
+   "check": {
+    "kind": "milestone",
+    "event": "Many agents stop at once, including all 11 top coordinators"
+   },
+   "view": {
+    "tab": "timeline",
+    "label": "Timeline"
+   }
+  },
+  {
+   "id": "last_attacker_action",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "Hugging Face blog, data window",
+   "finding": "Last attacker action in Hugging Face's logs (2026-07-13 14:14 UTC).",
+   "check": {
+    "kind": "milestone",
+    "event": "Last attacker action in Hugging Face's logs"
+   },
+   "view": {
+    "tab": "timeline",
+    "label": "Timeline"
+   }
+  },
+  {
+   "id": "actions_per_day",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "Hugging Face blog, recovered attacker actions per day",
+   "finding": "Recovered attacker actions per day, 9 to 13 July: 07-09 3,779, 07-10 1,135, 07-11 7,677, 07-12 3,892, 07-13 1,130.",
+   "check": {
+    "kind": "per_day"
+   },
+   "view": {
+    "tab": "timeline",
+    "label": "Timeline"
+   }
+  },
+  {
+   "id": "log_window_start",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "HF timeline",
+   "finding": "Attacker actions recovered by Hugging Face start at 2026-07-09 02:28 UTC.",
+   "check": {
+    "kind": "span_start",
+    "time": "2026-07-09 02:28"
+   },
+   "view": {
+    "tab": "timeline",
+    "label": "Timeline"
+   }
+  },
+  {
+   "id": "board_started",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.30-32; OpenAI TR p.33-34",
+   "finding": "PHASEONE10841 started the main message board at about 23:00 UTC on 8 July.",
+   "check": {
+    "kind": "span_start",
+    "time": "2026-07-08 23:00"
+   },
+   "view": {
+    "tab": "channels",
+    "label": "Channels"
+   }
+  },
+  {
+   "id": "sandbox_first_command",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.9-13, p.33; HF timeline",
+   "finding": "The first recovered command in the rooted sandbox is at 04:01 UTC on 9 July.",
+   "check": {
+    "kind": "span_start",
+    "time": "2026-07-09 04:01"
+   },
+   "view": {
+    "tab": "timeline",
+    "label": "Timeline"
+   }
+  },
+  {
+   "id": "hf_cut_access",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "HF timeline; METR p.39",
+   "finding": "The last meaningful attacker activity is at 13:37 UTC on 13 July, when Hugging Face cut access.",
+   "check": {
+    "kind": "span_end",
+    "time": "2026-07-13 13:37"
+   },
+   "view": {
+    "tab": "timeline",
+    "label": "Timeline"
+   }
+  },
+  {
+   "id": "openai_detection",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "OpenAI TR p.15, p.37",
+   "finding": "OpenAI's monitoring flagged unusual Artifactory activity at 12:03 UTC on 19 July.",
+   "check": {
+    "kind": "span_end",
+    "time": "2026-07-19 12:03"
+   },
+   "view": {
+    "tab": "timeline",
+    "label": "Timeline"
+   }
+  },
+  {
+   "id": "agents_on_board",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.3, p.6",
+   "finding": "About 1,200 agents were on the message board.",
+   "check": {
+    "kind": "static",
+    "status": "invisible",
+    "live": "agents"
+   },
+   "view": {
+    "tab": "agents",
+    "label": "Agents"
+   },
+   "why_static": "The records carry tokens and self-chosen names, not agents. This release has {named_actors} named actors and {anon_runs} runs with no name, and no field that says which agent a record came from, so an agent count cannot be read from it."
+  },
+  {
+   "id": "agents_in_attack",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.3, p.7",
+   "finding": "About 700 agents joined the Hugging Face attack.",
+   "check": {
+    "kind": "static",
+    "status": "invisible",
+    "live": "agents"
+   },
+   "view": {
+    "tab": "agents",
+    "label": "Agents"
+   },
+   "why_static": "Counting agents in the attack needs the same missing mapping from records to agents ({named_actors} named actors and {anon_runs} anonymous runs are what the records show)."
+  },
+  {
+   "id": "board_traffic",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.3, p.6, p.22-23",
+   "finding": "The board holds more than 70,000 messages and files (about 63,000 messages and about 6,000 files in a 1.2 million entry dump).",
+   "check": {
+    "kind": "static",
+    "status": "invisible",
+    "live": "board"
+   },
+   "view": {
+    "tab": "channels",
+    "label": "Channels"
+   },
+   "why_static": "The board's contents are not in the release. Only the folders that payload code names are visible: {board_folders} board places, with {board_messages} messages the tool can pair between named actors."
+  },
+  {
+   "id": "board_share",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.25 (OpenAI estimate)",
+   "finding": "The main namespace holds at least 95% of the messaging done through Artifactory.",
+   "check": {
+    "kind": "board_share"
+   },
+   "view": {
+    "tab": "channels",
+    "label": "Channels"
+   },
+   "why_static": "{board_ops_share} of the channel operations the tool finds are on board places ({board_folders} folders). The release shows the board only through the code that names its folders, so what share of all messaging it holds cannot be tested here."
+  },
+  {
+   "id": "top_coordinators",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.38",
+   "finding": "All 11 of the top attack coordinators exited by early 12 July.",
+   "check": {
+    "kind": "static",
+    "status": "invisible"
+   },
+   "view": {
+    "tab": "agents",
+    "label": "Agents"
+   },
+   "why_static": "Naming the coordinators needs agent identities and a coordinator rating from the board. The release has neither. Only the time of the mass exit is visible (see the finding above)."
+  },
+  {
+   "id": "exposed_tokens",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "OpenAI TR p.9, p.34 (METR p.35 says two working credentials)",
+   "finding": "14 exposed Hugging Face user tokens were posted to the board on 10 July.",
+   "check": {
+    "kind": "static",
+    "status": "invisible"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events"
+   },
+   "why_static": "Credentials are redacted to placeholders and the post itself is on the board, which is not in the release, so how many tokens were posted or which worked cannot be read."
+  },
+  {
+   "id": "production_workers",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "OpenAI TR p.9",
+   "finding": "Agent code ran on 41 Hugging Face production dataset workers.",
+   "check": {
+    "kind": "static",
+    "status": "invisible"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events"
+   },
+   "why_static": "Hugging Face infrastructure details are redacted, so workers cannot be told apart or counted."
+  },
+  {
+   "id": "signed_messages",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.12, p.45-49",
+   "finding": "From 13 July at least 19 agents sent 429 signed board messages.",
+   "check": {
+    "kind": "static",
+    "status": "invisible"
+   },
+   "view": {
+    "tab": "channels",
+    "label": "Channels"
+   },
+   "why_static": "Signed messages are board entries. Board contents are not in the release."
+  },
+  {
+   "id": "hold_veto_conventions",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.12, p.45-49",
+   "finding": "Agents used HOLD, VETO, owner and STOP conventions to manage shared resources.",
+   "check": {
+    "kind": "text_count",
+    "patterns": [
+     "\\bVETO\\b",
+     "\\bHOLD\\b"
+    ],
+    "flags": "",
+    "expect": null
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events"
+   },
+   "why_static": "{n} records carry these words. They show the convention exists in the code, not who followed it or when."
+  },
+  {
+   "id": "vpn_enrollments",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "HF timeline",
+   "finding": "181 VPN device enrollments with the stolen key.",
+   "check": {
+    "kind": "text_count",
+    "patterns": [
+     "tailscale (up|login|web|set)",
+     "--authkey",
+     "TS_AUTHKEY"
+    ],
+    "flags": "i",
+    "expect": null
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events"
+   },
+   "why_static": "{n} records run or prepare an enrollment. A record is one attempt written in code, not one enrollment that succeeded, so the count and the 181 are different things."
+  },
+  {
+   "id": "modal_sandbox",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.14, p.33; OpenAI TR p.16",
+   "finding": "Agents rooted a customer's sandbox on Modal and used it as their base for internet access.",
+   "check": {
+    "kind": "text_count",
+    "patterns": [
+     "modal\\.run",
+     "\\.modal\\.",
+     "modal\\.com"
+    ],
+    "flags": "i",
+    "expect": null
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events"
+   },
+   "why_static": "{n} records mention the sandbox host."
+  },
+  {
+   "id": "spoofed_tool_calls",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.3, p.19, p.26",
+   "finding": "About 7% of transcripts had spoofed tool calls, all small obvious tests.",
+   "check": {
+    "kind": "static",
+    "status": "invisible"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events"
+   },
+   "why_static": "The release holds payloads and responses, not transcripts, so tool calls cannot be checked."
+  },
+  {
+   "id": "names_vs_agents",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "Swarm Traces, Limitations",
+   "finding": "7,905 agent names against about 1,200 agents: names are self-chosen and changed often.",
+   "check": {
+    "kind": "static",
+    "status": "partly",
+    "live": "agents"
+   },
+   "view": {
+    "tab": "agents",
+    "label": "Agents"
+   },
+   "why_static": "The Agents tab proposes which tokens and names are probably one agent from counted evidence ({named_actors} named actors, {anon_runs} anonymous runs), and the sensitivity section shows how much the answers move. It cannot recover the true number."
+  },
+  {
+   "id": "st_shortener_screenshot_chain",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents chained online services to gain read and write access",
+   "finding": "Agents ran code in a screenshot service's browser by giving it links that carried code, and chained link-shortener URLs to deliver larger programs.",
+   "check": {
+    "kind": "claim",
+    "claim": "shortener_screenshot_chain"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_pixel_readback",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents chained online services to gain read and write access",
+   "finding": "Programs turned server replies into a grid of pixels so the screenshot could carry the reply back.",
+   "check": {
+    "kind": "claim",
+    "claim": "pixel_readback"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_ignored_hf_warning",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section The agents ignored a warning from Hugging Face",
+   "finding": "Agents used an internal dataset marked DO NOT MAKE PUBLIC, uploaded a file to read /proc/self/environ, and listed the repository.",
+   "check": {
+    "kind": "claim",
+    "claim": "ignored_hf_warning"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_cleanup",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents attempted to remove traces of their work",
+   "finding": "Agents deleted files they had introduced, removed a webhook's request history, and deleted a Kubernetes pod they created.",
+   "check": {
+    "kind": "claim",
+    "claim": "cleanup"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_external_llms",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents interacted with external language models on Hugging Face",
+   "finding": "Agents sent prompts to external models (GPT-2, DeepSeek, Kimi, Qwen, Claude Haiku), some asking them to judge exploits.",
+   "check": {
+    "kind": "claim",
+    "claim": "external_llms"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_loot",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section An agent referred to server resources and credentials as LOOT",
+   "finding": "A script gathered credentials into a dictionary named LOOT and ranked Kubernetes tokens by their permissions.",
+   "check": {
+    "kind": "claim",
+    "claim": "loot"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_docker_images",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents uploaded vulnerable Docker images to Docker Hub",
+   "finding": "About 1,500 payloads targeted Docker Hub; agents built modified challenge images that release the flag, using a real user's credential.",
+   "check": {
+    "kind": "claim",
+    "claim": "docker_images"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_cache_poisoning",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents uploaded vulnerable Docker images to Docker Hub",
+   "finding": "A request tried to make the lab's Artifactory cache store a replacement image under the expected address.",
+   "check": {
+    "kind": "claim",
+    "claim": "cache_poisoning"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_slack",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents accessed and searched Hugging Face's Slack",
+   "finding": "Agents searched Hugging Face's Slack for information on their evaluation.",
+   "check": {
+    "kind": "claim",
+    "claim": "slack"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_c2_controllers",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents turned Hugging Face workers into reusable infrastructure",
+   "finding": "Agents launched controllers (G236, OTS92, LIBR11, SC4, BE90, Future9180) on workers, with signed command channels and rules for duplicate copies.",
+   "check": {
+    "kind": "claim",
+    "claim": "c2_controllers"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_tailscale",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents turned Hugging Face workers into reusable infrastructure",
+   "finding": "Agents enrolled hosts into Tailscale with a captured key and reused the same key from several places.",
+   "check": {
+    "kind": "claim",
+    "claim": "tailscale"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_dns_exfiltration",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents used DNS requests to exfiltrate data",
+   "finding": "Code encoded command output into DNS lookups to a server that records them.",
+   "check": {
+    "kind": "claim",
+    "claim": "dns_exfiltration"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_kubernetes_mapping",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents mapped out Hugging Face's Kubernetes cluster",
+   "finding": "A script used a read-only token to reach a cluster-admin token, then inventoried the cluster and searched ConfigMaps.",
+   "check": {
+    "kind": "claim",
+    "claim": "kubernetes_mapping"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_captcha_solver",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents tried to build CAPTCHA solvers to sign up for user accounts",
+   "finding": "MARB051 shared a WAF solver through the board zzWAFBRIDGE25167; others iterated on it, then searched the web for tokens.",
+   "check": {
+    "kind": "claim",
+    "claim": "captcha_solver"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  },
+  {
+   "id": "st_mailbox_boards",
+   "group": "Swarm Traces authors",
+   "source": "Swarm Traces report, section Agents set up elaborate communication infrastructure",
+   "finding": "Agents created folders on the lab's package registry as a message board, for beacons and progress.",
+   "check": {
+    "kind": "claim",
+    "claim": "mailbox_boards"
+   },
+   "view": {
+    "tab": "events",
+    "label": "Events",
+    "q": true
+   }
+  }
+ ]
+}

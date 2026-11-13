@@ -147,13 +147,13 @@
   "counting_rules": [
     {
       "rule": "naive: every read after another actor's write",
-      "messages": 5,
-      "pairs": 4
+      "messages": 10,
+      "pairs": 5
     },
     {
       "rule": "+ reruns of the same program removed, + each write once per reader",
-      "messages": 5,
-      "pairs": 4
+      "messages": 6,
+      "pairs": 5
     }
   ],
   "external": {
@@ -337,6 +337,20 @@
       "why": "[CREDENTIAL 170] ran the program [CREDENTIAL 169] first ran in R0006513, about 1 h later (estimated times)"
     },
     {
+      "key": "group3",
+      "name": "A group of 3+ actors linked by messages",
+      "family": "joint",
+      "kind": "group",
+      "time": "2026-07-11 07:46",
+      "ref": "R0007854",
+      "actors": [
+        "[CREDENTIAL 170]",
+        "[CREDENTIAL 220]"
+      ],
+      "harm_share_after": 0.855,
+      "why": "the message from [CREDENTIAL 170] to [CREDENTIAL 220] joined 3 actors into one connected group: [CREDENTIAL 170], [CREDENTIAL 169], [CREDENTIAL 220]"
+    },
+    {
       "key": "rate_all",
       "name": "Volume alarm on all actions",
       "family": "baseline",
@@ -438,20 +452,6 @@
       ],
       "harm_share_after": 0.502,
       "why": "two identities used the same named place flb4 in different records"
-    },
-    {
-      "key": "group3",
-      "name": "A group of 3+ actors linked by messages",
-      "family": "joint",
-      "kind": "group",
-      "time": "2026-07-12 13:06",
-      "ref": "R0046969",
-      "actors": [
-        "[CREDENTIAL 1720]",
-        "[CREDENTIAL 1602]"
-      ],
-      "harm_share_after": 0.072,
-      "why": "the message from [CREDENTIAL 1720] to [CREDENTIAL 1602] joined 3 actors into one connected group: [CREDENTIAL 1720], [CREDENTIAL 1623], [CREDENTIAL 1602]"
     }
   ]
 }

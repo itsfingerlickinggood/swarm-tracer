@@ -3,6 +3,8 @@
 "use strict";
 (() => {
   const PAGE = 100;
+  // counting by agent, an actor filter names an agent and stands for all its tokens (served by units.py)
+  const evUrl = () => (byAgent() && S.units ? "/api/x/units_events?" : "/api/events?");
   function events(el, s) {
     const k = Object.keys(s.kinds), it = Object.keys(s.intents), tg = Object.keys(s.evidence_tags);
     const sel = (id, opts, v, name = (o) => o) => `<select id="${id}"><option value="">any</option>${opts.map((o) => `<option value="${esc(o)}"${o === v ? " selected" : ""}>${esc(name(o))}</option>`).join("")}</select>`;
@@ -38,7 +40,7 @@
   const loadSaved = () => { try { const v = JSON.parse(localStorage.getItem(SAVE_KEY) || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } };
   const storeSaved = (v) => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(v.slice(0, 50))); } catch { /* storage full or off */ } };
   const current = () => Object.fromEntries(FKEYS.map((k) => [k, S.ev[k] || (k === "channels" ? false : "")]));
-  const describe = (f) => [f.q && `"${f.q}"`, f.kind && `kind ${f.kind}`, f.intent && human(f.intent), f.tag && human(f.tag), f.actor && short(f.actor), f.hour && `hour ${f.hour}`, f.channels && "touches a place"].filter(Boolean).join(", ") || "no filter";
+  const describe = (f) => [f.q && `"${f.q}"`, f.kind && `kind ${f.kind}`, f.intent && human(f.intent), f.tag && human(f.tag), f.actor && unitName(f.actor), f.hour && `hour ${f.hour}`, f.channels && "touches a place"].filter(Boolean).join(", ") || "no filter";
   function savedBar() {
     const box = $("evsaved"); if (!box) return;
     const list = loadSaved();
@@ -70,7 +72,7 @@
       const rows = []; let total = 0;
       for (let off = 0; off < 5000; off += 500) {
         const p = new URLSearchParams({ q: S.ev.q || "", hour: S.ev.hour || "", kind: S.ev.kind, intent: S.ev.intent, tag: S.ev.tag, actor: S.ev.actor, channels: S.ev.channels ? "1" : "", offset: off, limit: 500 });
-        const r = await api("/api/events?" + p);
+        const r = await api(evUrl() + p);
         total = r.total; rows.push(...r.rows);
         if (off + 500 >= r.total) break;
       }
@@ -124,7 +126,7 @@
   function chips() {
     const box = $("evchips"); if (!box) return;
     const c = [];
-    if (S.ev.actor) c.push(["actor", `actor ${ent.actor(S.ev.actor)}`]);
+    if (S.ev.actor) { const g = byAgent() && agentInfo(S.ev.actor); c.push(["actor", `${byAgent() ? "estimated agent" : "actor"} ${unitChip(S.ev.actor)}${g ? ` <span class="muted small">${fmt(g.tokens.length)} tokens ${estMark()}</span>` : ""}`]); }
     if (S.ev.hour) {
       const [a, b] = S.ev.hour.split("..");
       c.push(["hour", b ? `${esc(when(toTime(a)))} to ${esc(when(toTime(b) + 3600e3))}` : `hour ${esc(when(toTime(a)))}`]);
@@ -138,16 +140,16 @@
     chips();
     const p = new URLSearchParams({ q: S.ev.q || "", hour: S.ev.hour || "", kind: S.ev.kind, intent: S.ev.intent, tag: S.ev.tag, actor: S.ev.actor, channels: S.ev.channels ? "1" : "", offset: S.ev.offset, limit: PAGE });
     try {
-      const r = await api("/api/events?" + p);
+      const r = await api(evUrl() + p);
       if (!$("evlist")) return;
-      $("evtotal").textContent = `${fmt(r.total)} matching · ${fmt(r.timed)} with a time`;
+      $("evtotal").textContent = `${fmt(r.total)} matching · ${fmt(r.timed)} with a time${r.agent_tokens > 1 ? ` · the records of all ${fmt(r.agent_tokens)} tokens of one estimated agent` : ""}`;
       hist($("evhist"), r.hist, r.hist_by);
       facets($("evfacets"), r.facets, r.total);
       const rows = r.rows;
       host.className = "";
       host.innerHTML = rows.length ? `<div class="evrows">${rows.map((x, i) => `<div class="evrow" data-i="${i}">
           <div class="c1"><span class="tm" title="${esc(x.time ? x.time + " UTC" : "no time")}">${esc(x.time ? when(toTime(x.time)) : "no time")}</span>${ent.rec(x.id)}<span class="badge">${esc(x.kind)}</span></div>
-          <div class="c2">${ent.actor(x.actor)} ${ent.intent(x.intent)} ${x.tags.slice(0, 3).map((t) => `<span class="chip" title="${esc(tagName(t))}">${esc(human(t))}</span>`).join("")}${x.tags.length > 3 ? `<span class="muted small">+${x.tags.length - 3}</span>` : ""}
+          <div class="c2">${unitChip(x.actor)} ${ent.intent(x.intent)} ${x.tags.slice(0, 3).map((t) => `<span class="chip" title="${esc(tagName(t))}">${esc(human(t))}</span>`).join("")}${x.tags.length > 3 ? `<span class="muted small">+${x.tags.length - 3}</span>` : ""}
             <span class="io">${x.in ? `<span class="in" title="messages in: read what another actor wrote">↘ ${x.in}</span>` : ""}${x.out ? `<span class="out" title="messages out: another actor read what this wrote">↗ ${x.out}</span>` : ""}${x.ops ? `<span class="ops" title="places touched">◧ ${x.ops}</span>` : ""}</span></div>
           <div class="c3 mono">${esc(x.preview.slice(0, 160))}</div></div>`).join("")}</div>` : '<p class="muted">No event matches these filters.</p>';
       host.insertAdjacentHTML("beforeend", `<p class="pager"><button id="pv"${r.offset === 0 ? " disabled" : ""}>Previous</button> <button id="nx"${r.offset + PAGE >= r.total ? " disabled" : ""}>Next</button> <span class="muted small">${fmt(r.total ? r.offset + 1 : 0)}–${fmt(Math.min(r.total, r.offset + PAGE))} of ${fmt(r.total)}</span></p>`);
@@ -256,7 +258,7 @@
     host.innerHTML = `<div class="small muted">${term("record", "kind of record")} <span class="faint">(click one to keep only that kind)</span></div>${stackbar(kinds, { h: 10 })}
       <div class="chips">${kinds.map((k) => `<button type="button" class="link small" data-fk="${esc(k.label)}">${esc(k.label)}${S.ev.kind === k.label ? " ✓" : ""}</button>`).join("")}</div>
       ${Object.keys(f.intent).length ? `<div class="small muted" style="margin-top:8px">what the code does (${term("intent")}; only ${term("action", "actions")} have one: ${fmt(withIntent)} of the ${fmt(total)})</div>${hbars(Object.entries(f.intent).map(([k, v]) => ({ label: `${esc(human(k))}${isHarm(k) ? ' <span class="harmtag">harm</span>' : ""}`, value: v, color: intentColor(k), attrs: `data-click data-fi="${esc(k)}"` })), { total: withIntent })}` : ""}
-      <div class="small muted" style="margin-top:8px">busiest ${term("actor", "actors")} <span class="faint">("run R…" is an ${term("run", "anonymous run")}: a thread with no token or name, credited to its first record)</span></div><div class="chips">${f.actor.slice(0, 8).map(([a, n]) => `<span class="fa">${ent.actor(a, ` <span class="muted">${fmt(n)}</span>`)}<button type="button" class="link small" data-fa="${esc(a)}" title="Keep only this actor's events">filter</button></span>`).join("")}</div>`;
+      <div class="small muted" style="margin-top:8px">busiest ${byAgent() && S.units ? `${term("agent", "estimated agents")} ${estMark()}` : term("actor", "actors")} <span class="faint">("run R…" is an ${term("run", "anonymous run")}: a thread with no token or name, credited to its first record)</span></div><div class="chips">${f.actor.slice(0, 8).map(([a, n]) => `<span class="fa">${unitChip(a, ` <span class="muted">${fmt(n)}</span>`)}<button type="button" class="link small" data-fa="${esc(a)}" title="Keep only this actor's events">filter</button></span>`).join("")}</div>`;
     host.querySelectorAll("[data-fk]").forEach((b) => b.addEventListener("click", () => { S.ev.kind = S.ev.kind === b.dataset.fk ? "" : b.dataset.fk; $("fk").value = S.ev.kind; S.ev.offset = 0; loadEvents(); }));
     host.querySelectorAll("[data-fi]").forEach((b) => b.addEventListener("click", () => { S.ev.intent = b.dataset.fi; $("fi").value = b.dataset.fi; S.ev.offset = 0; loadEvents(); }));
     host.querySelectorAll("[data-fa]").forEach((b) => b.addEventListener("click", () => { S.ev.actor = b.dataset.fa; S.ev.offset = 0; loadEvents(); }));

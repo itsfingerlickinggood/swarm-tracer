@@ -15,3 +15,8 @@
 .gapcard2 header{align-items:center}
 .gapcard2 .gbig{font-size:18px;font-weight:650;margin:2px 0 6px}
 @media (max-width:700px){.gaprow{grid-template-columns:1fr}}
+.grng{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;font-size:12px;margin-top:2px}
+.grng:empty{display:none}
+.grl{display:inline-block;min-width:74px;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+.grp b{font-variant-numeric:tabular-nums}
+.gapcard2 .grng{margin-bottom:4px}

@@ -36,3 +36,18 @@
 /* tiles: never let the text of one run under the next */
 #left [class*='bmk'],#left [class*='bmt']{min-width:0}
 .bmcnt{width:min(100%,420px);max-width:calc(100% - 60px)}
+
+.bmmx{border-collapse:collapse;margin:6px 0 8px;font-size:12px}
+.bmmx th{font-weight:600;color:#555;text-align:left;padding:4px 10px;max-width:200px}
+.bmmx thead th{text-align:center}
+.bmcell{text-align:center;width:150px;height:34px;border:2px solid #fff}
+.bmcell b{font-size:15px}
+.bmsr>span:nth-child(2){min-width:0}
+.bmg{padding:6px 0;border-top:1px solid #e4e7eb;font-size:12px}
+.bmg:first-of-type{border-top:0}
+.bmgl{display:block;font-weight:600;color:#333;margin-bottom:3px}
+.bmgv{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.bmmx{table-layout:fixed;width:100%;max-width:460px}
+.bmmx th:first-child{width:110px}
+.bmmx thead th{font-size:11px;word-break:normal}
+.bmcell{width:auto}

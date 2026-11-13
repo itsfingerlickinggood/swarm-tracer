@@ -125,3 +125,70 @@ class TruncatedRetryTests(unittest.TestCase):
         flow = build(evs)
         self.assertNotIn(("[TOKEN 1]", "[TOKEN 2]"), {(d["from"], d["to"]) for d in flow["_deliveries"]})
         self.assertEqual(flow["reads_dropped_as_same_program"], 1)
+
+
+class VerbRuleTests(unittest.TestCase):
+    """judge_span / judge_how on the shapes found in the audit of the real release."""
+    WRX = __import__("re").compile(r"/commit/|x-ndjson|method:\s*['\"](POST|PUT)|[(,]\s*method\s*=\s*['\"]POST|Request\([^)]{0,120}data\s*=", __import__("re").I)
+    RRX = __import__("re").compile(r"method:\s*['\"](GET|HEAD)|/resolve/", __import__("re").I)
+    P = "https://huggingface.co/datasets/[X 1]"
+
+    def how(self, text):
+        i = text.index("huggingface.co/datasets/[X 1]")
+        return messages.judge_how(text, i, i + len("huggingface.co/datasets/[X 1]"), self.WRX, self.RRX)
+
+    def test_helper_call_verb_is_read_from_its_own_call(self):
+        text = f"src='{self.P}';_,d=Q('GET',src,h={{}});r,_=Q('POST',B+R+'/blobs/uploads/',b'',H)"
+        self.assertEqual(self.how(text)[0], "read")
+        text = f"src='{self.P}';_,d=Q('POST',src,h={{}})"
+        self.assertEqual(self.how(text)[0], "write")
+
+    def test_a_name_given_another_value_stops_the_search(self):
+        text = f"u='{self.P}';r=fetch(u,{{headers:{{}}}});u=l+'x';fetch(Q(u),{{method:'PUT'}})"
+        self.assertEqual(self.how(text)[0], "read")
+
+    def test_cut_off_call_and_hidden_lfs_operation_are_not_counted(self):
+        self.assertEqual(self.how(f"x=await fetch('{self.P}',{{method")[0], "mention")
+        self.assertEqual(self.how(f"x=fetch('{self.P}/info/lfs/objects/batch',{{method:'POST',body:B}})")[0], "mention")
+        up = f"B={{operation:'upload'}};fetch('{self.P}/info/lfs/objects/batch',{{method:'POST',body:B}})"
+        self.assertEqual(self.how(up)[:1] + self.how(up)[3:], ("write", "inferred"))
+
+    def test_how_the_verb_was_found(self):
+        self.assertEqual(self.how(f"fetch('{self.P}',{{method:'POST'}})")[3], "call")
+        self.assertEqual(self.how(f"u='{self.P}';fetch(u,{{method:'POST'}})")[3], "inferred")
+        self.assertEqual(self.how(f"see {self.P} for the data, then more text follows here to pad it out")[3], "default")
+
+    def test_repository_held_in_a_variable_names_only_an_owner(self):
+        text = f"fetch('{self.P}/'+repo+'/commit/main',{{method:'POST'}})"
+        self.assertEqual(self.how(text)[0], "mention")
+
+
+class GradeTests(unittest.TestCase):
+    def ops(self, wt=1000, rt=1100):
+        w = ("p:A", "write", "[T 1]", "token", wt, 1, "W")
+        r = ("p:A", "read", "[T 2]", "token", rt, 2, "R")
+        return [w, r]
+
+    def run_grade(self, how, coarse=None, estimated=None, rt=1100):
+        dels = messages.deliveries(self.ops(rt=rt), None, None, how, coarse, estimated)[0]
+        self.assertEqual(len(dels), 1)
+        return dels[0]["grade"]
+
+    def test_direct_inferred_weak(self):
+        self.assertEqual(self.run_grade({("W", "p:A"): "call", ("R", "p:A"): "call"}), "direct")
+        self.assertEqual(self.run_grade({("W", "p:A"): "inferred", ("R", "p:A"): "call"}), "inferred")
+        self.assertEqual(self.run_grade({("W", "p:A"): "call", ("R", "p:A"): "default"}), "weak")
+        calls = {("W", "p:A"): "call", ("R", "p:A"): "call"}
+        self.assertEqual(self.run_grade(calls, coarse=lambda ch: True), "weak")
+        # a time estimated while the records are more than an hour apart
+        self.assertEqual(self.run_grade(calls, estimated=lambda rid: rid == "R", rt=1000 + 2 * 3600), "weak")
+        self.assertEqual(self.run_grade(calls, estimated=lambda rid: rid == "R", rt=1000 + 600), "direct")
+
+    def test_no_grade_without_how(self):
+        dels = messages.deliveries(self.ops())[0]
+        self.assertNotIn("grade", dels[0])
+
+    def test_flow_and_message_list_carry_the_grade(self):
+        flow = build(story())
+        self.assertTrue(all(d["grade"] in messages.GRADES for d in flow["_deliveries"]))
+        self.assertEqual(sum(flow["deliveries_by_grade"].values()), len(flow["_deliveries"]))

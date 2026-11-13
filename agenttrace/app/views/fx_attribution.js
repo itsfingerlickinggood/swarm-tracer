@@ -12,6 +12,8 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     direct_item: ["Direct item", "A rare feature (a redacted value, string constant, identifier or self-chosen name) that exactly one named actor uses and that at most 50 runs carry in all. Features found in exactly the same threads of that actor count as one item, because a copied program shares dozens of strings at once."],
     attr_band: ["Confidence band", "High: three or more independent direct items and none pointing at another actor. Medium: two. Low: one direct item seen in two or more of the actor's threads, items pointing at two actors, or membership of a cluster whose linked runs agree. One rare feature seen once, or circumstantial evidence alone, makes no link."],
     holdout: ["Holdout test", "The identity token of a random half of the named threads is hidden; those threads are then attributed exactly like anonymous runs, and each link is checked against the hidden token."],
+    second_pass: ["Second pass: place and time", "Runs the first pass left unlinked are checked for two more kinds of evidence: a place (a dataset or folder) that only one named actor touches, and named records within ten minutes that share the run's program opening, host and code style or exact program. Weights are learned by logistic regression on halves hidden with other seeds than the test halves; each band's cut-off is the point where those halves are at least as precise as the first pass was in that band."],
+    tmpl_family: ["Template family", "Actions whose text is identical once ids, numbers and hex are masked. It says the same program ran many times, not that one agent ran it: many agents can run one program. Families are split into sub-clusters only by shared rare constants, with no chaining."],
     attr_cluster: ["Cluster", "Anonymous runs joined by strong links only: two runs that share at least four rare exact features, each carried by at most four anonymous runs. Joined transitively."],
   });
   const p1 = (x) => x == null ? "–" : (100 * x).toFixed(x >= 0.995 || x < 0.1 ? 1 : 0) + "%";
@@ -32,6 +34,16 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
   }
   const legend = (keys) => `<div class="legend">${keys.map((k) => `<span><i style="background:${BAND[k]}"></i>${esc(BAND_WORD[k])}</span>`).join("")}</div>`;
 
+  function beforeAfter(r) {
+    const bb = r.bands_before, sp = r.second_pass_links;
+    const att = (b) => b.high + b.medium + b.low;
+    const nowRuns = r.bands.high.runs + r.bands.medium.runs + r.bands.low.runs;
+    const rows = ["high", "medium", "low"].map((k) => [bandBadge(k), fmt(bb[k]), `<b>${fmt(r.bands[k].runs)}</b>`, sp[k] ? `+${fmt(sp[k])}` : "0", `${p1(bb[k] / r.runs)} → ${p1(r.bands[k].runs / r.runs)}`]);
+    rows.push(["<b>linked</b>", fmt(att(bb)), `<b>${fmt(nowRuns)}</b>`, `+${fmt(nowRuns - att(bb))}`, `${p1(att(bb) / r.runs)} → <b>${p1(nowRuns / r.runs)}</b>`]);
+    rows.push(["unattributed", fmt(bb.unattributed), fmt(r.bands.unattributed.runs), fmt(r.bands.unattributed.runs - bb.unattributed), `${p1(bb.unattributed / r.runs)} → ${p1(r.bands.unattributed.runs / r.runs)}`]);
+    return `<h4 class="fxa-h">Anonymous runs by band, before and after the ${term("second_pass", "second pass")}</h4>${table(["band", "before", "after", "added", "share of runs"], rows)}`;
+  }
+
   function coverage(r) {
     const b = r.bands, ks = ["high", "medium", "low", "unattributed"];
     const att = b.high.runs + b.medium.runs + b.low.runs;
@@ -44,6 +56,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
       <h4 class="fxa-h">Anonymous runs</h4>
       ${stack(ks.map((k) => ({ key: k, n: b[k].runs })), r.runs, `${fmt(r.runs)} runs`)}
       ${stack(ks.map((k) => ({ key: k, n: b[k].actions })), r.actions, `${fmt(r.actions)} actions`)}
+      ${beforeAfter(r)}
       <h4 class="fxa-h">All actions, before and after</h4>
       ${stack([{ key: "named", n: r.named_actions }, { key: "unattributed", n: r.actions_total - r.named_actions }], r.actions_total, "before")}
       ${stack([{ key: "named", n: r.named_actions }, ...ks.map((k) => ({ key: k, n: b[k].actions }))], r.actions_total, "after")}
@@ -74,7 +87,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
   }
 
   function kindsCard(r) {
-    const items = r.evidence_kinds.map((k) => ({ label: esc(k.label) + (k.direct_runs ? "" : ` <span class="muted">(never direct)</span>`), value: k.runs, color: k.direct_runs ? BAND.high : "#9aa5b1",
+    const items = r.evidence_kinds.map((k) => ({ label: esc(k.label) + (k.direct_runs ? "" : k.second_pass ? ` <span class="muted">(second pass)</span>` : ` <span class="muted">(never direct)</span>`), value: k.runs, color: k.direct_runs ? BAND.high : k.second_pass ? BAND.medium : "#9aa5b1",
       title: `${k.label}: in the evidence of ${k.runs} linked runs; a direct item for ${k.direct_runs}` }));
     return card("What the links rest on", hbars(items, { unit: " runs" }),
       { sub: `Linked runs whose evidence includes each kind (a run can have several). Green kinds can be ${term("direct_item", "direct items")}; grey ones only add points. ${fmt(r.credential_carriers)} anonymous runs carry a named actor's credential placeholder outside an auth header: that is not used as a direct item, because held-out threads that carried another actor's key were almost never that actor.` });
@@ -123,6 +136,34 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     if (scroll) box.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 
+  function secondPass(r) {
+    const h = r.holdout || {}, m = r.model || {}, sp = r.second_pass_links;
+    const n = sp.high + sp.medium + sp.low;
+    if (!m.weights) return card("Second pass: place and time", `<p class="muted">Too few hidden threads carried place or time evidence to learn weights on this dataset, so no extra links were made.</p>`);
+    const kinds = (h.second_pass_kinds || []).map((k) => [k.kinds.split("+").map((x) => esc(x === "own" ? "program owner" : x === "pre" ? "same opening in time" : x === "combo" ? "host+style in time" : x === "fam" ? "same program in time" : x)).join(" + "), fmt(k.links), `${meter(k.precision, k.precision >= 0.9 ? "#0f766e" : k.precision >= 0.7 ? "#b7791f" : HARM)} <b>${p1(k.precision)}</b>`]);
+    const w = Object.entries(m.weights).filter(([k]) => k !== "bias").map(([k, v]) => `<span class="fxa-w" title="learned weight (log-odds)">${esc(k)} <b>${v > 0 ? "+" : ""}${v}</b></span>`).join("");
+    return card("Second pass: place and time evidence",
+      `<p class="small">${fmt(n)} more anonymous runs are linked (${fmt(sp.high)} high, ${fmt(sp.medium)} medium, ${fmt(sp.low)} low). Each needs a place only one named actor touches, or named records within ${Math.round(m.window_s / 60)} minutes that share its program opening, host and code style or exact program, or a program opening that almost only one actor's records carry.</p>
+       <h4 class="fxa-h">Measured on held-out threads: which combinations of evidence were right</h4>
+       ${table(["evidence on the run", "links", "right"], kinds)}
+       <h4 class="fxa-h">Weights learned on ${fmt(m.training_rows)} hidden threads (halves ${(m.training_seeds || []).join(", ")}), tested on other halves</h4>
+       <div class="fxa-ws">${w}</div>
+       <p class="muted small">Band cut-offs on the predicted probability: high ≥ ${m.cutoffs.high ?? "–"}, medium ≥ ${m.cutoffs.medium ?? "–"}, low ≥ ${m.cutoffs.low ?? "–"}. Each band had to be at least as precise on the training halves as the first pass was there (targets ${["high", "medium", "low"].map((k) => p1((m.targets || {})[k])).join(" / ")}). A "place" alone is the weakest evidence: runs that touch a place a single named actor touches can belong to anyone who later found it.</p>`,
+      { sub: `Runs the first pass leaves unlinked get a second look. Only a ${term("second_pass", "second pass")} link whose probability clears a band's cut-off is added; the rest stay unattributed.` });
+  }
+
+  function familiesCard(r) {
+    const tf = r.template_families;
+    if (!tf || !tf.families) return "";
+    const rows = tf.top.slice(0, 10).map((f) => [fmt(f.records), fmt(f.runs), `<code class="fxa-tok" title="${esc(f.snippet)}">${esc(f.snippet.replace(/\s+/g, " ").slice(0, 56))}</code>`,
+      f.actors_total ? f.actors.slice(0, 2).map((a) => ent.actor(a.actor)).join(" ") + (f.actors_total > 2 ? ` <span class="muted small">+${f.actors_total - 2}</span>` : "") : '<span class="muted">no named actor</span>',
+      f.first ? esc(f.first.slice(5)) + " – " + esc((f.last || "").slice(5)) : '<span class="muted">undated</span>', f.clusters ? fmt(f.clusters) : "0", ent.rec(f.example)]);
+    return card(`${term("tmpl_family", "Template families")}`,
+      `<div class="fxa-big"><div><b>${fmt(tf.families)}</b><span>families of ${tf.min_size}+ actions with one masked program</span></div><div><b>${p1(tf.share_of_runs)}</b><span>of anonymous runs sit in one (${fmt(tf.runs_in_families)})</span></div><div><b>${fmt(tf.subclusters)}</b><span>sub-clusters from shared rare constants (${fmt(tf.runs_in_subclusters)} runs)</span></div></div>
+       ${table(["actions", "anon.", "program (masked)", "named actors who run it", "seen", "sub-clusters", "example"], rows)}`,
+      { sub: `A template family is a program, not an agent. Splitting by rare constants is not chained: a run joins a sub-cluster only when it shares ${tf.shared_min}+ constants (each carried by at most ${tf.rare_constant_max} family members) with that sub-cluster's first run. Most large families are one fixed program with only a placeholder number varying, so they split into almost nothing; they stay unattributed rather than being credited to whoever ran the program first.` });
+  }
+
   function precRows(bands, name) {
     return ["high", "medium", "low"].map((b) => {
       const x = (bands || {})[b] || {};
@@ -153,9 +194,16 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     const h = r.holdout || {};
     if (h.error || !h.bands) return card("How far to trust each band", `<p class="warn">${esc(h.error || "The holdout test did not run.")}</p>`);
     const b = r.bands, cov = p1((b.high.runs + b.medium.runs + b.low.runs) / r.runs);
-    let rows = precRows(h.bands, "this dataset, hidden token is the truth");
+    let rows = precRows(h.bands_first_pass, "before: first pass only, hidden token is the truth");
+    rows = rows.concat(precRows(h.bands, "after: first and second pass, hidden token is the truth"));
+    rows = rows.concat(precRows(h.bands_second_pass, "second pass alone (the added links)"));
     rows = rows.concat(precRows(h.bands_without_largest, `this dataset, without the ${h.largest_left_out} largest actors`));
-    if (h.bands_merged) rows = rows.concat(precRows(h.bands_merged, "this dataset, tokens the Agents tab merges at high count as one"));
+    if (h.bands_merged) rows = rows.concat(precRows(h.bands_merged, "after, scored per estimated agent (tokens the Agents tab merges count as one)"));
+    if (sim && sim.this_dataset_agent_pooled) {
+      const ap = sim.this_dataset_agent_pooled;
+      rows = rows.concat(precRows(ap.bands, "tested, not adopted: tokens of an agent pooled first, scored per agent"));
+      rows = rows.concat(precRows(ap.bands_single_token_agents, "same, only hidden threads of agents with a single token"));
+    }
     if (sim && sim.available) rows = rows.concat(precRows(sim.bands, `simulated swarms (${sim.swarms_scored} of ${sim.swarms_found}), truth file`));
     return card("How far to trust each band (measured)", trust(h, sim).replace("{COV}", cov) +
       table(["test", "band", "links made", "right", "precision (95% range)"], rows) +
@@ -171,10 +219,10 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     const ex = ["high", "medium", "low"].flatMap((k) => (r.examples[k] || []).slice(0, 3).map((x) => `<button type="button" class="fxa-ex" data-run="${esc(x.id)}">${bandBadge(k)} ${esc(short(x.id))} → ${esc(short(x.actor))}</button>`)).join("");
     host.innerHTML = `<p class="fxa-caveat"><b>Probable links, not identities.</b> ${esc(r.caveat.replace(/^These are probable links[^.]*\.\s*/, ""))}</p>
       <div class="kpis">${kpi("anonymous runs", fmt(r.runs))}${kpi("linked: high", fmt(b.high.runs))}${kpi("linked: medium", fmt(b.medium.runs))}${kpi("linked: low", fmt(b.low.runs))}${kpi("unattributed", fmt(b.unattributed.runs), p1(b.unattributed.runs / r.runs) + " of runs")}${kpi("clusters", fmt(r.clusters_total), fmt(r.clustered_runs) + " runs")}</div>
-      ${coverage(r)}${bubbles(r)}<div class="fxa-two">${kindsCard(r)}${actorsCard(r)}</div>${clustersCard(r)}
+      ${coverage(r)}${secondPass(r)}${familiesCard(r)}${bubbles(r)}<div class="fxa-two">${kindsCard(r)}${actorsCard(r)}</div>${clustersCard(r)}
       <div class="card"><header><h3>Open a run</h3><span class="muted small">examples from each band</span></header><div class="fxa-exs">${ex}</div></div>
       <div id="fxaDetail"></div><div id="fxaVal"><p class="muted">Scoring on simulated swarms…</p></div>
-      <p class="muted small">Method: features are exact redacted values, string constants, identifiers and self-chosen names; one counts when at most ${r.method.max_actors} named actors use it and at most ${r.method.common} runs carry it, and is direct when one named actor uses it and at most ${r.method.rare} runs carry it. ${fmt(r.method.messaged_features_ignored)} features that travelled in a message are ignored. The first ${fmt(r.method.text_cap)} characters of each record are read. Computed in ${r.seconds} s.</p>`;
+      <p class="muted small">Method: features are exact redacted values, string constants, identifiers and self-chosen names; one counts when at most ${r.method.max_actors} named actors use it and at most ${r.method.common} runs carry it, and is direct when one named actor uses it and at most ${r.method.rare} runs carry it. ${fmt(r.method.messaged_features_ignored)} features that travelled in a message are ignored. The first ${fmt(r.method.text_cap)} characters of each record are read. Computed in ${r.seconds} s. Estimated agents: ${fmt(r.agent_layer.merged_tokens)} of ${fmt(r.agent_layer.tokens)} tokens merge into ${fmt(r.agent_layer.merged_agents)} agents; links name a token, and the Agents tab folds tokens into agents.</p>`;
     host.querySelectorAll("[data-run]").forEach((el) => el.addEventListener("click", () => detail(el.dataset.run)));
     const clBox = $("fxaCl");
     if (clBox) bindRows(clBox, (i) => detail(r.clusters[i].members[0]));

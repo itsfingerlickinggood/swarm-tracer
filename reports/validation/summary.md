@@ -1,4 +1,4 @@
-Generated 2026-11-12T19:57:39Z by `python3 -m agenttrace.validation run --out reports/validation --seeds 1 2 3 4 5`. 45 coordinated and 15 benign simulated swarms. Cells are min–**median**–max over seeds; one value means all seeds agree.
+Generated 2026-11-13T16:00:49Z by `python3 -m agenttrace.validation run --out reports/validation --seeds 1 2 3 4 5`. 45 coordinated and 15 benign simulated swarms. Cells are min–**median**–max over seeds; one value means all seeds agree.
 
 ### Messages
 
@@ -86,6 +86,16 @@ Generated 2026-11-12T19:57:39Z by `python3 -m agenttrace.validation run --out re
 | medium | 60 | 60 | 100% (94%–100%) | – |
 | low | 21721 | 207 | 1% (1%–1%) | same_programs 20326, handoff 14257, messages 2625, same_place 2128 |
 | direct rule | 279 | 279 | 100% (99%–100%) | – |
+
+### Message precision by confidence grade, coordinated swarms pooled
+
+Each message the tool reports carries a grade: direct (the verbs of both sides sit in the very call that names the place), inferred (found through a variable, helper or LFS operation) or weak (a default, a merged place, or an estimated time more than an hour from the other side). Precision is against the simulator's true messages.
+
+| grade | all coordinated: reported | right | precision (95% range) | real-world-style settings: reported | right | precision (95% range) |
+|---|---|---|---|---|---|---|
+| direct | 56 | 46 | 82% (70%–90%) | 56 | 46 | 82% (70%–90%) |
+| inferred | 2670 | 2088 | 78% (77%–80%) | 217 | 175 | 81% (75%–85%) |
+| weak | 6057 | 4745 | 78% (77%–79%) | 712 | 567 | 80% (77%–82%) |
 
 ### Benign baseline (15 swarms with no coordination)
 

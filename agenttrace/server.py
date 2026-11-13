@@ -601,6 +601,9 @@ def serve(port=8010, input_path=None, pack="generic.json", mapping=None, allow_p
         print(f"analyzing {input_path} with {pack} ...", flush=True)
         run_load(input_path, pack, mapping or {}, os.path.basename(input_path))
         print("ready", flush=True)
+    # a burst of page requests must not overflow the listen queue while a background analysis holds the
+    # interpreter: the default queue (5) made the browser's parallel requests fail with "connection reset"
+    ThreadingHTTPServer.request_queue_size = 128
     httpd = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     print(f"Swarm Tracer: http://127.0.0.1:{port}/", flush=True)
     try:

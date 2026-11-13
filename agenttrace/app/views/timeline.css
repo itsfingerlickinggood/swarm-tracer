@@ -66,3 +66,9 @@ svg.tl-lanes .msg.merged{stroke-dasharray:3 2}
 .tl-warn{color:#b45309;cursor:help}
 .tl-warnt{color:#9a3412}
 .chrono .badge.sign{background:#e8f0fa;color:#1e4f86}
+
+/* by estimated agent: an agent of several tokens has a bracket and halo; a message inside one agent is a tick */
+.tl-key-tick{background:#2f6fb3!important;width:2.5px!important;height:11px!important;border-radius:0!important}
+.tl-key-halo{background:none!important;border:1px solid #2f6fb3;border-left-width:3px;border-radius:2px!important;opacity:.7}
+svg.tl-lanes .msg.tick{stroke:#2f6fb3;stroke-linecap:butt}
+svg.tl-lanes .tl-halo{pointer-events:none}

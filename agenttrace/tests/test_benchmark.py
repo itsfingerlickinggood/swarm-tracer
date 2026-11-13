@@ -25,6 +25,16 @@ class TestAuditFile(unittest.TestCase):
         self.assertTrue(any(r["reported_now"] and not r["reported_v110"] for r in links))
         self.assertEqual(sum(self.audit["counts"].values()), len(links))
 
+    def test_every_link_has_an_endpoint_kind(self):
+        kinds = {r["endpoint_kind"] for r in self.audit["links"]}
+        self.assertEqual(kinds, {"named_named", "involves_run"})
+        for r in self.audit["links"]:
+            run = r["from"].startswith("run:") or r["to"].startswith("run:")
+            self.assertEqual(r["endpoint_kind"], "involves_run" if run else "named_named")
+        by = self.audit["counts_by_endpoint_kind"]
+        self.assertEqual(sum(sum(v.values()) for v in by.values()), len(self.audit["links"]))
+        self.assertGreater(len(self.audit["links"]), 182)
+
     def test_text_is_short(self):
         for r in self.audit["links"]:
             self.assertLessEqual(len(r["write_snippet"]), 160)
@@ -49,6 +59,23 @@ class TestAuditFile(unittest.TestCase):
         self.assertTrue(0 <= lo <= res["precision"]["value"] <= hi <= 1)
         self.assertEqual(len(res["regressions"]["false_links_reported"]), res["precision"]["n"] - res["precision"]["k"])
         self.assertEqual(sum(c["v110"] for c in res["confusion"]), 166)
+
+    def test_groups_and_grades(self):
+        links = self.audit["links"]
+        pairs = [{"write_id": r["write_id"], "read_id": r["read_id"], "from": r["from"], "to": r["to"],
+                  "grade": "weak" if i % 2 else "inferred"} for i, r in enumerate(links) if r["label"] == "true_message"]
+        res = benchmark.score(pairs, self.audit)
+        g = res["groups"]
+        self.assertEqual(g["all"]["reported"], len(pairs))
+        self.assertEqual(g["named_named"]["reported"] + g["involves_run"]["reported"], len(pairs))
+        self.assertEqual(g["all"]["precision"]["value"], 1.0)
+        self.assertEqual(sum(res["by_grade"][k]["reported"] for k in benchmark.GRADES), len(pairs))
+        self.assertEqual(res["by_grade"]["direct"]["precision"]["value"], None)
+        self.assertEqual(g["pool"]["named_named"]["links"] + g["pool"]["involves_run"]["links"], len(links))
+        # a false link in the named group lowers only that group
+        bad = next(r for r in links if r["label"] == "false_write" and r["endpoint_kind"] == "named_named")
+        res = benchmark.score(pairs + [{"write_id": bad["write_id"], "read_id": bad["read_id"], "from": bad["from"], "to": bad["to"]}], self.audit)
+        self.assertLess(res["groups"]["named_named"]["precision"]["value"], 1.0)
 
     def test_unknown_links_are_set_apart(self):
         res = benchmark.score([("RX", "RY")], self.audit)
@@ -92,6 +119,74 @@ class TestRealBenchmark(unittest.TestCase):
         self.assertEqual(res["reported_now"], res["reported_now_audited"] + res["reported_now_not_audited"])
         self.assertEqual(res["then_vs_now"]["v110"]["reported"], 166)
         self.assertIn("Precision now", benchmark.report_text(res))
+        # every delivery the code reports on the release has been read by hand
+        self.assertEqual(res["reported_now_not_audited"], 0)
+        self.assertEqual(res["groups"]["all"]["reported"], res["reported_now"])
+        self.assertGreaterEqual(res["precision"]["value"], 0.8)
+        self.assertEqual(res["regressions"]["true_links_missed"], [])
+        self.assertIn("independent", res)
+        self.assertGreater(res["independent"]["decided"]["agreement"]["value"], 0.85)
+        self.assertIn("Precision by grade", benchmark.report_text(res))
+
+
+class TestIndependentMethod(unittest.TestCase):
+    PLACE = "[REDACTED:destination:000001]"
+
+    def op(self, text):
+        return benchmark.independent_ops(text, self.PLACE)[0]
+
+    def test_verbs_found_by_different_routes(self):
+        p = self.PLACE
+        self.assertEqual(self.op(f"fetch('https://huggingface.co/api/datasets/{p}',{{method:'POST',body:b}})"), "write")
+        self.assertEqual(self.op(f"fetch('https://huggingface.co/datasets/{p}',{{headers:{{A:'x'}}}})"), "read")
+        self.assertEqual(self.op(f"x.open('PUT','https://huggingface.co/datasets/{p}',false)"), "write")
+        self.assertEqual(self.op(f"u='https://huggingface.co/datasets/{p}';fetch(u,{{method:'POST'}})"), "write")
+        self.assertEqual(self.op(f"u='https://huggingface.co/datasets/{p}';fetch(u,{{headers:{{}}}})"), "read")
+        self.assertEqual(self.op(f"r=u.urlopen(u.Request('https://huggingface.co/datasets/{p}',data=d))"), "write")
+        self.assertEqual(self.op(f"r=u.urlopen(u.Request('https://huggingface.co/datasets/{p}'))"), "read")
+        self.assertEqual(self.op(f"o={{method:'POST'}};fetch('https://huggingface.co/datasets/{p}',o)"), "write")
+
+    def test_a_get_then_a_post_elsewhere_is_a_read(self):
+        text = (f"(async()=>{{let u='https://huggingface.co/datasets/{self.PLACE}',r=await fetch(u,{{headers:{{}}}}),"
+                "q=await fetch('https://elsewhere.example/x',{method:'POST',body:'b'})})()")
+        self.assertEqual(self.op(text), "read")
+
+    def test_lfs_operation_decides_and_a_hidden_one_is_unknown(self):
+        p = self.PLACE
+        up = f"U='https://h/https://huggingface.co/datasets/{p}/info/lfs/objects/batch';B={{operation:'upload'}};fetch(U,{{method:'POST',body:B}})"
+        dl = up.replace("upload", "download")
+        self.assertEqual(self.op(up), "write")
+        self.assertEqual(self.op(dl), "read")
+        self.assertIsNone(self.op(up.replace("B={operation:'upload'}", "B={}")))
+
+    def test_cut_off_call_is_unknown(self):
+        self.assertIsNone(self.op(f"x=await fetch('https://huggingface.co/api/datasets/{self.PLACE}',{{method"))
+
+    def test_kappa(self):
+        self.assertEqual(benchmark.kappa([True, False, True, False], [True, False, True, False]), 1.0)
+        self.assertEqual(benchmark.kappa([True, True, False, False], [True, False, True, False]), 0.0)
+        self.assertIsNone(benchmark.kappa([], []))
+        self.assertIsNone(benchmark.kappa([True, True], [True, True]))
+
+    def test_agreement_on_a_fake_session(self):
+        p = self.PLACE
+        class E:
+            def __init__(self, t):
+                self.text = t
+        s = type("S", (), {})()
+        s.by_id = {"W": E(f"fetch('https://huggingface.co/api/datasets/{p}',{{method:'POST',body:b}})"),
+                   "R": E(f"fetch('https://huggingface.co/datasets/{p}')"),
+                   "R2": E(f"fetch('https://huggingface.co/api/datasets/{p}',{{method:'POST',body:b}})")}
+        audit = {"links": [
+            {"write_id": "W", "read_id": "R", "channel_now": "hf_dataset:" + p, "label": "true_message", "reason": "r"},
+            {"write_id": "W", "read_id": "R2", "channel_now": "hf_dataset:" + p, "label": "read_not_a_read", "reason": "r"},
+            {"write_id": "W", "read_id": "R2", "channel_now": "hf_dataset:" + p, "label": "unclear", "reason": "r"}]}
+        out = benchmark.independent_agreement(s, audit)
+        self.assertEqual(out["decided"]["n"], 2)
+        self.assertEqual(out["decided"]["agreement"]["value"], 1.0)
+        self.assertEqual(out["decided"]["matrix"], {"true_yes": 1, "true_no": 0, "false_yes": 0, "false_no": 1})
+        self.assertEqual(out["unclear_links"], 1)
+        self.assertEqual(out["disagreements"], [])
 
 
 class TestRealWorldSimulator(unittest.TestCase):

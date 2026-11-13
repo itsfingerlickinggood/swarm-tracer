@@ -319,12 +319,12 @@ def message_list(s):
     for d in s.flow["_deliveries"]:
         rows.append([d["from"], d["to"], d["channel"], d["write_id"], d["read_id"], d["write_time"], d["read_time"],
                      d["latency_h"], d.get("how"), 1 if any(r.search(d["channel"]) for r in coarse) else 0,
-                     1 if is_estimated(s, d["write_id"], d["read_id"]) else 0])
+                     1 if is_estimated(s, d["write_id"], d["read_id"]) else 0, d.get("grade", "weak")])
     rows.sort(key=lambda r: r[6])
     over = [[d["from"], d["to"], d["channel"], d["write_id"], d["read_id"], d["write_time"], d["read_time"]]
             for d in s.flow.get("_overwrites", [])]
     # merged: the place is one the redaction may have merged with others, so the write and read may differ
-    return {"columns": ["from", "to", "channel", "write_id", "read_id", "write_t", "read_t", "latency_h", "how", "merged", "estimated"],
+    return {"columns": ["from", "to", "channel", "write_id", "read_id", "write_t", "read_t", "latency_h", "how", "merged", "estimated", "grade"],
             "rows": rows, "overwrites": over}
 
 

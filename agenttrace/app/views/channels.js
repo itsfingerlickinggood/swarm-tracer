@@ -7,12 +7,14 @@
   const TYPE_COLORS = ["#6b46c1", "#2f6fb3", "#0f766e", "#b7791f", "#c2410c", "#5d6d7e", "#b8579a", "#2e9d5b"];
   const CAT = [
     { key: "msg", label: "carried a message", color: PALETTE.place.msg },
-    { key: "quiet", label: "written and read, no message between actors", color: PALETTE.place.quiet },
-    { key: "never", label: "written, never read by another actor", color: PALETTE.place.never },
+    { key: "quiet", get label() { return `written and read, no message between ${CUR.U}s`; }, color: PALETTE.place.quiet },
+    { key: "never", get label() { return `written, never read by another ${CUR.U}`; }, color: PALETTE.place.never },
     { key: "readonly", label: "only read (no write seen)", color: PALETTE.place.readonly },
   ];
   const st = { rank: "ops", top: 40, noMerged: false, named: false };
   let seq = 0;
+  const uo = (a) => (CUR.A ? agentOf(a) : a);
+  let CUR = { A: null, U: "actor", sum: null };   // what the view on screen counts: agents (A: place -> counts by agent) or tokens
   const catOf = (p) => (p.messages ? "msg" : p.never ? "never" : !p.writes ? "readonly" : "quiet");
   const hourKey = (t) => new Date(t).toISOString().slice(0, 13).replace("T", " ");
   const median = (xs) => { if (!xs.length) return null; const a = xs.slice().sort((p, q) => p - q); return a[Math.floor(a.length / 2)]; };
@@ -41,18 +43,19 @@
     const rows = L.slice(0, limit).map((p) => `<tr><td>${ent.place(p.ch)}${bTag(p)}</td><td class="n">${fmt(p.writers)}</td><td class="n">${fmt(p.readers)}</td><td class="n">${fmt(p.writes)}</td><td class="n">${fmt(p.reads)}</td><td class="n">${p.messages ? `<b>${fmt(p.messages)}</b>` : "–"}</td><td class="small muted" title="${esc(p.first || "")}">${esc(p.first ? String(p.first).replace(/^\d{4}-/, "") : "–")}</td></tr>`).join("");
     const more = L.length > limit ? `<button class="ch-more" type="button">${opts.all ? "" : `Show ${L.length > 200 ? "the busiest 200" : `all ${fmt(L.length)}`}`}</button>` : "";
     host.innerHTML = `<p class="small"><b>${plural(L.length, "place")}</b> ${title}${nm && nm < L.length ? `; ${fmt(nm)} carried a message (listed first)` : ""}.</p>
-      <div class="tablewrap"><table class="ch-glist"><thead><tr><th>place</th><th class="n">writers</th><th class="n">readers</th><th class="n">writes</th><th class="n">reads</th><th class="n">msgs</th><th>first write</th></tr></thead><tbody>${rows}</tbody></table></div>${opts.all ? "" : more}`;
+      <div class="tablewrap"><table class="ch-glist"><thead><tr><th>place</th><th class="n" title="${CUR.A ? "estimated agents that wrote to the place" : "actors that wrote to the place"}">writers</th><th class="n" title="${CUR.A ? "estimated agents that read the place" : "actors that read the place"}">readers</th><th class="n">writes</th><th class="n">reads</th><th class="n">msgs</th><th>first write</th></tr></thead><tbody>${rows}</tbody></table></div>${opts.all ? "" : more}`;
     const b = host.querySelector(".ch-more"); if (b) b.addEventListener("click", () => placeTable(host, title, list, { all: true }));
   }
 
   VIEWS.channels = async function channels(el, s) {
     const my = ++seq;
+    CUR = { A: null, U: byAgent() && S.units ? "agent" : "actor", sum: null };
     el.innerHTML = `<h2>Places and how messages moved through them</h2>
       <p class="small muted ch-what">A ${term("place", "place")} (a channel) is anywhere one actor can leave something for another: a repository, a board folder, a webhook, a command file. Each mention of a place in code is judged a ${term("write", "write or a read")}, and a ${term("message", "message")} is a read after a different actor's write.</p>
       <p class="lead" id="chLead">Loading every place…</p>
       <div id="chFunnel" class="ch-funnel"></div><div id="chFunnelList" class="ch-funnellist"></div>
       <p class="small muted" id="chNames"></p><p class="small ch-opt" id="chOpt"></p>
-      ${card("How places were shared", `<div id="chScatter"></div>`, { sub: "Every place counted by how many actors wrote to it (columns) and read it (rows). Each cell prints its places and their share of all places; the last row and column are totals." })}
+      ${card("How places were shared", `<div id="chScatter"></div>`, { sub: `Every place counted by how many ${CUR.U}s wrote to it (columns) and read it (rows). Each cell prints its places and their share of all places; the last row and column are totals.` })}
       ${card("The busiest places, hour by hour", `<div id="chHeatCtl" class="ch-ctl"></div><div id="chHeat"></div>`,
         { sub: "One row per place, hours in UTC (estimated times). In each hour the top half shows writes and the bottom half reads; darker means more. A dark dot marks an hour in which another actor read a message there. This view counts every actor, named or not. Hover a name for the whole name; click a cell to list those events." })}
       <div class="grid2">
@@ -62,10 +65,16 @@
       ${card("Map of places", `<div id="chMapKey" class="legend"></div><div id="chMap" class="ch-map"></div>`,
         { sub: "Each tile is one place, grouped by kind. Its size grows with the reads and writes on it (square root, so small places stay visible). Kinds with very few places sit in a thin strip along the bottom. Its colour says what happened there. Hover a tile for its card; click it to inspect every write and read." })}
       ${card("All places, busiest first", `<div id="chanList"></div>`, { sub: "Click a row to inspect the place; filter to search all of them." })}`;
-    let map, msgs;
+    let map, msgs, UP = null;
+    const AG = byAgent() && !!S.units;
     try { [map, msgs] = await Promise.all([cached("/api/places_map"), cached("/api/messages")]); }
     catch (e) { $("chLead").textContent = e.message; return; }
+    if (AG) { try { UP = await cached("/api/x/units_places"); } catch { UP = null; } }
     if (my !== seq || S.tab !== "channels") return;
+    // counting by agent: a message between two tokens of one agent is not a message, and writers and readers are agents
+    const A = AG && UP ? new Map(UP.rows.map((r) => [r[0], r])) : null;
+    CUR = { A, U: A ? "agent" : "actor", sum: A ? UP.summary : null };
+    if (A) msgs = { ...msgs, rows: msgs.rows.filter((r) => unitOf(r[0]) !== unitOf(r[1])), inside: msgs.rows.length - msgs.rows.filter((r) => unitOf(r[0]) !== unitOf(r[1])).length };
 
     // places the redaction may have merged: the places of any message flagged as on a merged place
     const mergedSet = new Set(msgs.rows.filter((r) => r[9]).map((r) => r[2]));
@@ -83,6 +92,7 @@
     } else st.named = false;
     const keepP = (ch) => !(st.noMerged && mergedSet.has(ch));
     const P = map.rows.filter((r) => keepP(r[0])).map((r) => ({ ch: r[0], type: String(r[0]).split(":")[0], writes: r[1], reads: r[2], writers: r[3], readers: r[4], messages: r[5], overwrites: r[6], never: !!r[7], first: r[8] }));
+    if (A) P.forEach((p) => { const a = A.get(p.ch); if (a) { p.writers = a[1]; p.readers = a[2]; p.messages = st.named ? a[4] : a[3]; p.never = !!a[5]; } });
     if (!P.length) {
       $("chLead").textContent = "No places found. The pack describes no place (a repository, folder, page or thread), or no record names one, so messages between actors cannot be traced here.";
       ["chTiles"].forEach((id) => ($(id).innerHTML = ""));
@@ -105,11 +115,12 @@
     const namedPl = new Set(msgs.rows.filter((r) => isNamed(r[0]) && isNamed(r[1]) && !(st.noMerged && r[9])).map((r) => r[2]));
     $("chLead").innerHTML = `${plural(P.length, "place")} are named in code (${byType.map(([t, n]) => `${fmt(n)} ${esc(placeType(t, n))}`).join(", ")}), but only ${fmt(W1.length)} were written to in this trace; the rest were only read, many of them public or written outside the release. ` +
       `${fmt(nMsg)} places carried ${plural(M.length, "message")}${st.named ? " between named actors" : ""}` + (mBroad && !st.named ? `, ${fmt(mBroad)} of them from ${plural(nBroad.length, "broadcast")} (one writer, five or more readers)` : "") + "." +
-      (st.noMerged ? ` <span class="muted">Leaving out ${plural(mergedSet.size, "merged place")} and their messages.</span>` : "") + (st.named ? ` <span class="muted">Counting only messages between named actors.</span>` : "");
+      (st.noMerged ? ` <span class="muted">Leaving out ${plural(mergedSet.size, "merged place")} and their messages.</span>` : "") + (st.named ? ` <span class="muted">Counting only messages between named actors.</span>` : "") +
+      (A && hasMerges() ? ` <span class="muted">Counted by ${term("agent", "estimated agent")} ${estMark()}: ${plural(msgs.inside || 0, "message")} between two tokens of one agent ${msgs.inside === 1 ? "is" : "are"} not counted${CUR.sum && CUR.sum.msg_token !== CUR.sum.msg_agent ? `, so ${fmt(CUR.sum.msg_token)} places that carried a message counting tokens are ${fmt(CUR.sum.msg_agent)} counting agents` : ""}.</span>` : "");
     const steps = [
       { n: P.length, label: "named in code", list: P, title: "named in code" },
       { n: W1.length, label: "written to", list: W1, title: "written to in this trace" },
-      { n: P.filter((p) => p.messages).length, label: st.named ? "message between named actors" : "read by another actor after a write", list: P.filter((p) => p.messages), title: "that carried a message" },
+      { n: P.filter((p) => p.messages).length, label: st.named ? "message between named actors" : `read by another ${CUR.U} after a write`, list: P.filter((p) => p.messages), title: "that carried a message" },
       ...(st.named ? [] : [{ n: namedPl.size, label: "message between named actors", list: P.filter((p) => namedPl.has(p.ch)), title: "that carried a message between named actors" }]),
     ];
     $("chFunnel").innerHTML = steps.map((x, i) => `<button type="button" class="ch-fstep" data-fstep="${i}" style="--w:${Math.max(4, 100 * Math.log1p(x.n) / Math.log1p(P.length)).toFixed(0)}%"><span class="ch-fbar"></span><b>${fmt(x.n)}</b><span>${esc(x.label)}</span>${i ? `<em>${share(x.n / P.length)} of all</em>` : ""}</button>`).join('<span class="ch-farrow" aria-hidden="true">→</span>');
@@ -126,7 +137,7 @@
     drawScatter(D);
     if (st.noMerged) $("chanList").insertAdjacentHTML("beforebegin", '<p class="small muted">This full list still includes merged places (it is read page by page from the server).</p>');
     listView($("chanList"), "channels", ["place", "writes", "reads", "writers", "readers", "messages", "overwrites", "median wait", "first write"],
-      (c) => [ent.place(c.channel), fmt(c.writes), fmt(c.reads), fmt(c.writers), fmt(c.readers), fmt(c.deliveries), fmt(c.overwrites || 0), estWait(c.median_latency_h, M.some((m) => m.est)), esc(c.first_write || "–")],
+      (c) => [ent.place(c.channel), fmt(c.writes), fmt(c.reads), fmt(A?.get(c.channel)?.[1] ?? c.writers), fmt(A?.get(c.channel)?.[2] ?? c.readers), fmt(A?.get(c.channel) ? A.get(c.channel)[3] : c.deliveries), fmt(c.overwrites || 0), estWait(c.median_latency_h, M.some((m) => m.est)), esc(c.first_write || "–")],
       s.top_channels.slice(0, 15), s.list_totals?.channels, (c) => inspectPlace(c.channel));
     onResize($("chMap"), () => drawMap(D));
     onResize($("chHeat"), () => drawHeat(D));
@@ -172,7 +183,7 @@
       const tot = ct[t] || {};
       return { t, ps, ms, writes: tot.writes ?? ps.reduce((a, p) => a + p.writes, 0), reads: tot.reads ?? ps.reduce((a, p) => a + p.reads, 0),
         ro: ps.filter((p) => !p.writes).length, never: ps.filter((p) => p.never).length, med: median(ms.map((m) => m.lat)),
-        actors: new Set(ms.flatMap((m) => [m.from, m.to])).size, named: new Set(ms.flatMap((m) => [m.from, m.to]).filter((a) => !String(a).startsWith("run:"))).size };
+        actors: new Set(ms.flatMap((m) => [uo(m.from), uo(m.to)])).size, named: new Set(ms.flatMap((m) => [m.from, m.to]).filter((a) => !String(a).startsWith("run:")).map(uo)).size };
     };
     // why a kind of place carried no message, in words an investigator can act on
     const why = (x) => !x.ms.length && x.reads ? (x.writes
@@ -191,7 +202,7 @@
           <div><dt>messages</dt><dd>${fmt(x.ms.length)}<span> ${M.length ? share(x.ms.length / M.length) : ""}</span></dd></div>
           <div><dt>read, never written</dt><dd>${fmt(x.ro)}</dd></div>
           <div><dt>median wait</dt><dd>${estWait(x.med, x.ms.some((m) => m.est))}</dd></div>
-          <div><dt>actors in messages</dt><dd>${fmt(x.actors)}<span> ${x.actors ? `(${fmt(x.named)} named)` : ""}</span></dd></div>
+          <div><dt>${CUR.A ? `${term("agent", "estimated agents")} ${estMark()}` : "actors"} in messages</dt><dd>${fmt(x.actors)}<span> ${x.actors ? `(${fmt(x.named)} named)` : ""}</span></dd></div>
         </dl>
         ${why(x) ? `<p class="small ch-why">${why(x)}</p>` : ""}
         ${top ? `<div class="small muted ch-top"><span>Busiest</span>${ent.place(top.ch)}${bTag(top)}</div>` : ""}
@@ -377,7 +388,7 @@
   // 3,500 places and a group of 80 never look alike and nothing overlaps
   const GBINS = [[0, 0, "0"], [1, 1, "1"], [2, 2, "2"], [3, 5, "3–5"], [6, 20, "6–20"], [21, Infinity, "21+"]];
   const gbin = (v) => GBINS.findIndex(([a, b]) => v >= a && v <= b);
-  const gname = (i, who) => (i === 0 ? (who === "w" ? "no writer seen" : "never read by another actor") : `${GBINS[i][2]} ${who === "w" ? "writer" : "reader"}${GBINS[i][2] === "1" ? "" : "s"}`);
+  const gname = (i, who) => (i === 0 ? (who === "w" ? "no writer seen" : `never read by another ${CUR.U}`) : `${GBINS[i][2]} ${who === "w" ? "writer" : "reader"}${GBINS[i][2] === "1" ? "" : "s"}`);
   function drawScatter(D) {
     const host = $("chScatter");
     const N = D.P.length;
@@ -390,9 +401,10 @@
     const nRO = D.P.filter((p) => !p.writers && p.readers).length, nNever = D.P.filter((p) => p.never).length;
     const nMsgP = D.P.filter((p) => p.messages).length, nMsgs = D.P.reduce((a, p) => a + (p.messages || 0), 0);
     const ro1 = (cells.get("1,0") || { places: [] }).places.length, nv1 = (cells.get("0,1") || { places: [] }).places.length;
-    const head = `<div class="ch-gstats">
-      <div class="g-ro"><b>${pct(nRO)}</b><span>${fmt(nRO)} only read, no write seen<br>(${fmt(ro1)} read by a single actor)</span></div>
-      <div class="g-never"><b>${pct(nNever)}</b><span>${fmt(nNever)} written, never read by another actor<br>(${fmt(nv1)} with a single writer)</span></div>
+    const S0 = CUR.sum, mv = CUR.A && S0 && !S0.no_merges ? `<p class="small ch-moved">Counting ${term("agent", "estimated agents")} ${estMark()} instead of tokens moves <b>${plural(S0.moved_cells, "place")}</b> to another cell of this grid${S0.moved > S0.moved_cells ? ` (${fmt(S0.moved)} have a different number of writers or readers; ${fmt(S0.moved - S0.moved_cells)} stay in the same bin)` : ""}. ${S0.moved ? `A place two tokens of one agent shared counts one writer or one reader.` : "No place changes: no two tokens of one agent share a place."}</p>` : "";
+    const head = mv + `<div class="ch-gstats">
+      <div class="g-ro"><b>${pct(nRO)}</b><span>${fmt(nRO)} only read, no write seen<br>(${fmt(ro1)} read by a single ${CUR.U})</span></div>
+      <div class="g-never"><b>${pct(nNever)}</b><span>${fmt(nNever)} written, never read by another ${CUR.U}<br>(${fmt(nv1)} with a single writer)</span></div>
       </div>`;
     const msgLine = (c) => (c && c.msg ? `<span class="ch-g-badge" title="${esc(`${plural(c.msg, "place")} here carried ${plural(c.msgs, "message")}`)}"><i></i>${fmt(c.msg)}→${fmt(c.msgs)}</span>` : "");
     const bar = (c, n) => (c && c.msg ? `<span class="ch-g-bar" style="width:${Math.max(6, (100 * c.msg) / n).toFixed(0)}%"></span>` : "");
@@ -413,10 +425,10 @@
       rows += "</tr>";
     }
     rows += `<tr class="ch-gtotrow"><th scope="row">all</th>${GBINS.map((_, wi) => { const t = colT.get(wi); return t ? `<td class="ch-gtot" data-gcol="${wi}" tabindex="0" role="button" title="${esc(`all ${plural(t.places.length, "place")} with ${gname(wi, "w")}`)}"><b>${fmt(t.places.length)}</b><span class="ch-g-pct">${pct(t.places.length)}</span>${msgLine(t)}</td>` : `<td class="ch-gtot ch-g-empty">·</td>`; }).join("")}<td class="ch-gtot ch-g-all"><b>${fmt(N)}</b><span class="ch-g-pct">100%</span></td></tr>`;
-    const table = `<div class="ch-gframe"><div class="ch-g-ylab">actors who read the place →</div><div class="tablewrap"><table class="ch-grid" aria-label="Places by number of writers and readers">
-      <thead><tr><th class="ch-g-corner" rowspan="2">readers</th><th colspan="${GBINS.length}" class="ch-g-xlab">actors who wrote to the place →</th><th class="ch-g-totlab" rowspan="2">all</th></tr>
+    const table = `<div class="ch-gframe"><div class="ch-g-ylab">${CUR.U}s who read the place →</div><div class="tablewrap"><table class="ch-grid" aria-label="Places by number of writers and readers">
+      <thead><tr><th class="ch-g-corner" rowspan="2">readers</th><th colspan="${GBINS.length}" class="ch-g-xlab">${CUR.U}s who wrote to the place →</th><th class="ch-g-totlab" rowspan="2">all</th></tr>
       <tr>${GBINS.map(([, , l], wi) => `<th scope="col"${wi === 0 ? ' class="ch-g-ro"' : ""}>${wi === 0 ? "0<small>no writer seen</small>" : l}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
-    const legend = `<div class="legend ch-glegend"><span><i class="ch-g-key ch-g-ro"></i>no writer seen</span><span><i class="ch-g-key ch-g-never"></i>never read by another actor</span><span><i class="ch-g-key ch-g-mid"></i>written and read</span><span><i class="ch-g-key ch-g-msg"></i>carried a message: <span class="ch-g-badge ch-g-badgekey"><i></i>places→messages</span>; the bar under a cell is its share of such places</span><span class="muted">darker = more places (log scale) · % of all ${fmt(N)} places (shown from 1%) · click a cell, row or column total to list its places</span></div>`;
+    const legend = `<div class="legend ch-glegend"><span><i class="ch-g-key ch-g-ro"></i>no writer seen</span><span><i class="ch-g-key ch-g-never"></i>never read by another ${CUR.U}</span><span><i class="ch-g-key ch-g-mid"></i>written and read</span><span><i class="ch-g-key ch-g-msg"></i>carried a message: <span class="ch-g-badge ch-g-badgekey"><i></i>places→messages</span>; the bar under a cell is its share of such places</span><span class="muted">darker = more places (log scale) · % of all ${fmt(N)} places (shown from 1%) · click a cell, row or column total to list its places</span></div>`;
     host.innerHTML = head + table + legend + `<div class="ch-glistbar"><button class="btn small" data-gmsg>Places that carried a message (${fmt(nMsgP)})</button></div><div id="chGridList" class="ch-gridlist"></div>`;
     const listOf = (title, list, sel) => {
       host.querySelectorAll(".ch-g-sel").forEach((x) => x.classList.remove("ch-g-sel")); if (sel) sel.classList.add("ch-g-sel");

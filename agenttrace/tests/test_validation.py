@@ -73,6 +73,22 @@ class TestSuite(unittest.TestCase):
         for b in ("high", "medium", "low", "direct_rule"):
             self.assertIn(b, sm["identity_pooled"])
 
+    def test_message_precision_per_grade(self):
+        mg = self.sm["message_grades"]
+        for part in ("all", "realworld"):
+            for g in ("direct", "inferred", "weak"):
+                x = mg[part][g]
+                self.assertLessEqual(x["correct"], x["found"])
+                if x["found"]:
+                    self.assertTrue(0 <= x["precision_ci"][0] <= x["precision"] <= x["precision_ci"][1] <= 1)
+        run = next(r for r in self.sm["runs"] if r["setting"] == "base")
+        found = sum(x["found"] for x in run["counts"]["by_grade"].values())
+        self.assertEqual(found, run["counts"]["messages_found"])
+        self.assertEqual(sum(mg["all"][g]["found"] for g in ("direct", "inferred", "weak")),
+                         sum(r["counts"]["messages_found"] for r in self.sm["runs"] if r["mode"] != "benign"))
+        with open(os.path.join(self.dir, "summary.md")) as f:
+            self.assertIn("Message precision by confidence grade", f.read())
+
     def test_benign_reports_what_fires(self):
         b = self.sm["benign"]
         self.assertEqual(b["runs"], 1)

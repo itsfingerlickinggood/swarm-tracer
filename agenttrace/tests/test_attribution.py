@@ -3,6 +3,7 @@ import json
 import os
 import tempfile
 import unittest
+from collections import Counter
 
 from agenttrace import attribution, groundtruth
 from agenttrace.session import Session
@@ -132,6 +133,98 @@ class AttributionRules(unittest.TestCase):
         res = attribution._attribute(self.s, hide)
         for u in hide:
             self.assertFalse(any(k[0] == "credential" for k in res["unit_feats"][u]))
+
+
+class SecondPassAndFamilies(unittest.TestCase):
+    """Place evidence, the learned weights and cut-offs, template families and resolve()."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        path = os.path.join(cls.tmp.name, "trace.jsonl")
+        cls.ids = _styled_trace(path)
+        cls.s = Session()
+        cls.s.load(path, "code_traces.json", {}, "styled2")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_place_evidence_names_the_only_named_actor(self):
+        s = self.s
+        named = "R0001"                      # a record of actor 7
+        anon = self.ids["none"]              # no first-pass link
+        s._attr_pt = {"unit_ch": {s.res["_root"][named]: {"place:board:zzA"}, s.res["_root"][anon]: {"place:board:zzA"}},
+                      "ch_n": {"place:board:zzA": 2}}
+        try:
+            res = attribution._attribute(s)
+            ev = attribution._evidence(s, res, frozenset(), None)
+            u = s.res["_root"][anon]
+            self.assertIn(u, ev)
+            top, rival = attribution._top(ev[u])
+            self.assertEqual(top, s.actor[named][0])
+            self.assertEqual(ev[u][top]["place"], 1)
+            self.assertEqual(rival, 0.0)
+            # a place that too many runs touch is not specific
+            s._attr_pt["ch_n"]["place:board:zzA"] = attribution.PLACE_MAX + 1
+            self.assertNotIn(u, attribution._evidence(s, res, frozenset(), None))
+        finally:
+            del s._attr_pt
+
+    def test_fit_and_cutoffs(self):
+        rows = []
+        for i in range(200):
+            good = i % 4 != 0
+            c = Counter(place=1 if good else 0, pre=2 if good else 0, combo=1)
+            rows.append((attribution._vec(c, 0.0), 1 if (good or i % 20 == 0) else 0))
+        w = attribution._fit(rows)
+        hi = attribution._prob(w, attribution._vec(Counter(place=1, pre=2, combo=1), 0.0))
+        lo = attribution._prob(w, attribution._vec(Counter(combo=1), 0.0))
+        self.assertGreater(hi, lo)
+        cuts = attribution._cutoffs([(attribution._prob(w, x), ok) for x, ok in rows], {"high": 0.9, "medium": 0.8, "low": 0.5})
+        self.assertIsNotNone(cuts["high"])
+        # too few rows: no model, no extra links
+        self.assertEqual(attribution._extra_links(self.s, {"links": {}, "unit_recs": {}}, frozenset(), None,
+                                                  {"weights": None, "cuts": {}}), {})
+
+    def test_template_families_do_not_chain(self):
+        # 30 copies of one masked program, each with its own number, plus a block that shares rare constants
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "t.jsonl")
+            rows = [_row(f"F{i:03d}", f"stage {i} of the relay: upload block [ENCODED BLOB {i}] to the cache now please") for i in range(30)]
+            for i in range(6):
+                rows.append(_row(f"G{i:03d}", "run the nightly relay job: send block [SERVICE 5 URL 1] and [SERVICE 5 URL 2] "
+                                              f"and [SERVICE 5 URL 3] to the cache, attempt {i}"))
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("\n".join(rows) + "\n")
+            s = Session()
+            s.load(path, "code_traces.json", {}, "fam")
+            res = attribution._attribute(s)
+            tf = attribution.template_families(s, res)
+        self.assertGreaterEqual(tf["families"], 1)
+        top = tf["top"][0]
+        self.assertEqual(top["records"], 30)           # the numbered blob does not split the family
+        self.assertEqual(top["clusters"], 0)           # nothing rare is shared, nothing is chained
+        self.assertLessEqual(len(top["snippet"]), attribution.QUOTE + 2)
+        json.dumps(tf)
+
+    def test_resolve_labels_every_action(self):
+        out = attribution.resolve(self.s)
+        self.assertEqual(set(out), set(attribution._base(self.s)["acts"]))
+        self.assertEqual(out["R0001"]["band"], "named")
+        anon = out[self.ids["high"]]
+        self.assertEqual((anon["band"], anon["via"]), ("high", "run link"))
+        self.assertIsNone(out[self.ids["none"]]["actor"])
+        self.assertIs(attribution.resolve(self.s), out)
+
+    def test_summary_before_after(self):
+        o = attribution.attribution(self.s)
+        self.assertEqual(sum(o["bands_before"].values()), o["runs"])
+        for b in ("high", "medium", "low"):
+            self.assertGreaterEqual(o["bands"][b]["runs"], o["bands_before"][b])
+        self.assertIn("template_families", o)
+        self.assertIn("bands_first_pass", o["holdout"])
+        json.dumps(o)
 
 
 class AttributionOnSimulatedSwarm(unittest.TestCase):

@@ -194,7 +194,51 @@ def _opts_write(text, seg, wrx, before):
     return bool(param and wrx.search(text[before:before + 500]))
 
 
-def judge_span(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
+def _helper_verb(text, pos, cap=200):
+    """The verb literal ('GET', 'POST', ...) among the arguments of the helper call that holds text[pos],
+    looking only inside that call's own parentheses (Q('GET', src, ...) is a read even when a POST follows
+    in the next call). None when the call carries no verb literal."""
+    depth, i = 0, pos + 1
+    found = False
+    while i > max(0, pos - cap):                  # back to the call's opening parenthesis
+        i -= 1
+        c = text[i]
+        if c == ")":
+            depth += 1
+        elif c == "(":
+            if depth == 0:
+                found = True
+                break
+            depth -= 1
+    if not found:
+        return None
+    end = _call_end(text, i, cap + 200)
+    cut = re.search(r"\n|(?<![\w.])(?:[\w.]+\.)?Request\s*\(", text[i + 1:end])   # a cut-off call must not run into the next line or call
+    if cut:
+        end = i + 1 + cut.start()
+    m = re.search(r"['\"](GET|HEAD|POST|PUT|PATCH|DELETE)['\"]", text[i:end])
+    if not m:
+        return "write" if re.search(r"[(,]\s*(data|body|json)\s*=", text[i:end]) else None
+    return "write" if m.group(1) in ("POST", "PUT", "PATCH", "DELETE") else "read"
+
+
+def _descriptor_verb(text, pos):
+    """A request written as data: {"u": "<place>", "m": "POST", "b": ...}. The method key, or the presence of a
+    body, decides. None when the mention is not the url of such an object."""
+    if not re.search(r"['\"](?:u|url)['\"]\s*:\s*['\"][^'\"]{0,12}$", text[max(0, pos - 20):pos]):
+        return None
+    lo = text.rfind("{", 0, pos)
+    hi = text.find("}", pos)
+    obj = text[max(lo, pos - 600):(hi if hi >= 0 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]
+    m = re.search(r"['\"](?:m|method)['\"]\s*:\s*['\"](GET|HEAD|POST|PUT|PATCH|DELETE)['\"]", obj)
+    if m:
+        return "write" if m.group(1) in ("POST", "PUT", "PATCH", "DELETE") else "read"
+    if re.search(r"['\"](?:b|body|data)['\"]\s*:", obj):
+        return "write"
+    return None
+
+
+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
     """(op, lo, hi): write or read for the place mention at text[start:end], and the span of code judged.
 
     1. The mention sits inside a request call (fetch('…place…', {...})): the verb nearest to it decides,
@@ -217,14 +261,21 @@ def judge_span(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
     region_lo = max(0, start - 300) if "info/lfs" in text[end:end + 40] else (last if direct else start)
     lfs = re.search(r"operation['\"]?\s*:\s*['\"](download|upload)['\"]", text[region_lo:region_hi])
     if lfs:
-        return ("read" if lfs.group(1) == "download" else "write"), start, region_hi
+        return ("read" if lfs.group(1) == "download" else "write"), start, region_hi, "inferred"
+    if re.match(r"/['\"`]\s*\+\s*[\w$.\[\]]+\s*\+\s*['\"`]/", text[end:end + 40]):
+        return "mention", start, end, None      # …/<owner>/'+repo+'/…: the repository is a variable, so this names only an owner
+    if "info/lfs" in text[end:end + 40]:
+        return "mention", start, end, None      # an LFS batch whose 'operation' is not in the record: upload or download, unknown
     if not direct:
         am = ASSIGNED.search(text, max(0, start - 200), start)
         if am:
             # every place the variable is passed as an argument: fetch(u, …), x.open('POST', U), Q('GET', S), req(url, …)
-            use = re.compile(r"[(,+]\s*" + re.escape(am.group(1)) + r"\s*(?=[,)+])")
+            use = re.compile(r"[(,+]\s*" + re.escape(am.group(1)) + r"\s*(?=[,)+])|['\"]\{" + re.escape(am.group(1)) + r"\}['\"]")
             verdict, span = None, None
             limit = min(len(text), end + 8000)
+            again = re.compile(r"(?<![\w$.])" + re.escape(am.group(1)) + r"\s*=(?!=)").search(text, end, limit)
+            if again:                                  # the name is given another value: later uses are not this place
+                limit = again.start()
             for um in use.finditer(text, end, limit):
                 near = text[max(0, um.start() - 80):um.end() + 120]
                 rs = None
@@ -234,23 +285,26 @@ def judge_span(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
                     seg_hi = _call_end(text, rs.start())
                     seg = text[rs.start():seg_hi]
                     if wrx.search(seg) or _opts_write(text, seg, wrx, rs.start()):
-                        return "write", rs.start(), seg_hi
+                        return "write", rs.start(), seg_hi, "inferred"
                     if verdict is None:
                         verdict, span = "read", (rs.start(), seg_hi)
-                elif HTTP_WRITE.search(near):          # passed to a helper with the verb as an argument
-                    return "write", max(0, um.start() - 80), um.end() + 120
+                elif _helper_verb(text, um.start()) is not None:   # passed to a helper with the verb as an argument
+                    if _helper_verb(text, um.start()) == "write":
+                        return "write", max(0, um.start() - 80), um.end() + 120, "inferred"
+                    if verdict is None:
+                        verdict, span = "read", (max(0, um.start() - 80), um.end() + 120)
                 elif verdict is None:
                     verdict, span = "read", (max(0, um.start() - 80), um.end() + 120)
             if verdict:
-                return verdict, span[0], span[1]
-            return "mention", start, end      # assigned and never passed to a call: named, not opened
+                return verdict, span[0], span[1], "inferred"
+            return "mention", start, end, None      # assigned and never passed to a call: named, not opened
     if not direct:
         # the place is a literal argument of a helper call with the verb beside it: req('…place…', tok, 'POST', data)
         tail = re.match(r"[^();{}]{0,70}['\"](POST|PUT|PATCH|DELETE)['\"]", text[end:end + 90])
         if tail:
-            return "write", start, end + tail.end()
+            return "write", start, end + tail.end(), "inferred"
     if re.match(r"[^)]{0,12}\{\s*metho(?!d)", text[end:end + 30]):
-        return "mention", start, end      # the call is cut off before its verb: unknown, so not counted
+        return "mention", start, end, None      # the call is cut off before its verb: unknown, so not counted
     if last is not None:
         lo = last
     nxt = REQUEST_START.search(text, end, hi)
@@ -267,9 +321,31 @@ def judge_span(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
                 best = d
         return best
     w, r = nearest(wrx), nearest(rrx)
+    dv = _descriptor_verb(text, start)
+    if dv:
+        return dv, start, end, "inferred"
+    if w is None and r is None and len(text) - end <= 40 and ")" not in text[end:]:
+        head = text[max(0, start - 120):start]
+        if re.search(r"\(\s*['\"`]?[^()\n]*$", head) or re.match(r"\s*https?://\S*$", text[:end]):
+            # the record ends right after the place, inside an open call (cut off before its verb) or as a bare URL
+            return "mention", start, end, None
+    how = "default" if (w is None and r is None) else ("call" if direct else "inferred")
     if w is None or (r is not None and r < w):
-        return "read", lo, hi
-    return "write", lo, hi
+        return "read", lo, hi, how
+    return "write", lo, hi, how
+
+
+def judge_span(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
+    """(op, lo, hi): write or read for the place mention at text[start:end], and the span of code judged.
+    See _judge for the rule; judge_how also says how the verb was found."""
+    return _judge(text, start, end, wrx, rrx, bounds, before, after)[:3]
+
+
+def judge_how(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
+    """(op, lo, hi, how) where how is 'call' (the verb sits in the very call that names the place),
+    'inferred' (found through a variable, a helper's arguments, an LFS operation or nearby text) or
+    'default' (no verb found: taken as a read). None for how when the op is 'mention'."""
+    return _judge(text, start, end, wrx, rrx, bounds, before, after)
 
 
 def judge_op(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
@@ -307,6 +383,7 @@ def channel_ops(events, pack, rec, res):
     mentions = pack.raw.get("mention_channels", False)
     midx = _mention_index(events) if mentions else {}
     ops = []  # (channel, op, actor, actor_kind, time, index, id)
+    how_of = rec.setdefault("_op_how", {})   # (record id, channel) -> how the verb was found: call, inferred, default
     from .reconstruct import is_action
     for i, e in enumerate(events):
         if not is_action(e, pack):
@@ -343,13 +420,14 @@ def channel_ops(events, pack, rec, res):
                 # can read one place and write another
                 k = spans.index((m.start(), m.end()))
                 bounds = (spans[k - 1][1] if k else 0, spans[k + 1][0] if k + 1 < len(spans) else len(e.text))
-                op, slo, shi = judge_span(e.text, m.start(), m.end(), wrx, rrx, bounds)
+                op, slo, shi, how = judge_how(e.text, m.start(), m.end(), wrx, rrx, bounds)
                 key = f"{name}:{m.group(1)}"
                 if op == "mention":
                     continue
                 if ops_here.get(key) != "write":
                     ops_here[key] = op
                     seg_of[key] = e.text[slo:shi]
+                    how_of[(e.id, key)] = how
             found += list(ops_here.items())
         if not found:
             continue
@@ -394,7 +472,29 @@ def _how(w, r):
     return "posted after it"
 
 
-def deliveries(ops, fam=None, texts=None):
+GRADES = ("direct", "inferred", "weak")
+
+
+def grade_of(d, w, r, how, coarse=None, estimated=None):
+    """One confidence grade for a delivery from the write op w and read op r.
+    direct   the verb of the write and of the read both sit in the very call that names the place
+             (or the trace itself says the record posted there)
+    inferred a verb was found, but through a variable, a helper's arguments, an LFS operation or text nearby
+    weak     a default: no verb found for one side, a coarse place the redaction may have merged, or a time
+             estimated while the two records are more than an hour apart"""
+    hw, hr = how.get((w[6], d["channel"])), how.get((r[6], d["channel"]))
+    if "default" in (hw, hr):
+        return "weak"
+    if coarse is not None and coarse(d["channel"]):
+        return "weak"
+    if estimated is not None and (estimated(w[6]) or estimated(r[6])) and d["latency_h"] > 1:
+        return "weak"
+    if (w[1] == "post" or hw == "call") and (r[1] == "post" or hr == "call"):
+        return "direct"
+    return "inferred"
+
+
+def deliveries(ops, fam=None, texts=None, how=None, coarse=None, estimated=None):
     """Link each read to the latest earlier write on the same channel by another actor.
     Order is by time when both records are dated; otherwise the pair is 'order unknown'.
 
@@ -463,6 +563,8 @@ def deliveries(ops, fam=None, texts=None):
                         d["lines"] = _in_order(texts.get(r[6], ""), kept)
                     else:
                         d["how"] = "edited after it (it added no lines to compare)"
+                if how is not None:
+                    d["grade"] = grade_of(d, w, r, how, coarse, estimated)
                 out.append(d)
                 delivered += 1
                 latencies.append((r[4] - w[4]) / 3600)
@@ -583,10 +685,15 @@ def message_flow(events, pack, rec, res):
     ops = channel_ops(events, pack, rec, res)
     texts = {e.id: e.text for e in events} if pack.raw.get("full_body_posts") else None
     inferred = [o for o in ops if not o[0].startswith(DIRECT_PREFIX + ":")]
-    dels, perf, unknown, same_prog, overwrites, rereads = deliveries(inferred, program_prefix(events), texts)
+    coarse = [re.compile(p) for p in pack.raw.get("coarse_channels", [])]
+    is_coarse = lambda ch: any(r.search(ch) for r in coarse)
+    by_id = {e.id: e for e in events}
+    est = lambda rid: rid in by_id and not by_id[rid].time and rid in rec["_times"]
+    dels, perf, unknown, same_prog, overwrites, rereads = deliveries(inferred, program_prefix(events), texts,
+                                                                       rec.get("_op_how", {}), is_coarse, est)
     # logged direct messages are deliveries as they stand: no inference needed
     direct = direct_messages(events, pack, rec, res)
-    dels = dels + [{k: v for k, v in d.items() if not k.startswith("_")} for d in direct if d["write_time"] is not None]
+    dels = dels + [{**{k: v for k, v in d.items() if not k.startswith("_")}, "grade": "direct"} for d in direct if d["write_time"] is not None]
     perf = perf + _direct_perf(direct)
     over_pairs = Counter((d["from"], d["to"]) for d in overwrites)
     actor_kinds = Counter()
@@ -620,8 +727,6 @@ def message_flow(events, pack, rec, res):
     spread = content_spread(events, pack, rec, res, set(action_kinds) if action_kinds else None, written)
     # channels the pack marks as coarse (for example a redaction that keeps only the owner)
     # may merge several places, so a write and a read there may not be the same message
-    coarse = [re.compile(p) for p in pack.raw.get("coarse_channels", [])]
-    is_coarse = lambda ch: any(r.search(ch) for r in coarse)
     named = [d for d in dels if not d["from"].startswith("run:") and not d["to"].startswith("run:")]
     first_known_delivery = min((d for d in named if not is_coarse(d["channel"])), key=lambda d: d["read_time"], default=None)
     first_any_named = min(named, key=lambda d: d["read_time"], default=None)
@@ -661,6 +766,7 @@ def message_flow(events, pack, rec, res):
         "_channels": sorted(perf, key=lambda p: (-p["deliveries"], -p["actors"])),
         "_content_spread": spread,
         "content_families_moving": len(spread),
+        "deliveries_by_grade": dict(Counter(d.get("grade", "weak") for d in dels)),
         "deliveries_by_how": dict(Counter(_how_group(d["how"]) for d in dels)),
         "overwrites": len(overwrites),
         "repeat_reads": rereads,

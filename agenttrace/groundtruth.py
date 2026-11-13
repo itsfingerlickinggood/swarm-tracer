@@ -664,6 +664,13 @@ def score(s, truth):
     msg = _pr(len(tp), len(found), len(true_msgs))
     msg["precision_ci"] = _wilson(len(tp), len(found))
     msg["recall_ci"] = _wilson(len(tp), len(true_msgs))
+    # precision for each confidence grade the tool gave its messages (direct, inferred, weak)
+    msg["by_grade"] = {}
+    for g in ("direct", "inferred", "weak"):
+        fg = [k for k, d in found.items() if d.get("grade", "weak") == g]
+        kg = sum(1 for k in fg if k in true_msgs)
+        msg["by_grade"][g] = {"found": len(fg), "correct": kg, "precision": round(kg / len(fg), 4) if fg else None,
+                              "precision_ci": _wilson(kg, len(fg)) if fg else None}
     msg["false_positives"] = [{"why": k, "n": v, "examples": fp_examples[k]} for k, v in fp_why.most_common()]
     msg["missed"] = [{"why": k, "n": v, "examples": fn_examples[k]} for k, v in fn_why.most_common()]
 

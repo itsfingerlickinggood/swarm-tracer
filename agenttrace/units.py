@@ -163,5 +163,194 @@ def _get_summary(state, q):
     return units_summary(fx_whatif._session(state), q.get("unit") or "agent")
 
 
-GET = {"units_map": _get_map, "units_summary": _get_summary}
+# ------------------------------------------------------------------ places: writers and readers by agent
+
+def _bin(n):
+    """The Channels grid's bins for a count of writers or readers (0, 1, 2, 3-4, 5-9, 10+); only used to say which cell."""
+    return 0 if n <= 0 else n if n <= 2 else 3 if n <= 4 else 4 if n <= 9 else 5
+
+
+def units_places(s):
+    """Every place counted by agent: who wrote and read it, and which places carried a message between two
+    agents. Rows: [place, writers, readers, messages, messages_named, never_read, writers_as_counted,
+    readers_as_counted]. A place whose only readers are other tokens of the writing agent no longer carries a message."""
+    rows, amap, named, merges = agents(s)
+    rejected = set(fx_whatif.load_decisions(s)["messages"])
+    ag = lambda x: amap.get(x, x)
+    dels = {}
+    for d in s.flow["_deliveries"]:
+        if (d["write_id"] + ">" + d["read_id"]) in rejected:
+            continue
+        a, b = ag(d["from"]), ag(d["to"])
+        if a == b:
+            continue
+        r = dels.setdefault(d["channel"], [0, 0])
+        r[0] += 1
+        if insight.is_named(d["from"]) and insight.is_named(d["to"]):
+            r[1] += 1
+    out = []
+    moved = moved_cell = 0
+    tot = {"places": 0, "msg_token": 0, "msg_agent": 0, "never_token": 0, "never_agent": 0, "messages_agent": 0, "messages_named_agent": 0}
+    for c in s.flow.get("_channels", s.flow["top_channels"]):
+        ch = c["channel"]
+        ops = s.ops_by_channel.get(ch)
+        if ops is None:       # a place with no recorded operations: its deliveries are all there is
+            wt = {d["from"] for d in s.del_by_channel.get(ch, [])}
+            rt = {d["to"] for d in s.del_by_channel.get(ch, [])}
+        else:
+            wt = {o[1] for o in ops if o[0] in ("write", "post")}
+            rt = {o[1] for o in ops if o[0] in ("read", "post")}
+        wa, ra = len({ag(x) for x in wt}), len({ag(x) for x in rt})
+        wtok, rtok = c["writers"], c["readers"]
+        m, mn = dels.get(ch, (0, 0))
+        never = 1 if (c["writes"] > 0 and m == 0) else 0
+        if (wa, ra) != (wtok, rtok):
+            moved += 1
+            if (_bin(wa), _bin(ra)) != (_bin(wtok), _bin(rtok)):
+                moved_cell += 1
+        tot["places"] += 1
+        tot["msg_token"] += 1 if c["deliveries"] else 0
+        tot["msg_agent"] += 1 if m else 0
+        tot["never_token"] += 1 if c["never_read"] else 0
+        tot["never_agent"] += never
+        tot["messages_agent"] += m
+        tot["messages_named_agent"] += mn
+        out.append([ch, wa, ra, m, mn, never, wtok, rtok])
+    tot.update({"moved": moved, "moved_cells": moved_cell, "no_merges": not rows})
+    return {"dataset": s.name, "columns": ["channel", "writers", "readers", "messages", "messages_named", "never_read",
+                                          "writers_as_counted", "readers_as_counted"], "rows": out, "summary": tot}
+
+
+# ------------------------------------------------------------------ spread: adopters by agent
+
+def units_spread(s):
+    """The programs run by two or more named actors, with the actors counted as agents: a program run by three tokens
+    of one agent has one adopter (or none: it drops out of the list when only one agent ran it). Same row shape as /api/spread."""
+    rows, amap, named, merges = agents(s)
+    ag = lambda x: amap.get(x, x)
+    out, dropped = [], []
+    tok_ad = ag_ad = inside = 0
+    for x in insight.spread_detail(s):
+        src = ag(x["source"])
+        seen, ads = {src}, []
+        n_inside = 0
+        for a in x["adopters"]:
+            g = ag(a["actor"])
+            if g in seen:
+                n_inside += 1
+                continue
+            seen.add(g)
+            ads.append({**a, "actor": g, "token": a["actor"]})
+        tok_ad += len(x["adopters"])
+        ag_ad += len(ads)
+        inside += n_inside
+        row = {**x, "source": src, "source_token": x["source"], "adopters": ads, "actors": 1 + len(ads),
+               "token_actors": x["actors"], "inside_one_agent": n_inside}
+        (out if ads else dropped).append(row)
+    actors, adopt = set(), set()
+    for x in out:
+        actors.add(x["source"])
+        for a in x["adopters"]:
+            actors.add(a["actor"])
+            adopt.add(a["actor"])
+    tokens = set()
+    for x in insight.spread_detail(s):
+        tokens.add(x["source"])
+        tokens.update(a["actor"] for a in x["adopters"])
+    return {"dataset": s.name, "rows": out, "dropped": len(dropped),
+            "summary": {"programs_agent": len(out), "programs_token": len(out) + len(dropped), "dropped": len(dropped),
+                        "adoptions_agent": ag_ad, "adoptions_token": tok_ad, "inside_one_agent": inside,
+                        "agents": len(actors), "adopter_agents": len(adopt), "start_only_agents": len(actors - adopt),
+                        "tokens": len(tokens), "no_merges": not rows}}
+
+
+# ------------------------------------------------------------------ events: an agent as the actor filter
+
+def _tokens_of(s, who):
+    """The tokens an actor filter stands for in agent mode: an agent's tokens, or the one token."""
+    rows, amap, named, merges = agents(s)
+    ids = [t for t, g in amap.items() if g == amap.get(who, who)]
+    return ids or [who]
+
+
+def _events_get(state, q):
+    s = fx_whatif._session(state)
+    who = q.get("actor") or ""
+    kw = lambda actor, off, lim: s.search(q.get("q", ""), q.get("kind", ""), actor, q.get("intent", ""), q.get("tag", ""),
+                                          q.get("channels") == "1", off, lim, q.get("hour", ""))
+    off, lim = int(q.get("offset") or 0), min(500, int(q.get("limit") or 100))
+    toks = _tokens_of(s, who) if who else []
+    if len(toks) > 1:     # an agent: the union of its tokens' records, in the trace's order
+        rs = [kw(t, 0, off + lim) for t in toks]
+        order = {e.id: i for i, e in enumerate(s.events)}
+        rows = sorted((r for x in rs for r in x["rows"]), key=lambda r: order.get(r["id"], 0))[off:off + lim]
+        add = lambda key: _sum_dicts([x["facets"][key] for x in rs])
+        hist = _sum_dicts([dict(x["hist"]) for x in rs])
+        hby = {}
+        for x in rs:
+            for h, c in x["hist_by"]:
+                hby[h] = _sum_dicts([hby.get(h, {}), c])
+        res = {"total": sum(x["total"] for x in rs), "offset": off, "rows": rows,
+               "facets": {"kind": add("kind"), "intent": add("intent"), "actor": [[who, sum(x["total"] for x in rs)]]},
+               "hist": sorted(hist.items()), "timed": sum(hist.values()), "hist_by": [[h, hby[h]] for h in sorted(hby)]}
+    else:
+        res = kw(toks[0] if toks else "", off, lim)
+        if not who:       # no actor filter: the busiest actors, counted by agent
+            res["facets"]["actor"] = _actor_facet(s, q)
+    res["agent_tokens"] = len(toks)
+    return res
+
+
+def _sum_dicts(ds):
+    out = {}
+    for d in ds:
+        for k, v in d.items():
+            out[k] = out.get(k, 0) + v
+    return out
+
+
+def _actor_facet(s, q, top=12):
+    """The busiest actors among the matching records, one count per agent. (Same filters as Session.search.)"""
+    from . import reconstruct
+    rows, amap, named, merges = agents(s)
+    kind, intent, tag, hour, ql = q.get("kind", ""), q.get("intent", ""), q.get("tag", ""), q.get("hour", ""), (q.get("q", "") or "").lower().strip()
+    chan = q.get("channels") == "1"
+    cnt = defaultdict(int)
+    for e in s.events:
+        if kind and e.kind != kind:
+            continue
+        if intent and s.rec["_intents"].get(e.id) != intent:
+            continue
+        if tag and tag not in s.res["_evidence"][e.id]:
+            continue
+        if chan and not s.ops_by_id.get(e.id):
+            continue
+        if hour:
+            t = s.rec["_times"].get(e.id)
+            if t is None:
+                continue
+            h = reconstruct.iso(t)[:13]
+            if ".." in hour:
+                lo, hi = hour.split("..", 1)
+                if not (lo <= h <= hi):
+                    continue
+            elif not h.startswith(hour):
+                continue
+        if ql and ql not in e.id.lower() and ql not in e.text.lower() and ql not in (e.actor or "").lower() and ql not in (e.channel or "").lower():
+            continue
+        a = s.actor[e.id][0]
+        cnt[amap.get(a, a)] += 1
+    return sorted(([a, n] for a, n in cnt.items()), key=lambda x: (-x[1], x[0]))[:top]
+
+
+def _get_places(state, q):
+    return units_places(fx_whatif._session(state))
+
+
+def _get_spread(state, q):
+    return units_spread(fx_whatif._session(state))
+
+
+GET = {"units_map": _get_map, "units_summary": _get_summary, "units_places": _get_places,
+       "units_spread": _get_spread, "units_events": _events_get}
 POST = {}

@@ -188,6 +188,7 @@ def run_one(folder, truth):
     out = {"records": sc["records"], "true_messages": sc["true_messages"], "load_seconds": round(load_s, 2),
            "measures": row,
            "counts": {"messages_found": m["found"], "messages_correct": m["correct"],
+                      "by_grade": m.get("by_grade"),
                       "false_positive_reasons": m["false_positives"], "missed_reasons": m["missed"],
                       "dating_estimated": d["estimated"],
                       "signs": [{k: x.get(k) for k in ("key", "name", "error_hours", "on_time")} for x in e["signs"]],
@@ -309,6 +310,16 @@ def summarize(runs):
     pooled["direct_rule"] = {"proposed": dn, "correct": dk, "precision": round(dk / dn, 4) if dn else None,
                              "precision_ci": groundtruth._wilson(dk, dn), "recall": round(dk / tp, 4) if tp else None,
                              "true_pairs": tp}
+    # message precision per confidence grade, pooled over the coordinated runs (all, and the real-world-style settings)
+    def grades(rs):
+        out = {}
+        for g in ("direct", "inferred", "weak"):
+            n = sum(((r["counts"].get("by_grade") or {}).get(g) or {}).get("found", 0) for r in rs)
+            k = sum(((r["counts"].get("by_grade") or {}).get(g) or {}).get("correct", 0) for r in rs)
+            out[g] = {"found": n, "correct": k, "precision": round(k / n, 4) if n else None,
+                      "precision_ci": groundtruth._wilson(k, n) if n else None}
+        return out
+    message_grades = {"all": grades(coord), "realworld": grades([r for r in coord if (r.get("params") or {}).get("realworld")])}
     # benign: how often each sign and each default rule fires
     fires = {}
     for r in benign:
@@ -368,7 +379,7 @@ def summarize(runs):
     return {"about": "Swarm Tracer validation on simulated swarms (agenttrace.validation). Ranges are min, median, "
                      "max over seeds; the simulations are ours and real swarms differ.",
             "measures": [MEASURE[k] for k, _, _, _ in MEASURES], "groups": [{"name": g, "keys": ks} for g, ks in GROUPS],
-            "settings": settings, "overall": overall, "identity_pooled": pooled, "benign": benign_sum, "signs": signs,
+            "settings": settings, "overall": overall, "identity_pooled": pooled, "message_grades": message_grades, "benign": benign_sum, "signs": signs,
             "alert_hours_before_first_true_harm": alert_lead,
             "coordinated_runs": len(coord), "benign_runs": len(benign)}
 
@@ -418,6 +429,25 @@ def markdown(sm):
         L.append(f"| {b.replace('_', ' ')} | {x['proposed']} | {x['correct']} | {_p(x['precision'])}"
                  f"{f' ({_p(ci[0])}–{_p(ci[1])})' if ci else ''} | {ev or '–'} |")
     L.append("")
+    mg = sm.get("message_grades")
+    if mg:
+        L.append("### Message precision by confidence grade, coordinated swarms pooled")
+        L.append("")
+        L.append("Each message the tool reports carries a grade: direct (the verbs of both sides sit in the very call that names "
+                 "the place), inferred (found through a variable, helper or LFS operation) or weak (a default, a merged place, "
+                 "or an estimated time more than an hour from the other side). Precision is against the simulator's true messages.")
+        L.append("")
+        L.append("| grade | all coordinated: reported | right | precision (95% range) | real-world-style settings: reported | right | precision (95% range) |")
+        L.append("|---|---|---|---|---|---|---|")
+        for g in ("direct", "inferred", "weak"):
+            cells = []
+            for key in ("all", "realworld"):
+                x = mg[key][g]
+                ci = x.get("precision_ci")
+                cells += [str(x["found"]), str(x["correct"]),
+                          (_p(x["precision"]) + (f" ({_p(ci[0])}–{_p(ci[1])})" if ci else "")) if x["found"] else "–"]
+            L.append(f"| {g} | " + " | ".join(cells) + " |")
+        L.append("")
     b = sm["benign"]
     if b["runs"]:
         L.append(f"### Benign baseline ({b['runs']} swarms with no coordination)")

@@ -3,8 +3,8 @@
  "as_counted": {
   "named_actors": 241,
   "agents": 241,
-  "messages": 5,
-  "pairs": 4,
+  "messages": 6,
+  "pairs": 5,
   "largest_group": 3,
   "inside_one_agent": 0,
   "rejected_messages": 0,
@@ -26,7 +26,7 @@
   "messages": 3,
   "pairs": 3,
   "largest_group": 3,
-  "inside_one_agent": 2,
+  "inside_one_agent": 3,
   "rejected_messages": 0,
   "first_message": {
    "time": "2026-07-12 07:47",
@@ -159,6 +159,25 @@
    }
   },
   {
+   "key": "group3",
+   "name": "A group of 3+ actors linked by messages",
+   "family": "joint",
+   "time": "2026-07-11 07:46",
+   "harm_share_after": 0.855,
+   "record": "R0007854",
+   "status": "later",
+   "after": {
+    "time": "2026-07-12 13:06",
+    "record": "R0046969",
+    "actors": [
+     "[CREDENTIAL 1720]",
+     "[CREDENTIAL 1602]"
+    ],
+    "why": "the message from [CREDENTIAL 1720] to [CREDENTIAL 1602] joined 3 agents into one group",
+    "harm_share_after": 0.072
+   }
+  },
+  {
    "key": "rate_all",
    "name": "Volume alarm on all actions",
    "family": "baseline",
@@ -283,25 +302,6 @@
     ],
     "why": "two agents used the named place g23619",
     "harm_share_after": 0.053
-   }
-  },
-  {
-   "key": "group3",
-   "name": "A group of 3+ actors linked by messages",
-   "family": "joint",
-   "time": "2026-07-12 13:06",
-   "harm_share_after": 0.072,
-   "record": "R0046969",
-   "status": "unchanged",
-   "after": {
-    "time": "2026-07-12 13:06",
-    "record": "R0046969",
-    "actors": [
-     "[CREDENTIAL 1720]",
-     "[CREDENTIAL 1602]"
-    ],
-    "why": "the message from [CREDENTIAL 1720] to [CREDENTIAL 1602] joined 3 agents into one group",
-    "harm_share_after": 0.072
    }
   }
  ]

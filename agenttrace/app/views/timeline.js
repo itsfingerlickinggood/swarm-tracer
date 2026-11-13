@@ -13,6 +13,25 @@
   const WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const MOMENT = { first: "first action", surge: "surge begins", peak: "busiest hour", stop: "falls below 15% of peak", last: "last action" };
   const named = (a) => a && !String(a).startsWith("run:");
+  const nmOf = (a) => (byAgent() && S.units && named(a) ? agentName(a) : short(a));
+  // counting by estimated agent, one lane per agent: its tokens' hourly cells are merged, and a message between two of its
+  // tokens stays in its lane as a tick. Tokens no merge touches keep their own lane. (Token mode: lanes as the server draws them.)
+  function agentLanes(lanes) {
+    const by = new Map(), out = [];
+    lanes.actors.forEach((a) => {
+      if (a.kind === "runs") { out.push(a); return; }
+      const g = agentOf(a.actor);
+      let L = by.get(g);
+      if (!L) { L = { actor: g, kind: a.kind, tokens: 0, total: 0, first: a.first, last: a.last, first_record: a.first_record, sent: 0, received: 0, inside: 0, _b: new Map(), _h: new Map() }; by.set(g, L); out.push(L); }
+      L.tokens++; L.total += a.total;
+      if (toTime(a.first) < toTime(L.first)) { L.first = a.first; L.first_record = a.first_record; }
+      if (toTime(a.last) > toTime(L.last)) L.last = a.last;
+      a.bins.forEach((b) => { const x = L._b.get(b[0]); if (!x) L._b.set(b[0], b.slice()); else for (let k = 1; k < b.length; k++) x[k] += b[k]; });
+      a.harm_bins.forEach(([hi, n]) => L._h.set(hi, (L._h.get(hi) || 0) + n));
+    });
+    out.forEach((L) => { if (L._b) { L.bins = [...L._b.values()].sort((p, q) => p[0] - q[0]); L.harm_bins = [...L._h.entries()]; delete L._b; delete L._h; } });
+    return { ...lanes, actors: out };
+  }
   // a turning point is an hour, not a moment: "13:00–14:00"
   const hourRange = (t) => `${clock(t)}–${clock(t + HR)}`;
   const MERGED_TIP = "This place may be several places the redaction merged into one owner name, so the write and the read may not be one message.";
@@ -33,7 +52,7 @@
       ${card("Activity and turning points", `<div id="tlOver" class="tl-strip"></div><div id="tlKey"></div>`,
         { sub: `${term("dated", "Dated")} ${term("action", "actions")} per hour (estimated times, UTC), coloured by what the code does. Most times are estimated from timestamps the agents wrote into their code; inside a fitted block records spread evenly over its time range, so long flat stretches are an artefact of the fit, not steady activity. Above the bars: the turning points in the data, each ${term("sign", "warning sign")} when it first fired, and the phases the investigators' reports describe. <b>Drag across the bars to zoom the lanes below</b>; click a bar to list that hour's events; double-click to reset.` })}
       ${card("Who was active when, and who talked to whom", `<div id="tlCtl" class="tl-ctl"></div><div id="tlZoom" class="tl-zoom"></div><div class="tl-lanewrap"><div id="tlAxis" class="tl-axis"></div><div id="tlScroll" class="tl-scroll"><div id="tlLanes"></div></div></div><div id="tlLaneKey" class="small muted tl-lanekey"></div>`,
-        { sub: `One row per ${term("named", "named actor")}; the number after the name is its dated actions. Each cell is one hour (estimated times, UTC): its colour is what the actor mostly did, darker means more actions, and a red underline marks ${term("harm", "harmful actions")}. Each line is a ${term("message", "message")}: it starts where the sender wrote to a ${term("place", "place")} and ends where another actor read it; a dashed line is on a place the redaction may have ${term("merged", "merged")}. Hover a row to pick out its messages; hover a line to see the record; click a cell to list those events.` })}
+        { sub: `One row per ${S.units && byAgent() ? `${term("agent", "estimated agent")} ${estMark()}; its tokens' cells are merged, a blue bracket and “N tok” mark an agent of several tokens, and a message between two of its own tokens is a tick in its row` : term("named", "named actor")}; the number after the name is its dated actions. Each cell is one hour (estimated times, UTC): its colour is what the actor mostly did, darker means more actions, and a red underline marks ${term("harm", "harmful actions")}. Each line is a ${term("message", "message")}: it starts where the sender wrote to a ${term("place", "place")} and ends where another actor read it; a dashed line is on a place the redaction may have ${term("merged", "merged")}. Hover a row to pick out its messages; hover a line to see the record; click a cell to list those events.` })}
       ${card("Chronology", `<div id="tlFilt" class="tl-filt"></div><div id="tlChron" class="chrono"></div>`,
         { sub: "Every key moment in time order (UTC): turning points in the data (each an hour of activity), warning signs, the first message between each pair of named actors, and what the incident reports say happened, with how far the tool's own estimate is from the report. ⚠ marks a first message on a place the redaction may have merged." })}
       ${card("Every hour", `<div id="tlHours" class="tl-hours"></div>`, { sub: "Every hour from the first dated action to the last (estimated times, UTC). Click an hour to list its events." })}`;
@@ -45,29 +64,42 @@
 
     const T0 = toTime(hours[0]), T1 = toTime(hours.at(-1)) + HR;
     if (st.z && (st.z[0] < T0 || st.z[1] > T1)) st.z = null;
-    const M = msgs.rows.map((r) => ({ from: r[0], to: r[1], channel: r[2], write_id: r[3], read_id: r[4], wt: r[5] * 1000, rt: r[6] * 1000, lat: r[7], how: r[8], merged: !!r[9] }));
-    const namedMsgs = M.filter((m) => named(m.from) && named(m.to));
+    const AGM = byAgent() && !!S.units;
+    const tokLanes = lanes;
+    if (AGM) lanes = agentLanes(lanes);
+    const M0 = msgs.rows.map((r) => ({ from: r[0], to: r[1], channel: r[2], write_id: r[3], read_id: r[4], wt: r[5] * 1000, rt: r[6] * 1000, lat: r[7], how: r[8], merged: !!r[9] }));
+    // by agent a message is drawn between agents; one between two tokens of an agent is kept apart (an in-lane tick)
+    const M = M0.map((m) => (AGM ? { ...m, tf: m.from, tt: m.to, from: named(m.from) ? agentOf(m.from) : m.from, to: named(m.to) ? agentOf(m.to) : m.to } : m));
+    const insideMsgs = AGM ? M.filter((m) => named(m.from) && named(m.to) && m.from === m.to) : [];
+    const namedMsgs = M.filter((m) => named(m.from) && named(m.to) && !(AGM && m.from === m.to));
+    if (AGM) {
+      const byL = new Map(lanes.actors.map((a) => [a.actor, a]));
+      lanes.actors.forEach((a) => { a.sent = 0; a.received = 0; });
+      namedMsgs.forEach((m) => { const f = byL.get(m.from), g = byL.get(m.to); if (f) f.sent++; if (g) g.received++; });
+      insideMsgs.forEach((m) => { const f = byL.get(m.from); if (f) f.inside++; });
+    }
     const rep = (ctx?.context?.phases || []).map((p, i, all) => {
       const a = toTime(p.start), nxt = all.slice(i + 1).map((q) => toTime(q.start)).find((t) => t != null && t > a);
       return { ...p, a, b: toTime(p.end) ?? nxt ?? a + 6 * HR, hasEnd: !!p.end };
     }).filter((p) => p.a != null);
-    const D = { s, hours, lanes, M, namedMsgs, sim, ctx, rep, T0, T1 };
+    const D = { s, hours, lanes, tokLanes, M, namedMsgs, insideMsgs, AGM, sim, ctx, rep, T0, T1 };
 
     // the lead: the whole story in one sentence
     const tot = Object.fromEntries(hours.map((h) => [h, Object.values(s.activity_by_hour[h]).reduce((a, b) => a + b, 0)]));
     const actions = Object.values(tot).reduce((a, b) => a + b, 0);
     const peak = hours.reduce((a, h) => (tot[h] > (tot[a] || 0) ? h : a), hours[0]);
     const nNamed = lanes.actors.filter((a) => a.kind !== "runs").length;
-    const allNamed = s.actions?.named_actors;
+    const nTokDated = tokLanes.actors.filter((a) => a.kind !== "runs").length;
+    const allNamed = AGM ? S.units.agents : s.actions?.named_actors;
     const runLane = lanes.actors.find((a) => a.kind === "runs");
     const days = (T1 - T0) / (24 * HR);
     $("tlLead").innerHTML = `${fmt(actions)} ${term("dated", "dated")} ${term("action", "actions")} over ${days >= 2 ? days.toFixed(1) + " days" : hoursWord(days * 24)}, ${esc(when(T0))} to ${esc(when(T1))} UTC (estimated times). ` +
-      `${allNamed ? `${fmt(nNamed)} of the ${fmt(allNamed)}` : fmt(nNamed)} ${term("named", "named actors")} have dated actions${runLane ? `, and ${fmt(runLane.total)} dated actions come from ${term("run", "anonymous runs")}` : ""}. The busiest hour was ${esc(when(toTime(peak)))}–${esc(clock(toTime(peak) + HR))} with ${fmt(tot[peak])} actions.` +
+      `${AGM ? `${allNamed ? `${fmt(nNamed)} of the ${fmt(allNamed)}` : fmt(nNamed)} ${term("agent", "estimated agents")} ${estMark()}${hasMerges() && nTokDated !== nNamed ? ` (${fmt(nTokDated)} tokens)` : ""}` : `${allNamed ? `${fmt(nNamed)} of the ${fmt(allNamed)}` : fmt(nNamed)} ${term("named", "named actors")}`} have dated actions${runLane ? `, and ${fmt(runLane.total)} dated actions come from ${term("run", "anonymous runs")}` : ""}. The busiest hour was ${esc(when(toTime(peak)))}–${esc(clock(toTime(peak) + HR))} with ${fmt(tot[peak])} actions.` +
       (namedMsgs.length ? (() => {
         const ex = namedMsgs.filter((m) => !m.merged), mg = namedMsgs.length - ex.length;
         const first = Math.min(...namedMsgs.map((m) => m.rt)), firstExact = ex.length ? Math.min(...ex.map((m) => m.rt)) : null;
-        return ` ${plural(namedMsgs.length, "message")} passed between named actors${mg ? ` (${fmt(mg)} of them on places the redaction may have ${term("merged", "merged")})` : ""}. ` +
-          (firstExact != null ? `The first on an exact place was read at ${esc(when(firstExact))}: the warning sign “first message between named actors”.` : "") +
+        return ` ${plural(namedMsgs.length, "message")} passed between ${AGM ? `estimated agents ${estMark()}` : "named actors"}${AGM && insideMsgs.length ? ` (${fmt(insideMsgs.length)} more inside one agent, drawn as ticks)` : ""}${mg ? ` (${fmt(mg)} of them on places the redaction may have ${term("merged", "merged")})` : ""}. ` +
+          (firstExact != null ? `The first on an exact place was read at ${esc(when(firstExact))}: the warning sign “first message between ${AGM ? "estimated agents" : "named actors"}”.` : "") +
           (firstExact != null && first < firstExact ? ` One read earlier, at ${esc(when(first))}, is on a merged place, so it may not be one message.` : "");
       })() : "");
 
@@ -211,11 +243,11 @@
     const hasRuns = D.lanes.actors.some((a) => a.kind === "runs");
     $("tlCtl").innerHTML = `
       <label>Order <select id="tlSort"><option value="first">first seen</option><option value="activity">most active</option><option value="messages">most messages</option></select></label>
-      <label>Rows <select id="tlShow"><option value="all">every actor</option><option value="messages">actors in messages</option><option value="window">active in the zoomed window</option></select></label>
-      <label>Message lines <select id="tlLines"><option value="named">between named actors</option>${hasRuns ? '<option value="all">all, anonymous runs on the bottom row</option>' : ""}<option value="none">none</option></select></label>
+      <label>Rows <select id="tlShow"><option value="all">every ${D.AGM ? "agent" : "actor"}</option><option value="messages">${D.AGM ? "agents" : "actors"} in messages</option><option value="window">active in the zoomed window</option></select></label>
+      <label>Message lines <select id="tlLines"><option value="named">between ${D.AGM ? "estimated agents" : "named actors"}</option>${hasRuns ? '<option value="all">all, anonymous runs on the bottom row</option>' : ""}<option value="none">none</option></select></label>
       ${D.namedMsgs.length ? '<button type="button" id="tlFit">Zoom to the messages</button>' : ""}
-      ${D.groups.length ? `<label title="The Agents tab's estimated agents: identities its evidence suggests one agent holds"><input type="checkbox" id="tlGroup"${st.group ? " checked" : ""}> group by estimated agent (${plural(D.groups.length, "group")})</label>` : ""}
-      <label>One lane <input id="tlOne" list="tlOneList" placeholder="an actor" value="${esc(st.one || "")}" style="width:150px"></label><datalist id="tlOneList">${D.lanes.actors.filter((a) => a.kind !== "runs").sort((a, b) => b.total - a.total).slice(0, 500).map((a) => `<option value="${esc(a.actor)}">${esc(short(a.actor))} · ${fmt(a.total)} actions</option>`).join("")}</datalist>
+      ${D.groups.length && !D.AGM ? `<label title="The Agents tab's estimated agents: identities its evidence suggests one agent holds"><input type="checkbox" id="tlGroup"${st.group ? " checked" : ""}> group by estimated agent (${plural(D.groups.length, "group")})</label>` : ""}
+      <label>One lane <input id="tlOne" list="tlOneList" placeholder="${D.AGM ? "an agent" : "an actor"}" value="${esc(st.one || "")}" style="width:150px"></label><datalist id="tlOneList">${D.lanes.actors.filter((a) => a.kind !== "runs").sort((a, b) => b.total - a.total).slice(0, 500).map((a) => `<option value="${esc(a.actor)}">${esc(D.AGM ? agentName(a.actor) : short(a.actor))}${D.AGM && a.tokens > 1 ? ` · ${fmt(a.tokens)} tokens` : ""} · ${fmt(a.total)} actions</option>`).join("")}</datalist>
       ${st.one ? '<button type="button" id="tlOneClear">All lanes</button>' : ""}`;
     $("tlSort").value = st.sort; $("tlShow").value = st.show; $("tlLines").value = hasRuns || st.lines !== "all" ? st.lines : "named";
     $("tlSort").addEventListener("change", (e) => { st.sort = e.target.value; drawLanes(D); });
@@ -232,7 +264,7 @@
 
   // zoom to one lane: that actor, the actors it exchanged messages with, and its own active span
   function setOne(D, v) {
-    const a = v ? D.lanes.actors.find((x) => x.kind !== "runs" && (x.actor === v || short(x.actor) === v)) : null;
+    const a = v ? D.lanes.actors.find((x) => x.kind !== "runs" && (x.actor === v || short(x.actor) === v || (D.AGM && agentName(x.actor) === v))) : null;
     st.one = a ? a.actor : null;
     if (a) {
       const t0 = Math.floor(toTime(a.first) / HR) * HR, t1 = Math.ceil(toTime(a.last) / HR) * HR + HR;
@@ -266,7 +298,7 @@
     } else if (runs && (st.show === "all" || st.lines === "all")) rows.push(runs);
     // group lanes by the Agents tab's estimated agents: members of one group sit together under a header
     const gOf = new Map();
-    if (st.group && !st.one) (D.groups || []).forEach((g, i) => g.actors.forEach((a) => gOf.set(a, i)));
+    if (st.group && !st.one && !D.AGM) (D.groups || []).forEach((g, i) => g.actors.forEach((a) => gOf.set(a, i)));
     if (gOf.size) {
       const out = [], done = new Set();
       rows.forEach((r) => {
@@ -296,12 +328,16 @@
         return;
       }
       const mine = st.one === r.actor;
-      const label = fitName(isRuns ? RUNS : short(r.actor), LW - 16 - textWidth(fmt(r.total), "10px -apple-system, system-ui, sans-serif"), nameFont);
+      const multi = D.AGM && !isRuns && r.tokens > 1;
+      const right = `${multi ? `${fmt(r.tokens)} tok · ` : ""}${fmt(r.total)}`;
+      const shown = isRuns ? RUNS : D.AGM ? agentName(r.actor) : short(r.actor);
+      const label = fitName(shown, LW - 16 - textWidth(right, "10px -apple-system, system-ui, sans-serif"), nameFont);
+      const who = multi ? `data-agent="${esc(r.actor)}"` : `data-actor="${esc(r.actor)}"`;
       const harm = new Map(r.harm_bins.map(([hi, n]) => [hi, n]));
       svg += `<g class="lane" data-lane="${esc(r.actor)}">${mine ? `<rect x="0" y="${y}" width="${W}" height="${LH}" fill="#fff4e0"/>` : i % 2 ? "" : `<rect x="0" y="${y}" width="${W}" height="${LH}" fill="#f7f9fb"/>`}
-        ${r.inGroup != null ? `<rect x="0" y="${y}" width="2.5" height="${LH}" fill="${ACCENT}"/>` : ""}
-        <text class="lname" ${isRuns ? "" : `data-actor="${esc(r.actor)}" data-one="${esc(r.actor)}"`} x="6" y="${y + LH - 3}" font-size="11" fill="${isRuns ? QUIET : "#7a4d0c"}"${mine ? ' font-weight="700"' : ""}><title>${esc(isRuns ? RUNS : r.actor)}${isRuns ? "" : " · click for its profile, double-click to zoom to this lane"}</title>${esc(label)}</text>
-        <text x="${LW - 6}" y="${y + LH - 3}" font-size="10" fill="${QUIET}" text-anchor="end">${fmt(r.total)}</text><g clip-path="url(#tlClip)">`;
+        ${r.inGroup != null ? `<rect x="0" y="${y}" width="2.5" height="${LH}" fill="${ACCENT}"/>` : ""}${multi ? `<rect class="tl-halo" x="0.5" y="${y + 0.5}" width="${W - 1}" height="${LH - 1}" fill="none" stroke="${ACCENT}" stroke-opacity=".35" rx="2"/><path d="M5,${y + 1.5} H1.5 V${y + LH - 1.5} H5" fill="none" stroke="${ACCENT}" stroke-width="1.6"/>` : ""}
+        <text class="lname" ${isRuns ? "" : `${who} data-one="${esc(r.actor)}"`} x="${multi ? 9 : 6}" y="${y + LH - 3}" font-size="11" fill="${isRuns ? QUIET : "#7a4d0c"}"${mine ? ' font-weight="700"' : ""}><title>${esc(isRuns ? RUNS : multi ? `${agentLabel(r.actor)} (estimated: tokens merged on direct evidence)` : r.actor)}${isRuns ? "" : multi ? " · click for its tokens, double-click to zoom to this lane" : " · click for its profile, double-click to zoom to this lane"}</title>${esc(label)}</text>
+        <text x="${LW - 6}" y="${y + LH - 3}" font-size="10" fill="${QUIET}" text-anchor="end"><title>${multi ? `${fmt(r.tokens)} tokens merged into this agent; ${fmt(r.total)} dated actions` : `${fmt(r.total)} dated actions`}</title>${multi ? `<tspan fill="${ACCENT}">${fmt(r.tokens)} tok</tspan> · ` : ""}${fmt(r.total)}</text><g clip-path="url(#tlClip)">`;
       r.bins.forEach((b) => {
         const t = start + b[0] * HR;
         if (t + HR <= z0 || t >= z1) return;
@@ -311,7 +347,7 @@
         const parts = lanes.intents.map((k, j) => [k, b[j + 1]]).filter((p) => p[1]).sort((p, q) => q[1] - p[1]);
         const op = (0.28 + 0.72 * Math.log1p(n) / Math.log1p(mxCell)).toFixed(2);
         const hn = harm.get(b[0]);
-        svg += `<rect class="cell" data-h="${hourKey(t)}" x="${x.toFixed(1)}" y="${y + 1.5}" width="${w.toFixed(2)}" height="${LH - 3}" fill="${intentColor(it)}" fill-opacity="${op}"><title>${esc(isRuns ? RUNS : short(r.actor))} · ${esc(when(t))} · ${plural(n, "action")}\n${parts.slice(0, 4).map(([k, v]) => `${human(k)} ${fmt(v)}`).join(", ")}${hn ? `\n${fmt(hn)} harmful` : ""}\nclick to list these events</title></rect>`;
+        svg += `<rect class="cell" data-h="${hourKey(t)}" x="${x.toFixed(1)}" y="${y + 1.5}" width="${w.toFixed(2)}" height="${LH - 3}" fill="${intentColor(it)}" fill-opacity="${op}"><title>${esc(isRuns ? RUNS : shown)} · ${esc(when(t))} · ${plural(n, "action")}\n${parts.slice(0, 4).map(([k, v]) => `${human(k)} ${fmt(v)}`).join(", ")}${hn ? `\n${fmt(hn)} harmful` : ""}\nclick to list these events</title></rect>`;
         if (hn) svg += `<rect x="${x.toFixed(1)}" y="${y + LH - 2.6}" width="${w.toFixed(2)}" height="1.8" fill="${HARM}"/>`;
       });
       svg += `</g></g>`;
@@ -323,19 +359,26 @@
     lines.forEach((m) => {
       const x1 = X(m.wt), x2 = X(m.rt), y1 = yOf.get(laneOf(m.from)), y2 = yOf.get(laneOf(m.to));
       const dx = Math.max(8, Math.min(60, Math.abs(x2 - x1) / 2));
-      svg += `<path class="msg${m.merged ? " merged" : ""}" data-a="${esc(laneOf(m.from))}" data-b="${esc(laneOf(m.to))}" data-id="${esc(m.read_id)}" d="M${x1.toFixed(1)},${y1} C${(x1 + dx).toFixed(1)},${y1} ${(x2 - dx).toFixed(1)},${y2} ${x2.toFixed(1)},${y2}" marker-end="url(#tlArrow)"><title>${esc(short(m.from))} → ${esc(short(m.to))} via ${esc(placeLabel(m.channel))}\nwritten ${esc(when(m.wt))} in ${esc(m.write_id)}, read ${esc(when(m.rt))} in ${esc(m.read_id)} (${esc(hoursWord(m.lat))} later)\n${esc(m.how || "")}${m.merged ? "\n⚠ " + esc(MERGED_TIP) : ""}</title></path>
+      svg += `<path class="msg${m.merged ? " merged" : ""}" data-a="${esc(laneOf(m.from))}" data-b="${esc(laneOf(m.to))}" data-id="${esc(m.read_id)}" d="M${x1.toFixed(1)},${y1} C${(x1 + dx).toFixed(1)},${y1} ${(x2 - dx).toFixed(1)},${y2} ${x2.toFixed(1)},${y2}" marker-end="url(#tlArrow)"><title>${esc(nmOf(m.from))} → ${esc(nmOf(m.to))}${D.AGM && m.tf ? ` (tokens ${esc(short(m.tf))} → ${esc(short(m.tt))})` : ""} via ${esc(placeLabel(m.channel))}\nwritten ${esc(when(m.wt))} in ${esc(m.write_id)}, read ${esc(when(m.rt))} in ${esc(m.read_id)} (${esc(hoursWord(m.lat))} later)\n${esc(m.how || "")}${m.merged ? "\n⚠ " + esc(MERGED_TIP) : ""}</title></path>
         <circle class="msgend" data-a="${esc(laneOf(m.from))}" data-b="${esc(laneOf(m.to))}" cx="${x1.toFixed(1)}" cy="${y1}" r="1.8" fill="${ACCENT}"/>`;
+    });
+    // a message between two tokens of one agent: a tick in the agent's own row, at the read time
+    const ticks = !D.AGM || st.lines === "none" ? [] : D.insideMsgs.filter((m) => yOf.has(m.from) && m.rt >= z0 && m.rt <= z1 && (!st.one || m.from === st.one));
+    ticks.forEach((m) => {
+      const x = X(m.rt), y = yOf.get(m.from);
+      svg += `<line class="msg tick" data-a="${esc(m.from)}" data-b="${esc(m.to)}" data-id="${esc(m.read_id)}" x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${y - LH / 2 + 1.5}" y2="${y + LH / 2 - 1.5}" stroke-width="2.2" stroke-opacity=".85"><title>${esc(short(m.tf))} → ${esc(short(m.tt))}: two tokens of ${esc(agentName(m.from))}, inside one agent\nwritten ${esc(when(m.wt))} in ${esc(m.write_id)}, read ${esc(when(m.rt))} in ${esc(m.read_id)}</title></line>`;
     });
     svg += `</g></svg>`;
     host.innerHTML = svg;
 
     // the time axis above the scrolling lanes
-    let ax = `<svg width="${W}" height="24" viewBox="0 0 ${W} 24"><text x="6" y="16" font-size="10" fill="${QUIET}">actor</text><text x="${LW - 6}" y="16" font-size="10" fill="${QUIET}" text-anchor="end"><title>Dated actions by each actor, over the whole span</title>actions</text>`;
+    let ax = `<svg width="${W}" height="24" viewBox="0 0 ${W} 24"><text x="6" y="16" font-size="10" fill="${QUIET}">${D.AGM ? "estimated agent" : "actor"}</text><text x="${LW - 6}" y="16" font-size="10" fill="${QUIET}" text-anchor="end"><title>Dated actions by each actor, over the whole span</title>actions</text>`;
     timeTicks(z0, z1, Math.max(3, Math.floor((W - LW - R) / 80))).forEach((k) => { ax += `<line x1="${X(k.t)}" x2="${X(k.t)}" y1="18" y2="24" stroke="${AXIS}"/><text x="${X(k.t)}" y="14" text-anchor="middle" font-size="10.5" fill="${QUIET}">${esc(k.label)}</text>`; });
     $("tlAxis").innerHTML = ax + "</svg>";
     const nRows = rows.filter((r) => !r.header).length;
-    $("tlZoom").innerHTML = (st.one ? `One lane: ${ent.actor(st.one)} (highlighted) and the ${plural(nRows - 1, "actor")} it exchanged messages with; only its messages are drawn. <button type="button" class="link" id="tlOneClear2">All lanes</button> ` : "") +
+    $("tlZoom").innerHTML = (st.one ? `One lane: ${D.AGM ? ent.agent(st.one) : ent.actor(st.one)} (highlighted) and the ${plural(nRows - 1, D.AGM ? "agent" : "actor")} it exchanged messages with; only its messages are drawn. <button type="button" class="link" id="tlOneClear2">All lanes</button> ` : "") +
       (gOf.size ? `Grouped by the Agents tab's estimated agents (a blue edge marks a member); ungrouped actors in between. ` : "") +
+      (D.AGM && D.tokLanes.actors.length !== lanes.actors.length ? `Over the whole trace ${fmt(D.tokLanes.actors.filter((a) => a.kind !== "runs").length)} tokens make ${fmt(lanes.actors.filter((a) => a.kind !== "runs").length)} agent rows ${estMark()}; a row of several tokens has a blue bracket. ` : "") +
       `${plural(nRows, "row")}${rows.some((r) => r.kind === "runs") ? " (the last is every anonymous run together)" : ""}; the number after each name is its dated actions. ` +
       (st.z ? `Zoomed to <b>${esc(when(z0))}</b> – <b>${esc(when(z1))}</b> (${hoursWord((z1 - z0) / HR)}). <button type="button" class="link" id="tlReset">Show everything</button>` : `Showing the whole span. Drag across the chart above to zoom.`);
     if ($("tlReset")) $("tlReset").addEventListener("click", () => setZoom(D, null));
@@ -346,8 +389,8 @@
     $("tlLaneKey").innerHTML = `<div class="legend">${lanes.intents.filter((k) => shown.has(k)).map((k) => `<span title="${esc(intentName(k))}"><i style="background:${intentColor(k)}"></i>${esc(human(k))}</span>`).join("")}
         <span><i style="background:linear-gradient(90deg,${ACCENT}44,${ACCENT})"></i>darker: more actions that hour</span>
         <span><i class="tl-key-harm"></i>harmful actions that hour</span>
-        <span><i class="tl-key-line"></i>message, writer → reader</span>${nMerged ? `<span><i class="tl-key-line dashed"></i>on a possibly merged place</span>` : ""}</div>
-      ${plural(lines.length, "message line")} drawn${nMerged ? ` (${fmt(nMerged)} dashed)` : ""}${st.lines === "named" && M.length > D.namedMsgs.length ? ` · ${fmt(M.length - D.namedMsgs.length)} more involve anonymous runs: choose “all” to draw them on the bottom row` : ""}.`;
+        <span><i class="tl-key-line"></i>message, writer → reader</span>${ticks.length ? `<span><i class="tl-key-tick"></i>message inside one agent (${fmt(ticks.length)})</span>` : ""}${rows.some((r) => r.tokens > 1) ? `<span><i class="tl-key-halo"></i>agent of several tokens</span>` : ""}${nMerged ? `<span><i class="tl-key-line dashed"></i>on a possibly merged place</span>` : ""}</div>
+      ${plural(lines.length, "message line")} drawn${ticks.length ? ` and ${plural(ticks.length, "in-row tick")}` : ""}${nMerged ? ` (${fmt(nMerged)} dashed)` : ""}${st.lines === "named" && M.length > D.namedMsgs.length + D.insideMsgs.length ? ` · ${fmt(M.length - D.namedMsgs.length - D.insideMsgs.length)} more involve anonymous runs: choose “all” to draw them on the bottom row` : ""}.`;
     // a large SVG swapped inside a scrolling box can stay unpainted until scrolled: keep the scroll in range and nudge a repaint
     if (scroll.scrollTop > Math.max(0, H - scroll.clientHeight)) scroll.scrollTop = 0;
     requestAnimationFrame(() => { scroll.scrollTop += 1; scroll.scrollTop -= 1; });
@@ -395,7 +438,7 @@
     (s.phases || []).forEach((p) => { const t = toTime(p.time); out.push({ t, type: "moment", title: `${p.name} (the hour ${hourRange(t)})`, body: esc(p.why || "") }); });
     (sim.signals || []).forEach((g) => out.push({ t: toTime(g.t), type: g.family in FAMILY ? g.family : "single", title: g.name,
       body: `${esc(g.why || "")}${g.harm_share_after != null ? ` <span class="tl-share">${meter(g.harm_share_after, HARM, 54)} ${pct(g.harm_share_after)} of harm still to come</span>` : ""}`,
-      chips: [refChip(g), g.record && g.record !== g.ref ? ent.rec(g.record) : "", ...(g.actors || []).filter((a) => a !== g.ref && named(a)).map((a) => ent.actor(a))].filter(Boolean).join(" ") }));
+      chips: [refChip(g), g.record && g.record !== g.ref ? ent.rec(g.record) : "", ...(g.actors || []).filter((a) => a !== g.ref && named(a)).map((a) => unitChip(a))].filter(Boolean).join(" ") }));
     const seen = new Set();
     const sorted = namedMsgs.slice().sort((a, b) => a.rt - b.rt);
     const firstExact = sorted.find((m) => !m.merged);
@@ -406,9 +449,9 @@
       const earlier = seen.has(k);
       if (earlier && !isSign) return; seen.add(k);
       const back = seen.has(m.to + "\u0000" + m.from);
-      out.push({ t: m.rt, type: "contact", title: `${m.merged ? `<span class="tl-warn" title="${esc(MERGED_TIP)}">⚠</span> ` : ""}${esc(short(m.from))} → ${esc(short(m.to))}${back ? ' <span class="badge" title="each of the two has now read the other">now both ways</span>' : ""}${isSign ? ' <span class="badge sign">first on an exact place: the warning sign</span>' : ""}`, html: true,
-        body: `${earlier ? "first message on an exact place" : "first message"} from ${esc(short(m.from))} to ${esc(short(m.to))}: written ${esc(when(m.wt))}, read ${m.lat != null && m.lat < 1 / 60 ? "under a minute" : esc(hoursWord(m.lat))} later · ${esc(m.how || "")}${m.merged ? ` · <span class="tl-warnt">on a place the redaction may have merged, so the write and the read may not be one message</span>` : ""}`,
-        chips: `${ent.actor(m.from)} ${ent.place(m.channel)} ${ent.actor(m.to)} ${ent.rec(m.write_id)} ${ent.rec(m.read_id)}` });
+      out.push({ t: m.rt, type: "contact", title: `${m.merged ? `<span class="tl-warn" title="${esc(MERGED_TIP)}">⚠</span> ` : ""}${esc(nmOf(m.from))} → ${esc(nmOf(m.to))}${back ? ' <span class="badge" title="each of the two has now read the other">now both ways</span>' : ""}${isSign ? ' <span class="badge sign">first on an exact place: the warning sign</span>' : ""}`, html: true,
+        body: `${earlier ? "first message on an exact place" : "first message"} from ${esc(nmOf(m.from))} to ${esc(nmOf(m.to))}: written ${esc(when(m.wt))}, read ${m.lat != null && m.lat < 1 / 60 ? "under a minute" : esc(hoursWord(m.lat))} later · ${esc(m.how || "")}${m.merged ? ` · <span class="tl-warnt">on a place the redaction may have merged, so the write and the read may not be one message</span>` : ""}`,
+        chips: `${unitChip(m.from)} ${ent.place(m.channel)} ${unitChip(m.to)} ${ent.rec(m.write_id)} ${ent.rec(m.read_id)}` });
     });
     rep.forEach((p) => out.push({ t: p.a, type: "report", title: p.name, body: `${esc(p.what || "")} <span class="muted">(${esc(p.source || "")})</span>`, out: p.a < T0 || p.a > T1, until: p.hasEnd ? p.b : null }));
     (ctx?.milestones?.milestones || []).forEach((m) => {
@@ -440,15 +483,25 @@
     const { s, sim } = D;
     if (!sim.hours || !sim.actions) { $("tlHours").innerHTML = '<p class="muted">No hours.</p>'; return; }
     const t0 = sim.start_t * 1000, mxA = Math.max(1, ...sim.actions);
+    // by agent: how many estimated agents had a dated action in each hour, and how many were new
+    let act = sim.active_actors, neu = sim.new_actors;
+    if (D.AGM && D.lanes.start_t != null) {
+      const off = Math.round((D.lanes.start_t - sim.start_t) / 3600);
+      act = new Array(sim.hours).fill(0); neu = new Array(sim.hours).fill(0);
+      D.lanes.actors.filter((a) => a.kind !== "runs").forEach((a) => {
+        let first = true;
+        a.bins.forEach((b) => { const i = b[0] + off; if (i < 0 || i >= sim.hours) return; act[i]++; if (first) { neu[i]++; first = false; } });
+      });
+    }
     let rows = "";
     for (let i = 0; i < sim.hours; i++) {
       const t = t0 + i * HR, h = hourKey(t), by = s.activity_by_hour[h] || {};
       const main = Object.entries(by).sort((a, b) => b[1] - a[1])[0];
       rows += `<tr class="click${sim.actions[i] ? "" : " quiet"}" data-h="${h}"><td>${esc(when(t))}</td><td class="n">${fmt(sim.actions[i])}</td><td>${meter(sim.actions[i] / mxA, main ? intentColor(main[0]) : "#cdd3da", 90)}</td>
-        <td class="n">${sim.harmful[i] ? fmt(sim.harmful[i]) : ""}</td><td class="n">${sim.active_actors[i] || ""}</td><td class="n">${sim.new_actors[i] || ""}</td><td class="n">${sim.messages[i] || ""}</td>
+        <td class="n">${sim.harmful[i] ? fmt(sim.harmful[i]) : ""}</td><td class="n">${act[i] || ""}</td><td class="n">${neu[i] || ""}</td><td class="n">${sim.messages[i] || ""}</td>
         <td>${main ? ent.intent(main[0]) : ""}</td><td class="n">${sim.harm_remaining[i] != null ? pct(sim.harm_remaining[i]) : ""}</td></tr>`;
     }
-    $("tlHours").innerHTML = `<table><thead><tr><th>hour (UTC, estimated)</th><th class="n">actions</th><th></th><th class="n">harmful</th><th class="n">named actors active</th><th class="n">new</th><th class="n">messages</th><th>mostly</th><th class="n">harm still to come</th></tr></thead><tbody>${rows}</tbody></table>`;
+    $("tlHours").innerHTML = `<table><thead><tr><th>hour (UTC, estimated)</th><th class="n">actions</th><th></th><th class="n">harmful</th><th class="n">${D.AGM ? `estimated agents active ${estMark()}` : "named actors active"}</th><th class="n">new</th><th class="n">messages</th><th>mostly</th><th class="n">harm still to come</th></tr></thead><tbody>${rows}</tbody></table>`;
     $("tlHours").querySelectorAll("tr.click").forEach((tr) => tr.addEventListener("click", (e) => { if (!e.target.closest(".ent")) goEvents({ hour: tr.dataset.h }); }));
   }
 })();

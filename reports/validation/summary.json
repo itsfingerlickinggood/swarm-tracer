@@ -2006,6 +2006,66 @@
    "true_pairs": 380
   }
  },
+ "message_grades": {
+  "all": {
+   "direct": {
+    "found": 56,
+    "correct": 46,
+    "precision": 0.8214,
+    "precision_ci": [
+     0.7016,
+     0.9
+    ]
+   },
+   "inferred": {
+    "found": 2670,
+    "correct": 2088,
+    "precision": 0.782,
+    "precision_ci": [
+     0.766,
+     0.7973
+    ]
+   },
+   "weak": {
+    "found": 6057,
+    "correct": 4745,
+    "precision": 0.7834,
+    "precision_ci": [
+     0.7728,
+     0.7936
+    ]
+   }
+  },
+  "realworld": {
+   "direct": {
+    "found": 56,
+    "correct": 46,
+    "precision": 0.8214,
+    "precision_ci": [
+     0.7016,
+     0.9
+    ]
+   },
+   "inferred": {
+    "found": 217,
+    "correct": 175,
+    "precision": 0.8065,
+    "precision_ci": [
+     0.7487,
+     0.8535
+    ]
+   },
+   "weak": {
+    "found": 712,
+    "correct": 567,
+    "precision": 0.7963,
+    "precision_ci": [
+     0.7652,
+     0.8243
+    ]
+   }
+  }
+ },
  "benign": {
   "runs": 15,
   "fires": [
@@ -2359,7 +2419,7 @@
  },
  "coordinated_runs": 45,
  "benign_runs": 15,
- "generated": "2026-11-12T19:57:39Z",
+ "generated": "2026-11-13T16:00:49Z",
  "seeds": [
   1,
   2,
@@ -2368,13 +2428,13 @@
   5
  ],
  "quick": false,
- "seconds": 17.0,
+ "seconds": 16.4,
  "command": "python3 -m agenttrace.validation run --out reports/validation --seeds 1 2 3 4 5",
  "runs": [
   {
    "records": 1462,
    "true_messages": 181,
-   "load_seconds": 0.25,
+   "load_seconds": 0.24,
    "measures": {
     "msg_precision": 0.7485,
     "msg_recall": 0.674,
@@ -2402,6 +2462,32 @@
    "counts": {
     "messages_found": 163,
     "messages_correct": 122,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 58,
+      "correct": 45,
+      "precision": 0.7759,
+      "precision_ci": [
+       0.6534,
+       0.8641
+      ]
+     },
+     "weak": {
+      "found": 105,
+      "correct": 77,
+      "precision": 0.7333,
+      "precision_ci": [
+       0.6416,
+       0.8086
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -2673,7 +2759,7 @@
   {
    "records": 1623,
    "true_messages": 218,
-   "load_seconds": 0.26,
+   "load_seconds": 0.25,
    "measures": {
     "msg_precision": 0.8235,
     "msg_recall": 0.7706,
@@ -2701,6 +2787,32 @@
    "counts": {
     "messages_found": 204,
     "messages_correct": 168,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 81,
+      "correct": 64,
+      "precision": 0.7901,
+      "precision_ci": [
+       0.6893,
+       0.8646
+      ]
+     },
+     "weak": {
+      "found": 123,
+      "correct": 104,
+      "precision": 0.8455,
+      "precision_ci": [
+       0.7713,
+       0.8988
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -2979,7 +3091,7 @@
   {
    "records": 1470,
    "true_messages": 168,
-   "load_seconds": 0.23,
+   "load_seconds": 0.22,
    "measures": {
     "msg_precision": 0.7945,
     "msg_recall": 0.6905,
@@ -3007,6 +3119,32 @@
    "counts": {
     "messages_found": 146,
     "messages_correct": 116,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 42,
+      "correct": 33,
+      "precision": 0.7857,
+      "precision_ci": [
+       0.6406,
+       0.8829
+      ]
+     },
+     "weak": {
+      "found": 104,
+      "correct": 83,
+      "precision": 0.7981,
+      "precision_ci": [
+       0.711,
+       0.864
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -3269,7 +3407,7 @@
   {
    "records": 1461,
    "true_messages": 179,
-   "load_seconds": 0.23,
+   "load_seconds": 0.22,
    "measures": {
     "msg_precision": 0.7988,
     "msg_recall": 0.7542,
@@ -3297,6 +3435,32 @@
    "counts": {
     "messages_found": 169,
     "messages_correct": 135,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 46,
+      "correct": 37,
+      "precision": 0.8043,
+      "precision_ci": [
+       0.6683,
+       0.8935
+      ]
+     },
+     "weak": {
+      "found": 123,
+      "correct": 98,
+      "precision": 0.7967,
+      "precision_ci": [
+       0.7172,
+       0.8584
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -3580,7 +3744,7 @@
   {
    "records": 1579,
    "true_messages": 207,
-   "load_seconds": 0.25,
+   "load_seconds": 0.24,
    "measures": {
     "msg_precision": 0.7949,
     "msg_recall": 0.7488,
@@ -3608,6 +3772,32 @@
    "counts": {
     "messages_found": 195,
     "messages_correct": 155,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 33,
+      "correct": 23,
+      "precision": 0.697,
+      "precision_ci": [
+       0.5266,
+       0.8262
+      ]
+     },
+     "weak": {
+      "found": 162,
+      "correct": 132,
+      "precision": 0.8148,
+      "precision_ci": [
+       0.748,
+       0.8671
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -3912,6 +4102,32 @@
    "counts": {
     "messages_found": 98,
     "messages_correct": 74,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 40,
+      "correct": 29,
+      "precision": 0.725,
+      "precision_ci": [
+       0.5716,
+       0.8389
+      ]
+     },
+     "weak": {
+      "found": 58,
+      "correct": 45,
+      "precision": 0.7759,
+      "precision_ci": [
+       0.6534,
+       0.8641
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -4173,7 +4389,7 @@
   {
    "records": 741,
    "true_messages": 95,
-   "load_seconds": 0.12,
+   "load_seconds": 0.11,
    "measures": {
     "msg_precision": 0.7303,
     "msg_recall": 0.6842,
@@ -4201,6 +4417,32 @@
    "counts": {
     "messages_found": 89,
     "messages_correct": 65,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 35,
+      "correct": 22,
+      "precision": 0.6286,
+      "precision_ci": [
+       0.4634,
+       0.7683
+      ]
+     },
+     "weak": {
+      "found": 54,
+      "correct": 43,
+      "precision": 0.7963,
+      "precision_ci": [
+       0.671,
+       0.8823
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -4451,7 +4693,7 @@
   {
    "records": 897,
    "true_messages": 131,
-   "load_seconds": 0.14,
+   "load_seconds": 0.13,
    "measures": {
     "msg_precision": 0.825,
     "msg_recall": 0.7557,
@@ -4479,6 +4721,32 @@
    "counts": {
     "messages_found": 120,
     "messages_correct": 99,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 47,
+      "correct": 40,
+      "precision": 0.8511,
+      "precision_ci": [
+       0.7231,
+       0.9259
+      ]
+     },
+     "weak": {
+      "found": 73,
+      "correct": 59,
+      "precision": 0.8082,
+      "precision_ci": [
+       0.7034,
+       0.8822
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -4768,6 +5036,32 @@
    "counts": {
     "messages_found": 68,
     "messages_correct": 60,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 28,
+      "correct": 24,
+      "precision": 0.8571,
+      "precision_ci": [
+       0.6851,
+       0.943
+      ]
+     },
+     "weak": {
+      "found": 40,
+      "correct": 36,
+      "precision": 0.9,
+      "precision_ci": [
+       0.7695,
+       0.9604
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -5033,7 +5327,7 @@
   {
    "records": 785,
    "true_messages": 113,
-   "load_seconds": 0.13,
+   "load_seconds": 0.12,
    "measures": {
     "msg_precision": 0.7647,
     "msg_recall": 0.6903,
@@ -5061,6 +5355,32 @@
    "counts": {
     "messages_found": 102,
     "messages_correct": 78,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 27,
+      "correct": 22,
+      "precision": 0.8148,
+      "precision_ci": [
+       0.633,
+       0.9182
+      ]
+     },
+     "weak": {
+      "found": 75,
+      "correct": 56,
+      "precision": 0.7467,
+      "precision_ci": [
+       0.6379,
+       0.8314
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -5343,7 +5663,7 @@
   {
    "records": 3118,
    "true_messages": 405,
-   "load_seconds": 0.5,
+   "load_seconds": 0.48,
    "measures": {
     "msg_precision": 0.8016,
     "msg_recall": 0.7383,
@@ -5371,6 +5691,32 @@
    "counts": {
     "messages_found": 373,
     "messages_correct": 299,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 90,
+      "correct": 69,
+      "precision": 0.7667,
+      "precision_ci": [
+       0.6695,
+       0.842
+      ]
+     },
+     "weak": {
+      "found": 283,
+      "correct": 230,
+      "precision": 0.8127,
+      "precision_ci": [
+       0.7632,
+       0.8539
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -5662,7 +6008,7 @@
   {
    "records": 2939,
    "true_messages": 374,
-   "load_seconds": 0.47,
+   "load_seconds": 0.46,
    "measures": {
     "msg_precision": 0.789,
     "msg_recall": 0.7299,
@@ -5690,6 +6036,32 @@
    "counts": {
     "messages_found": 346,
     "messages_correct": 273,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 112,
+      "correct": 86,
+      "precision": 0.7679,
+      "precision_ci": [
+       0.6816,
+       0.8364
+      ]
+     },
+     "weak": {
+      "found": 234,
+      "correct": 187,
+      "precision": 0.7991,
+      "precision_ci": [
+       0.7432,
+       0.8455
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -5977,7 +6349,7 @@
   {
    "records": 2917,
    "true_messages": 371,
-   "load_seconds": 0.47,
+   "load_seconds": 0.46,
    "measures": {
     "msg_precision": 0.8182,
     "msg_recall": 0.752,
@@ -6005,6 +6377,32 @@
    "counts": {
     "messages_found": 341,
     "messages_correct": 279,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 88,
+      "correct": 73,
+      "precision": 0.8295,
+      "precision_ci": [
+       0.7376,
+       0.8939
+      ]
+     },
+     "weak": {
+      "found": 253,
+      "correct": 206,
+      "precision": 0.8142,
+      "precision_ci": [
+       0.7617,
+       0.8573
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -6293,7 +6691,7 @@
   {
    "records": 3175,
    "true_messages": 423,
-   "load_seconds": 0.5,
+   "load_seconds": 0.49,
    "measures": {
     "msg_precision": 0.7984,
     "msg_recall": 0.7116,
@@ -6321,6 +6719,32 @@
    "counts": {
     "messages_found": 377,
     "messages_correct": 301,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 100,
+      "correct": 85,
+      "precision": 0.85,
+      "precision_ci": [
+       0.7672,
+       0.9069
+      ]
+     },
+     "weak": {
+      "found": 277,
+      "correct": 216,
+      "precision": 0.7798,
+      "precision_ci": [
+       0.7273,
+       0.8246
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -6603,7 +7027,7 @@
   {
    "records": 3259,
    "true_messages": 468,
-   "load_seconds": 0.52,
+   "load_seconds": 0.51,
    "measures": {
     "msg_precision": 0.75,
     "msg_recall": 0.6731,
@@ -6631,6 +7055,32 @@
    "counts": {
     "messages_found": 420,
     "messages_correct": 315,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 153,
+      "correct": 111,
+      "precision": 0.7255,
+      "precision_ci": [
+       0.6499,
+       0.79
+      ]
+     },
+     "weak": {
+      "found": 267,
+      "correct": 204,
+      "precision": 0.764,
+      "precision_ci": [
+       0.7096,
+       0.811
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -6949,6 +7399,32 @@
    "counts": {
     "messages_found": 168,
     "messages_correct": 129,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 61,
+      "correct": 47,
+      "precision": 0.7705,
+      "precision_ci": [
+       0.6509,
+       0.8581
+      ]
+     },
+     "weak": {
+      "found": 107,
+      "correct": 82,
+      "precision": 0.7664,
+      "precision_ci": [
+       0.6778,
+       0.8364
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -7235,7 +7711,7 @@
   {
    "records": 1631,
    "true_messages": 225,
-   "load_seconds": 0.26,
+   "load_seconds": 0.25,
    "measures": {
     "msg_precision": 0.7212,
     "msg_recall": 0.6667,
@@ -7263,6 +7739,32 @@
    "counts": {
     "messages_found": 208,
     "messages_correct": 150,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 85,
+      "correct": 63,
+      "precision": 0.7412,
+      "precision_ci": [
+       0.6391,
+       0.8224
+      ]
+     },
+     "weak": {
+      "found": 123,
+      "correct": 87,
+      "precision": 0.7073,
+      "precision_ci": [
+       0.6216,
+       0.7805
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -7545,7 +8047,7 @@
   {
    "records": 1471,
    "true_messages": 164,
-   "load_seconds": 0.23,
+   "load_seconds": 0.22,
    "measures": {
     "msg_precision": 0.6561,
     "msg_recall": 0.628,
@@ -7573,6 +8075,32 @@
    "counts": {
     "messages_found": 157,
     "messages_correct": 103,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 43,
+      "correct": 32,
+      "precision": 0.7442,
+      "precision_ci": [
+       0.5976,
+       0.8507
+      ]
+     },
+     "weak": {
+      "found": 114,
+      "correct": 71,
+      "precision": 0.6228,
+      "precision_ci": [
+       0.5312,
+       0.7064
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -7859,7 +8387,7 @@
   {
    "records": 1443,
    "true_messages": 183,
-   "load_seconds": 0.24,
+   "load_seconds": 0.23,
    "measures": {
     "msg_precision": 0.6882,
     "msg_recall": 0.6393,
@@ -7887,6 +8415,32 @@
    "counts": {
     "messages_found": 170,
     "messages_correct": 117,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 43,
+      "correct": 30,
+      "precision": 0.6977,
+      "precision_ci": [
+       0.5489,
+       0.814
+      ]
+     },
+     "weak": {
+      "found": 127,
+      "correct": 87,
+      "precision": 0.685,
+      "precision_ci": [
+       0.5998,
+       0.7594
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -8170,7 +8724,7 @@
   {
    "records": 1553,
    "true_messages": 203,
-   "load_seconds": 0.25,
+   "load_seconds": 0.24,
    "measures": {
     "msg_precision": 0.7476,
     "msg_recall": 0.7586,
@@ -8198,6 +8752,32 @@
    "counts": {
     "messages_found": 206,
     "messages_correct": 154,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 37,
+      "correct": 21,
+      "precision": 0.5676,
+      "precision_ci": [
+       0.4091,
+       0.7133
+      ]
+     },
+     "weak": {
+      "found": 169,
+      "correct": 133,
+      "precision": 0.787,
+      "precision_ci": [
+       0.7192,
+       0.842
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -8488,7 +9068,7 @@
   {
    "records": 1462,
    "true_messages": 181,
-   "load_seconds": 0.23,
+   "load_seconds": 0.22,
    "measures": {
     "msg_precision": 0.7379,
     "msg_recall": 0.5912,
@@ -8516,6 +9096,32 @@
    "counts": {
     "messages_found": 145,
     "messages_correct": 107,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 52,
+      "correct": 41,
+      "precision": 0.7885,
+      "precision_ci": [
+       0.6597,
+       0.8776
+      ]
+     },
+     "weak": {
+      "found": 93,
+      "correct": 66,
+      "precision": 0.7097,
+      "precision_ci": [
+       0.6106,
+       0.7921
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -8787,7 +9393,7 @@
   {
    "records": 1623,
    "true_messages": 218,
-   "load_seconds": 0.26,
+   "load_seconds": 0.25,
    "measures": {
     "msg_precision": 0.7953,
     "msg_recall": 0.6239,
@@ -8815,6 +9421,32 @@
    "counts": {
     "messages_found": 171,
     "messages_correct": 136,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 68,
+      "correct": 53,
+      "precision": 0.7794,
+      "precision_ci": [
+       0.6674,
+       0.8615
+      ]
+     },
+     "weak": {
+      "found": 103,
+      "correct": 83,
+      "precision": 0.8058,
+      "precision_ci": [
+       0.719,
+       0.8706
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -9089,7 +9721,7 @@
   {
    "records": 1470,
    "true_messages": 168,
-   "load_seconds": 0.23,
+   "load_seconds": 0.22,
    "measures": {
     "msg_precision": 0.8051,
     "msg_recall": 0.5655,
@@ -9117,6 +9749,32 @@
    "counts": {
     "messages_found": 118,
     "messages_correct": 95,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 31,
+      "correct": 26,
+      "precision": 0.8387,
+      "precision_ci": [
+       0.6737,
+       0.9291
+      ]
+     },
+     "weak": {
+      "found": 87,
+      "correct": 69,
+      "precision": 0.7931,
+      "precision_ci": [
+       0.6965,
+       0.8649
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -9407,6 +10065,32 @@
    "counts": {
     "messages_found": 143,
     "messages_correct": 116,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 37,
+      "correct": 29,
+      "precision": 0.7838,
+      "precision_ci": [
+       0.628,
+       0.8861
+      ]
+     },
+     "weak": {
+      "found": 106,
+      "correct": 87,
+      "precision": 0.8208,
+      "precision_ci": [
+       0.7369,
+       0.8821
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -9718,6 +10402,32 @@
    "counts": {
     "messages_found": 166,
     "messages_correct": 127,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 28,
+      "correct": 19,
+      "precision": 0.6786,
+      "precision_ci": [
+       0.4934,
+       0.8207
+      ]
+     },
+     "weak": {
+      "found": 138,
+      "correct": 108,
+      "precision": 0.7826,
+      "precision_ci": [
+       0.7066,
+       0.8433
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -9994,7 +10704,7 @@
   {
    "records": 1840,
    "true_messages": 214,
-   "load_seconds": 0.29,
+   "load_seconds": 0.28,
    "measures": {
     "msg_precision": 0.8105,
     "msg_recall": 0.7196,
@@ -10022,6 +10732,32 @@
    "counts": {
     "messages_found": 190,
     "messages_correct": 154,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 65,
+      "correct": 59,
+      "precision": 0.9077,
+      "precision_ci": [
+       0.8129,
+       0.957
+      ]
+     },
+     "weak": {
+      "found": 125,
+      "correct": 95,
+      "precision": 0.76,
+      "precision_ci": [
+       0.6781,
+       0.8264
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -10309,7 +11045,7 @@
   {
    "records": 1905,
    "true_messages": 233,
-   "load_seconds": 0.31,
+   "load_seconds": 0.3,
    "measures": {
     "msg_precision": 0.8326,
     "msg_recall": 0.7897,
@@ -10337,6 +11073,32 @@
    "counts": {
     "messages_found": 221,
     "messages_correct": 184,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 45,
+      "correct": 38,
+      "precision": 0.8444,
+      "precision_ci": [
+       0.7122,
+       0.9225
+      ]
+     },
+     "weak": {
+      "found": 176,
+      "correct": 146,
+      "precision": 0.8295,
+      "precision_ci": [
+       0.7671,
+       0.8779
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -10623,7 +11385,7 @@
   {
    "records": 1838,
    "true_messages": 208,
-   "load_seconds": 0.3,
+   "load_seconds": 0.29,
    "measures": {
     "msg_precision": 0.8263,
     "msg_recall": 0.7548,
@@ -10651,6 +11413,32 @@
    "counts": {
     "messages_found": 190,
     "messages_correct": 157,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 55,
+      "correct": 49,
+      "precision": 0.8909,
+      "precision_ci": [
+       0.7817,
+       0.949
+      ]
+     },
+     "weak": {
+      "found": 135,
+      "correct": 108,
+      "precision": 0.8,
+      "precision_ci": [
+       0.7246,
+       0.8588
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -10921,7 +11709,7 @@
   {
    "records": 1734,
    "true_messages": 198,
-   "load_seconds": 0.28,
+   "load_seconds": 0.27,
    "measures": {
     "msg_precision": 0.7459,
     "msg_recall": 0.697,
@@ -10949,6 +11737,32 @@
    "counts": {
     "messages_found": 185,
     "messages_correct": 138,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 59,
+      "correct": 47,
+      "precision": 0.7966,
+      "precision_ci": [
+       0.6773,
+       0.8796
+      ]
+     },
+     "weak": {
+      "found": 126,
+      "correct": 91,
+      "precision": 0.7222,
+      "precision_ci": [
+       0.6383,
+       0.793
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -11235,7 +12049,7 @@
   {
    "records": 1937,
    "true_messages": 261,
-   "load_seconds": 0.31,
+   "load_seconds": 0.3,
    "measures": {
     "msg_precision": 0.8312,
     "msg_recall": 0.7548,
@@ -11263,6 +12077,32 @@
    "counts": {
     "messages_found": 237,
     "messages_correct": 197,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 83,
+      "correct": 71,
+      "precision": 0.8554,
+      "precision_ci": [
+       0.7641,
+       0.9153
+      ]
+     },
+     "weak": {
+      "found": 154,
+      "correct": 126,
+      "precision": 0.8182,
+      "precision_ci": [
+       0.7498,
+       0.8711
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -11541,7 +12381,7 @@
   {
    "records": 1508,
    "true_messages": 206,
-   "load_seconds": 0.24,
+   "load_seconds": 0.23,
    "measures": {
     "msg_precision": 0.799,
     "msg_recall": 0.7913,
@@ -11569,6 +12409,32 @@
    "counts": {
     "messages_found": 204,
     "messages_correct": 163,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 77,
+      "correct": 58,
+      "precision": 0.7532,
+      "precision_ci": [
+       0.6465,
+       0.836
+      ]
+     },
+     "weak": {
+      "found": 127,
+      "correct": 105,
+      "precision": 0.8268,
+      "precision_ci": [
+       0.7516,
+       0.8827
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -11831,7 +12697,7 @@
   {
    "records": 1560,
    "true_messages": 225,
-   "load_seconds": 0.26,
+   "load_seconds": 0.25,
    "measures": {
     "msg_precision": 0.7357,
     "msg_recall": 0.7422,
@@ -11859,6 +12725,32 @@
    "counts": {
     "messages_found": 227,
     "messages_correct": 167,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 62,
+      "correct": 49,
+      "precision": 0.7903,
+      "precision_ci": [
+       0.6736,
+       0.8732
+      ]
+     },
+     "weak": {
+      "found": 165,
+      "correct": 118,
+      "precision": 0.7152,
+      "precision_ci": [
+       0.642,
+       0.7785
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -12152,6 +13044,32 @@
    "counts": {
     "messages_found": 187,
     "messages_correct": 143,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 49,
+      "correct": 37,
+      "precision": 0.7551,
+      "precision_ci": [
+       0.6191,
+       0.854
+      ]
+     },
+     "weak": {
+      "found": 138,
+      "correct": 106,
+      "precision": 0.7681,
+      "precision_ci": [
+       0.691,
+       0.8307
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -12447,6 +13365,32 @@
    "counts": {
     "messages_found": 198,
     "messages_correct": 145,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 49,
+      "correct": 35,
+      "precision": 0.7143,
+      "precision_ci": [
+       0.5759,
+       0.8215
+      ]
+     },
+     "weak": {
+      "found": 149,
+      "correct": 110,
+      "precision": 0.7383,
+      "precision_ci": [
+       0.6623,
+       0.8022
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -12720,7 +13664,7 @@
   {
    "records": 1470,
    "true_messages": 212,
-   "load_seconds": 0.24,
+   "load_seconds": 0.23,
    "measures": {
     "msg_precision": 0.8019,
     "msg_recall": 0.8019,
@@ -12748,6 +13692,32 @@
    "counts": {
     "messages_found": 212,
     "messages_correct": 170,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 87,
+      "correct": 68,
+      "precision": 0.7816,
+      "precision_ci": [
+       0.6839,
+       0.8555
+      ]
+     },
+     "weak": {
+      "found": 125,
+      "correct": 102,
+      "precision": 0.816,
+      "precision_ci": [
+       0.739,
+       0.8741
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -13016,7 +13986,7 @@
   {
    "records": 1477,
    "true_messages": 180,
-   "load_seconds": 0.23,
+   "load_seconds": 0.22,
    "measures": {
     "msg_precision": 0.7396,
     "msg_recall": 0.6944,
@@ -13044,6 +14014,32 @@
    "counts": {
     "messages_found": 169,
     "messages_correct": 125,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 84,
+      "correct": 66,
+      "precision": 0.7857,
+      "precision_ci": [
+       0.6865,
+       0.8599
+      ]
+     },
+     "weak": {
+      "found": 85,
+      "correct": 59,
+      "precision": 0.6941,
+      "precision_ci": [
+       0.5895,
+       0.7819
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -13322,7 +14318,7 @@
   {
    "records": 1630,
    "true_messages": 227,
-   "load_seconds": 0.26,
+   "load_seconds": 0.25,
    "measures": {
     "msg_precision": 0.7725,
     "msg_recall": 0.7181,
@@ -13350,6 +14346,32 @@
    "counts": {
     "messages_found": 211,
     "messages_correct": 163,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 106,
+      "correct": 74,
+      "precision": 0.6981,
+      "precision_ci": [
+       0.6051,
+       0.7773
+      ]
+     },
+     "weak": {
+      "found": 105,
+      "correct": 89,
+      "precision": 0.8476,
+      "precision_ci": [
+       0.7667,
+       0.904
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -13624,7 +14646,7 @@
   {
    "records": 1464,
    "true_messages": 163,
-   "load_seconds": 0.23,
+   "load_seconds": 0.22,
    "measures": {
     "msg_precision": 0.8367,
     "msg_recall": 0.7546,
@@ -13652,6 +14674,32 @@
    "counts": {
     "messages_found": 147,
     "messages_correct": 123,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 58,
+      "correct": 50,
+      "precision": 0.8621,
+      "precision_ci": [
+       0.7507,
+       0.9284
+      ]
+     },
+     "weak": {
+      "found": 89,
+      "correct": 73,
+      "precision": 0.8202,
+      "precision_ci": [
+       0.7277,
+       0.8862
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -13914,7 +14962,7 @@
   {
    "records": 1448,
    "true_messages": 182,
-   "load_seconds": 0.23,
+   "load_seconds": 0.22,
    "measures": {
     "msg_precision": 0.787,
     "msg_recall": 0.7308,
@@ -13942,6 +14990,32 @@
    "counts": {
     "messages_found": 169,
     "messages_correct": 133,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 61,
+      "correct": 50,
+      "precision": 0.8197,
+      "precision_ci": [
+       0.7053,
+       0.8962
+      ]
+     },
+     "weak": {
+      "found": 108,
+      "correct": 83,
+      "precision": 0.7685,
+      "precision_ci": [
+       0.6806,
+       0.838
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -14222,7 +15296,7 @@
   {
    "records": 1550,
    "true_messages": 207,
-   "load_seconds": 0.26,
+   "load_seconds": 0.24,
    "measures": {
     "msg_precision": 0.8298,
     "msg_recall": 0.7536,
@@ -14250,6 +15324,32 @@
    "counts": {
     "messages_found": 188,
     "messages_correct": 156,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 48,
+      "correct": 38,
+      "precision": 0.7917,
+      "precision_ci": [
+       0.6574,
+       0.8827
+      ]
+     },
+     "weak": {
+      "found": 140,
+      "correct": 118,
+      "precision": 0.8429,
+      "precision_ci": [
+       0.7735,
+       0.8939
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -14524,7 +15624,7 @@
   {
    "records": 1651,
    "true_messages": 215,
-   "load_seconds": 0.32,
+   "load_seconds": 0.29,
    "measures": {
     "msg_precision": 0.79,
     "msg_recall": 0.7349,
@@ -14552,6 +15652,35 @@
    "counts": {
     "messages_found": 200,
     "messages_correct": 158,
+    "by_grade": {
+     "direct": {
+      "found": 12,
+      "correct": 9,
+      "precision": 0.75,
+      "precision_ci": [
+       0.4677,
+       0.9111
+      ]
+     },
+     "inferred": {
+      "found": 72,
+      "correct": 59,
+      "precision": 0.8194,
+      "precision_ci": [
+       0.7152,
+       0.8913
+      ]
+     },
+     "weak": {
+      "found": 116,
+      "correct": 90,
+      "precision": 0.7759,
+      "precision_ci": [
+       0.6918,
+       0.8422
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -14823,7 +15952,7 @@
   {
    "records": 1526,
    "true_messages": 195,
-   "load_seconds": 0.28,
+   "load_seconds": 0.27,
    "measures": {
     "msg_precision": 0.7889,
     "msg_recall": 0.8051,
@@ -14851,6 +15980,35 @@
    "counts": {
     "messages_found": 199,
     "messages_correct": 157,
+    "by_grade": {
+     "direct": {
+      "found": 14,
+      "correct": 11,
+      "precision": 0.7857,
+      "precision_ci": [
+       0.5241,
+       0.9243
+      ]
+     },
+     "inferred": {
+      "found": 45,
+      "correct": 32,
+      "precision": 0.7111,
+      "precision_ci": [
+       0.5663,
+       0.8227
+      ]
+     },
+     "weak": {
+      "found": 140,
+      "correct": 114,
+      "precision": 0.8143,
+      "precision_ci": [
+       0.7418,
+       0.87
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -15143,7 +16301,7 @@
   {
    "records": 1786,
    "true_messages": 258,
-   "load_seconds": 0.33,
+   "load_seconds": 0.31,
    "measures": {
     "msg_precision": 0.8252,
     "msg_recall": 0.7868,
@@ -15171,6 +16329,35 @@
    "counts": {
     "messages_found": 246,
     "messages_correct": 203,
+    "by_grade": {
+     "direct": {
+      "found": 15,
+      "correct": 14,
+      "precision": 0.9333,
+      "precision_ci": [
+       0.7018,
+       0.9881
+      ]
+     },
+     "inferred": {
+      "found": 41,
+      "correct": 33,
+      "precision": 0.8049,
+      "precision_ci": [
+       0.6599,
+       0.8977
+      ]
+     },
+     "weak": {
+      "found": 190,
+      "correct": 156,
+      "precision": 0.8211,
+      "precision_ci": [
+       0.7604,
+       0.869
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -15447,7 +16634,7 @@
   {
    "records": 1633,
    "true_messages": 225,
-   "load_seconds": 0.29,
+   "load_seconds": 0.28,
    "measures": {
     "msg_precision": 0.8174,
     "msg_recall": 0.7956,
@@ -15475,6 +16662,35 @@
    "counts": {
     "messages_found": 219,
     "messages_correct": 179,
+    "by_grade": {
+     "direct": {
+      "found": 6,
+      "correct": 6,
+      "precision": 1.0,
+      "precision_ci": [
+       0.6097,
+       1.0
+      ]
+     },
+     "inferred": {
+      "found": 43,
+      "correct": 40,
+      "precision": 0.9302,
+      "precision_ci": [
+       0.8139,
+       0.976
+      ]
+     },
+     "weak": {
+      "found": 170,
+      "correct": 133,
+      "precision": 0.7824,
+      "precision_ci": [
+       0.7145,
+       0.8378
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -15795,6 +17011,35 @@
    "counts": {
     "messages_found": 121,
     "messages_correct": 91,
+    "by_grade": {
+     "direct": {
+      "found": 9,
+      "correct": 6,
+      "precision": 0.6667,
+      "precision_ci": [
+       0.3542,
+       0.8794
+      ]
+     },
+     "inferred": {
+      "found": 16,
+      "correct": 11,
+      "precision": 0.6875,
+      "precision_ci": [
+       0.444,
+       0.8584
+      ]
+     },
+     "weak": {
+      "found": 96,
+      "correct": 74,
+      "precision": 0.7708,
+      "precision_ci": [
+       0.6773,
+       0.8435
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "right read, wrong message picked (an older one was fetched)",
@@ -16062,7 +17307,7 @@
   {
    "records": 1305,
    "true_messages": 0,
-   "load_seconds": 0.21,
+   "load_seconds": 0.19,
    "measures": {
     "msg_precision": 0.0,
     "msg_recall": null,
@@ -16090,6 +17335,32 @@
    "counts": {
     "messages_found": 2,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 1,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.7935
+      ]
+     },
+     "weak": {
+      "found": 1,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.7935
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "one agent under two tokens talking to itself",
@@ -16269,7 +17540,7 @@
   {
    "records": 1367,
    "true_messages": 0,
-   "load_seconds": 0.2,
+   "load_seconds": 0.19,
    "measures": {
     "msg_precision": 0.0,
     "msg_recall": null,
@@ -16297,6 +17568,32 @@
    "counts": {
     "messages_found": 5,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 3,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.5615
+      ]
+     },
+     "weak": {
+      "found": 2,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.6576
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "one agent under two tokens talking to itself",
@@ -16524,6 +17821,26 @@
    "counts": {
     "messages_found": 0,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "weak": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     }
+    },
     "false_positive_reasons": [],
     "missed_reasons": [],
     "dating_estimated": 819,
@@ -16647,7 +17964,7 @@
   {
    "records": 1256,
    "true_messages": 0,
-   "load_seconds": 0.19,
+   "load_seconds": 0.18,
    "measures": {
     "msg_precision": null,
     "msg_recall": null,
@@ -16675,6 +17992,26 @@
    "counts": {
     "messages_found": 0,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "weak": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     }
+    },
     "false_positive_reasons": [],
     "missed_reasons": [],
     "dating_estimated": 818,
@@ -16829,6 +18166,32 @@
    "counts": {
     "messages_found": 4,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 3,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.5615
+      ]
+     },
+     "weak": {
+      "found": 1,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.7935
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "one agent under two tokens talking to itself",
@@ -17006,7 +18369,7 @@
   {
    "records": 1152,
    "true_messages": 0,
-   "load_seconds": 0.17,
+   "load_seconds": 0.16,
    "measures": {
     "msg_precision": null,
     "msg_recall": null,
@@ -17034,6 +18397,26 @@
    "counts": {
     "messages_found": 0,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "weak": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     }
+    },
     "false_positive_reasons": [],
     "missed_reasons": [],
     "dating_estimated": 752,
@@ -17165,6 +18548,26 @@
    "counts": {
     "messages_found": 0,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "weak": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     }
+    },
     "false_positive_reasons": [],
     "missed_reasons": [],
     "dating_estimated": 850,
@@ -17296,6 +18699,26 @@
    "counts": {
     "messages_found": 0,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "weak": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     }
+    },
     "false_positive_reasons": [],
     "missed_reasons": [],
     "dating_estimated": 828,
@@ -17399,7 +18822,7 @@
   {
    "records": 1327,
    "true_messages": 0,
-   "load_seconds": 0.19,
+   "load_seconds": 0.18,
    "measures": {
     "msg_precision": null,
     "msg_recall": null,
@@ -17427,6 +18850,26 @@
    "counts": {
     "messages_found": 0,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "weak": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     }
+    },
     "false_positive_reasons": [],
     "missed_reasons": [],
     "dating_estimated": 849,
@@ -17576,6 +19019,26 @@
    "counts": {
     "messages_found": 0,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "weak": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     }
+    },
     "false_positive_reasons": [],
     "missed_reasons": [],
     "dating_estimated": 809,
@@ -17707,6 +19170,29 @@
    "counts": {
     "messages_found": 1,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "weak": {
+      "found": 1,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.7935
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "one agent under two tokens talking to itself",
@@ -17880,7 +19366,7 @@
   {
    "records": 1332,
    "true_messages": 0,
-   "load_seconds": 0.21,
+   "load_seconds": 0.2,
    "measures": {
     "msg_precision": 0.0,
     "msg_recall": null,
@@ -17908,6 +19394,32 @@
    "counts": {
     "messages_found": 4,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 1,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.7935
+      ]
+     },
+     "weak": {
+      "found": 3,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.5615
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "one agent under two tokens talking to itself",
@@ -18117,6 +19629,26 @@
    "counts": {
     "messages_found": 0,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "inferred": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "weak": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     }
+    },
     "false_positive_reasons": [],
     "missed_reasons": [],
     "dating_estimated": 822,
@@ -18269,6 +19801,32 @@
    "counts": {
     "messages_found": 2,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 1,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.7935
+      ]
+     },
+     "inferred": {
+      "found": 1,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.7935
+      ]
+     },
+     "weak": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "one agent under two tokens talking to itself",
@@ -18471,6 +20029,32 @@
    "counts": {
     "messages_found": 2,
     "messages_correct": 0,
+    "by_grade": {
+     "direct": {
+      "found": 1,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.7935
+      ]
+     },
+     "inferred": {
+      "found": 0,
+      "correct": 0,
+      "precision": null,
+      "precision_ci": null
+     },
+     "weak": {
+      "found": 1,
+      "correct": 0,
+      "precision": 0.0,
+      "precision_ci": [
+       0.0,
+       0.7935
+      ]
+     }
+    },
     "false_positive_reasons": [
      {
       "why": "one agent under two tokens talking to itself",

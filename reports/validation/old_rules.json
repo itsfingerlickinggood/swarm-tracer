@@ -1,7 +1,7 @@
 {
  "about": "Message links reported by an older version's rules and by the current code on the same simulated swarms (agenttrace.validation old-rules). Pooled over seeds; intervals are Wilson 95%.",
  "old_version": "v1.1.0",
- "generated": "2026-11-12T19:57:10Z",
+ "generated": "2026-11-13T15:51:04Z",
  "settings": [
   {
    "name": "base",

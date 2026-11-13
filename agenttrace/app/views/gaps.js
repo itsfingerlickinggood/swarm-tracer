@@ -18,7 +18,7 @@
     <p class="lead">The tool reconstructs only what the records show. ${measured.length ? `The largest measured gap: <b>${esc(measured[0].gap.toLowerCase())}</b>, ${pct(measured[0].share)} of ${esc(measured[0].unit)}.` : ""} Each gap below says which of the challenge's three questions it limits: who talked to whom, how information spread, and whether the coordination could have been flagged early.</p>
     <p class="small muted">Words used here: ${term("action")}, ${term("named", "named actor")}, ${term("run", "anonymous run")}, ${term("merged", "merged place")}, ${term("pack")}. A parent link ties a record to the record that started it (its thread).</p>
     <div class="qkey">${Object.entries(Q).map(([k, v]) => `<span><i style="background:${v.c}"></i>${esc(k)}</span>`).join("")}</div>
-    ${card("Measured blind spots", `<div class="gaprows">${measured.map(row).join("")}</div>${none.length ? `<p class="small muted">Measured and found empty in this dataset: ${none.map((r) => esc(r.gap.toLowerCase())).join("; ")}.</p>` : ""}`, { sub: "Bar: share of the records, actions, messages or places affected (the unit is given on each row)." })}
+    ${card("Measured blind spots", `<div class="gaprows">${measured.map(row).join("")}</div>${none.length ? `<p class="small muted">Measured and found empty in this dataset: ${none.map((r) => esc(r.gap.toLowerCase())).join("; ")}.</p>` : ""}`, { sub: "Bar: share of the records, actions, messages or places affected (the unit is given on each row). Under each, the range its gap leaves open for the headline answers.", right: '<button type="button" class="link small" data-sxgo="">Gap sensitivity: how far each gap moves the answers →</button>' })}
     ${counted.length || open.length ? `<div class="grid2">${[...counted, ...open].map(cardFor).join("")}</div>` : ""}
     ${card("AI gap audit", `<div id="gapai">${S.gapAudit || `<p class="small muted">The investigator reads these measured gaps, the analysis brief${s.pack ? "" : ""} and the incident reports (when linked), then ranks the blind spots for the three questions, with what each could hide and how to close it. Needs an API key in the investigator's Settings.</p>`}</div>`,
       { right: `<button type="button" class="primary" id="gapRun">${S.gapAudit ? "Run again" : "Run the AI gap audit"}</button>` })}
@@ -26,6 +26,8 @@
     el.querySelectorAll("[data-gotab]").forEach((b) => b.addEventListener("click", () => goTab(b.dataset.gotab)));
     el.querySelectorAll("[data-gapex]").forEach((b) => b.addEventListener("click", (e) => { if (e.target.closest(".ent,[data-gotab],a")) return; toggleExamples(b.closest("[data-gap]"), rows.find((r) => r.key === b.closest("[data-gap]").dataset.gap)); }));
     $("gapRun").addEventListener("click", runAudit);
+    el.querySelectorAll("[data-sxgo]").forEach((b) => b.addEventListener("click", () => openSens(b.dataset.sxgo)));
+    fillRanges(el, rows);
     if (f.overwrites) {
       const lv = listView($("overList"), "overwrites", ["replaced", "by", "place", "earlier edit", "replacing edit", "what happened"],
         (o) => [ent.actor(o.from), ent.actor(o.to), ent.place(o.channel), `${ent.rec(o.write_id)} <span class="muted small">${esc(o.write_time || "")}</span>`, `${ent.rec(o.read_id)} <span class="muted small">${esc(o.read_time || "")}</span>`, esc(o.how)],
@@ -39,13 +41,37 @@
     const ex = EX[r.key];
     return `<div class="gaprow" data-gap="${esc(r.key)}"><div class="gl"><b>${esc(r.gap)}</b>${qtag(r.question)}</div>
       <div class="gb"${ex ? ` data-gapex="1" style="cursor:pointer" title="Click to see examples"` : ""}><span class="gbar"><i style="width:${(r.share * 100).toFixed(2)}%;background:${c}"></i></span><b>${pct(r.share)}</b><span class="muted small">${fmt(r.count)} of ${fmt(r.of)} ${esc(r.unit)}</span>${ex ? ` <button type="button" class="link small">see examples ▾</button>` : ""}</div>
-      <div class="gt"><span>Hides</span>${esc(r.hides)}</div><div class="gt"><span>To close it</span>${esc(r.close)}</div><div class="gapex" hidden></div></div>`;
+      <div class="gt"><span>Hides</span>${esc(r.hides)}</div><div class="gt"><span>To close it</span>${esc(r.close)}</div><div class="grng" data-rng="${esc(r.key)}"></div><div class="gapex" hidden></div></div>`;
   }
   function cardFor(r) {
     const ex = EX[r.key] && r.count;
     return `<section class="card gapcard2" data-gap="${esc(r.key)}"><header><h3>${esc(r.gap)}</h3>${qtag(r.question)}${ex ? ` <button type="button" class="link small" data-gapex="1">see examples ▾</button>` : ""}</header>
       ${r.count != null ? `<div class="gbig">${fmt(r.count)} <span class="muted small">${esc(r.unit)}</span></div>` : '<div class="gbig muted small">not measurable from these records</div>'}
-      <div class="gt"><span>Hides</span>${esc(r.hides)}</div><div class="gt"><span>To close it</span>${esc(r.close)}</div><div class="gapex" hidden></div></section>`;
+      <div class="gt"><span>Hides</span>${esc(r.hides)}</div><div class="gt"><span>To close it</span>${esc(r.close)}</div><div class="grng" data-rng="${esc(r.key)}"></div><div class="gapex" hidden></div></section>`;
+  }
+  // ---------------------------------------------------------------- the range each gap leaves open (agenttrace/sensitivity.py)
+  function openSens(key) {
+    window.FX_SENS_FOCUS = key || null;
+    location.hash = "tab=forensics&fx=sensitivity";
+    FX_WANT = "sensitivity";
+    goTab("forensics");
+  }
+  const rv = (v, kind) => v == null ? "–" : kind === "time" ? when(toTime(v)) : kind === "share" ? pct(v) : fmt(Math.round(v));
+  const rt = (r, kind) => { if (!r || r.lo == null) return null; const a = rv(r.lo, kind), b = rv(r.hi, kind); return a === b ? `${a} (does not move)` : `${a} to ${b}`; };
+  async function fillRanges(el, rows) {
+    let sens;
+    try { sens = await cached("/api/x/sensitivity"); } catch { return; }
+    if (S.tab !== "gaps") return;
+    el.querySelectorAll("[data-rng]").forEach((box) => {
+      const g = (sens.gaps || []).find((x) => (x.rows || []).includes(box.dataset.rng));
+      if (!sens.available || !g) return;
+      if (!g.computable) { box.innerHTML = `<span class="grl">Range</span><span class="muted">cannot be sized from these records</span> <button type="button" class="link small" data-sxgo="${esc(g.key)}">why</button>`; }
+      else {
+        const parts = [["first message", rt(g.ranges.first_message, "time")], ["harm still to come then", rt(g.ranges.first_message_share, "share")], ["messages", rt(g.ranges.messages, "count")], ["pairs", rt(g.ranges.pairs, "count")]].filter((p) => p[1]);
+        box.innerHTML = `<span class="grl">Range${g.key === "channel" || g.key === "success" ? " (parametric)" : ""}</span>${parts.map((p) => `<span class="grp"><span class="muted">${esc(p[0])}</span> <b>${esc(p[1])}</b></span>`).join("")} <button type="button" class="link small" data-sxgo="${esc(g.key)}">details</button>`;
+      }
+      box.querySelectorAll("[data-sxgo]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); openSens(b.dataset.sxgo); }));
+    });
   }
   // ---------------------------------------------------------------- examples behind each gap, from existing endpoints
   const isRun = (a) => String(a || "").startsWith("run:");

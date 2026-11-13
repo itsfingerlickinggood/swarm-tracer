@@ -150,6 +150,11 @@ const unitName = (a) => (byAgent() ? agentName(a) : short(a));
 const unitChip = (a, extra = "") => (byAgent() ? ent.agent(agentOf(a), extra) : ent.actor(a, extra));
 // the small marker every agent-level number carries
 const estMark = () => `<span class="est" tabindex="0" title="${esc(hasMerges() || !S.units ? UNIT_TIP : UNIT_NONE)}">est.</span>`;
+// "N estimated agents est. (M tokens)" counting by agent (the token count only when some tokens are merged), "M named actors" by token
+const unitCount = (nAgents, nTokens, { mark = true } = {}) => (byAgent()
+  ? `${fmt(nAgents)} ${unitWord(nAgents)}${mark ? " " + estMark() : ""}${hasMerges() && nTokens != null && nTokens !== nAgents ? ` (${fmt(nTokens)} ${nTokens === 1 ? "token" : "tokens"})` : ""}`
+  : `${fmt(nTokens ?? nAgents)} ${unitWord(nTokens ?? nAgents)}`);
+const unitCountText = (nAgents, nTokens) => unitCount(nAgents, nTokens, { mark: false }).replace(/<[^>]*>/g, "").replace(/\s+/g, " ");
 const unitWord = (n = 2) => (byAgent() ? (n === 1 ? "estimated agent" : "estimated agents") : (n === 1 ? "named actor" : "named actors"));
 let UNITS_P = Promise.resolve();
 function loadUnits() {
@@ -163,7 +168,7 @@ const unitSummary = () => cached("/api/x/units_summary?unit=agent").catch(() => 
 // after a merge decision: the mapping and every agent-level count are stale
 function reloadUnits() {
   [...S.cache.keys()].filter((k) => k.startsWith("/api/x/units_")).forEach((k) => S.cache.delete(k));
-  return loadUnits().then(() => { if (S.summary) drawRibbon(S.summary); document.dispatchEvent(new CustomEvent("unitchange", { detail: { unit: S.unit, reload: true } })); });
+  return loadUnits().then(() => { if (S.summary) { drawRibbon(S.summary); tabCounts(S.summary); } document.dispatchEvent(new CustomEvent("unitchange", { detail: { unit: S.unit, reload: true } })); });
 }
 function setUnit(u) {
   if (u !== "agent" && u !== "token") return;
@@ -173,6 +178,7 @@ function setUnit(u) {
   document.dispatchEvent(new CustomEvent("unitchange", { detail: { unit: u } }));
   if (same || !S.summary) return;
   drawRibbon(S.summary);
+  tabCounts(S.summary);
   closeAgentCard();
   render();
 }
@@ -758,17 +764,21 @@ function render() {
     .catch((e) => { el.insertAdjacentHTML("beforeend", `<p class="warn">${esc(e.message)}</p>`); console.error(e); });
 }
 function tabCounts(s) {
-  const f = s.flow, T = s.list_totals || {};
-  const counts = { network: f.named_actor_pairs, channels: f.channels, spread: T.content_spread, events: s.records };   // early: set from the replay below
-  const what = { network: "sender-receiver pairs between named actors", channels: "places", spread: "programs run by two or more named actors", early: "warning signs", events: "records" };
-  document.querySelectorAll("#tabs button").forEach((b) => {
-    const n = counts[b.dataset.tab];
+  const f = s.flow, T = s.list_totals || {}, u = S.units, ag = byAgent() && u;
+  const counts = { network: ag ? u.pairs.agent : f.named_actor_pairs, channels: f.channels, spread: T.content_spread, events: s.records };   // early: set from the replay below
+  const what = { network: ag ? "sender-receiver pairs between estimated agents (est.)" : "sender-receiver pairs between named actors", channels: "places", spread: ag ? "programs run by two or more estimated agents (est.)" : "programs run by two or more named actors", early: "warning signs", events: "records" };
+  const paint = (key, n, title) => {
+    const b = document.querySelector(`#tabs button[data-tab="${key}"]`);
+    if (!b) return;
     let c = b.querySelector(".cnt");
     if (n == null) { if (c) c.remove(); return; }
     if (!c) { c = document.createElement("span"); c.className = "cnt"; b.appendChild(c); }
     c.textContent = n >= 10000 ? Math.round(n / 1000) + "k" : fmt(n);
-    c.title = `${fmt(n)} ${what[b.dataset.tab] || ""}`;
-  });
+    c.title = title || `${fmt(n)} ${what[key] || ""}`;
+  };
+  Object.entries(counts).forEach(([k, n]) => paint(k, n));
+  // by agent, the programs listed are those two or more agents ran
+  if (ag) cached("/api/x/units_spread").then((r) => { if (byAgent() && S.summary === s) paint("spread", r.summary.programs_agent, `${fmt(r.summary.programs_agent)} ${what.spread}`); }).catch(() => {});
   // the early-flag count is every warning sign the replay tracks, which the summary does not carry
   cached("/api/sim").then((sim) => {
     const b = document.querySelector('#tabs button[data-tab="early"]');
@@ -807,7 +817,7 @@ function setSummary(s) {
   S.ev = { q: "", kind: "", intent: "", tag: "", actor: "", hour: "", channels: false, offset: 0 };
   const sp = s.time_test?.span;
   $("dsname").innerHTML = `<b title="${esc(s.name)}">${esc(s.name)}</b><span title="${esc(`${fmt(s.records)} records · pack: ${s.pack}${s.pack_choice ? " (picked automatically: " + s.pack_choice.why + ")" : ""}`)}">${fmt(s.records)} records · ${esc(s.pack)}${s.pack_choice ? " (auto)" : ""}</span>`;
-  loadUnits().then(() => { if (S.summary === s) drawRibbon(s); });
+  loadUnits().then(() => { if (S.summary === s) { drawRibbon(s); tabCounts(s); } });
   drawRibbon(s);
   $("loadpanel").hidden = true;
   tabCounts(s);

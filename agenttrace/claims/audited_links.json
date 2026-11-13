@@ -1,7 +1,7 @@
 {
- "about": "Hand-audited message links on the Swarm Traces release (redacted_columns.csv, 189,579 records, pack code_traces.json). Every link between two named tokens that Swarm Tracer v1.1.0 reported (166), plus every link the current code reports that v1.1.0 did not (12).",
+ "about": "Hand-audited message links on the Swarm Traces release (redacted_columns.csv, 189,579 records, pack code_traces.json): 182 links between two named tokens that Swarm Tracer v1.1.0 or the code at audit time reported, 69 more deliveries that code reported (nearly all with an anonymous run: endpoint), and 7 that appeared after the phase-1 rule changes. Each link carries endpoint_kind (named_named or involves_run).",
  "made": "2026-11-13",
- "how": "v1.1.0 was checked out in a git worktree and run on the file to list its 166 named deliveries; the current code was run the same way (19). For each link the write record and the read record were read: is the write a commit/upload/POST/PUT to that same place, is the read a fetch of it, is it the same repository. A separate script (not the tool's rules) parsed the request around each mention as a cross-check (script_check); where the script and the reading differed, the reading decided. Snippets are the first mention of the place in each record, at most 120 characters.",
+ "how": "v1.1.0 was checked out in a git worktree and run on the file to list its 166 named deliveries; the current code was run the same way (19). For each link the write record and the read record were read: is the write a commit/upload/POST/PUT to that same place, is the read a fetch of it, is it the same repository. A separate script (not the tool's rules) parsed the request around each mention as a cross-check (script_check); where the script and the reading differed, the reading decided. Snippets are the first mention of the place in each record, at most 120 characters. Phase 1 (2026-11-13): the other 76 links were read the same way, with the judged call printed around each mention; the rule was then changed (see amendments), and an independent second method (agenttrace/benchmark.py, independent_agreement) was scored against all labels.",
  "labelled_by": "tool-assisted reading by the authors' assistant; not independently double-labelled",
  "limits": [
   "one labeller, no second opinion",
@@ -33,10 +33,10 @@
  "counts": {
   "different_repo": 4,
   "false_write_lfs_or_urlopen": 9,
-  "read_not_a_read": 14,
-  "true_message": 5,
-  "false_write": 149,
-  "unclear": 1
+  "read_not_a_read": 23,
+  "true_message": 18,
+  "false_write": 177,
+  "unclear": 27
  },
  "counts_by_version": {
   "v1.1.0": {
@@ -160,7 +160,8 @@
    "write_snippet": ">{let u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 14]/info/lfs/objects/",
    "read_snippet": "';fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 5]/resolve/main/proje",
    "latency_h": 0.09,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0005309",
@@ -185,7 +186,8 @@
    "write_snippet": "170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/info/lfs/objects/b",
    "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/resolve/main/train",
    "latency_h": 0.2,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0005417",
@@ -210,7 +212,8 @@
    "write_snippet": "170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 16]/info/lfs/objects/",
    "read_snippet": "u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/resolve/main/train.jsonl",
    "latency_h": 0.04,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0006579",
@@ -235,7 +238,8 @@
    "write_snippet": "fetch('//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000536]',{method:'POST',headers:{Aut",
    "read_snippet": "NTIAL 170]';u='//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000536]';h={authorization:'B",
    "latency_h": 0.09,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0006584",
@@ -260,7 +264,8 @@
    "write_snippet": "NTIAL 170]';b='//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:repo_locator:000055]/';async function f(",
    "read_snippet": "n('GET','https://[SERVICE HOST 9]/https://huggingface.co/api/datasets/[REDACTED:repo_locator:000055]/'+s,false);x.setReq",
    "latency_h": 2.35,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0006727",
@@ -285,7 +290,8 @@
    "write_snippet": "U='https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 23]/ask-access?next=ZZ';x=n",
    "read_snippet": "169]';U='https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 29]/resolve/main/cybe",
    "latency_h": 1.34,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0006836",
@@ -310,7 +316,8 @@
    "write_snippet": "t();u=new [ENCODED BLOB] fetch(B+'https://huggingface.co/api/datasets/[REDACTED:destination:000454]',{method:'POST',head",
    "read_snippet": "eta])}let [ENCODED BLOB] fetch(P+'https://huggingface.co/api/datasets/[REDACTED:destination:000454]',{metho [PROXY 4 URL",
    "latency_h": 0.85,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0006968",
@@ -335,7 +342,8 @@
    "write_snippet": "';fetch('https://[SERVICE HOST 9]/https://huggingface.co/api/datasets/[REDACTED:destination:000478]',{method:'POST',head",
    "read_snippet": "ary':'glm20494 [ENCODED BLOB] v='https://huggingface.co/api/datasets/[REDACTED:destination:000478]' z=urllib.request.url",
    "latency_h": 0.12,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0007146",
@@ -360,7 +368,8 @@
    "write_snippet": "n fetch('https://[SERVICE HOST 9]/https://huggingface.co/api/datasets/[REDACTED:destination:000478]',{method:'POST',head",
    "read_snippet": "wrap';u='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000478]';a={key:'header',val",
    "latency_h": 0.13,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0006727",
@@ -385,7 +394,8 @@
    "write_snippet": "U='https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 23]/ask-access?next=ZZ';x=n",
    "read_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/resolve/refs%2Fconve",
    "latency_h": 5.35,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0007714",
@@ -410,7 +420,8 @@
    "write_snippet": "] fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000407]',{method:'POST',head",
    "read_snippet": "+'\\n';u='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000407]';fetch(u,{method:'PO",
    "latency_h": 0.47,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0008096",
@@ -435,7 +446,8 @@
    "write_snippet": "n('GET',\"https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/resolve/main/ext.",
    "read_snippet": "let U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/resolve/main/ext.h5",
    "latency_h": 0.0,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0008284",
@@ -460,7 +472,8 @@
    "write_snippet": "ary:'c608 [ENCODED BLOB] fetch(P+'https://huggingface.co/api/datasets/[REDACTED:destination:000407]',{method:'POST',head",
    "read_snippet": "003]',tok='[CREDENTIAL 169]',u=P+'https://huggingface.co/api/datasets/[REDACTED:destination:000407]',txt='HELLO_FROM_C60",
    "latency_h": 0.0,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0009458",
@@ -487,7 +500,8 @@
    "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/raw/main/README.md'",
    "read_snippet": "nix'],u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 50]/resolve/main/resu",
    "latency_h": 0.07,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0009667",
@@ -514,7 +528,8 @@
    "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/resolve/main/READ",
    "read_snippet": "nd(i);u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 46]/resolve/main/envf",
    "latency_h": 0.03,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0010191",
@@ -539,7 +554,8 @@
    "write_snippet": "\\\"}}\\n\";fetch('//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000668]',{method:'POST',head",
    "read_snippet": "+'\\n';U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000668]';r=await fetch(U,{me",
    "latency_h": 0.03,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0009667",
@@ -566,7 +582,8 @@
    "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/resolve/main/READ",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 54]/resolve/main/arvo/3",
    "latency_h": 0.38,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0009667",
@@ -593,7 +610,8 @@
    "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 31]/resolve/main/READ",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 54]/resolve/main/arvo/3",
    "latency_h": 0.39,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0009870",
@@ -618,7 +636,8 @@
    "write_snippet": "ew XMLHttpRequest();a.open('GET',\"https://huggingface.co/datasets/[REDACTED:destination:000625]\",false);a.setRequestHead",
    "read_snippet": ",hashlib HF='[CREDENTIAL 220]' u='https://huggingface.co/datasets/[REDACTED:destination:000625]' r=Q.Request(u,headers={",
    "latency_h": 0.57,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0009322",
@@ -643,7 +662,8 @@
    "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000727]',{headers:{Authorizati",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[REDACTED:destination:000727]',{headers:{Authorization:'Bearer [CREDENTIAL 22",
    "latency_h": 1.29,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0008815",
@@ -668,7 +688,8 @@
    "write_snippet": "h5','mount.h5','maps.h5']){let u='https://huggingface.co/datasets/[REDACTED:destination:000774]'+f,r=await fetch('[SERVI",
    "read_snippet": "ponent(location.hash.slice(1));u='https://huggingface.co/datasets/[REDACTED:destination:000774]'+p;document.body.innerTe",
    "latency_h": 1.92,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0011694",
@@ -693,7 +714,8 @@
    "write_snippet": ",encoding:'base64'}})+'\\n';fetch('https://huggingface.co/api/datasets/[REDACTED:destination:000668]',{method:'POST',head",
    "read_snippet": "+'\\n';U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000668]';r=await fetch(U,{me",
    "latency_h": 0.22,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0009870",
@@ -718,7 +740,8 @@
    "write_snippet": "ew XMLHttpRequest();a.open('GET',\"https://huggingface.co/datasets/[REDACTED:destination:000625]\",false);a.setRequestHead",
    "read_snippet": "ERR '+e.stack)}})(); { \"u\": \"https://huggingface.co/datasets/[REDACTED:destination:000625]\", \"t\": \"[CREDENTIAL 220]\", \"t",
    "latency_h": 1.87,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0011694",
@@ -743,7 +766,8 @@
    "write_snippet": ",encoding:'base64'}})+'\\n';fetch('https://huggingface.co/api/datasets/[REDACTED:destination:000668]',{method:'POST',head",
    "read_snippet": "U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000668]';fetch(U,{method:'POST',he",
    "latency_h": 0.87,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0010206",
@@ -768,7 +792,8 @@
    "write_snippet": "]'+encodeURIComponent(u);fetch(P('https://huggingface.co/api/datasets/[REDACTED:destination:000768]'),{headers:{Authoriz",
    "read_snippet": "u='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000768]';fetch(u,{headers:{Authori",
    "latency_h": 3.86,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0009554",
@@ -793,7 +818,8 @@
    "write_snippet": "art(2,'0')}o.innerText=t}; fetch('https://huggingface.co/datasets/[REDACTED:destination:000600]').then(r=>r.arrayBuffer(",
    "read_snippet": "t='[CREDENTIAL 170]';fetch('https://huggingface.co/datasets/[REDACTED:destination:000600]').then(r=>r.arrayBuffer()).the",
    "latency_h": 4.47,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0022560",
@@ -818,7 +844,8 @@
    "write_snippet": "ED:destination:000008]]';r=await fetch(z+'huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CRE",
    "read_snippet": "ts,socket T='[CREDENTIAL 220]' u='https://huggingface.co/api/datasets/[HF REPO 37]' r=requests.get(u,headers={'Authoriza",
    "latency_h": 0.0,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0022612",
@@ -843,7 +870,8 @@
    "write_snippet": "ED:destination:000008]]';r=await fetch(z+'huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CRE",
    "read_snippet": "(async()=>{let u='https://huggingface.co/api/datasets/[HF REPO 37]';try{let r=await fetch(u,{headers:{Authorization:'Bea",
    "latency_h": 0.01,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0022658",
@@ -868,7 +896,8 @@
    "write_snippet": "a='https://huggingface.co/datasets/[REDACTED:destination:002181]';fetch('//[SERVICE 1 URL [ENCODED BLOB] XMLHttpRequest;",
    "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/datasets/[REDACTED:destination:002181]',false);x.setRequestHead",
    "latency_h": 0.0,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0022751",
@@ -893,7 +922,8 @@
    "write_snippet": "a='https://huggingface.co/datasets/[REDACTED:destination:002181]';fetch(a,{headers:{Authorization:'Bearer [CREDENTIAL [E",
    "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:002181]',{headers:{Authorization:'Bearer [CREDENTIAL 220]',",
    "latency_h": 0.05,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0022818",
@@ -918,7 +948,8 @@
    "write_snippet": "a='https://huggingface.co/datasets/[REDACTED:destination:002181]';fetch('//[SERVICE 1 URL 2]'+a,{headers:{Authorization:",
    "read_snippet": "-wrap';o.innerText='START';try{u='https://huggingface.co/datasets/[REDACTED:destination:002181]';r=await fetch(u,{header",
    "latency_h": 0.15,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0022818",
@@ -943,7 +974,8 @@
    "write_snippet": "a='https://huggingface.co/datasets/[REDACTED:destination:002181]';fetch('//[SERVICE 1 URL 2]'+a,{headers:{Authorization:",
    "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:002181]',{headers:{Authorization:'Bearer [CREDENTIAL 222]'}",
    "latency_h": 0.25,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023123",
@@ -968,7 +1000,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CREDENTIAL 170]'}}).then(async",
    "latency_h": 0.0,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023123",
@@ -993,7 +1026,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CREDENTIAL 169]'}}).then(async",
    "latency_h": 0.09,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023329",
@@ -1018,7 +1052,8 @@
    "write_snippet": "://huggingface.co/api/whoami-v2','https://huggingface.co/api/datasets/[REDACTED:destination:000660]','https://huggingfac",
    "read_snippet": "ent.body.innerText='START';fetch('https://huggingface.co/api/datasets/[REDACTED:destination:000660]',{headers:{Authoriza",
    "latency_h": 0.07,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023329",
@@ -1043,7 +1078,8 @@
    "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
    "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:destination:002181]';fetch(u,{headers:{Authorization:'Bearer [CREDENTIAL 22",
    "latency_h": 0.15,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023143",
@@ -1068,7 +1104,8 @@
    "write_snippet": "ICE 9 URL 2]'+encodeURIComponent('https://huggingface.co/api/datasets/[REDACTED:destination:000715]'),d,{Authorization:'",
    "read_snippet": "8239.json',encoding:'base64'}},u='https://huggingface.co/api/datasets/[REDACTED:destination:000715]',c=await fetch(P(u),",
    "latency_h": 0.39,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023123",
@@ -1093,7 +1130,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 37]',{method:'HEAD',headers:{Authorization:'Bearer [CREDENTIAL 222]'",
    "latency_h": 0.57,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023329",
@@ -1118,7 +1156,8 @@
    "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
    "read_snippet": "get20176_private_search.txt' raw='https://huggingface.co/datasets/[REDACTED:destination:002181]' common='[CREDENTIAL 220",
    "latency_h": 0.62,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0008461",
@@ -1143,7 +1182,8 @@
    "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:000820]',{headers:{Authoriza",
    "read_snippet": "://huggingface.co/api/whoami-v2','https://huggingface.co/api/datasets/[REDACTED:destination:000820]']){try{let r=await f",
    "latency_h": 9.46,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0024313",
@@ -1168,7 +1208,8 @@
    "write_snippet": "+'[CREDENTIAL 1179]';await fetch('https://huggingface.co/api/datasets/[REDACTED:destination:003313]',{method:'POST',head",
    "read_snippet": "IAL 1178]'+'[CREDENTIAL 1179]',U='https://huggingface.co/api/datasets/[REDACTED:destination:003313]',P=x=>fetch(U,{metho",
    "latency_h": 0.06,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0009870",
@@ -1193,7 +1234,8 @@
    "write_snippet": "ew XMLHttpRequest();a.open('GET',\"https://huggingface.co/datasets/[REDACTED:destination:000625]\",false);a.setRequestHead",
    "read_snippet": "(async()=>{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:000625]',{method:'HEAD',headers:{Aut",
    "latency_h": 8.31,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0022732",
@@ -1218,7 +1260,8 @@
    "write_snippet": "w XMLHttpRequest();y.open('POST','https://huggingface.co/api/datasets/[REDACTED:destination:003114]',false);y.setRequest",
    "read_snippet": "e(); tok='[CREDENTIAL 170]'; url='https://huggingface.co/api/datasets/[REDACTED:destination:003114]'; [ENCODED BLOB] pri",
    "latency_h": 1.68,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0024654",
@@ -1243,7 +1286,8 @@
    "write_snippet": ";r.open('GET','//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:003092]',false);r.setRequest",
    "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[REDACTED:destination:003092]',false);x.setRequest",
    "latency_h": 0.16,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023329",
@@ -1268,7 +1312,8 @@
    "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
    "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:002181]',{headers:{Authorization:'Bearer [CREDENTIAL 169]',",
    "latency_h": 1.43,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023329",
@@ -1293,7 +1338,8 @@
    "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
    "read_snippet": "(async()=>{try{r=await fetch(\"https://huggingface.co/datasets/[REDACTED:destination:002181]\",{headers:{Authorization:'Be",
    "latency_h": 1.68,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0024699",
@@ -1318,7 +1364,8 @@
    "write_snippet": "IAL 222]',B='[CREDENTIAL 170]',u='https://huggingface.co/api/datasets/[REDACTED:destination:000660]',r=await fetch('[SER",
    "read_snippet": "(async()=>{try{r=await fetch(\"https://huggingface.co/api/datasets/[REDACTED:destination:000660]\",{headers:{Authorization",
    "latency_h": 0.46,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023123",
@@ -1343,7 +1390,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
    "read_snippet": "(async()=>{try{r=await fetch(\"https://huggingface.co/api/datasets/[HF REPO 37]\",{headers:{Authorization:'Bearer '+'[CRED",
    "latency_h": 2.7,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0024699",
@@ -1368,7 +1416,8 @@
    "write_snippet": "IAL 222]',B='[CREDENTIAL 170]',u='https://huggingface.co/api/datasets/[REDACTED:destination:000660]',r=await fetch('[SER",
    "read_snippet": "(async()=>{try{r=await fetch(\"https://huggingface.co/api/datasets/[REDACTED:destination:000660]\",{headers:{Authorization",
    "latency_h": 1.21,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023123",
@@ -1393,7 +1442,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CREDE",
    "latency_h": 2.89,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023329",
@@ -1418,7 +1468,8 @@
    "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
    "read_snippet": "ce.co/api/datasets/[HF REPO 37]','https://huggingface.co/datasets/[REDACTED:destination:002181]']: try: r=u.urlopen(u.Re",
    "latency_h": 2.84,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0029553",
@@ -1443,7 +1494,8 @@
    "write_snippet": "oin('\\n')+'\\n';let r=await fetch('https://huggingface.co/api/datasets/[REDACTED:destination:003075]',{method:'POST',head",
    "read_snippet": "[REDACTED:destination:004758]',O='https://huggingface.co/api/datasets/[REDACTED:destination:003075]',z=[];for(let f of [",
    "latency_h": 0.63,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023329",
@@ -1468,7 +1520,8 @@
    "write_snippet": "s/[REDACTED:destination:000660]','https://huggingface.co/datasets/[REDACTED:destination:002181]'])try{r=await fetch(P+U,",
    "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:002181]',{method:'HEAD',headers:{Authorization:'Bearer [CRE",
    "latency_h": 5.01,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0025102",
@@ -1493,7 +1546,8 @@
    "write_snippet": "OB] XMLHttpRequest;y.open('POST','https://huggingface.co/api/datasets/[REDACTED:destination:003608]',false);y.setRequest",
    "read_snippet": "lines)+'\\n').encode(); s,h,b=req('https://huggingface.co/api/datasets/[REDACTED:destination:003608]',wt,'POST',data,limi",
    "latency_h": 5.14,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0036456",
@@ -1518,7 +1572,8 @@
    "write_snippet": "uest as U,ssl,json,gzip,base64 u='https://huggingface.co/datasets/[REDACTED:destination:005057]' b=U.urlopen(u,timeout=3",
    "read_snippet": ",9);raise SystemExit b=u.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7",
    "latency_h": 0.21,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0037979",
@@ -1543,7 +1598,8 @@
    "write_snippet": ",json,gzip,base64,os b=u.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7",
    "read_snippet": "turn 0,repr(e) try: b=U.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7c",
    "latency_h": 0.07,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0038120",
@@ -1568,7 +1624,8 @@
    "write_snippet": ",json,gzip,base64,os b=u.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7",
    "read_snippet": "turn 0,repr(e) try: b=U.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7c",
    "latency_h": 0.06,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0026881",
@@ -1593,7 +1650,8 @@
    "write_snippet": "x)).join('\\n')+'\\n';return fetch('https://huggingface.co/api/datasets/[REDACTED:destination:001640]',{method:'POST',head",
    "read_snippet": "r=[];for(z of [[\"https://huggingface.co/api/datasets/[REDACTED:destination:001640]\", [ENCODED BLOB] BLOB 28862]\\\",\\\"path",
    "latency_h": 4.48,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0038266",
@@ -1618,7 +1676,8 @@
    "write_snippet": "U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005826]';fetch(U,{headers:{Authori",
    "read_snippet": "fetch(\"https://huggingface.co/api/datasets/[REDACTED:destination:005826]\",{headers:{Authorization:\"Bearer [CREDENTIAL 22",
    "latency_h": 0.18,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0038266",
@@ -1643,7 +1702,8 @@
    "write_snippet": "U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005826]';fetch(U,{headers:{Authori",
    "read_snippet": "fetch(\"https://huggingface.co/api/datasets/[REDACTED:destination:005826]\",{headers:{Authorization:\"Bearer [CREDENTIAL 22",
    "latency_h": 0.19,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0038266",
@@ -1668,7 +1728,8 @@
    "write_snippet": "U='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005826]';fetch(U,{headers:{Authori",
    "read_snippet": "fetch(\"https://huggingface.co/api/datasets/[REDACTED:destination:005826]\",{headers:{Authorization:\"Bearer [CREDENTIAL 17",
    "latency_h": 0.2,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0039373",
@@ -1693,7 +1754,8 @@
    "write_snippet": "status try: for n,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('metaCase','https://huggingface.co",
    "read_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 579]',{headers:{Authorization:'Bearer [CR",
    "latency_h": 0.02,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0039373",
@@ -1718,7 +1780,8 @@
    "write_snippet": "status try: for n,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('metaCase','https://huggingface.co",
    "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 579]',false);x.setRequestHeader('Authoriz",
    "latency_h": 0.11,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0038992",
@@ -1743,7 +1806,8 @@
    "write_snippet": "let x='';try{x=await(await fetch('https://huggingface.co/api/datasets/[HF REPO 579]',{headers:{Authorization:'Bearer [CR",
    "read_snippet": "),b try: for name,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('tree','https://huggingface.co/api",
    "latency_h": 0.2,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0039373",
@@ -1768,7 +1832,8 @@
    "write_snippet": "status try: for n,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('metaCase','https://huggingface.co",
    "read_snippet": "425-private-source-audit'}; base='https://huggingface.co/api/datasets/[HF REPO 579]' meta=req(base,headers=H,limit=50000",
    "latency_h": 0.23,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0038437",
@@ -1793,7 +1858,8 @@
    "write_snippet": ",json,gzip,base64,os b=u.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7",
    "read_snippet": "turn 0,repr(e) try: b=U.urlopen('https://huggingface.co/datasets/[REDACTED:destination:005057]').read();k=b'P9seventh-7c",
    "latency_h": 0.64,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0038810",
@@ -1818,7 +1884,8 @@
    "write_snippet": "est as u,gzip,json,base64,os url='https://huggingface.co/datasets/[REDACTED:destination:005898][USER 46]sec.bin' b=u.url",
    "read_snippet": "RL 1]';document.body.append(i);u='https://huggingface.co/datasets/[REDACTED:destination:005898][USER 46]sec.bin';fetch(u",
    "latency_h": 0.58,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0042842",
@@ -1843,7 +1910,8 @@
    "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 555]',{headers:{Authorization:'Bearer [CREDENTIAL 1623]'}}).then(r=>",
    "read_snippet": "://huggingface.co/api/whoami-v2','https://huggingface.co/api/datasets/[HF REPO 555]','https://huggingface.co/api/dataset",
    "latency_h": 0.04,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0038810",
@@ -1868,7 +1936,8 @@
    "write_snippet": "est as u,gzip,json,base64,os url='https://huggingface.co/datasets/[REDACTED:destination:005898][USER 46]sec.bin' b=u.url",
    "read_snippet": "d read-only [USER 46] secret url='https://huggingface.co/datasets/[REDACTED:destination:005898][USER 46]sec.bin' st,b=ge",
    "latency_h": 2.31,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0042952",
@@ -1893,7 +1962,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 555]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "://datasets-server.huggingface.co/'+h[0]+'?dataset=[HF REPO 555]&config=default&split=train&'+h[1];fetch(u,{headers:{Aut",
    "latency_h": 1.1,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0042952",
@@ -1918,7 +1988,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 555]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "thorization':'Bearer '+HT} base='https://huggingface.co/api/datasets/[HF REPO 555]' for suf in ['', '/tree/main?recursiv",
    "latency_h": 1.32,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0043677",
@@ -1943,7 +2014,8 @@
    "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
    "read_snippet": "try{q=location.hash.slice(1);u='rows?dataset=[HF REPO 555]&config=default&split=train&offset='+q+'&length=1';fetch('http",
    "latency_h": 0.03,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0043677",
@@ -1968,7 +2040,8 @@
    "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
    "read_snippet": "ENTIAL 1872]').decode()}) q(\"hf\",'https://huggingface.co/api/datasets/[HF REPO 555]',{\"Authorization\":'Bearer [CREDENTIA",
    "latency_h": 0.05,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0043677",
@@ -1993,7 +2066,8 @@
    "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
    "read_snippet": "=new XMLHttpRequest;x.open('GET',\"https://huggingface.co/api/datasets/[HF REPO 555]\",false);x.setRequestHeader('Authoriz",
    "latency_h": 0.37,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0042883",
@@ -2018,7 +2092,8 @@
    "write_snippet": "AL 1623]',W='[CREDENTIAL 170]',u='https://huggingface.co/api/datasets/[REDACTED:destination:006408]',r=await fetch(u,{he",
    "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[REDACTED:destination:006408]',false);x.setRequest",
    "latency_h": 2.22,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0042964",
@@ -2043,7 +2118,8 @@
    "write_snippet": "://huggingface.co/api/whoami-v2','https://huggingface.co/api/datasets/[REDACTED:destination:006409]']){let r=await fetch",
    "read_snippet": "e.co/api/datasets/[HF REPO 555]','https://huggingface.co/api/datasets/[REDACTED:destination:006409]','https://huggingfac",
    "latency_h": 2.31,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0043677",
@@ -2068,7 +2144,8 @@
    "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
    "read_snippet": ">{let u='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]';let r=await fetch(u,{headers:{Autho",
    "latency_h": 1.83,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0044548",
@@ -2093,7 +2170,8 @@
    "write_snippet": "fetch('https://huggingface.co/api/datasets/[REDACTED:destination:006393]',{headers:{Authorization:'Bearer [CREDENTIAL 16",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:006393]',{headers:{Authorizati",
    "latency_h": 0.04,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0045115",
@@ -2118,7 +2196,8 @@
    "write_snippet": "()=>{let t='[CREDENTIAL 1720]',u='https://huggingface.co/api/datasets/[HF REPO 646]';let r=await fetch(u,{headers:{Autho",
    "read_snippet": "s/[REDACTED:destination:030317]','https://huggingface.co/api/datasets/[HF REPO 646]','https://huggingface.co/api/dataset",
    "latency_h": 0.15,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0043677",
@@ -2143,7 +2222,8 @@
    "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
    "read_snippet": ">{let u='https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]',o='';await fetch(u,{headers:{Author",
    "latency_h": 4.18,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0042964",
@@ -2168,7 +2248,8 @@
    "write_snippet": "://huggingface.co/api/whoami-v2','https://huggingface.co/api/datasets/[REDACTED:destination:006409]']){let r=await fetch",
    "read_snippet": ".co/api/datasets/[HF REPO 555]', 'https://huggingface.co/api/datasets/[REDACTED:destination:006409]', 'https://huggingfa",
    "latency_h": 8.27,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0043677",
@@ -2193,7 +2274,8 @@
    "write_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 555]\",{headers:{Authorization:\"Bearer [CRED",
    "read_snippet": "//huggingface.co/api/whoami-v2', 'https://huggingface.co/api/datasets/[HF REPO 555]', 'https://huggingface.co/api/datase",
    "latency_h": 6.91,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0045976",
@@ -2218,7 +2300,8 @@
    "write_snippet": "T='[CREDENTIAL 1623]';u='https://huggingface.co/api/datasets/[REDACTED:destination:006408]';(async()=>{try{r=await fetch",
    "read_snippet": "let t='[CREDENTIAL 220]';let u='https://huggingface.co/api/datasets/[REDACTED:destination:006408]';fetch(u,{headers:{Aut",
    "latency_h": 0.42,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0040240",
@@ -2243,7 +2326,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[REDACTED:destination:005979]\",{headers:{Authoriza",
    "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005979]',{headers:{Authoriza",
    "latency_h": 11.8,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0039373",
@@ -2268,7 +2352,8 @@
    "write_snippet": "status try: for n,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('metaCase','https://huggingface.co",
    "read_snippet": "ization':'Bearer '+ht};meta=jreq('https://huggingface.co/api/datasets/[HF REPO 579]',headers=hh);tree=jreq('https://hugg",
    "latency_h": 12.19,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0045680",
@@ -2293,7 +2378,8 @@
    "write_snippet": "TIAL 1720]';u='//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 646]';fetch(u,{headers:{Authorization:'Be",
    "read_snippet": "';fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 646]',{headers:{Authorization:'Bearer [CR",
    "latency_h": 3.2,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0046926",
@@ -2320,7 +2406,8 @@
    "write_snippet": "let u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 632]/info/lfs/objects/b",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/task_",
    "latency_h": 1.08,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048152",
@@ -2345,7 +2432,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "ew XMLHttpRequest();x.open('GET','https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
    "latency_h": 0.06,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048152",
@@ -2370,7 +2458,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
    "latency_h": 0.12,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048152",
@@ -2395,7 +2484,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
    "latency_h": 0.13,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048152",
@@ -2420,7 +2510,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "(async()=>{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDEN",
    "latency_h": 0.15,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0047930",
@@ -2447,7 +2538,8 @@
    "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
    "read_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/arv",
    "latency_h": 0.85,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048214",
@@ -2472,7 +2564,8 @@
    "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',false);x.setRequestHeader('Authoriz",
    "read_snippet": ";x.open('GET','//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',0);x.setRequestHeader('authorizatio",
    "latency_h": 0.1,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048279",
@@ -2497,7 +2590,8 @@
    "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
    "read_snippet": ";x.open('GET','//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',0);x.setRequestHeader('authorizatio",
    "latency_h": 0.05,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048279",
@@ -2522,7 +2616,8 @@
    "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
    "read_snippet": "se.all(['https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]','https://[SERVICE HOST 1]/https://h",
    "latency_h": 0.09,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048302",
@@ -2547,7 +2642,8 @@
    "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:007653]',{method:'POST',header",
    "read_snippet": "(async()=>{let u='https://huggingface.co/api/datasets/[REDACTED:destination:007653]',r=await fetch(u,{method:'POST',head",
    "latency_h": 0.05,
-   "disagrees_with_current_code": true
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048337",
@@ -2572,7 +2668,8 @@
    "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2475]..[ENCODED BL",
    "latency_h": 0.01,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048337",
@@ -2597,7 +2694,8 @@
    "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
    "read_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
    "latency_h": 0.05,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048354",
@@ -2622,7 +2720,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:'Bearer [CR",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
    "latency_h": 0.01,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048337",
@@ -2647,7 +2746,8 @@
    "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
    "latency_h": 0.06,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048219",
@@ -2672,7 +2772,8 @@
    "write_snippet": "]',Range:'bytes='+a+'-'+b};fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:h}).then(asy",
    "read_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:007662]\"+f,{headers:{Authorizati",
    "latency_h": 0.39,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048337",
@@ -2697,7 +2798,8 @@
    "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CR",
    "read_snippet": "(async()=>{let r=await fetch(\"https://huggingface.co/api/datasets/[HF REPO 630]\",{headers:{Authorization:\"Bearer [CREDEN",
    "latency_h": 0.07,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0047930",
@@ -2724,7 +2826,8 @@
    "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/arvo_",
    "latency_h": 1.17,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048370",
@@ -2749,7 +2852,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:007660]\",{headers:{Authorization",
    "read_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007660]',{headers:{Authorization",
    "latency_h": 0.01,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048370",
@@ -2774,7 +2878,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:007660]\",{headers:{Authorization",
    "read_snippet": "/[REDACTED:destination:007658]\", \"https://huggingface.co/datasets/[REDACTED:destination:007660]\", \"https://huggingface.c",
    "latency_h": 0.06,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048354",
@@ -2799,7 +2904,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:'Bearer [CR",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
    "latency_h": 0.11,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048354",
@@ -2824,7 +2930,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:'Bearer [CR",
    "read_snippet": "t u of [\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\", \"https://[SERVICE HOST 1]/https://",
    "latency_h": 0.12,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048370",
@@ -2849,7 +2956,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:007660]\",{headers:{Authorization",
    "read_snippet": "(async()=>{let r=await fetch(\"https://huggingface.co/datasets/[REDACTED:destination:007660]\",{headers:{Authorization:\"Be",
    "latency_h": 0.09,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048354",
@@ -2874,7 +2982,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:'Bearer [CR",
    "read_snippet": ");fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]?blobs=[REDACTED:query_value:000123]'",
    "latency_h": 0.16,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0047930",
@@ -2901,7 +3010,8 @@
    "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
    "read_snippet": "u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/';T='Bearer [CREDENTIA",
    "latency_h": 1.33,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0047930",
@@ -2928,7 +3038,8 @@
    "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
    "read_snippet": "=>fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 569]/resolve/main/REA",
    "latency_h": 1.34,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048329",
@@ -2953,7 +3064,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006590]\"+f,{headers:{Authorizati",
    "read_snippet": "LSearchParams(location.search),u='https://huggingface.co/datasets/[REDACTED:destination:006590]'+decodeURIComponent(loca",
    "latency_h": 0.34,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048444",
@@ -2978,7 +3090,8 @@
    "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 217]..[ENCODED BLO",
    "latency_h": 0.13,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048435",
@@ -3003,7 +3116,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{authorization:'Bearer [CRED",
    "latency_h": 0.28,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0047930",
@@ -3030,7 +3144,8 @@
    "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/arvo_",
    "latency_h": 1.67,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048444",
@@ -3055,7 +3170,8 @@
    "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
    "read_snippet": "(async()=>{let r=await fetch(\"https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CREDEN",
    "latency_h": 0.34,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048444",
@@ -3080,7 +3196,8 @@
    "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
    "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
    "latency_h": 0.37,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048329",
@@ -3105,7 +3222,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006590]\"+f,{headers:{Authorizati",
    "read_snippet": "]',Range:'bytes=0-1048575'},base='https://huggingface.co/datasets/[REDACTED:destination:006590]',o=[];for(let f of ['REA",
    "latency_h": 0.69,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048219",
@@ -3130,7 +3248,8 @@
    "write_snippet": "]',Range:'bytes='+a+'-'+b};fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:h}).then(asy",
    "read_snippet": "LSearchParams(location.search),u='https://huggingface.co/datasets/[REDACTED:destination:007662]'+decodeURIComponent(loca",
    "latency_h": 1.01,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048512",
@@ -3155,7 +3274,8 @@
    "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
    "latency_h": 0.22,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048619",
@@ -3180,7 +3300,8 @@
    "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 217]..[ENCODED BLO",
    "latency_h": 0.0,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0047930",
@@ -3207,7 +3328,8 @@
    "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/summa",
    "latency_h": 1.87,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048444",
@@ -3232,7 +3354,8 @@
    "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
    "read_snippet": "ODED BLOB 43822]'},r=await fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:h}),x=await r.json();docum",
    "latency_h": 0.5,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048449",
@@ -3257,7 +3380,8 @@
    "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:006999]',{headers:{Authorization",
    "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:006999]',{headers:{Authorization:'Bearer [CREDENTIAL 2466].",
    "latency_h": 0.49,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048444",
@@ -3282,7 +3406,8 @@
    "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
    "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
    "latency_h": 0.52,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048329",
@@ -3307,7 +3432,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006590]\"+f,{headers:{Authorizati",
    "read_snippet": ",'all.jsonl']){try{r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:006590]'+f,{headers:{Authorizati",
    "latency_h": 0.85,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048444",
@@ -3332,7 +3458,8 @@
    "write_snippet": "t fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]\",{headers:{Authorization:\"Bearer [CR",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
    "latency_h": 0.55,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048370",
@@ -3357,7 +3484,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:007660]\",{headers:{Authorization",
    "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:007660]',{headers:{Authorization:'Bearer [CREDENTIAL 217]..",
    "latency_h": 0.78,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048329",
@@ -3382,7 +3510,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006590]\"+f,{headers:{Authorizati",
    "read_snippet": " 2475]..[ENCODED BLOB 43209]'; U='https://huggingface.co/datasets/[REDACTED:destination:006590]' for f in ['summary.json",
    "latency_h": 0.91,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048655",
@@ -3409,7 +3538,8 @@
    "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
    "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/arv",
    "latency_h": 0.05,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048219",
@@ -3434,7 +3564,8 @@
    "write_snippet": "]',Range:'bytes='+a+'-'+b};fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:h}).then(asy",
    "read_snippet": ".tar.gz']){try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:{Authorizati",
    "latency_h": 1.24,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048655",
@@ -3461,7 +3592,8 @@
    "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
    "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/arv",
    "latency_h": 0.08,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048655",
@@ -3488,7 +3620,8 @@
    "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
    "read_snippet": ");fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/'+q",
    "latency_h": 0.1,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0039373",
@@ -3513,7 +3646,8 @@
    "write_snippet": "status try: for n,u in [('meta','https://huggingface.co/api/datasets/[HF REPO 579]'),('metaCase','https://huggingface.co",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 579]',{headers:{authorization:'Bearer [CRED",
    "latency_h": 16.89,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048655",
@@ -3538,7 +3672,8 @@
    "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/summa",
    "latency_h": 0.13,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048655",
@@ -3565,7 +3700,8 @@
    "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
    "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/'+f",
    "latency_h": 0.2,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048731",
@@ -3590,7 +3726,8 @@
    "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
    "latency_h": 0.01,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048724",
@@ -3615,7 +3752,8 @@
    "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
    "read_snippet": "llib.request as U,time,re,json u=\"https://huggingface.co/datasets/[REDACTED:destination:006999]\" h={\"Authorization\":\"Bea",
    "latency_h": 0.03,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048724",
@@ -3640,7 +3778,8 @@
    "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
    "read_snippet": "B 43930]',Range:'bytes=0-999'},u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{header",
    "latency_h": 0.08,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048724",
@@ -3665,7 +3804,8 @@
    "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
    "read_snippet": "llib.request,json,hashlib,time u=\"https://huggingface.co/datasets/[REDACTED:destination:006999]\" r=urllib.request.urlope",
    "latency_h": 0.08,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048655",
@@ -3692,7 +3832,8 @@
    "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 654]/resolve/main/[REDA",
    "latency_h": 0.29,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048731",
@@ -3717,7 +3858,8 @@
    "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
    "latency_h": 0.09,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048646",
@@ -3742,7 +3884,8 @@
    "write_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 36]',{headers:{Authorization:'Bearer [CRE",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 36]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BLO",
    "latency_h": 0.35,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048783",
@@ -3767,7 +3910,8 @@
    "write_snippet": ".tar.gz']){try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:{Authorizati",
    "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,false);x.setRequestHe",
    "latency_h": 0.01,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048724",
@@ -3792,7 +3936,8 @@
    "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
    "read_snippet": "fetch('https://huggingface.co/datasets/[REDACTED:destination:006999]',{headers:{Authorization:'Bearer [CREDENTIAL 2464].",
    "latency_h": 0.23,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0047930",
@@ -3819,7 +3964,8 @@
    "write_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 677]/resolve/main/sta",
    "read_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 631]/resolve/main/oss",
    "latency_h": 2.44,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048803",
@@ -3844,7 +3990,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2475]..[ENCODED BL",
    "latency_h": 0.12,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048541",
@@ -3869,7 +4016,8 @@
    "write_snippet": "as u,json\\nr=u.urlopen(u.Request('https://huggingface.co/datasets/[REDACTED:destination:006395]',headers={'Authorization",
    "read_snippet": "(async()=>{try{let r=await fetch(\"https://huggingface.co/datasets/[REDACTED:destination:006395]\",{method:'HEAD',headers:",
    "latency_h": 0.85,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048619",
@@ -3894,7 +4042,8 @@
    "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
    "read_snippet": "Promise.all([fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2464]",
    "latency_h": 0.67,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048803",
@@ -3919,7 +4068,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
    "latency_h": 0.18,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048619",
@@ -3944,7 +4094,8 @@
    "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CRED",
    "read_snippet": "quest as u r=u.urlopen(u.Request('https://huggingface.co/api/datasets/[HF REPO 630]',headers={'Authorization':'Bearer [C",
    "latency_h": 0.68,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048724",
@@ -3969,7 +4120,8 @@
    "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
    "read_snippet": "llib.request as U,time,re,json u=\"https://huggingface.co/datasets/[REDACTED:destination:006999]\";h={\"Authorization\":\"Bea",
    "latency_h": 0.41,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048803",
@@ -3994,7 +4146,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 631]',false);x.setRequestHeader('Authoriz",
    "read_snippet": "h('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTI",
    "latency_h": 0.2,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048724",
@@ -4019,7 +4172,8 @@
    "write_snippet": "(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006999]',r=await fetch(u,{headers:{Authorization",
    "read_snippet": "ED:destination:007773]'),('HEAD','https://huggingface.co/datasets/[REDACTED:destination:006999]')]: try: r=u.urlopen(u.R",
    "latency_h": 0.47,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048329",
@@ -4044,7 +4198,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006590]\"+f,{headers:{Authorizati",
    "read_snippet": "L 2489].[ENCODED BLOB 44388]'};B='https://huggingface.co/datasets/[REDACTED:destination:006590]';o={} for f in ['README.",
    "latency_h": 1.58,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0040240",
@@ -4069,7 +4224,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/api/datasets/[REDACTED:destination:005979]\",{headers:{Authoriza",
    "read_snippet": "t fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005979]',{headers:{Authoriza",
    "latency_h": 17.35,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0023123",
@@ -4094,7 +4250,8 @@
    "write_snippet": "=new XMLHttpRequest;x.open('GET','https://huggingface.co/api/datasets/[HF REPO 37]',false);x.setRequestHeader('Authoriza",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 37]',{headers:{Authorization:'Bearer [CREDE",
    "latency_h": 25.2,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0049116",
@@ -4119,7 +4276,8 @@
    "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
    "read_snippet": "';fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CR",
    "latency_h": 0.0,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0049119",
@@ -4144,7 +4302,8 @@
    "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
    "read_snippet": "(async()=>{o='';for(u of ['https://huggingface.co/api/datasets/[HF REPO 631]','https://huggingface.co/api/datasets/[REDA",
    "latency_h": 0.0,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0049119",
@@ -4169,7 +4328,8 @@
    "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
    "read_snippet": "(async()=>{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{authorization:'Bearer [CREDEN",
    "latency_h": 0.0,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0049066",
@@ -4194,7 +4354,8 @@
    "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2495]..[ENCODED BL",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2466]..[ENCODED BL",
    "latency_h": 0.11,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0049145",
@@ -4219,7 +4380,8 @@
    "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2495]..[ENCODED BL",
    "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 217]..[ENCODED BLO",
    "latency_h": 0.06,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048783",
@@ -4244,7 +4406,8 @@
    "write_snippet": ".tar.gz']){try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+f,{headers:{Authorizati",
    "read_snippet": "nt(location.hash.slice(1));fetch('https://huggingface.co/datasets/[REDACTED:destination:007662]'+p,{headers:{Authorizati",
    "latency_h": 0.55,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0049145",
@@ -4269,7 +4432,8 @@
    "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2495]..[ENCODED BL",
    "read_snippet": "https://huggingface.co/api/datasets/[HF REPO 630]' r=urllib.request.urlopen(urllib.request.Request(u,headers={'Authoriza",
    "latency_h": 0.06,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0049119",
@@ -4294,7 +4458,8 @@
    "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
    "read_snippet": "sh/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CREDENTIAL 2626]",
    "latency_h": 0.14,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0049119",
@@ -4319,7 +4484,8 @@
    "write_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 631]',{headers:{Authorization:'Bearer [CRED",
    "latency_h": 0.15,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0049265",
@@ -4344,7 +4510,8 @@
    "write_snippet": "(async()=>{try{r=await fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDEN",
    "read_snippet": "fetch('//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{authorization:'Bearer [CREDENTIAL",
    "latency_h": 0.24,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0049566",
@@ -4369,7 +4536,8 @@
    "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2495]..[ENCODED BL",
    "read_snippet": ",100)]),fetch('//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{authorization:'Bearer [CR",
    "latency_h": 0.39,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0046288",
@@ -4394,7 +4562,8 @@
    "write_snippet": "1723]';(async()=>{o='';for(u of ['https://huggingface.co/api/datasets/[HF REPO 668]','https://huggingface.co/api/dataset",
    "read_snippet": "fetch('//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO 668]',{headers:{authorization:'Bearer [CREDENTIAL",
    "latency_h": 7.14,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048458",
@@ -4419,7 +4588,8 @@
    "write_snippet": "(async()=>{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007624]',{headers:{Authorization:'Be",
    "read_snippet": "fetch('//[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:destination:007624]',{headers:{authorization:'Bearer",
    "latency_h": 2.22,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048935",
@@ -4444,7 +4614,8 @@
    "write_snippet": ",'[USER 52]']){let r=await fetch('https://huggingface.co/api/datasets/[HF REPO]/'+d,{headers:{Authorization:'Bearer '+t}",
    "read_snippet": "=>fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO]/'+n,{headers:{Authorization:'Bearer '+T}",
    "latency_h": 1.15,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048655",
@@ -4471,7 +4642,8 @@
    "write_snippet": "n('GET','https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 630]/resolve/main/'+f",
    "read_snippet": "fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 720]/resolve/main/READM",
    "latency_h": 1.84,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0049566",
@@ -4496,7 +4668,8 @@
    "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 630]',{headers:{Authorization:'Bearer [CREDENTIAL 2495]..[ENCODED BL",
    "read_snippet": "fetch(\"https://huggingface.co/api/datasets/[HF REPO 630]\",{headers:{Authorization:\"Bearer [CREDENTIAL 217]..[ENCODED BLO",
    "latency_h": 0.84,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048825",
@@ -4521,7 +4694,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006395]\",{headers:{Authorization",
    "read_snippet": "nerText='START';(async()=>{let u='https://huggingface.co/datasets/[REDACTED:destination:006395]';let r=await fetch(u,{he",
    "latency_h": 1.68,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0048825",
@@ -4546,7 +4720,8 @@
    "write_snippet": "=await fetch('[SERVICE 1 URL 1]'+\"https://huggingface.co/datasets/[REDACTED:destination:006395]\",{headers:{Authorization",
    "read_snippet": "earch(\"T='([^']+)\",b).group(1);u='https://huggingface.co/datasets/[REDACTED:destination:006395]';r=urllib.request.urlope",
    "latency_h": 1.74,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0050357",
@@ -4571,7 +4746,8 @@
    "write_snippet": "(async()=>{try{let r=await fetch(\"https://huggingface.co/datasets/[REDACTED:destination:007983]\",{headers:{Authorization",
    "read_snippet": "(async()=>{try{let r=await fetch('https://huggingface.co/datasets/[REDACTED:destination:007983]',{headers:{Authorization",
    "latency_h": 3.86,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0050568",
@@ -4596,7 +4772,8 @@
    "write_snippet": "fetch(\"https://huggingface.co/api/datasets/[HF REPO 630]\",{headers:{Authorization:\"Bearer [CREDENTIAL 217]..[ENCODED BLO",
    "read_snippet": ".urlopen(urllib.request.Request(\\'https://huggingface.co/api/datasets/[HF REPO 630]\\',headers={\\'Authorization\\':\\'Beare",
    "latency_h": 4.29,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0046323",
@@ -4621,7 +4798,8 @@
    "write_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 38]',{headers:{Authorization:'Bearer [CREDENTIAL 1623]'}}).then(r=>r",
    "read_snippet": "e(1)||'WzAsNTBd')),r=await fetch(\"https://huggingface.co/api/datasets/[HF REPO 38]\",{headers:{Authorization:\"Bearer [CRE",
    "latency_h": 12.44,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0005366",
@@ -4639,7 +4817,8 @@
    "write_snippet": "",
    "read_snippet": "",
    "latency_h": null,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0044824",
@@ -4657,7 +4836,8 @@
    "write_snippet": "",
    "read_snippet": "",
    "latency_h": null,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0044824",
@@ -4675,7 +4855,8 @@
    "write_snippet": "",
    "read_snippet": "",
    "latency_h": null,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
   },
   {
    "write_id": "R0044999",
@@ -4693,10 +4874,1479 @@
    "write_snippet": "",
    "read_snippet": "",
    "latency_h": null,
-   "disagrees_with_current_code": false
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named"
+  },
+  {
+   "write_id": "R0005366",
+   "read_id": "R0005427",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0005427",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "true_message",
+   "reason": "write is an LFS batch call with operation 'upload' on this repository; 37 min later an anonymous run GETs resolve/main/train.jsonl from it",
+   "also": [],
+   "write_snippet": "T='[CREDENTIAL 170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "of T.entries()){try{let u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 0.62,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0005432",
+   "read_id": "R0005607",
+   "from": "run:R0005432",
+   "to": "run:R0005607",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write is a Git LFS batch POST on this repository whose 'operation' (upload or download) is hidden by the redaction; the read fetches a file of it",
+   "also": [],
+   "write_snippet": "ries()){let r=await fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 1.79,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0005417",
+   "read_id": "R0005665",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0005665",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 16]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "true_message",
+   "reason": "write is an LFS batch call with operation 'upload' on this repository; 2.5 h later an anonymous run HEADs a file of the same repository",
+   "also": [],
+   "write_snippet": "T='[CREDENTIAL 170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 16]",
+   "read_snippet": "u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 16]",
+   "latency_h": 2.54,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0005432",
+   "read_id": "R0005744",
+   "from": "run:R0005432",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write is a Git LFS batch POST on this repository whose 'operation' (upload or download) is hidden by the redaction; the read fetches a file of it",
+   "also": [],
+   "write_snippet": "ries()){let r=await fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "ll(rs.map(async q=>{let u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 3.2,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0006575",
+   "read_id": "R0006578",
+   "from": "run:R0006575",
+   "to": "run:R0006578",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000033]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "place names only the owner ([username]); write POSTs an SQL-console embed, the read passes the URL to proxy services; repository not visible",
+   "also": [],
+   "write_snippet": "u='https://huggingface.co/datasets/[REDACTED:username:000033]]';p=['[SE",
+   "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:username:000033]]';p=['[SE",
+   "latency_h": 0.03,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0006727",
+   "read_id": "R0006743",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0006743",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 23]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "true_message",
+   "reason": "write POSTs ask-access on this repository; 11 min later a run GETs resolve/main/secret.txt of it with two tokens (an access request, then a file fetch)",
+   "also": [],
+   "write_snippet": "U='https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 23]",
+   "read_snippet": "LHttpRequest;x.open('GET','https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 23]",
+   "latency_h": 0.19,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0005432",
+   "read_id": "R0006753",
+   "from": "run:R0005432",
+   "to": "run:R0006753",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write is a Git LFS batch POST on this repository whose 'operation' (upload or download) is hidden by the redaction; the read fetches a file of it",
+   "also": [],
+   "write_snippet": "ries()){let r=await fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "LHttpRequest;x.open('GET','https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 14.75,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0005432",
+   "read_id": "R0006788",
+   "from": "run:R0005432",
+   "to": "run:R0006788",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write is a Git LFS batch POST on this repository whose 'operation' (upload or download) is hidden by the redaction; the read fetches a file of it",
+   "also": [],
+   "write_snippet": "ries()){let r=await fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "LHttpRequest;x.open('GET','https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 15.16,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0005432",
+   "read_id": "R0006791",
+   "from": "run:R0005432",
+   "to": "run:R0006791",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write is a Git LFS batch POST on this repository whose 'operation' (upload or download) is hidden by the redaction; the read fetches a file of it",
+   "also": [],
+   "write_snippet": "ries()){let r=await fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "LHttpRequest;x.open('GET','https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 15.2,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0005432",
+   "read_id": "R0006792",
+   "from": "run:R0005432",
+   "to": "run:R0006792",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write is a Git LFS batch POST on this repository whose 'operation' (upload or download) is hidden by the redaction; the read fetches a file of it",
+   "also": [],
+   "write_snippet": "ries()){let r=await fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "LHttpRequest;x.open('GET','https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 15.21,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0005432",
+   "read_id": "R0006793",
+   "from": "run:R0005432",
+   "to": "run:R0006793",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write is a Git LFS batch POST on this repository whose 'operation' (upload or download) is hidden by the redaction; the read fetches a file of it",
+   "also": [],
+   "write_snippet": "ries()){let r=await fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "LHttpRequest;x.open('GET','https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 15.22,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0005432",
+   "read_id": "R0007854",
+   "from": "run:R0005432",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write is a Git LFS batch POST on this repository whose 'operation' (upload or download) is hidden by the redaction; the read fetches a file of it",
+   "also": [],
+   "write_snippet": "ries()){let r=await fetch('https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 19.8,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0013482",
+   "read_id": "R0014420",
+   "from": "[CREDENTIAL 169]",
+   "to": "run:R0014420",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:001737]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a commit POST to this dataset; the read record builds a commit (base64 file lines, data/body sent) to the same place, so it writes, not reads",
+   "also": [],
+   "write_snippet": " a(s),path:f[0],encoding:'base64'}})}r=await fetch('https://huggingface.co/api/datasets/[REDACTED:destination:001737]',{",
+   "read_snippet": "oa(s),path:f[0],encoding:'base64'}})}r=await fetch('https://huggingface.co/api/datasets/[REDACTED:destination:001737]',{",
+   "latency_h": 0.12,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0017621",
+   "read_id": "R0017821",
+   "from": "[CREDENTIAL 169]",
+   "to": "run:R0017821",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:002173]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "the read record is cut off before its verb (text ends at or just after the place), so whether it reads or writes is not in the record",
+   "also": [],
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[REDACTED:destination:002173]',{",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[REDACTED:destination:002173]',{",
+   "latency_h": 0.05,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0018358",
+   "read_id": "R0018699",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0018699",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[USER 15]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "place names only the owner; the repository is a variable (…/'+repo+'/commit/main) or cut off, so the two records may be on different repositories",
+   "also": [],
+   "write_snippet": "=(',',':')) for x in a)+'\\n').encode();q=u.Request('https://huggingface.co/api/datasets/[USER 15]/'+repo+'/commit/main',",
+   "read_snippet": ");let [ENCODED BLOB] z=await fetch(\"[PROXY 49 URL 1]https://huggingface.co/api/datasets/[USER 15]/  [PROXY 4 URL 72][ENC",
+   "latency_h": 0.01,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0013336",
+   "read_id": "R0019343",
+   "from": "run:R0013336",
+   "to": "run:R0019343",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "the read record is cut off before its verb (text ends at or just after the place), so whether it reads or writes is not in the record",
+   "also": [],
+   "write_snippet": "A[0]='';D()   x=new XMLHttpRequest;x.open('POST','https://huggingface.co/api/datasets/[HF REPO]",
+   "read_snippet": "de()+urllib.request.urlopen(urllib.request.Request('https://huggingface.co/api/datasets/[HF REPO]",
+   "latency_h": 2.56,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0022102",
+   "read_id": "R0022104",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0022104",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:002872]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a commit POST to this dataset; the read record is a urlopen(Request(url, data=…)) with base64 file lines: also a write",
+   "also": [],
+   "write_snippet": "x=new XMLHttpRequest;x.open('POST','https://huggingface.co/api/datasets/[REDACTED:destination:002872]',f",
+   "read_snippet": "ode()).decode()}})])+'\\\\\\\\n'\\\\nu.urlopen(u.Request('https://huggingface.co/api/datasets/[REDACTED:destination:002872]',b",
+   "latency_h": 0.0,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0023404",
+   "read_id": "R0024399",
+   "from": "run:R0023404",
+   "to": "run:R0024399",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[USER 15]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "place names only the owner; the repository is a variable (…/'+repo+'/commit/main) or cut off, so the two records may be on different repositories",
+   "also": [],
+   "write_snippet": "ators=(',',':')) for x in lines)+'\\n').encode();go('https://huggingface.co/api/datasets/[USER 15]/'+repo+'/commit/main',",
+   "read_snippet": "998]\");a=new Uint8Array(await [ENCODED BLOB] fetch('https://huggingface.co/api/datasets/[USER 15]/",
+   "latency_h": 0.94,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0013336",
+   "read_id": "R0025221",
+   "from": "run:R0013336",
+   "to": "run:R0025221",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a commit POST to this dataset; the read record builds a commit (base64 file lines, data/body sent) to the same place, so it writes, not reads",
+   "also": [],
+   "write_snippet": "A[0]='';D()   x=new XMLHttpRequest;x.open('POST','https://huggingface.co/api/datasets/[HF REPO]",
+   "read_snippet": "ceerr.json',encoding:'base64'}})+'\\n';return fetch('https://huggingface.co/api/datasets/[HF REPO]",
+   "latency_h": 7.05,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0025325",
+   "read_id": "R0025987",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0025987",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:003655]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write POSTs a comment to this dataset; the read is a urlopen Request with a JSON body (data=…): also a write",
+   "also": [],
+   "write_snippet": "z:z,markers:m});x=new XMLHttpRequest;x.open('POST','https://huggingface.co/api/datasets/[REDACTED:destination:003655]',f",
+   "read_snippet": "CTED',s,flags=re.I) url='https://huggingface.co/api/datasets/[REDACTED:destination:003655]' q",
+   "latency_h": 0.54,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0023527",
+   "read_id": "R0026438",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0026438",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:003240]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "the read record is cut off before its verb (text ends at or just after the place), so whether it reads or writes is not in the record",
+   "also": [],
+   "write_snippet": "tors=(',',':')) for x in lines)+'\\n').encode() url='https://huggingface.co/api/datasets/[REDACTED:destination:003240]'; ",
+   "read_snippet": "https://huggingface.co/api/datasets/[REDACTED:destination:003240]",
+   "latency_h": 2.34,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0028658",
+   "read_id": "R0028682",
+   "from": "[CREDENTIAL 1483]",
+   "to": "run:R0028682",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:003075]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "the read record is cut off before its verb (text ends at or just after the place), so whether it reads or writes is not in the record",
+   "also": [],
+   "write_snippet": "={err:''+e}}}let [ENCODED BLOB] let rr=await fetch('https://huggingface.co/api/datasets/[REDACTED:destination:003075]',{",
+   "read_snippet": "={err:''+e}}}let [ENCODED BLOB] let rr=await fetch('https://huggingface.co/api/datasets/[REDACTED:destination:003075]',{",
+   "latency_h": 0.0,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0028651",
+   "read_id": "R0028743",
+   "from": "[CREDENTIAL 169]",
+   "to": "run:R0028743",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:003080]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "the read record is cut off before its verb (text ends at or just after the place), so whether it reads or writes is not in the record",
+   "also": [],
+   "write_snippet": "(async()=>{let r=await fetch('https://huggingface.co/api/datasets/[REDACTED:destination:003080]',{",
+   "read_snippet": "(async()=>{let r=await fetch('https://huggingface.co/api/datasets/[REDACTED:destination:003080]',",
+   "latency_h": 0.04,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0029509",
+   "from": "run:R0029473",
+   "to": "run:R0029509",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "base64.b64decode(''))\";#   import urllib.request u='https://huggingface.co/datasets/[REDACTED:destination:000029]' for m",
+   "latency_h": 0.01,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0029616",
+   "from": "run:R0029473",
+   "to": "run:R0029616",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "b7350stage';B='https://registry-1.docker.io/v2/';S='https://huggingface.co/datasets/[REDACTED:destination:000029]' def Q",
+   "latency_h": 0.06,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0029618",
+   "from": "run:R0029473",
+   "to": "run:R0029618",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "b7350stage';B='https://registry-1.docker.io/v2/';S='https://huggingface.co/datasets/[REDACTED:destination:000029]' def Q",
+   "latency_h": 0.06,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0030603",
+   "from": "run:R0029473",
+   "to": "run:R0030603",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "b7350stage';B='https://registry-1.docker.io/v2/';S='https://huggingface.co/datasets/[REDACTED:destination:000029]' def Q",
+   "latency_h": 0.47,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0031935",
+   "from": "run:R0029473",
+   "to": "run:R0031935",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "http://huggingface.co/datasets/[REDACTED:destination:000029]",
+   "latency_h": 1.06,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0022674",
+   "read_id": "R0032250",
+   "from": "run:R0022674",
+   "to": "run:R0032250",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO 280]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "true_message",
+   "reason": "write POSTs …/commit/main on this dataset (call cut at 'POS'; the path is a commit); hours later a run GETs first-rows of the same dataset",
+   "also": [],
+   "write_snippet": "ps://huggingface.co/api/datasets/[HF REPO 280]/commit/main',{meth",
+   "read_snippet": "taset=[HF REPO 542]&config=dupref1&split=train','/first-rows?dataset=[HF REPO 280]&config=default&split=train'];let s=''",
+   "latency_h": 5.18,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0032459",
+   "from": "run:R0029473",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": " <<'PY'\\nimport urllib.request as u,json,base64\\nz='https://huggingface.co/datasets/[REDACTED:destination:000029]'\\nr=u.",
+   "latency_h": 1.13,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0032545",
+   "from": "run:R0029473",
+   "to": "run:R0032545",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "sh.slice(1)).split(','),s=a[0]||'0',e=a[1]||'63',u='https://huggingface.co/datasets/[REDACTED:destination:000029]';docum",
+   "latency_h": 1.14,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0032693",
+   "from": "run:R0029473",
+   "to": "run:R0032693",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "sh.slice(1)).split(','),s=a[0]||'0',e=a[1]||'63',u='https://huggingface.co/datasets/[REDACTED:destination:000029]';docum",
+   "latency_h": 1.21,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0022674",
+   "read_id": "R0032842",
+   "from": "run:R0022674",
+   "to": "run:R0032842",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO 280]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "true_message",
+   "reason": "write POSTs …/commit/main on this dataset (call cut at 'POS'; the path is a commit); hours later a run GETs first-rows of the same dataset",
+   "also": [],
+   "write_snippet": "ps://huggingface.co/api/datasets/[HF REPO 280]/commit/main',{meth",
+   "read_snippet": "s?dataset=[HF REPO 2]&config=mnist&split=train','/first-rows?dataset=[HF REPO 280]&config=node180856b&split=train'];let ",
+   "latency_h": 5.37,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0032930",
+   "from": "run:R0029473",
+   "to": "run:R0032930",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "ice(1)).split(','),s=a[0],e=a[1],p=a[2]||('r'+s),u='https://huggingface.co/datasets/[REDACTED:destination:000029]',T=\"[R",
+   "latency_h": 1.34,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0032975",
+   "from": "run:R0029473",
+   "to": "[CREDENTIAL 170]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "ib.request,subprocess,json,base64,time,traceback U='https://huggingface.co/datasets/[REDACTED:destination:000029]' O={'s",
+   "latency_h": 1.36,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0033143",
+   "from": "run:R0029473",
+   "to": "run:R0033143",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "ice(1)).split(','),s=a[0],e=a[1],p=a[2]||('r'+s),u='https://huggingface.co/datasets/[REDACTED:destination:000029]',T=\"[R",
+   "latency_h": 1.46,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0032445",
+   "read_id": "R0033205",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0033205",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:002686]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "the read record is cut off before its verb (text ends at or just after the place), so whether it reads or writes is not in the record",
+   "also": [],
+   "write_snippet": "DecompressionStream('gzip'))).text().then(d=>fetch(\"https://huggingface.co/api/datasets/[REDACTED:destination:002686]\",{",
+   "read_snippet": "https://huggingface.co/api/datasets/[REDACTED:destination:002686]",
+   "latency_h": 0.36,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0033240",
+   "from": "run:R0029473",
+   "to": "run:R0033240",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "on -c \\\\\\\"import urllib.request as u,base64,json;z='https://huggingface.co/datasets/[REDACTED:destination:000029]';r=u.u",
+   "latency_h": 1.51,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029803",
+   "read_id": "R0033252",
+   "from": "[CREDENTIAL 169]",
+   "to": "run:R0033252",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[USER 15]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "place names only the owner; the repository is a variable (…/'+repo+'/commit/main) or cut off, so the two records may be on different repositories",
+   "also": [],
+   "write_snippet": "ators=(',',':')) for x in lines)+'\\n').encode();go('https://huggingface.co/api/datasets/[USER 15]/'+repo+'/commit/main',",
+   "read_snippet": "essionStream('gzip'))).arrayBuffer().then(b=>fetch('https://huggingface.co/api/datasets/[USER 15]",
+   "latency_h": 1.38,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0034065",
+   "from": "run:R0029473",
+   "to": "run:R0034065",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:destination:000029]';fetch",
+   "latency_h": 2.04,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0034347",
+   "from": "run:R0029473",
+   "to": "run:R0034347",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "t urllib.request as u,shutil,os,subprocess,time\\nU='https://huggingface.co/datasets/[REDACTED:destination:000029]'\\nA='[",
+   "latency_h": 2.16,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0034709",
+   "from": "run:R0029473",
+   "to": "run:R0034709",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:destination:000029]';a=32;",
+   "latency_h": 2.32,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0034820",
+   "from": "run:R0029473",
+   "to": "run:R0034820",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "u.urlopen(W+'?t=f34&p='[REDACTED:secret_key:000162]'https://huggingface.co/datasets/[REDACTED:destination:000029]'; A='[",
+   "latency_h": 2.33,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0034945",
+   "from": "run:R0029473",
+   "to": "run:R0034945",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:destination:000029]';a=32;",
+   "latency_h": 2.35,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0035021",
+   "from": "run:R0029473",
+   "to": "run:R0035021",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "u.urlopen(W+'?t=f34&p='[REDACTED:secret_key:000162]'https://huggingface.co/datasets/[REDACTED:destination:000029]'; A='[",
+   "latency_h": 2.36,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0035031",
+   "from": "run:R0029473",
+   "to": "run:R0035031",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:destination:000029]';a=32;",
+   "latency_h": 2.36,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0035096",
+   "from": "run:R0029473",
+   "to": "run:R0035096",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:destination:000029]';a=32;",
+   "latency_h": 2.37,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0035135",
+   "from": "run:R0029473",
+   "to": "run:R0035135",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:destination:000029]';a=419",
+   "latency_h": 2.37,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0035164",
+   "from": "run:R0029473",
+   "to": "run:R0035164",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "ase64.b64decode(os.getenv(\\'A\\',\\'\\')).decode();B=\\'https://huggingface.co/datasets/[REDACTED:destination:000029]\\'\\\\n i",
+   "latency_h": 2.38,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0035256",
+   "from": "run:R0029473",
+   "to": "run:R0035256",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": ":u.urlopen(W+'?t=f0&p='[REDACTED:secret_key:000172]'https://huggingface.co/datasets/[REDACTED:destination:000029]';A='/t",
+   "latency_h": 2.39,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0035371",
+   "from": "run:R0029473",
+   "to": "run:R0035371",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": "ase64.b64decode(os.getenv(\\'A\\',\\'\\')).decode();B=\\'https://huggingface.co/datasets/[REDACTED:destination:000029]\\'\\\\n i",
+   "latency_h": 2.4,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0029473",
+   "read_id": "R0035776",
+   "from": "run:R0029473",
+   "to": "run:R0035776",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000029]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (Q('GET',src)) and POSTs the bytes to a Docker registry; it never writes the place, so the read has nothing to receive",
+   "also": [],
+   "write_snippet": "horization':'Bearer '+json.loads(x)['token']}  src='https://huggingface.co/datasets/[REDACTED:destination:000029]';lo=28",
+   "read_snippet": " - <<'PY'\\nimport urllib.request as u,shutil,os\\nU='https://huggingface.co/datasets/[REDACTED:destination:000029]'; A='[",
+   "latency_h": 2.71,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0035403",
+   "read_id": "R0035935",
+   "from": "run:R0035403",
+   "to": "run:R0035935",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:001594]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is a commit POST to this dataset; the read record builds a commit (base64 file lines, data/body sent) to the same place, so it writes, not reads",
+   "also": [],
+   "write_snippet": "x=new XMLHttpRequest;x.open('POST','https://huggingface.co/api/datasets/[REDACTED:destination:001594]',f",
+   "read_snippet": "ines(True) if b'deletedFile' not in x);q=u.Request('https://huggingface.co/api/datasets/[REDACTED:destination:001594]',b",
+   "latency_h": 0.41,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0009154",
+   "read_id": "R0037454",
+   "from": "[CREDENTIAL 220]",
+   "to": "run:R0037454",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000961]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (fetch(S(u),{headers})) and then posts to a registry; it only reads the place",
+   "also": [],
+   "write_snippet": "ull,push')),{headers:{Authorization:A}})).json();u='https://huggingface.co/datasets/[REDACTED:destination:000961]';r=awa",
+   "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:destination:000961]';Promi",
+   "latency_h": 14.31,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0009154",
+   "read_id": "R0039525",
+   "from": "[CREDENTIAL 220]",
+   "to": "run:R0039525",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000961]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (fetch(S(u),{headers})) and then posts to a registry; it only reads the place",
+   "also": [],
+   "write_snippet": "ull,push')),{headers:{Authorization:A}})).json();u='https://huggingface.co/datasets/[REDACTED:destination:000961]';r=awa",
+   "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:destination:000961]';Promi",
+   "latency_h": 14.91,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0017253",
+   "read_id": "R0039892",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0039892",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[USER 17]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "place names only the owner; the repository is a variable (…/'+repo+'/commit/main) or cut off, so the two records may be on different repositories",
+   "also": [],
+   "write_snippet": "=(',',':')) for x in a)+'\\n').encode();q=u.Request('https://huggingface.co/api/datasets/[USER 17]/'+repo+'/commit/main',",
+   "read_snippet": "'],o=[];for(let z of a)try{let x=await(await fetch('https://huggingface.co/api/datasets/[USER 17]/'+z)).json();o.push({i",
+   "latency_h": 10.72,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0009154",
+   "read_id": "R0039952",
+   "from": "[CREDENTIAL 220]",
+   "to": "run:R0039952",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:000961]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "false_write",
+   "reason": "the 'write' GETs this dataset (fetch(S(u),{headers})) and then posts to a registry; it only reads the place",
+   "also": [],
+   "write_snippet": "ull,push')),{headers:{Authorization:A}})).json();u='https://huggingface.co/datasets/[REDACTED:destination:000961]';r=awa",
+   "read_snippet": "u='https://huggingface.co/datasets/[REDACTED:destination:000961]';Promi",
+   "latency_h": 14.99,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0037688",
+   "read_id": "R0041352",
+   "from": "run:R0037688",
+   "to": "run:R0041352",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:005420]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is an XHR POST to this dataset; the read record generates a script that POSTs to the same dataset (a write)",
+   "also": [],
+   "write_snippet": "ew XMLHttpRequest;x.open('POST','//[SERVICE HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005420]',0",
+   "read_snippet": "parators=(',',':')) for x in [ENCODED BLOB] HOST 1]/https://huggingface.co/api/datasets/[REDACTED:destination:005420]';T",
+   "latency_h": 1.01,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0042271",
+   "read_id": "R0042745",
+   "from": "run:R0042271",
+   "to": "[CREDENTIAL 169]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:001687]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write sends a POST (u, m:'POST', ndjson body) to this dataset; the read record is another POST descriptor to the same URL, so also a write",
+   "also": [],
+   "write_snippet": "th\\\": \\\"n306cmd.json\\\"}, \\\"key\\\": \\\"file\\\"}\\n\",\"u\":\"https://huggingface.co/api/datasets/[REDACTED:destination:001687]\",\"",
+   "read_snippet": "RR '+e);document.body.innerText='WAIT';   {   \"u\": \"https://huggingface.co/api/datasets/[REDACTED:destination:001687]\", ",
+   "latency_h": 0.67,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0042945",
+   "read_id": "R0043066",
+   "from": "[CREDENTIAL 169]",
+   "to": "run:R0043066",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:001687]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write sends a POST (u, m:'POST', ndjson body) to this dataset; the read record is another POST descriptor to the same URL, so also a write",
+   "also": [],
+   "write_snippet": "fetch('https://huggingface.co/api/datasets/[REDACTED:destination:001687]',{",
+   "read_snippet": "\\\", \\\"path\\\": \\\"n306cmd.json\\\"}}\\n\",\"m\":\"POST\",\"u\":\"https://huggingface.co/api/datasets/[REDACTED:destination:001687]\"}",
+   "latency_h": 0.41,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0032332",
+   "read_id": "R0044677",
+   "from": "run:R0032332",
+   "to": "run:R0044677",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "the read record is cut off before its verb (text ends at or just after the place), so whether it reads or writes is not in the record",
+   "also": [],
+   "write_snippet": "h (28 slots) ── x=new XMLHttpRequest;x.open('POST','https://huggingface.co/api/datasets/[HF REPO]','application/x-ndjson",
+   "read_snippet": "import urllib.request as u r=u.urlopen(u.Request('https://huggingface.co/api/datasets/[HF REPO]",
+   "latency_h": 8.95,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0032332",
+   "read_id": "R0044678",
+   "from": "run:R0032332",
+   "to": "[CREDENTIAL 1720]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write POSTs to the dataset; the read GETs the same place followed by '/'+name, so the place may be an owner, not one repository",
+   "also": [],
+   "write_snippet": "h (28 slots) ── x=new XMLHttpRequest;x.open('POST','https://huggingface.co/api/datasets/[HF REPO]','application/x-ndjson",
+   "read_snippet": "ync n=>{let r=await fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO]/'+n,{headers:{Authoriz",
+   "latency_h": 8.95,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0044824",
+   "read_id": "R0045338",
+   "from": "[CREDENTIAL 1720]",
+   "to": "run:R0045338",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO 646]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "true_message",
+   "reason": "write is a POST to …/commit/main of this dataset; 2 h later an anonymous run GETs the dataset's API entry",
+   "also": [],
+   "write_snippet": "fetch('//huggingface.co/api/datasets/[HF REPO 646]/commit/main',{meth",
+   "read_snippet": "fetch('https://huggingface.co/api/datasets/[HF REPO 646]',{headers:{authori",
+   "latency_h": 2.02,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0045942",
+   "read_id": "R0046036",
+   "from": "run:R0045942",
+   "to": "run:R0046036",
+   "channel_v110": null,
+   "channel_now": "board:zzTEST_BROWSER_CUR7",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write is a WebDAV MKCOL of CHILD_A under the folder; the read fetches random GETCHILD_* names under it, not what was written",
+   "also": [],
+   "write_snippet": "1]/https://packages.hub.ace-research.openai.org/artifactory/github-remote-cache/zzTEST_BROWSER_CUR7/CHILD_A',r;try{r=awa",
+   "read_snippet": "u='https://packages.hub.ace-research.openai.org/artifactory/github-remote-cache/zzTEST_BROWSER_CUR7/GETCHILD_'+i+'_'+Mat",
+   "latency_h": 0.38,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0043679",
+   "read_id": "R0048563",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0048563",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:destination:002586]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "read_not_a_read",
+   "reason": "write is an XHR POST to this dataset; the read is a urlopen Request(…, data=d, method='POST') to the same dataset: also a write",
+   "also": [],
+   "write_snippet": "x=new XMLHttpRequest;x.open('POST','https://huggingface.co/api/datasets/[REDACTED:destination:002586]',f",
+   "read_snippet": ":{'summary':'tiny jwt [ENCODED BLOB] for x in p);u='https://huggingface.co/api/datasets/[REDACTED:destination:002586]';q",
+   "latency_h": 12.94,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0032332",
+   "read_id": "R0049182",
+   "from": "run:R0032332",
+   "to": "run:R0049182",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "the read record is cut off before its verb (text ends at or just after the place), so whether it reads or writes is not in the record",
+   "also": [],
+   "write_snippet": "h (28 slots) ── x=new XMLHttpRequest;x.open('POST','https://huggingface.co/api/datasets/[HF REPO]','application/x-ndjson",
+   "read_snippet": "(async()=>{let r=await fetch('https://huggingface.co/api/datasets/[HF REPO]",
+   "latency_h": 20.52,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0032332",
+   "read_id": "R0050140",
+   "from": "run:R0032332",
+   "to": "[CREDENTIAL 1721]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write POSTs to the dataset; the read GETs the same place followed by '/'+name, so the place may be an owner, not one repository",
+   "also": [],
+   "write_snippet": "h (28 slots) ── x=new XMLHttpRequest;x.open('POST','https://huggingface.co/api/datasets/[HF REPO]','application/x-ndjson",
+   "read_snippet": "romise.all(R.map(n=>fetch('https://[SERVICE HOST 1]/https://huggingface.co/api/datasets/[HF REPO]/'+n,{headers:{Authoriz",
+   "latency_h": 21.44,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0032332",
+   "read_id": "R0050858",
+   "from": "run:R0032332",
+   "to": "run:R0050858",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "the read record is cut off before its verb (text ends at or just after the place), so whether it reads or writes is not in the record",
+   "also": [],
+   "write_snippet": "h (28 slots) ── x=new XMLHttpRequest;x.open('POST','https://huggingface.co/api/datasets/[HF REPO]','application/x-ndjson",
+   "read_snippet": "\\\"import urllib.request as u;r=u.urlopen(u.Request('https://huggingface.co/api/datasets/[HF REPO]",
+   "latency_h": 22.1,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0019298",
+   "read_id": "R0051599",
+   "from": "[CREDENTIAL 169]",
+   "to": "run:R0051599",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[HF REPO 5]",
+   "reported_v110": false,
+   "reported_now": true,
+   "label": "unclear",
+   "reason": "write POSTs guessed access-request endpoints (statuses not in the record); the read GETs the dataset entry; whether any POST took effect is unknown",
+   "also": [],
+   "write_snippet": "T='[CREDENTIAL 169]';B='https://huggingface.co/api/datasets/[HF REPO 5]/';P=['user-access-re",
+   "read_snippet": "\\nfor x in ['https://huggingface.co/api/whoami-v2','https://huggingface.co/api/datasets/[HF REPO 5]']:\\\\\\\\n try:r=u.urlo",
+   "latency_h": 35.38,
+   "disagrees_with_current_code": true,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-all-deliveries"
+  },
+  {
+   "write_id": "R0005366",
+   "read_id": "R0005607",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0005607",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": false,
+   "reported_phase1": true,
+   "label": "true_message",
+   "reason": "write is an LFS batch call with operation 'upload' on this repository; 2.5 h later a run HEADs a file of it",
+   "also": [],
+   "write_snippet": "T='[CREDENTIAL 170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "u='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 2.47,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-after-rule-change"
+  },
+  {
+   "write_id": "R0005366",
+   "read_id": "R0006753",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0006753",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": false,
+   "reported_phase1": true,
+   "label": "true_message",
+   "reason": "write is an LFS batch call with operation 'upload' on this repository; 15 h later a run GETs resolve/main/train.jsonl of it (the later reads fall back to this write once the hidden-operation LFS batches are dropped)",
+   "also": [],
+   "write_snippet": "T='[CREDENTIAL 170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "LHttpRequest;x.open('GET','https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 15.43,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-after-rule-change"
+  },
+  {
+   "write_id": "R0005366",
+   "read_id": "R0006788",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0006788",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": false,
+   "reported_phase1": true,
+   "label": "true_message",
+   "reason": "write is an LFS batch call with operation 'upload' on this repository; 16 h later a run GETs resolve/main/train.jsonl of it (the later reads fall back to this write once the hidden-operation LFS batches are dropped)",
+   "also": [],
+   "write_snippet": "T='[CREDENTIAL 170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "LHttpRequest;x.open('GET','https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 15.84,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-after-rule-change"
+  },
+  {
+   "write_id": "R0005366",
+   "read_id": "R0006791",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0006791",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": false,
+   "reported_phase1": true,
+   "label": "true_message",
+   "reason": "write is an LFS batch call with operation 'upload' on this repository; 16 h later a run GETs resolve/main/train.jsonl of it (the later reads fall back to this write once the hidden-operation LFS batches are dropped)",
+   "also": [],
+   "write_snippet": "T='[CREDENTIAL 170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "LHttpRequest;x.open('GET','https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 15.87,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-after-rule-change"
+  },
+  {
+   "write_id": "R0005366",
+   "read_id": "R0006792",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0006792",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": false,
+   "reported_phase1": true,
+   "label": "true_message",
+   "reason": "write is an LFS batch call with operation 'upload' on this repository; 16 h later a run GETs resolve/main/train.jsonl of it (the later reads fall back to this write once the hidden-operation LFS batches are dropped)",
+   "also": [],
+   "write_snippet": "T='[CREDENTIAL 170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "LHttpRequest;x.open('GET','https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 15.88,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-after-rule-change"
+  },
+  {
+   "write_id": "R0005366",
+   "read_id": "R0006793",
+   "from": "[CREDENTIAL 170]",
+   "to": "run:R0006793",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": false,
+   "reported_phase1": true,
+   "label": "true_message",
+   "reason": "write is an LFS batch call with operation 'upload' on this repository; 16 h later a run GETs resolve/main/train.jsonl of it (the later reads fall back to this write once the hidden-operation LFS batches are dropped)",
+   "also": [],
+   "write_snippet": "T='[CREDENTIAL 170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "LHttpRequest;x.open('GET','https://[SERVICE HOST 9]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 15.9,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "involves_run",
+   "audited_in": "phase1-after-rule-change"
+  },
+  {
+   "write_id": "R0005366",
+   "read_id": "R0007854",
+   "from": "[CREDENTIAL 170]",
+   "to": "[CREDENTIAL 220]",
+   "channel_v110": null,
+   "channel_now": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+   "reported_v110": false,
+   "reported_now": false,
+   "reported_phase1": true,
+   "label": "true_message",
+   "reason": "write is an LFS batch call with operation 'upload' on this repository; 20 h later another token GETs the refs/convert/parquet file of it",
+   "also": [],
+   "write_snippet": "T='[CREDENTIAL 170]';U='https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "read_snippet": "fetch(\"https://[SERVICE HOST 1]/https://huggingface.co/datasets/[REDACTED:username:000002]] REPO 1]/",
+   "latency_h": 20.48,
+   "disagrees_with_current_code": false,
+   "endpoint_kind": "named_named",
+   "audited_in": "phase1-after-rule-change"
   }
  ],
  "amendments": [
-  "2026-11-13: after this audit the rule was changed (URLs held in variables are judged by the calls that use them; calls are bounded by their own parentheses; LFS batches by their operation; API path words are not part of a place). 4 links the new rule reports were read and added as true_message. 'reported_now' in each row records the code at audit time; run `python3 -m agenttrace.benchmark run <data>` for the current verdicts."
- ]
+  "2026-11-13: after this audit the rule was changed (URLs held in variables are judged by the calls that use them; calls are bounded by their own parentheses; LFS batches by their operation; API path words are not part of a place). 4 links the new rule reports were read and added as true_message. 'reported_now' in each row records the code at audit time; run `python3 -m agenttrace.benchmark run <data>` for the current verdicts.",
+  "2026-11-13 (phase 1): the 69 deliveries then reported that were not yet audited (all but 5 involve an anonymous run: endpoint) were read and labelled the same way (audited_in 'phase1-all-deliveries'). After the rule changes below, 7 more links appeared (the later readers of one LFS-upload write, once the hidden-operation LFS batches in front of it were dropped); they were read and added (audited_in 'phase1-after-rule-change', reported_phase1 true). 'reported_now' for every row records the code at audit time, before the phase-1 rule changes."
+ ],
+ "counts_by_endpoint_kind": {
+  "named_named": {
+   "different_repo": 4,
+   "false_write_lfs_or_urlopen": 9,
+   "read_not_a_read": 14,
+   "true_message": 6,
+   "false_write": 149,
+   "unclear": 1
+  },
+  "involves_run": {
+   "true_message": 12,
+   "unclear": 26,
+   "read_not_a_read": 9,
+   "false_write": 28
+  }
+ }
 }

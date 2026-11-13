@@ -123,3 +123,5 @@ th.ch-g-ro{color:#5c6672}th.ch-g-never{color:#6b56a0}
 .ch-smallkinds th.n{width:52px}
 .ch-smallkinds td{overflow-wrap:anywhere}
 .ch-smallkinds .ent{white-space:normal}
+
+.ch-moved{margin:2px 0 8px;padding:6px 9px;border-left:3px solid #0f766e;background:#f1f8f7;border-radius:0 6px 6px 0}

@@ -34,3 +34,6 @@
 .fxa-trust{margin:0 0 10px;padding-left:18px;font-size:12.5px;line-height:1.5}
 .fxa-two{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
 .fxa-two>*,.fxa-pair>*,.fxa-row>*{min-width:0}
+.fxa-ws{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 6px}
+.fxa-w{font-size:11px;background:#f2f4f6;border-radius:9px;padding:2px 8px;color:#39424d}
+.fxa-w b{font-variant-numeric:tabular-nums}

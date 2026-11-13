@@ -180,9 +180,25 @@ def _base(s):
     return c
 
 
-def _attribute(s, hide=frozenset()):
+def _agents(s):
+    """actor token -> estimated agent (the busiest token of its merge group), as the Agents view estimates it."""
+    c = getattr(s, "_attr_agents", None)
+    if c is None:
+        try:
+            from . import fx_whatif
+            c = dict(fx_whatif._agent_map(s, "estimate")[0] or {})
+        except Exception:
+            c = {}
+        s._attr_agents = c
+    return c
+
+
+def _attribute(s, hide=frozenset(), agent=None):
     """Attribute every anonymous run. hide: thread roots of named threads to treat as anonymous
-    (their own identity tokens are never features). Returns the full working result."""
+    (their own identity tokens are never features). agent: actor token -> estimated agent; when given,
+    the tokens of one agent count as one named actor (a string used by two tokens of one agent is
+    still used by one actor). Returns the full working result."""
+    ag = (lambda a: agent.get(a, a)) if agent else (lambda a: a)
     b = _base(s)
     feats, root, messaged = b["feats"], b["root"], b["messaged"]
     named_units = {}                       # thread root -> named actor
@@ -194,6 +210,7 @@ def _attribute(s, hide=frozenset()):
         a, ak = s.actor[rid]
         r = root[rid]
         if ak != "run" and r not in hide:
+            a = ag(a)
             named_actions += 1
             named_units[r] = a
             for k in feats[rid]:
@@ -213,7 +230,7 @@ def _attribute(s, hide=frozenset()):
     named_df = {k: sum(len(v) for v in d.values()) for k, d in by.items()}
     for k in list(by):                     # a credential feature is evidence only for the actor it names
         if k[0] == "credential":
-            by[k] = {k[1]: by[k].get(k[1], set())} if k[1] in set(named_units.values()) else {}
+            by[k] = {ag(k[1]): by[k].get(ag(k[1]), set())} if ag(k[1]) in set(named_units.values()) else {}
     actors_all = set(named_units.values())
 
     links = {}
@@ -222,8 +239,8 @@ def _attribute(s, hide=frozenset()):
         cand = defaultdict(list)
         for k in f:
             if k[0] == "credential":
-                if k[1] in actors_all:
-                    cand[k[1]].append((k, False, 1.0, 1, anon_df[k] + named_df.get(k, 0)))
+                if ag(k[1]) in actors_all:
+                    cand[ag(k[1])].append((k, False, 1.0, 1, anon_df[k] + named_df.get(k, 0)))
                 continue
             d = by.get(k)
             if not d or k in messaged:
@@ -322,6 +339,251 @@ def _attribute(s, hide=frozenset()):
             "named_actions": named_actions, "pairs": pairs, "post": post, "weak": weak, "circ_only": circ_only}
 
 
+# ------------------------------------------------------------------ second pass: place and time
+
+TIME_W = 600                 # seconds: a named record this close in time to a run can be evidence
+PLACE_MAX = 100              # a place touched by more runs than this is not specific
+TRAIN_SEEDS = (3, 4)         # halves hidden to learn the weights; holdout() scores on other halves
+EXTRA_TARGET = {"high": 0.99, "medium": 0.96, "low": 0.86}   # floors: the bands the first pass shipped with
+MIN_BAND_ROWS = 25
+EXTRA_KEYS = ("pre", "combo", "fam")
+EXTRA_KINDS = {
+    "place": "Touches a place only one named actor touches",
+    "pre": "Same program opening within 10 minutes of the actor's own",
+    "combo": "Same host and code style within 10 minutes of the actor's own",
+    "fam": "Identical program within 10 minutes of the actor's own",
+    "own": "Program opening used almost only by this actor's records",
+}
+FEATURES = ("bias", "one place", "two or more places", "log(1+ same opening)", "log(1+ same host+style)", "log(1+ same program)",
+            "rival evidence share", "log(1+ records of the owner)")
+
+
+def _pt_base(s):
+    """Places each run touches (from the channel operations); computed once per session."""
+    c = getattr(s, "_attr_pt", None)
+    if c is not None:
+        return c
+    root = s.res["_root"]
+    unit_ch, ch_units = defaultdict(set), defaultdict(set)
+    for ch, _op, _a, _ak, _t, _i, rid in s.op_list:
+        unit_ch[root[rid]].add(ch)
+        ch_units[ch].add(root[rid])
+    c = s._attr_pt = {"unit_ch": unit_ch, "ch_n": {k: len(v) for k, v in ch_units.items()}}
+    return c
+
+
+def _evidence(s, res, hide, agent):
+    """For each run with no first-pass link: actor -> Counter of place and time evidence kinds.
+    place  a place the run touches that exactly one named actor touches (and few runs touch)
+    pre / combo / fam  named records within TIME_W seconds that share the run's program opening,
+           host + code style, or exact program"""
+    import bisect
+    ag = (lambda a: agent.get(a, a)) if agent else (lambda a: a)
+    b, pt = _base(s), _pt_base(s)
+    feats, root, times = b["feats"], b["root"], s.rec["_times"]
+    unit_ch, ch_n = pt["unit_ch"], pt["ch_n"]
+    ch_named, idx, pre_own = defaultdict(set), defaultdict(list), defaultdict(Counter)
+    for rid in b["acts"]:
+        a, ak = s.actor[rid]
+        if ak == "run" or root[rid] in hide:
+            continue
+        a = ag(a)
+        for ch in unit_ch.get(root[rid], ()):
+            ch_named[ch].add(a)
+        tm = times.get(rid)
+        if tm is not None:
+            for k in feats[rid]:
+                if k[0] in EXTRA_KEYS:
+                    idx[k].append((tm, a))
+        for k in feats[rid]:
+            if k[0] == "pre":
+                pre_own[k][a] += 1
+    for v in idx.values():
+        v.sort()
+    out = {}
+    for u, recs in res["unit_recs"].items():
+        if u in res["links"]:
+            continue
+        ev = defaultdict(Counter)
+        for ch in unit_ch.get(u, ()):
+            d = ch_named.get(ch)
+            if d and len(d) == 1 and ch_n[ch] <= PLACE_MAX:
+                ev[next(iter(d))]["place"] += 1
+        for rid in recs:
+            tm = times.get(rid)
+            if tm is None:
+                continue
+            for k in feats[rid]:
+                v = idx.get(k) if k[0] in EXTRA_KEYS else None
+                if not v:
+                    continue
+                i = bisect.bisect_left(v, (tm - TIME_W, ""))
+                while i < len(v) and v[i][0] <= tm + TIME_W:
+                    ev[v[i][1]][k[0]] += 1
+                    i += 1
+        for rid in recs:      # a program opening that (almost) only one actor's records carry
+            for k in feats[rid]:
+                c = pre_own.get(k) if k[0] == "pre" else None
+                if not c:
+                    continue
+                (a1, n1), *rest = c.most_common(2)
+                if n1 >= 2 and (not rest or n1 >= 10 * rest[0][1]):
+                    ev[a1]["own"] = max(ev[a1]["own"], n1)
+        if ev:
+            out[u] = ev
+    return out
+
+
+def _weight(c):
+    return 3 * c["place"] + c["pre"] + 0.5 * c["combo"] + c["fam"] + 0.3 * min(c["own"], 5)
+
+
+def _top(ev):
+    order = sorted(ev, key=lambda a: (-_weight(ev[a]), a))
+    top = order[0]
+    rival = _weight(ev[order[1]]) / _weight(ev[top]) if len(order) > 1 and _weight(ev[top]) else 0.0
+    return top, min(1.0, rival)
+
+
+def _vec(c, rival):
+    from math import log1p
+    return (1.0, 1.0 if c["place"] == 1 else 0.0, 1.0 if c["place"] >= 2 else 0.0, log1p(c["pre"]),
+            log1p(c["combo"]), log1p(c["fam"]), rival, log1p(c["own"]))
+
+
+def _solve(A, y):
+    n = len(y)
+    M = [row[:] + [y[i]] for i, row in enumerate(A)]
+    for i in range(n):
+        piv = max(range(i, n), key=lambda r: abs(M[r][i]))
+        M[i], M[piv] = M[piv], M[i]
+        d = M[i][i] or 1e-12
+        for j in range(i, n + 1):
+            M[i][j] /= d
+        for r in range(n):
+            if r != i and M[r][i]:
+                f = M[r][i]
+                for j in range(i, n + 1):
+                    M[r][j] -= f * M[i][j]
+    return [M[i][n] for i in range(n)]
+
+
+def _fit(rows, iters=25, ridge=1.0):
+    """Logistic regression by IRLS on (vector, correct) rows, grouped by identical vector."""
+    from math import exp
+    g = defaultdict(lambda: [0, 0])
+    for x, ok in rows:
+        key = tuple(round(v, 3) for v in x)
+        g[key][0] += 1
+        g[key][1] += ok
+    d = len(FEATURES)
+    w = [0.0] * d
+    for _ in range(iters):
+        grad, H = [0.0] * d, [[0.0] * d for _ in range(d)]
+        for x, (n, k) in g.items():
+            z = max(-30.0, min(30.0, sum(wi * xi for wi, xi in zip(w, x))))
+            p = 1 / (1 + exp(-z))
+            for i in range(d):
+                grad[i] += (k - n * p) * x[i]
+                for j in range(d):
+                    H[i][j] += n * p * (1 - p) * x[i] * x[j]
+        for i in range(1, d):
+            grad[i] -= ridge * w[i]
+            H[i][i] += ridge
+        H[0][0] += 1e-6
+        step = _solve(H, grad)
+        w = [wi + si for wi, si in zip(w, step)]
+        if max(abs(v) for v in step) < 1e-6:
+            break
+    return w
+
+
+def _prob(w, x):
+    from math import exp
+    z = max(-30.0, min(30.0, sum(wi * xi for wi, xi in zip(w, x))))
+    return 1 / (1 + exp(-z))
+
+
+def _cutoffs(scored, target):
+    """scored: [(p, correct)]. Walk down from the most confident: each band takes rows until its own
+    precision would fall below the target (with at least MIN_BAND_ROWS rows)."""
+    scored = sorted(scored, key=lambda r: -r[0])
+    cuts, i = {}, 0
+    for bnd in BANDS:
+        k = n = 0
+        best, j = i, i
+        while j < len(scored):
+            k += scored[j][1]
+            n += 1
+            j += 1
+            if n >= MIN_BAND_ROWS and k / n >= target[bnd]:
+                best = j
+        if best == i:
+            cuts[bnd] = None
+            continue
+        cuts[bnd] = scored[best - 1][0]
+        i = best
+    return cuts
+
+
+def _train(s, agent=None):
+    """Learn the weights and the band cut-offs on halves hidden with TRAIN_SEEDS. Cached per session."""
+    key = "_attr_model_agent" if agent else "_attr_model"
+    c = getattr(s, key, None)
+    if c is not None:
+        return c
+    rows, n_hidden, first = [], 0, Counter()
+    for seed in TRAIN_SEEDS:
+        hide = _hide_half(s, seed)
+        res = _attribute(s, hide, agent)
+        for u, ln in res["links"].items():
+            if u in hide:
+                first[(ln["band"], ln["actor"] == (agent or {}).get(s.actor[u][0], s.actor[u][0]))] += 1
+        ev = _evidence(s, res, hide, agent)
+        n_hidden += len(hide)
+        for u, e in ev.items():
+            if u not in hide:      # a real anonymous run has no truth to score
+                continue
+            top, rival = _top(e)
+            truth = (agent or {}).get(s.actor[u][0], s.actor[u][0])
+            rows.append((_vec(e[top], rival), 1 if top == truth else 0))
+    if len(rows) < MIN_BAND_ROWS:
+        m = {"weights": None, "cuts": {}, "rows": len(rows), "seeds": list(TRAIN_SEEDS)}
+    else:
+        w = _fit(rows)
+        scored = [(_prob(w, x), ok) for x, ok in rows]
+        # each band must be at least as precise as the first pass was in the same band on the same halves, plus a margin
+        target = {}
+        for bnd in BANDS:
+            n = first[(bnd, True)] + first[(bnd, False)]
+            target[bnd] = min(0.995, max(EXTRA_TARGET[bnd], (first[(bnd, True)] / n if n else 0) + 0.005))
+        m = {"weights": w, "cuts": _cutoffs(scored, target), "targets": {k: round(v, 3) for k, v in target.items()},
+             "rows": len(rows), "seeds": list(TRAIN_SEEDS),
+             "train_precision": round(sum(ok for _, ok in rows) / len(rows), 4)}
+    setattr(s, key, m)
+    return m
+
+
+def _extra_links(s, res, hide, agent, model):
+    """Add links for runs the first pass left unlinked. Mutates res["links"]; returns the new ones."""
+    cuts = model.get("cuts") or {}
+    w = model.get("weights")
+    if not w or not any(cuts.values()):
+        return {}
+    new = {}
+    for u, e in _evidence(s, res, hide, agent).items():
+        top, rival = _top(e)
+        p = _prob(w, _vec(e[top], rival))
+        band = next((bnd for bnd in BANDS if cuts.get(bnd) is not None and p >= cuts[bnd]), None)
+        if not band:
+            continue
+        kinds = sorted(k for k, n in e[top].items() if n)
+        new[u] = {"actor": top, "band": band, "score": round(p, 3), "direct": 0, "support": 0, "direct_features": 0,
+                  "conflict": None, "items": [], "extra": {"kinds": kinds, "counts": dict(e[top]), "p": round(p, 3), "rival": round(rival, 2)}}
+    res["links"].update(new)
+    return new
+
+
 # ------------------------------------------------------------------ validation
 
 def _wilson(k, n):
@@ -352,12 +614,18 @@ def _hide_half(s, seed, share=0.5):
     return frozenset(r for r in roots if rng.random() < share)
 
 
-def holdout(s, seeds=(1, 2), agent_of=None, big=3, merged_of=None):
+def holdout(s, seeds=(1, 2), agent_of=None, big=3, merged_of=None, agent=None, model=None):
     """Hide the token of half of the named threads, attribute them like anonymous runs, and score.
     agent_of: actor token -> true agent (simulated swarms); without it the hidden token is the truth,
-    which undercounts when one agent holds several tokens. Pooled over seeds."""
+    which undercounts when one agent holds several tokens. agent: the estimated-agent layer used by
+    the attribution itself (usually the same map as agent_of). model: learned place/time weights; when
+    given, runs the first pass left unlinked get second-pass links, scored separately and merged.
+    Pooled over seeds."""
     b = _base(s)
     counts, counts_small, wrong_kinds, counts_m = Counter(), Counter(), Counter(), Counter()
+    counts_first, counts_extra, counts_single, kinds_ok = Counter(), Counter(), Counter(), defaultdict(lambda: [0, 0])
+    groups = Counter((agent_of or {}).values())
+    multi = {a for a, g in (agent_of or {}).items() if groups[g] > 1}
     cl_ok_m = 0
     mt = lambda a: (merged_of or {}).get(a, a)
     hidden_n = 0
@@ -367,7 +635,9 @@ def holdout(s, seeds=(1, 2), agent_of=None, big=3, merged_of=None):
     truth = lambda a: (agent_of or {}).get(a, a)
     for seed in seeds:
         hide = _hide_half(s, seed)
-        res = _attribute(s, hide)
+        res = _attribute(s, hide, agent)
+        first_links = set(res["links"])
+        new = _extra_links(s, res, hide, agent, model) if model else {}
         true_of = {}
         for u in hide:
             recs = res["unit_recs"].get(u)
@@ -380,6 +650,13 @@ def holdout(s, seeds=(1, 2), agent_of=None, big=3, merged_of=None):
                 continue
             ok = truth(ln["actor"]) == t
             counts[(ln["band"], ok)] += 1
+            (counts_first if u in first_links else counts_extra)[(ln["band"], ok)] += 1
+            if s.actor[u][0] not in multi:
+                counts_single[(ln["band"], ok)] += 1
+            if u in new:
+                kk = "+".join(ln["extra"]["kinds"])
+                kinds_ok[kk][0] += 1
+                kinds_ok[kk][1] += ok
             counts_m[(ln["band"], mt(ln["actor"]) == mt(t))] += 1
             if t not in {truth(x) for x in bigs}:
                 counts_small[(ln["band"], ok)] += 1
@@ -403,6 +680,12 @@ def holdout(s, seeds=(1, 2), agent_of=None, big=3, merged_of=None):
             "cluster_pair_precision": round(cl_ok / cl_n, 4) if cl_n else None,
             "wrong_evidence": {f"{bnd}:{k}": n for (bnd, k), n in wrong_kinds.most_common(8)},
             "bands_merged": _band_rows(counts_m) if merged_of else None,
+            "bands_first_pass": _band_rows(counts_first) if model else None,
+            "bands_second_pass": _band_rows(counts_extra) if model else None,
+            "bands_single_token_agents": _band_rows(counts_single) if agent_of else None,
+            "second_pass_kinds": [{"kinds": k, "links": v[0], "precision": round(v[1] / v[0], 4)} for k, v in
+                                  sorted(kinds_ok.items(), key=lambda x: -x[1][0])[:8]] if model else None,
+            "tokens_in_merged_agents": len(multi),
             "cluster_pair_precision_merged": round(cl_ok_m / cl_n, 4) if cl_n and merged_of else None,
             "merged_tokens": len(merged_of or {}),
             "truth": "simulated agent" if agent_of else "hidden token"}
@@ -479,6 +762,77 @@ def score_swarms(path=None, limit=MAX_SWARMS):
     return out
 
 
+# ------------------------------------------------------------------ template families
+
+TF_MIN = 20          # a template family has at least this many actions with the same masked program
+TF_RARE = 4          # a constant counts for sub-clustering when at most this many family members carry it
+TF_SHARED = 3        # a member joins a sub-cluster when it shares this many such constants with the cluster's first member
+TF_TOP = 24
+
+
+def template_families(s, res, agent=None):
+    """Large families of one masked program (text identical once ids, numbers and hex are masked), split
+    into sub-clusters by shared rare constants. The split is not chained: a member joins the sub-cluster
+    whose first member (its leader) it shares at least TF_SHARED rare constants with, never one that only a
+    friend of a friend shares. A family or sub-cluster is a template, not an agent: many agents can run
+    the same program. What it can say is which named actors are known to use it."""
+    b = _base(s)
+    feats, root, times = b["feats"], b["root"], s.rec["_times"]
+    ag = (lambda a: agent.get(a, a)) if agent else (lambda a: a)
+    fam = defaultdict(list)
+    for rid in b["acts"]:
+        for k in feats[rid]:
+            if k[0] == "fam":
+                fam[k].append(rid)
+    big = {k: v for k, v in fam.items() if len(v) >= TF_MIN}
+    links = res["links"]
+    anon_total = len(res["unit_recs"])
+    rows, anon_in, unattr_in, clustered_runs, clusters_n = [], 0, 0, 0, 0
+    for k, members in big.items():
+        members.sort(key=lambda r: (times.get(r) is None, times.get(r) or 0, r))
+        df = Counter()
+        for r in members:
+            df.update(c for c in feats[r] if c[0] in ("ph", "str", "id", "name"))
+        leaders, post, cl = [], defaultdict(list), []
+        for r in members:
+            mine = [c for c in feats[r] if c[0] in ("ph", "str", "id", "name") and df[c] <= TF_RARE]
+            hits = Counter()
+            for c in mine:
+                for li in post.get(c, ()):
+                    hits[li] += 1
+            best = max(hits.items(), key=lambda x: (x[1], -x[0]), default=None)
+            if best and best[1] >= TF_SHARED:
+                cl[best[0]].append(r)
+            else:
+                li = len(leaders)
+                leaders.append(r)
+                cl.append([r])
+                for c in mine:
+                    post[c].append(li)
+        anon = [r for r in members if s.actor[r][1] == "run"]
+        anon_in += len(anon)
+        unattr_in += sum(1 for r in anon if root[r] not in links)
+        named = Counter(ag(s.actor[r][0]) for r in members if s.actor[r][1] != "run")
+        multi = [c for c in cl if len(c) >= 2]
+        clusters_n += len(multi)
+        clustered_runs += sum(1 for c in multi for r in c if s.actor[r][1] == "run")
+        ts = sorted(times[r] for r in members if times.get(r) is not None)
+        rows.append({"records": len(members), "runs": len(anon), "named_actions": len(members) - len(anon),
+                     "actors": [{"actor": a, "records": n} for a, n in named.most_common(4)], "actors_total": len(named),
+                     "first": reconstruct.iso(ts[0]) if ts else None, "last": reconstruct.iso(ts[-1]) if ts else None,
+                     "example": members[0], "snippet": _snip(s.by_id[members[0]].text),
+                     "clusters": len(multi), "clustered_runs": sum(1 for c in multi for r in c if s.actor[r][1] == "run"),
+                     "unattributed_runs": sum(1 for r in anon if root[r] not in links),
+                     "sub": [{"records": len(c), "first_record": c[0],
+                              "shared": [_label(x)[:60] for x, _n in Counter(x for r in c for x in feats[r] if x[0] in ("ph", "str", "id", "name") and df[x] <= TF_RARE).most_common(3)]}
+                             for c in sorted(multi, key=lambda c: (-len(c), c[0]))[:5]]})
+    rows.sort(key=lambda r: (-r["records"], r["example"]))
+    return {"families": len(big), "min_size": TF_MIN, "runs_in_families": anon_in,
+            "share_of_runs": round(anon_in / anon_total, 4) if anon_total else None,
+            "unattributed_runs_in_families": unattr_in, "subclusters": clusters_n, "runs_in_subclusters": clustered_runs,
+            "rare_constant_max": TF_RARE, "shared_min": TF_SHARED, "top": rows[:TF_TOP]}
+
+
 # ------------------------------------------------------------------ summary for the app
 
 def _merged_tokens(s):
@@ -526,7 +880,12 @@ def attribution(s):
     if c is not None:
         return c
     t0 = time.time()
-    res = _attribute(s)
+    agent = _agents(s)
+    res = _attribute(s)                           # the first pass, on tokens
+    before = Counter(ln["band"] for ln in res["links"].values())
+    first_links = set(res["links"])
+    model = _train(s, None)                       # second pass: place and time, weights learned on hidden halves
+    new = _extra_links(s, res, frozenset(), None, model)
     t1 = time.time()
     times = s.rec["_times"]
     links, units = res["links"], res["unit_recs"]
@@ -542,11 +901,13 @@ def attribution(s):
         bands[bnd]["runs"] += 1
         bands[bnd]["actions"] += len(recs)
         if ln:
-            per_actor[ln["actor"]][bnd] += 1
+            per_actor[agent.get(ln["actor"], ln["actor"])][bnd] += 1
             if ln.get("via_cluster"):
                 kinds["cluster"] += 1
             for kind in {k[0] for k, *_ in ln["items"]}:
                 kinds[kind] += 1
+            for kind in (ln.get("extra") or {}).get("kinds", ()):
+                kinds["x_" + kind] += 1
             for kind in {k[0] for k, direct, *_ in ln["items"] if direct}:
                 kinds_direct[kind] += 1
     per_actor_all = {s.actor[r][0] for r in _base(s)["acts"] if s.actor[r][1] != "run"}
@@ -579,11 +940,20 @@ def attribution(s):
         "runs": len(units), "actions": anon_actions, "actions_total": total_actions, "named_actions": res["named_actions"],
         "named_actors": len({a for a in set(s.actor[r][0] for r in _base(s)["acts"]) if not a.startswith("run:")}),
         "bands": bands,
+        "bands_before": {**{bnd: before.get(bnd, 0) for bnd in BANDS}, "unattributed": len(units) - sum(before.values())},
+        "second_pass_links": {bnd: sum(1 for ln in new.values() if ln["band"] == bnd) for bnd in BANDS},
+        "agent_layer": {"tokens": len(agent), "agents": len(set(agent.values())), "merged_tokens": sum(1 for a, g in agent.items() if a != g),
+                        "merged_agents": len({g for a, g in agent.items() if a != g})},
+        "model": {"weights": dict(zip(FEATURES, [round(w, 2) for w in model["weights"]])) if model.get("weights") else None,
+                  "cutoffs": {k: (round(v, 3) if v is not None else None) for k, v in (model.get("cuts") or {}).items()},
+                  "targets": model.get("targets"), "training_rows": model.get("rows"), "training_seeds": model.get("seeds"),
+                  "window_s": TIME_W, "place_max_runs": PLACE_MAX},
         "known_share_before": round(res["named_actions"] / total_actions, 4) if total_actions else None,
         "single_coincidence_runs": res["weak"], "circumstantial_only_runs": res["circ_only"],
         "clusters_total": len(res["clusters"]), "clustered_runs": clustered, "clustered_unattributed_runs": in_cluster_only,
         "clusters_named": sum(1 for cl in res["clusters"] if cl["actor"]),
-        "evidence_kinds": [{"key": k, "label": KINDS[k][0], "runs": n, "direct_runs": kinds_direct.get(k, 0)} for k, n in kinds.most_common()],
+        "evidence_kinds": [{"key": k, "label": EXTRA_KINDS[k[2:]] if k.startswith("x_") else KINDS[k][0], "runs": n, "direct_runs": kinds_direct.get(k, 0),
+                            "second_pass": k.startswith("x_")} for k, n in kinds.most_common()],
         "clusters": [cluster_row(cl, True) for cl in res["clusters"][:TOP_CLUSTERS]],
         "bubbles": [cluster_row(cl, False) for cl in res["clusters"][:BUBBLES]],
         "actors": sorted(({"actor": a, **v, "runs": sum(v.values())} for a, v in per_actor.items()), key=lambda x: (-x["runs"], x["actor"]))[:60],
@@ -601,14 +971,40 @@ def attribution(s):
     out["examples"] = ex
     s._attr_res = res
     out["seconds_attribute"] = round(t1 - t0, 2)
+    out["template_families"] = template_families(s, res, agent)
     out["credential_carriers"] = sum(1 for f in res["unit_feats"].values() if any(k[0] == "credential" and k[1] in per_actor_all for k in f))
     try:
-        out["holdout"] = holdout(s, seeds=(1, 2), merged_of=_merged_tokens(s))
+        out["holdout"] = holdout(s, seeds=(1, 2), model=model, merged_of=agent)
     except Exception as e:      # pragma: no cover
         out["holdout"] = {"error": str(e)}
     out["seconds"] = round(time.time() - t0, 2)
     s._attribution = out
     return out
+
+
+def resolve(s):
+    """Who did each action? record id -> {"actor": token or agent, "band": "named"|"high"|"medium"|"low"|None,
+    "via": "token"|"run link"|None}. Named actions are their own actor; anonymous runs take the actor
+    their link names (None when unattributed). Cached on the session."""
+    c = getattr(s, "_attr_resolve", None)
+    if c is not None:
+        return c
+    attribution(s)
+    res = s._attr_res
+    out = {}
+    for rid in _base(s)["acts"]:
+        a, ak = s.actor[rid]
+        if ak != "run":
+            out[rid] = {"actor": a, "band": "named", "via": "token"}
+            continue
+        ln = res["links"].get(res_root(s, rid))
+        out[rid] = {"actor": ln["actor"], "band": ln["band"], "via": "run link"} if ln else {"actor": None, "band": None, "via": None}
+    s._attr_resolve = out
+    return out
+
+
+def res_root(s, rid):
+    return s.res["_root"][rid]
 
 
 def run_detail(s, rid):
@@ -640,6 +1036,11 @@ def run_detail(s, rid):
                 "named_actors": na, "runs_with_it": df, "support_threads": sup,
                 "here": _snip(text, tok) if tok and tok in text else None,
                 "there": {"id": sup_rec.id, "snippet": _snip(sup_rec.text, tok)} if sup_rec is not None and tok else None})
+        for kind, n in sorted(((ln.get("extra") or {}).get("counts") or {}).items()):
+            if n:
+                out["evidence"].append({"kind": "x_" + kind, "label": EXTRA_KINDS[kind], "token": f"{n} " + ("place" if kind == "place" else "record") + ("s" if n != 1 else ""),
+                                        "direct": False, "points": 0, "named_actors": 1, "runs_with_it": None, "support_threads": [],
+                                        "here": None, "there": None})
         if ln.get("via_cluster"):
             out["evidence"].append({"kind": "cluster", "label": KINDS["cluster"][0], "token": f"cluster {ln['via_cluster']}",
                                     "direct": False, "points": 0, "named_actors": 1, "runs_with_it": None, "support_threads": []})
@@ -665,6 +1066,16 @@ def run_detail(s, rid):
 
 # ------------------------------------------------------------------ routes
 
+def holdout_agent_pooled(s):
+    """Tested and not adopted: pool the tokens of each estimated agent into one named actor before the
+    first pass and the second pass. Truth is the agent."""
+    c = getattr(s, "_attr_pooled", None)
+    if c is None:
+        agent = _agents(s)
+        c = s._attr_pooled = holdout(s, seeds=(1, 2), agent_of=agent, agent=agent, model=_train(s, agent))
+    return c
+
+
 def _get_attribution(state, q):
     return attribution(_need(state))
 
@@ -680,7 +1091,9 @@ def _get_score(state, q):
     out = dict(score_swarms(q.get("path") or None))
     s = state.get("session")
     if s is not None and getattr(s, "loaded", False):
-        out["this_dataset"] = attribution(s).get("holdout")
+        a = attribution(s)
+        out["this_dataset"] = a.get("holdout")
+        out["this_dataset_agent_pooled"] = holdout_agent_pooled(s)
     return out
 
 

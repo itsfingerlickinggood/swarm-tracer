@@ -133,6 +133,102 @@ class TestUnits(unittest.TestCase):
             self.assertEqual(row["by_agent"] and row["by_agent"]["time"], src["after"] and src["after"]["time"])
             self.assertEqual(row["value"], row["by_agent"])
 
+    def _merge_two_runners(self):
+        """Accept a merge between two tokens that both ran one program, so that program has fewer adopters by agent."""
+        for x in insight.spread_detail(self.s):
+            if x["adopters"]:
+                return x["source"], x["adopters"][0]["actor"], x
+        self.skipTest("no spread in the demo")
+
+    def test_spread_by_agent(self):
+        a, b, x = self._merge_two_runners()
+        tok = units.units_spread(self.s)
+        self.assertTrue(tok["summary"]["no_merges"])
+        self.assertEqual(tok["summary"]["programs_agent"], tok["summary"]["programs_token"])
+        self.assertEqual(tok["summary"]["adoptions_agent"], tok["summary"]["adoptions_token"])
+        self.s._id_decisions = {tuple(sorted((a, b))): "accept"}
+        out = units.units_spread(self.s)
+        sm = out["summary"]
+        amap = units.units_map(self.s)["of"]
+        self.assertEqual(amap[a], amap[b])
+        # every adoption the merged pair made between themselves leaves the count; none is added
+        self.assertLess(sm["adoptions_agent"], sm["adoptions_token"])
+        self.assertEqual(sm["adoptions_token"], tok["summary"]["adoptions_token"])
+        self.assertEqual(sm["adoptions_agent"] + sm["inside_one_agent"], sm["adoptions_token"])
+        # an adopter is an agent: each agent appears once per program, and never as its own adopter
+        for row in out["rows"]:
+            who = [row["source"]] + [ad["actor"] for ad in row["adopters"]]
+            self.assertEqual(len(who), len(set(who)))
+            self.assertEqual(row["actors"], len(who))
+            self.assertGreaterEqual(row["actors"], 2)
+        # the program that a and b ran: one adopter fewer than counting tokens
+        row = next((r for r in out["rows"] if r["family"] == x["family"]), None)
+        if row is not None:
+            self.assertEqual(row["token_actors"], x["actors"])
+            self.assertEqual(len(row["adopters"]) + row["inside_one_agent"], len(x["adopters"]))
+        self.assertEqual(sm["programs_agent"] + sm["dropped"], sm["programs_token"])
+
+    def test_spread_program_of_one_agent_drops_out(self):
+        # a program run by exactly two tokens, both of one agent, is no program of two agents
+        two = [x for x in insight.spread_detail(self.s) if x["actors"] == 2]
+        if not two:
+            self.skipTest("no two-runner program in the demo")
+        x = two[0]
+        self.s._id_decisions = {tuple(sorted((x["source"], x["adopters"][0]["actor"]))): "accept"}
+        out = units.units_spread(self.s)
+        self.assertNotIn(x["family"], [r["family"] for r in out["rows"]])
+        self.assertGreaterEqual(out["summary"]["dropped"], 1)
+
+    def test_places_moved(self):
+        before = units.units_places(self.s)["summary"]
+        self.assertTrue(before["no_merges"])
+        self.assertEqual((before["moved"], before["moved_cells"]), (0, 0))
+        self.assertEqual(before["msg_token"], before["msg_agent"])
+        # merge the writer and a reader of one message
+        d = self._named_messages()[0]
+        a, b = d["from"], d["to"]
+        self.s._id_decisions = {tuple(sorted((a, b))): "accept"}
+        out = units.units_places(self.s)
+        sm = out["summary"]
+        self.assertFalse(sm["no_merges"])
+        rows = {r[0]: r for r in out["rows"]}
+        changed = [r for r in out["rows"] if (r[1], r[2]) != (r[6], r[7])]
+        self.assertEqual(sm["moved"], len(changed))
+        self.assertGreaterEqual(sm["moved"], 1)
+        self.assertLessEqual(sm["moved_cells"], sm["moved"])
+        # the place of that message no longer has two writers or two readers for the merged pair
+        r = rows[d["channel"]]
+        self.assertLessEqual(r[1], r[6])
+        self.assertLessEqual(r[2], r[7])
+        self.assertLessEqual(sm["msg_agent"], sm["msg_token"])
+        self.assertLessEqual(sm["messages_agent"], sum(c["deliveries"] for c in self.s.flow["_channels"]))
+        # the lost messages are the units' inside-one-agent count
+        lost = sum(c["deliveries"] for c in self.s.flow["_channels"]) - sm["messages_agent"]
+        self.assertEqual(lost, units.units_summary(self.s, "agent")["inside_one_agent"])
+
+    def test_events_filter_by_agent(self):
+        d = self._named_messages()[0]
+        a, b = d["from"], d["to"]
+        self.s._id_decisions = {tuple(sorted((a, b))): "accept"}
+        m = units.units_map(self.s)
+        g = next(x for x in m["agent_list"] if a in x["tokens"])
+        out = units._events_get(self.state, {"actor": g["id"], "limit": "500"})
+        each = sum(self.s.search("", "", t, "", "", False, 0, 0)["total"] for t in g["tokens"])
+        self.assertEqual(out["total"], each)
+        self.assertEqual(out["agent_tokens"], len(g["tokens"]))
+        self.assertEqual({r["actor"] for r in out["rows"]} - set(g["tokens"]), set())
+        # any token of the agent stands for it
+        other = units._events_get(self.state, {"actor": b, "limit": "0"})
+        self.assertEqual(other["total"], out["total"])
+        # no filter: the busiest actors are agents, and the merged agent's count is its tokens' together
+        free = units._events_get(self.state, {"limit": "0"})
+        facet = dict(free["facets"]["actor"])
+        full = dict(units._actor_facet(self.s, {}, top=10 ** 6))
+        self.assertEqual(full.get(g["id"]), each)
+        self.assertNotIn(b if b != g["id"] else a, full)
+        self.assertEqual(sum(full.values()), free["total"])
+        self.assertLessEqual(len(facet), 12)
+
     def test_letters(self):
         self.assertEqual([units._letters(i) for i in (0, 1, 25, 26, 27)], ["A", "B", "Z", "AA", "AB"])
 
