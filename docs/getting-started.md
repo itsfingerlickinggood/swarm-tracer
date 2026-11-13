@@ -9,7 +9,7 @@ Swarm Tracer runs on your machine with Python 3.9 or newer and nothing else. You
 With [pipx](https://pipx.pypa.io/):
 
 ```bash
-pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.4.0
+pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.5.0
 swarm-tracer serve
 ```
 
