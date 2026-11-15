@@ -1,0 +1,834 @@
+{
+ "generated": "2026-11-15 10:27 UTC",
+ "failures": 1,
+ "skipped_datasets": [],
+ "datasets": [
+  {
+   "dataset": "demo swarm",
+   "base": "http://localhost:8023",
+   "mode": "quick",
+   "pages": [
+    {
+     "page": "trace",
+     "hash": "tab=trace",
+     "found": {
+      "input": 1,
+      "button": 9,
+      "term": 2
+     },
+     "exercised": {
+      "input": 1,
+      "button": 1,
+      "term": 1
+     },
+     "passed": {
+      "input": 1,
+      "button": 1,
+      "term": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 3.9
+    },
+    {
+     "page": "overview",
+     "hash": "tab=overview",
+     "found": {
+      "term": 23,
+      "svg-mark": 183,
+      "svg-title": 2,
+      "button": 5,
+      "title-tip": 26,
+      "actor-chip": 31,
+      "record-chip": 5,
+      "pointer": 7,
+      "summary": 1
+     },
+     "exercised": {
+      "term": 1,
+      "svg-mark": 1,
+      "svg-title": 1,
+      "button": 1,
+      "title-tip": 1,
+      "actor-chip": 1,
+      "record-chip": 1,
+      "pointer": 1,
+      "summary": 1
+     },
+     "passed": {
+      "term": 1,
+      "svg-mark": 1,
+      "svg-title": 1,
+      "button": 1,
+      "title-tip": 1,
+      "actor-chip": 1,
+      "record-chip": 1,
+      "pointer": 1
+     },
+     "failed": [
+      {
+       "kind": "summary",
+       "sig": "summary|summary",
+       "n": 0,
+       "note": "dead: no effect",
+       "label": "HOW THE DATA WAS READ"
+      }
+     ],
+     "skipped": [],
+     "load": [],
+     "seconds": 7.0
+    },
+    {
+     "page": "network",
+     "hash": "tab=network",
+     "found": {
+      "term": 7,
+      "title-tip": 9,
+      "actor-chip": 214,
+      "place-chip": 1,
+      "record-chip": 12,
+      "button": 5,
+      "select": 2,
+      "input": 2,
+      "toggle": 2,
+      "svg-title": 200,
+      "svg-mark": 604,
+      "range": 2,
+      "pointer": 7,
+      "row": 50
+     },
+     "exercised": {
+      "term": 1,
+      "title-tip": 1,
+      "actor-chip": 1,
+      "place-chip": 1,
+      "record-chip": 1,
+      "button": 1,
+      "select": 1,
+      "input": 1,
+      "toggle": 1,
+      "svg-title": 1,
+      "svg-mark": 1,
+      "range": 1,
+      "pointer": 1,
+      "row": 1
+     },
+     "passed": {
+      "term": 1,
+      "title-tip": 1,
+      "actor-chip": 1,
+      "place-chip": 1,
+      "record-chip": 1,
+      "button": 1,
+      "select": 1,
+      "input": 1,
+      "toggle": 1,
+      "svg-title": 1,
+      "svg-mark": 1,
+      "range": 1,
+      "pointer": 1,
+      "row": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 10.5
+    },
+    {
+     "page": "timeline",
+     "hash": "tab=timeline",
+     "found": {
+      "term": 11,
+      "title-tip": 74,
+      "svg-mark": 764,
+      "svg-title": 38,
+      "select": 3,
+      "button": 5,
+      "input": 1,
+      "record-chip": 285,
+      "actor-chip": 294,
+      "place-chip": 136,
+      "row": 36
+     },
+     "exercised": {
+      "term": 1,
+      "title-tip": 1,
+      "svg-mark": 1,
+      "svg-title": 1,
+      "select": 1,
+      "button": 1,
+      "input": 1,
+      "record-chip": 1,
+      "actor-chip": 1,
+      "place-chip": 1,
+      "row": 1
+     },
+     "passed": {
+      "term": 1,
+      "title-tip": 1,
+      "svg-mark": 1,
+      "svg-title": 1,
+      "select": 1,
+      "button": 1,
+      "input": 1,
+      "record-chip": 1,
+      "actor-chip": 1,
+      "place-chip": 1,
+      "row": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 9.0
+    },
+    {
+     "page": "channels",
+     "hash": "tab=channels",
+     "found": {
+      "term": 4,
+      "button": 8,
+      "title-tip": 13,
+      "place-chip": 18,
+      "select": 2,
+      "svg-title": 5,
+      "svg-mark": 179,
+      "row": 8
+     },
+     "exercised": {
+      "term": 1,
+      "button": 1,
+      "title-tip": 1,
+      "place-chip": 1,
+      "select": 1,
+      "svg-title": 1,
+      "svg-mark": 1,
+      "row": 1
+     },
+     "passed": {
+      "term": 1,
+      "button": 1,
+      "title-tip": 1,
+      "place-chip": 1,
+      "select": 1,
+      "svg-title": 1,
+      "svg-mark": 1,
+      "row": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 6.4
+    },
+    {
+     "page": "spread",
+     "hash": "tab=spread",
+     "found": {
+      "title-tip": 498,
+      "actor-chip": 32,
+      "term": 8,
+      "input": 1,
+      "select": 1,
+      "pointer": 156,
+      "button": 1,
+      "toggle": 3,
+      "svg-mark": 264,
+      "svg-title": 47,
+      "record-chip": 8,
+      "summary": 1
+     },
+     "exercised": {
+      "title-tip": 1,
+      "actor-chip": 1,
+      "term": 1,
+      "input": 1,
+      "select": 1,
+      "pointer": 1,
+      "button": 1,
+      "toggle": 1,
+      "svg-mark": 1,
+      "svg-title": 1,
+      "record-chip": 1,
+      "summary": 1
+     },
+     "passed": {
+      "title-tip": 1,
+      "actor-chip": 1,
+      "term": 1,
+      "input": 1,
+      "select": 1,
+      "pointer": 1,
+      "button": 1,
+      "toggle": 1,
+      "svg-mark": 1,
+      "svg-title": 1,
+      "record-chip": 1,
+      "summary": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 8.9
+    },
+    {
+     "page": "early",
+     "hash": "tab=early",
+     "found": {
+      "term": 5,
+      "title-tip": 1,
+      "button": 32,
+      "select": 2,
+      "range": 1,
+      "svg-title": 177,
+      "svg-mark": 63,
+      "pointer": 13,
+      "actor-chip": 44,
+      "record-chip": 26
+     },
+     "exercised": {
+      "term": 1,
+      "title-tip": 1,
+      "button": 1,
+      "select": 1,
+      "range": 1,
+      "svg-title": 1,
+      "svg-mark": 1,
+      "pointer": 1,
+      "actor-chip": 1,
+      "record-chip": 1
+     },
+     "passed": {
+      "term": 1,
+      "title-tip": 1,
+      "button": 1,
+      "select": 1,
+      "range": 1,
+      "svg-title": 1,
+      "svg-mark": 1,
+      "pointer": 1,
+      "actor-chip": 1,
+      "record-chip": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 7.3
+    },
+    {
+     "page": "events",
+     "hash": "tab=events",
+     "found": {
+      "input": 2,
+      "select": 4,
+      "toggle": 1,
+      "button": 13,
+      "term": 6,
+      "svg-title": 38,
+      "pointer": 114,
+      "title-tip": 431,
+      "actor-chip": 108,
+      "record-chip": 100,
+      "disabled": 1
+     },
+     "exercised": {
+      "input": 1,
+      "select": 1,
+      "toggle": 1,
+      "button": 1,
+      "term": 1,
+      "svg-title": 1,
+      "pointer": 1,
+      "title-tip": 1,
+      "actor-chip": 1,
+      "record-chip": 1
+     },
+     "passed": {
+      "input": 1,
+      "select": 1,
+      "toggle": 1,
+      "button": 1,
+      "term": 1,
+      "svg-title": 1,
+      "pointer": 1,
+      "title-tip": 1,
+      "actor-chip": 1,
+      "record-chip": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 6.9
+    },
+    {
+     "page": "agents",
+     "hash": "tab=agents",
+     "found": {
+      "title-tip": 6,
+      "count-by": 1,
+      "term": 14,
+      "button": 34,
+      "input": 3,
+      "toggle": 1,
+      "actor-chip": 64,
+      "record-chip": 66
+     },
+     "exercised": {
+      "title-tip": 1,
+      "count-by": 1,
+      "term": 1,
+      "button": 1,
+      "input": 1,
+      "toggle": 1,
+      "actor-chip": 1,
+      "record-chip": 1
+     },
+     "passed": {
+      "title-tip": 1,
+      "count-by": 1,
+      "term": 1,
+      "button": 1,
+      "input": 1,
+      "toggle": 1,
+      "actor-chip": 1,
+      "record-chip": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 13.7
+    },
+    {
+     "page": "forensics",
+     "hash": "tab=forensics",
+     "found": {
+      "input": 1,
+      "button": 4,
+      "term": 1
+     },
+     "exercised": {
+      "input": 1,
+      "button": 1,
+      "term": 1
+     },
+     "passed": {
+      "input": 1,
+      "button": 1,
+      "term": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 3.9
+    },
+    {
+     "page": "compare",
+     "hash": "tab=compare",
+     "found": {
+      "term": 1,
+      "button": 3,
+      "input": 1,
+      "select": 1
+     },
+     "exercised": {
+      "term": 1,
+      "button": 1,
+      "input": 1,
+      "select": 1
+     },
+     "passed": {
+      "term": 1,
+      "button": 1,
+      "input": 1,
+      "select": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 5.0
+    },
+    {
+     "page": "gaps",
+     "hash": "tab=gaps",
+     "found": {
+      "term": 5,
+      "button": 8,
+      "pointer": 4
+     },
+     "exercised": {
+      "term": 1,
+      "button": 1,
+      "pointer": 1
+     },
+     "passed": {
+      "term": 1,
+      "button": 1,
+      "pointer": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 3.5
+    },
+    {
+     "page": "top bar",
+     "hash": "tab=overview",
+     "found": {
+      "title-tip": 3,
+      "term": 5,
+      "count-by": 2,
+      "input": 1,
+      "button": 5
+     },
+     "exercised": {
+      "title-tip": 1,
+      "term": 1,
+      "count-by": 1,
+      "input": 1,
+      "button": 1
+     },
+     "passed": {
+      "title-tip": 1,
+      "term": 1,
+      "count-by": 1,
+      "input": 1,
+      "button": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 6.5
+    },
+    {
+     "page": "inspector",
+     "hash": "tab=overview",
+     "found": {
+      "record-chip": 13,
+      "title-tip": 16,
+      "term": 14,
+      "actor-chip": 24,
+      "svg-mark": 2,
+      "button": 17,
+      "input": 1
+     },
+     "exercised": {
+      "record-chip": 1,
+      "title-tip": 1,
+      "term": 1,
+      "actor-chip": 1,
+      "svg-mark": 1,
+      "button": 1,
+      "input": 1
+     },
+     "passed": {
+      "record-chip": 1,
+      "title-tip": 1,
+      "term": 1,
+      "actor-chip": 1,
+      "svg-mark": 1,
+      "button": 1,
+      "input": 1
+     },
+     "failed": [],
+     "skipped": [],
+     "load": [],
+     "seconds": 8.7
+    }
+   ],
+   "checks": [
+    {
+     "name": "tab click sets #tab=",
+     "ok": true,
+     "note": "S.tab=network hash='#tab=network'"
+    },
+    {
+     "name": "browser back restores the previous tab",
+     "ok": true,
+     "note": "after back: S.tab=network selected=network hash='#tab=network'"
+    },
+    {
+     "name": "browser forward goes on again",
+     "ok": true,
+     "note": "after forward: S.tab=channels selected=channels hash='#tab=channels'"
+    },
+    {
+     "name": "Forensics section click sets fx=",
+     "ok": true,
+     "note": "section=credentials hash='#tab=forensics&fx=credentials'"
+    },
+    {
+     "name": "browser back restores the previous Forensics section",
+     "ok": true,
+     "note": "wanted credentials; section=credentials tab=forensics hash='#tab=forensics&fx=credentials'"
+    },
+    {
+     "name": "leaving Forensics and coming back keeps the section",
+     "ok": true,
+     "note": "wanted credentials; section=credentials"
+    },
+    {
+     "name": "Forensics menu: each of 6 sections opens with its heading and fx=",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "deep link #tab=events&rec= opens the record",
+     "ok": true,
+     "note": "R1000001"
+    },
+    {
+     "name": "no console errors during history navigation",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "#loadbtn opens #loadpanel; Escape closes it",
+     "ok": true,
+     "note": "opened=True closed=True"
+    },
+    {
+     "name": "#glossbtn opens #glossary; Escape closes it",
+     "ok": true,
+     "note": "opened=True closed=True"
+    },
+    {
+     "name": "#aiset opens #aisettings; Escape closes it",
+     "ok": true,
+     "note": "opened=True closed=True"
+    },
+    {
+     "name": "#livebtn opens the Live drawer",
+     "ok": true,
+     "note": "forms,overlays"
+    },
+    {
+     "name": "Escape closes the Live drawer",
+     "ok": true,
+     "note": "closed"
+    },
+    {
+     "name": "#casebtn opens the Case file",
+     "ok": true,
+     "note": "forms,overlays"
+    },
+    {
+     "name": "Escape closes the Case file",
+     "ok": true,
+     "note": "closed"
+    },
+    {
+     "name": "#guidebtn opens the Start here guide",
+     "ok": true,
+     "note": "head,overlays"
+    },
+    {
+     "name": "Escape closes the Start here guide",
+     "ok": true,
+     "note": "closed"
+    },
+    {
+     "name": "search box lists the record typed",
+     "ok": true,
+     "note": "focused=True results shown=True record rows=1"
+    },
+    {
+     "name": "Escape closes the search results",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "Enter in the search box opens the first result in the Inspector",
+     "ok": true,
+     "note": "RECORD\nR1000001"
+    },
+    {
+     "name": "Inspector \u2190 back returns to the previous item",
+     "ok": true,
+     "note": "RECORD\nR1000001"
+    },
+    {
+     "name": "ArrowRight on the tab bar moves to the next tab",
+     "ok": true,
+     "note": "S.tab=network"
+    },
+    {
+     "name": "ArrowLeft moves back",
+     "ok": true,
+     "note": "overview"
+    },
+    {
+     "name": "Tab moves focus through the view",
+     "ok": true,
+     "note": "8 different stops in 8 presses"
+    },
+    {
+     "name": "focused controls show a focus ring",
+     "ok": true,
+     "note": "8/8 stops with an outline or shadow"
+    },
+    {
+     "name": "no console errors during keyboard checks",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "name": "Count-by: units_summary agrees with units_map",
+     "ok": true,
+     "note": "summary 44/44 agents/tokens, 163 messages, 136 pairs; map 44/44, {'token': 163, 'agent': 163, 'inside_one_agent': 0, 'rejected': 0}, {'token': 136, 'agent': 136}"
+    },
+    {
+     "name": "Count-by on overview",
+     "ok": true,
+     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers change and come back"
+    },
+    {
+     "name": "Count-by on network",
+     "ok": true,
+     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers the same and come back"
+    },
+    {
+     "name": "Count-by on timeline",
+     "ok": true,
+     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers the same and come back"
+    },
+    {
+     "name": "Count-by on spread",
+     "ok": true,
+     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers change and come back"
+    },
+    {
+     "name": "Count-by on early",
+     "ok": true,
+     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers the same and come back"
+    },
+    {
+     "name": "Count-by on agents",
+     "ok": true,
+     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers the same and come back"
+    }
+   ],
+   "seconds": 134.3,
+   "console_lines_ignored_from_blocked_writes": 0,
+   "kinds": {
+    "input": {
+     "found": 14,
+     "exercised": 10,
+     "passed": 10,
+     "failed": 0,
+     "skipped": 0
+    },
+    "button": {
+     "found": 149,
+     "exercised": 14,
+     "passed": 14,
+     "failed": 0,
+     "skipped": 0
+    },
+    "term": {
+     "found": 106,
+     "exercised": 14,
+     "passed": 14,
+     "failed": 0,
+     "skipped": 0
+    },
+    "svg-mark": {
+     "found": 2059,
+     "exercised": 7,
+     "passed": 7,
+     "failed": 0,
+     "skipped": 0
+    },
+    "svg-title": {
+     "found": 507,
+     "exercised": 7,
+     "passed": 7,
+     "failed": 0,
+     "skipped": 0
+    },
+    "title-tip": {
+     "found": 1077,
+     "exercised": 10,
+     "passed": 10,
+     "failed": 0,
+     "skipped": 0
+    },
+    "actor-chip": {
+     "found": 811,
+     "exercised": 8,
+     "passed": 8,
+     "failed": 0,
+     "skipped": 0
+    },
+    "record-chip": {
+     "found": 515,
+     "exercised": 8,
+     "passed": 8,
+     "failed": 0,
+     "skipped": 0
+    },
+    "pointer": {
+     "found": 301,
+     "exercised": 6,
+     "passed": 6,
+     "failed": 0,
+     "skipped": 0
+    },
+    "summary": {
+     "found": 2,
+     "exercised": 2,
+     "passed": 1,
+     "failed": 1,
+     "skipped": 0
+    },
+    "place-chip": {
+     "found": 155,
+     "exercised": 3,
+     "passed": 3,
+     "failed": 0,
+     "skipped": 0
+    },
+    "select": {
+     "found": 15,
+     "exercised": 7,
+     "passed": 7,
+     "failed": 0,
+     "skipped": 0
+    },
+    "toggle": {
+     "found": 7,
+     "exercised": 4,
+     "passed": 4,
+     "failed": 0,
+     "skipped": 0
+    },
+    "range": {
+     "found": 3,
+     "exercised": 2,
+     "passed": 2,
+     "failed": 0,
+     "skipped": 0
+    },
+    "row": {
+     "found": 94,
+     "exercised": 3,
+     "passed": 3,
+     "failed": 0,
+     "skipped": 0
+    },
+    "disabled": {
+     "found": 1,
+     "exercised": 0,
+     "passed": 0,
+     "failed": 0,
+     "skipped": 0
+    },
+    "count-by": {
+     "found": 3,
+     "exercised": 2,
+     "passed": 2,
+     "failed": 0,
+     "skipped": 0
+    }
+   }
+  }
+ ]
+}

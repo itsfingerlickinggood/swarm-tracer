@@ -22,3 +22,10 @@ Honest list of what is known to be wrong, weak or untested, kept up to date.
 - **Large swarms draw slowly.** On thousands of actors the network graph is dense and some charts cap what they draw (they say so).
 - **A pack can hold a slow regular expression.** A badly written pattern can tie up the server; there is no time limit on patterns yet.
 - **Path refusals on macOS** mention "a link" for temporary folders under `/var`, which is confusing.
+
+## Open after v2.1.0 (15 November 2026)
+
+- **Click test has no clean full run on the release.** The scripted interaction test passes on the demo swarm (quick mode). On the Swarm Traces release, one run that a server restart interrupted reported three failures that were not re-run: the Channels "Leave out merged places" toggle not restoring its numbers, the Channels row filter not taking focus on click, and one dead chart node on Early. Treat them as unconfirmed.
+- **The second implementation disagrees with the rule on the release** (23 deliveries against 192); see [integrity](integrity.md). Most of the disagreements were not hand-audited.
+- **The top bar overflows below about 460 px wide.** The app is built for desktop widths; the investigations and dataset pages fit phones.
+- **The hosted demo was checked locally, not on GitHub Pages**, before publishing.

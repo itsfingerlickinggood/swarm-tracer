@@ -218,7 +218,12 @@ def _helper_verb(text, pos, cap=200):
         end = i + 1 + cut.start()
     m = re.search(r"['\"](GET|HEAD|POST|PUT|PATCH|DELETE)['\"]", text[i:end])
     if not m:
-        return "write" if re.search(r"[(,]\s*(data|body|json)\s*=", text[i:end]) else None
+        if re.search(r"[(,]\s*(data|body|json)\s*=", text[i:end]):
+            return "write"
+        # urllib's Request(url, data, ...): a second positional argument is the body, so the request is a POST
+        if re.search(r"Request\s*$", text[max(0, i - 12):i]) and POSITIONAL_DATA.match(text, i, end):
+            return "write"
+        return None
     return "write" if m.group(1) in ("POST", "PUT", "PATCH", "DELETE") else "read"
 
 
@@ -238,6 +243,39 @@ def _descriptor_verb(text, pos):
     return None
 
 
+BARE_TAIL = re.compile(r"[^'\"`\s;,(){}]{0,80}\\?['\"`][ \t]*(?:;|\r?\n|$)")
+CONFIG_VALUE = re.compile(r"[ \t]*(?:-[ \t]+)?[\w.-]+:[ \t]*['\"][^'\"\n]*$")   # data_files: "reference://…::https://…
+URL_LITERAL = re.compile(r"['\"`](?:https?:)?//")
+
+
+def _hidden_holder_written(text, start, end, wrx, cap=8000):
+    """The mention ends a string literal that closes its statement (…place'; or …place' at the end of a line), so
+    the place is held by a name, but the caller found no assignment it can follow (redaction or a cut swallowed
+    it). The calls that use the name cannot be told apart from other calls that take their address from a
+    variable. True when one of those later calls writes: the place may be what it writes to, or may only have
+    been read, and the text cannot say which (docs/counting-rule.md R17). Calls whose address is a literal URL
+    are another place's calls and are skipped. A quoted value of a config key on its own line (YAML
+    data_files: "reference://…") is not held by a name, so R17 does not apply to it."""
+    if not BARE_TAIL.match(text, end):
+        return False
+    if CONFIG_VALUE.match(text, text.rfind("\n", 0, start) + 1, start):
+        return False                                 # the value of a key in a config file (YAML): not held by a name
+    limit = min(len(text), end + cap)
+    for rs in REQUEST_START.finditer(text, end, limit):
+        seg_hi = _call_end(text, rs.start())
+        seg = text[rs.start():seg_hi]
+        if URL_LITERAL.search(seg):
+            continue
+        if wrx.search(seg) or _opts_write(text, seg, wrx, rs.start()):
+            return True
+    return False
+
+
+POSITIONAL_DATA = re.compile(r"\(\s*[\w$.]+\s*,\s*(?!headers\s*=|method\s*=|origin_req_host\s*=|unverifiable\s*=|None\b)[\w$.('\"]")
+HELPER_VERB_FIRST = re.compile(r"[\w$.]\(\s*['\"](POST|PUT|PATCH|DELETE)['\"]\s*,\s*[\w$.+\s]{0,30}['\"`][^'\"`();{}]{0,90}$")
+REDACTION_MARKER = re.compile(r"\[[^\[\]\n]{0,80}\]")   # [HF REPO 5], [REDACTED:destination:000233]: may hold spaces
+
+
 def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
     """(op, lo, hi): write or read for the place mention at text[start:end], and the span of code judged.
 
@@ -255,10 +293,19 @@ def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
     for m in REQUEST_START.finditer(text, lo, start):
         last = m.start()
     direct = last is not None and not re.search(r"[;\n]", text[last:start])
-    # a Git LFS batch call is a POST either way: its "operation" says whether it uploads or downloads
+    # a Git LFS batch call is a POST either way: its "operation" says whether it uploads or downloads (R6).
+    # When the batch path is visible (…/info/lfs), or the place is held in a name, the operation is looked for up to
+    # the end of the next request call (the body is often built first and sent by that call). When the mention sits
+    # in a request call whose path the redaction swallowed, only up to the start of the next request call: reading
+    # on through it (as this did before) let the body of a later commit elsewhere ({operation: 'upload'}) turn a
+    # plain GET into a write.
+    is_lfs = "info/lfs" in text[end:end + 40]
     nreq = REQUEST_START.search(text, end, min(len(text), end + 400))
-    region_hi = _call_end(text, nreq.start()) if nreq else min(len(text), end + 300)
-    region_lo = max(0, start - 300) if "info/lfs" in text[end:end + 40] else (last if direct else start)
+    if direct and not is_lfs:
+        region_hi = nreq.start() if nreq else min(len(text), end + 300)
+    else:
+        region_hi = _call_end(text, nreq.start()) if nreq else min(len(text), end + 300)
+    region_lo = max(0, start - 300) if is_lfs else (last if direct else start)
     lfs = re.search(r"operation['\"]?\s*:\s*['\"](download|upload)['\"]", text[region_lo:region_hi])
     if lfs:
         return ("read" if lfs.group(1) == "download" else "write"), start, region_hi, "inferred"
@@ -298,11 +345,17 @@ def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
             if verdict:
                 return verdict, span[0], span[1], "inferred"
             return "mention", start, end, None      # assigned and never passed to a call: named, not opened
+        if _descriptor_verb(text, start) is None and _hidden_holder_written(text, start, end, wrx):
+            return "mention", start, end, None      # held by a name we cannot see, and a later call through a name writes: undecidable
     if not direct:
         # the place is a literal argument of a helper call with the verb beside it: req('…place…', tok, 'POST', data)
         tail = re.match(r"[^();{}]{0,70}['\"](POST|PUT|PATCH|DELETE)['\"]", text[end:end + 90])
         if tail:
             return "write", start, end + tail.end(), "inferred"
+        # ... or just before it, as the helper's first argument: Q('POST', '…place…', body)
+        lead = HELPER_VERB_FIRST.search(text, max(0, start - 120), start)
+        if lead:
+            return "write", lead.start(), end, "inferred"
     if re.match(r"[^)]{0,12}\{\s*metho(?!d)", text[end:end + 30]):
         return "mention", start, end, None      # the call is cut off before its verb: unknown, so not counted
     if last is not None:
@@ -326,7 +379,7 @@ def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
         return dv, start, end, "inferred"
     if w is None and r is None and len(text) - end <= 40 and ")" not in text[end:]:
         head = text[max(0, start - 120):start]
-        if re.search(r"\(\s*['\"`]?[^()\n]*$", head) or re.match(r"\s*https?://\S*$", text[:end]):
+        if re.search(r"\(\s*['\"`]?[^()\n]*$", head) or re.match(r"\s*https?://\S*$", REDACTION_MARKER.sub("X", text[:end])):
             # the record ends right after the place, inside an open call (cut off before its verb) or as a bare URL
             return "mention", start, end, None
     how = "default" if (w is None and r is None) else ("call" if direct else "inferred")

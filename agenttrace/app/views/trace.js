@@ -388,7 +388,7 @@
         if (run === TRC.run) out.innerHTML = `<div class="trc-none"><h3>Could not trace “${esc(cut(TRC.harm || TRC.q, 80))}”</h3><p class="muted">${esc(e.message)}</p></div>`;
       }
     };
-    el.querySelector("#trcform").addEventListener("submit", (e) => { e.preventDefault(); TRC.q = input.value.trim(); TRC.harm = ""; go(); });
+    el.querySelector("#trcform").addEventListener("submit", (e) => { e.preventDefault(); TRC.q = input.value.trim(); TRC.harm = ""; go(); if (!TRC.q) { out.innerHTML = '<p class="muted trc-hint" role="status">Type a token, file name, URL, place or record id to trace, or pick a starting point above.</p>'; input.focus(); } });
     el.querySelector("#trclink").addEventListener("click", (e) => {
       const url = location.origin + location.pathname + "#tab=trace" + (TRC.harm ? "&harm=" + enc(TRC.harm) : TRC.q ? "&q=" + enc(TRC.q) : "");
       const b = e.currentTarget;

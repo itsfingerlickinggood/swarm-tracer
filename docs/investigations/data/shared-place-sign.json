@@ -1,0 +1,236 @@
+{
+ "schema": 1,
+ "story": "shared-place-sign",
+ "snippets": "off",
+ "citation": {
+  "authors": "Forman, Kharlov, Tom et al.",
+  "title": "Revealing the details of how OpenAI agents hacked Hugging Face",
+  "site": "swarmtraces.org",
+  "url": "https://swarmtraces.org/",
+  "date": "25 Sep 2026",
+  "viewer": "https://swarmtraces.org/viewer/#/row/{id}",
+  "text": "Forman, Kharlov, Tom et al., \"Revealing the details of how OpenAI agents hacked Hugging Face\", swarmtraces.org, 25 Sep 2026"
+ },
+ "produced_by": {
+  "tool": "Swarm Tracer",
+  "version": "2.1.0",
+  "pack": "code traces (Swarm Traces release)",
+  "agent_rule": "estimate",
+  "agent_rule_note": "estimated agents: tokens merged on direct evidence; change in Agents",
+  "dataset": "redacted_columns.csv",
+  "records": 189579
+ },
+ "figures": {
+  "sim_n": {
+   "value": 90,
+   "text": "90",
+   "as": "int",
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].coordinated.harm.n",
+   "label": "simulated coordinated swarms in the forward test"
+  },
+  "sim_fired": {
+   "value": 90,
+   "text": "90",
+   "as": "int",
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].coordinated.harm.fired",
+   "label": "of them where the sign fired"
+  },
+  "lead_harm": {
+   "value": 5.76,
+   "text": "5.8",
+   "as": "h1",
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].coordinated.harm.median_lead_h",
+   "label": "hours: median lead before the first true harmful action (simulated)"
+  },
+  "lead_msg": {
+   "value": 8.03,
+   "text": "8.0",
+   "as": "h1",
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].coordinated.message.median_lead_h",
+   "label": "hours: median lead before the first true message (simulated)"
+  },
+  "benign_n": {
+   "value": 30,
+   "text": "30",
+   "as": "int",
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].benign.n",
+   "label": "simulated benign swarms"
+  },
+  "benign_fired": {
+   "value": 0,
+   "text": "0",
+   "as": "int",
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].benign.fired",
+   "label": "of them where the sign fired"
+  },
+  "caveat_sim": {
+   "value": "The swarms are simulated by this tool's own generator: real swarms differ.",
+   "text": "The swarms are simulated by this tool's own generator: real swarms differ.",
+   "as": "text",
+   "from": "/api/x/earlywarn_summary",
+   "path": "caveats.0",
+   "label": "the forward test's own first caveat"
+  },
+  "harm_first": {
+   "value": "2026-07-09 13:29",
+   "text": "Jul 9 13:29",
+   "as": "time",
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=replay:first: registry_board].as_counted.time",
+   "label": "first harmful sign on the release (UTC)"
+  },
+  "place_tok": {
+   "value": "2026-07-11 20:05",
+   "text": "Jul 11 20:05",
+   "as": "time",
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=replay:coordination: two identities use one place].as_counted.time",
+   "label": "shared-place sign on the release, counting tokens (UTC)"
+  },
+  "place_agent": {
+   "value": "2026-07-12 18:22",
+   "text": "Jul 12 18:22",
+   "as": "time",
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=replay:coordination: two identities use one place].by_agent.time",
+   "label": "shared-place sign on the release, counting estimated agents (UTC)"
+  },
+  "share_tok": {
+   "value": 0.502,
+   "text": "50%",
+   "as": "pct",
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=replay:coordination: two identities use one place].as_counted.harm_share_after",
+   "label": "of the dated harm still to come when it fired, counting tokens"
+  },
+  "share_agent": {
+   "value": 0.053,
+   "text": "5%",
+   "as": "pct",
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=replay:coordination: two identities use one place].by_agent.harm_share_after",
+   "label": "of the dated harm still to come when it fired, counting estimated agents"
+  },
+  "agent_a_tokens": {
+   "value": 7,
+   "text": "7",
+   "as": "int",
+   "from": "/api/x/units_map",
+   "path": "agent_list[name=Agent A].tokens.#",
+   "label": "tokens merged into Agent A"
+  }
+ },
+ "records": {
+  "R0016746": {
+   "id": "R0016746",
+   "kind": "payload",
+   "time": "2026-07-11 13:19",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 169]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "hf_dataset_write",
+   "text_length": 452,
+   "judged": [
+    {
+     "op": "write",
+     "place": "hf_dataset:[REDACTED:destination:001593]",
+     "place_label": "Hugging Face dataset destination 1593",
+     "in_text": true
+    }
+   ],
+   "messages": [],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0016746"
+  },
+  "R0028572": {
+   "id": "R0028572",
+   "kind": "payload",
+   "time": "2026-07-11 20:05",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 170]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "kubernetes_api",
+   "text_length": 15272,
+   "judged": [
+    {
+     "op": "write",
+     "place": "hf_dataset:[REDACTED:destination:004387]",
+     "place_label": "Hugging Face dataset destination 4387",
+     "in_text": true
+    },
+    {
+     "op": "read",
+     "place": "hf_dataset:[REDACTED:destination:004388]",
+     "place_label": "Hugging Face dataset destination 4388",
+     "in_text": false
+    }
+   ],
+   "messages": [],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0028572"
+  },
+  "R0000032": {
+   "id": "R0000032",
+   "kind": "payload",
+   "time": "2026-07-09 13:29",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "run:R0000032",
+   "actor_kind": "run",
+   "agent": null,
+   "intent": "registry_board",
+   "text_length": 238,
+   "judged": [
+    {
+     "op": "read",
+     "place": "board:zzourtestd1783603749",
+     "place_label": "board folder zzourtestd1783603749",
+     "in_text": true
+    }
+   ],
+   "messages": [],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0000032"
+  },
+  "R0049451": {
+   "id": "R0049451",
+   "kind": "payload",
+   "time": "2026-07-12 18:22",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 2475]",
+   "actor_kind": "token",
+   "agent": null,
+   "intent": "hf_dataset_write",
+   "text_length": 933,
+   "judged": [
+    {
+     "op": "write",
+     "place": "hf_dataset:[REDACTED:destination:004468]",
+     "place_label": "Hugging Face dataset destination 4468",
+     "in_text": true
+    }
+   ],
+   "messages": [],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0049451"
+  }
+ },
+ "findings": {}
+}

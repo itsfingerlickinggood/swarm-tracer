@@ -14,7 +14,11 @@ const S = { summary: null, tab: "trace", selected: null, chat: [], cache: new Ma
   unit: "agent", units: null,     // what the app counts by: "agent" (estimated agents, the default) or "token"; units: GET /api/x/units_map
   ev: { q: "", kind: "", intent: "", tag: "", actor: "", hour: "", channels: false, offset: 0 } };
 
+// Static mode (the hosted demo, agenttrace/tools/export_static.py): the export loads static.js before this
+// file, and every request is answered from saved JSON files instead of the server. Never set by the server.
+const STATIC = window.ST_STATIC || null;
 async function api(path, opts) {
+  if (STATIC) return STATIC.api(path, opts);
   const r = await fetch(path, opts);
   let data;
   try { data = await r.json(); } catch { throw new Error(`HTTP ${r.status}`); }
@@ -739,8 +743,27 @@ function tabsCue() {
 }
 window.addEventListener("resize", tabsCue);
 document.addEventListener("DOMContentLoaded", () => { const t = $("tabs"); if (t) { t.addEventListener("scroll", tabsCue, { passive: true }); setTimeout(tabsCue, 300); setTimeout(tabsCue, 2500); } });
+// the address follows the tab, so reload, back and forward land where the reader was
+function hashTab(tab, from) {
+  try {
+    const p = new URLSearchParams(location.hash.replace(/^#/, ""));
+    if (p.get("tab") === tab) return;
+    if (!p.get("tab") && [...p.keys()].length) { p.set("tab", tab); history.replaceState(null, "", "#" + p.toString()); return; }   // a link without tab= (a conversation): name its tab, keep the rest
+    if (!p.get("tab") && from) history.replaceState(null, "", "#tab=" + encodeURIComponent(from));
+    history.pushState(null, "", "#tab=" + encodeURIComponent(tab));
+  } catch { /* file: or sandboxed */ }
+}
+window.addEventListener("hashchange", () => {
+  const d = deepLink();
+  if (!S.summary || !d.tab || !VIEWS[d.tab]) return;
+  const fxNow = document.querySelector(".fxnav button.on")?.dataset.fx;
+  if (d.tab === S.tab && !(d.tab === "forensics" && d.fx && d.fx !== fxNow)) return;
+  if (d.fx) FX_WANT = d.fx;
+  goTab(d.tab);
+});
 function goTab(tab) {
   if (S.tab && $("left")) S.scroll[S.tab] = $("left").scrollTop;
+  hashTab(tab, S.tab);
   S.tab = tab;
   document.querySelectorAll("#tabs button").forEach((x) => { const on = x.dataset.tab === tab; x.classList.toggle("on", on); x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1; if (on && x.scrollIntoView) x.scrollIntoView({ block: "nearest", inline: "nearest" }); });
   tabsCue();

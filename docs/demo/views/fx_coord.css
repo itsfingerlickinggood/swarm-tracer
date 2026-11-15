@@ -1,0 +1,16 @@
+/* fx_coord: coordination without messages */
+.fxkb{display:inline-block;font-size:10.5px;line-height:1.5;border-radius:8px;padding:0 7px;background:#eef1f4;color:#4a5562;margin-left:4px;white-space:nowrap}
+.fxkb.beh{background:#d9f0ed;color:#0b5c55;font-weight:600}
+.fxkb.same{background:#fdf3e1;color:#7a4d0c}
+.fxkb.msg{background:#f1ebfb;color:#4c2f94}
+.fxkb.new{background:#1b2430;color:#fff}
+.fxksvg{display:block;max-width:100%}
+.fxkedge{cursor:pointer}
+.fxkedge:hover line:last-of-type,.fxkedge.on line:last-of-type{stroke:#c2410c}
+.fxkscroll{max-height:240px;overflow:auto}
+.fxkscroll.tall{max-height:420px}
+#fxkTable tr.on td{background:#eef7f5}
+.fxkcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-top:8px}
+.fxkcols h4,#fxkPair h4{margin:4px 0;font-size:13px}
+.fxkcav{margin:0;padding-left:18px;font-size:13px;line-height:1.55;max-width:900px}
+.fxkcav li{margin-bottom:5px}

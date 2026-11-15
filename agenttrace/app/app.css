@@ -328,3 +328,5 @@ html,body{max-width:100vw}
 .tabs.more.less{-webkit-mask-image:linear-gradient(90deg,transparent,#000 44px,#000 calc(100% - 44px),transparent);mask-image:linear-gradient(90deg,transparent,#000 44px,#000 calc(100% - 44px),transparent)}
 @media (max-width:1700px){.tabs .cnt{display:none}.tabs button.on .cnt{display:inline}}
 #guidebtn.fresh{border-color:#e3a43b;box-shadow:0 0 0 1px #e3a43b inset}
+/* a chip or graph node that shows the item already open is not a link */
+.ent[data-noclick],svg .node[data-noclick][data-noclick]{cursor:default}

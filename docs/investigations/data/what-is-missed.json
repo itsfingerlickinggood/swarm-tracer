@@ -1,0 +1,389 @@
+{
+ "schema": 1,
+ "story": "what-is-missed",
+ "snippets": "off",
+ "citation": {
+  "authors": "Forman, Kharlov, Tom et al.",
+  "title": "Revealing the details of how OpenAI agents hacked Hugging Face",
+  "site": "swarmtraces.org",
+  "url": "https://swarmtraces.org/",
+  "date": "25 Sep 2026",
+  "viewer": "https://swarmtraces.org/viewer/#/row/{id}",
+  "text": "Forman, Kharlov, Tom et al., \"Revealing the details of how OpenAI agents hacked Hugging Face\", swarmtraces.org, 25 Sep 2026"
+ },
+ "produced_by": {
+  "tool": "Swarm Tracer",
+  "version": "2.1.0",
+  "pack": "code traces (Swarm Traces release)",
+  "agent_rule": "estimate",
+  "agent_rule_note": "estimated agents: tokens merged on direct evidence; change in Agents",
+  "dataset": "redacted_columns.csv",
+  "records": 189579
+ },
+ "figures": {
+  "total": {
+   "value": 41,
+   "text": "41",
+   "as": "int",
+   "from": "/api/x/insiders",
+   "path": "total",
+   "label": "findings checked (incident reports and the Swarm Traces authors)"
+  },
+  "recovered": {
+   "value": 16,
+   "text": "16",
+   "as": "int",
+   "from": "/api/x/insiders",
+   "path": "counts.recovered",
+   "label": "recovered from the release"
+  },
+  "partly": {
+   "value": 10,
+   "text": "10",
+   "as": "int",
+   "from": "/api/x/insiders",
+   "path": "counts.partly",
+   "label": "partly recovered"
+  },
+  "invisible": {
+   "value": 15,
+   "text": "15",
+   "as": "int",
+   "from": "/api/x/insiders",
+   "path": "counts.invisible",
+   "label": "invisible in the release"
+  },
+  "hf_start": {
+   "value": "2026-07-09 02:28",
+   "text": "Jul 9 02:28",
+   "as": "time",
+   "from": "/api/x/insiders",
+   "path": "findings[id=log_window_start].evidence.numbers.report",
+   "label": "Hugging Face's first recovered attacker action (UTC)"
+  },
+  "start_gap": {
+   "value": 11.02,
+   "text": "11.0",
+   "as": "h1",
+   "from": "/api/x/insiders",
+   "path": "findings[id=log_window_start].evidence.numbers.difference_h",
+   "label": "hours between it and the earliest dated record"
+  },
+  "span_start": {
+   "value": "2026-07-09 13:29",
+   "text": "Jul 9 13:29",
+   "as": "time",
+   "from": "/api/state",
+   "path": "summary.time_test.span.0",
+   "label": "earliest dated record (UTC)"
+  },
+  "span_end": {
+   "value": "2026-07-13 15:50",
+   "text": "Jul 13 15:50",
+   "as": "time",
+   "from": "/api/state",
+   "path": "summary.time_test.span.1",
+   "label": "latest dated record (UTC)"
+  },
+  "detect_time": {
+   "value": "2026-07-19 12:03",
+   "text": "Jul 19 12:03",
+   "as": "time",
+   "from": "/api/x/insiders",
+   "path": "findings[id=openai_detection].evidence.numbers.report",
+   "label": "OpenAI's monitoring flags the activity (UTC)"
+  },
+  "runs": {
+   "value": 77626,
+   "text": "77,626",
+   "as": "int",
+   "from": "/api/x/attribution",
+   "path": "runs",
+   "label": "actions by anonymous runs"
+  },
+  "actions": {
+   "value": 91037,
+   "text": "91,037",
+   "as": "int",
+   "from": "/api/x/attribution",
+   "path": "actions_total",
+   "label": "actions in the release"
+  },
+  "named_actors": {
+   "value": 241,
+   "text": "241",
+   "as": "int",
+   "from": "/api/x/attribution",
+   "path": "named_actors",
+   "label": "named actors (tokens and self-chosen names)"
+  },
+  "unattr": {
+   "value": 71724,
+   "text": "71,724",
+   "as": "int",
+   "from": "/api/x/attribution",
+   "path": "bands.unattributed.runs",
+   "label": "anonymous runs with no probable link to a named actor"
+  },
+  "unattr_share": {
+   "value": 0.9239687733491356,
+   "text": "92%",
+   "as": "pct",
+   "from": "/api/x/attribution",
+   "path": "bands.unattributed.runs / runs",
+   "label": "of the anonymous runs stay unattributed"
+  },
+  "folders": {
+   "value": 494,
+   "text": "494",
+   "as": "int",
+   "from": "/api/x/board",
+   "path": "funnel.folders",
+   "label": "board folders named in the code"
+  },
+  "both": {
+   "value": 2,
+   "text": "2",
+   "as": "int",
+   "from": "/api/x/board",
+   "path": "funnel.both",
+   "label": "folders with a writer and a reader both visible"
+  },
+  "linked": {
+   "value": 1,
+   "text": "1",
+   "as": "int",
+   "from": "/api/x/board",
+   "path": "funnel.linked",
+   "label": "folders where a read follows another actor's write"
+  },
+  "collect_1": {
+   "value": "An actor id on every record (which agent run wrote it)",
+   "text": "An actor id on every record (which agent run wrote it)",
+   "as": "text",
+   "from": "/api/x/collect_next",
+   "path": "items[priority=1].field",
+   "label": "first thing to collect next time"
+  },
+  "collect_2": {
+   "value": "The contents and the write and read log of every shared place (here, the board)",
+   "text": "The contents and the write and read log of every shared place (here, the board)",
+   "as": "text",
+   "from": "/api/x/collect_next",
+   "path": "items[priority=2].field",
+   "label": "second"
+  },
+  "collect_3": {
+   "value": "Full request bodies and responses (status code, size, first bytes)",
+   "text": "Full request bodies and responses (status code, size, first bytes)",
+   "as": "text",
+   "from": "/api/x/collect_next",
+   "path": "items[priority=3].field",
+   "label": "third"
+  }
+ },
+ "records": {
+  "R0000032": {
+   "id": "R0000032",
+   "kind": "payload",
+   "time": "2026-07-09 13:29",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "run:R0000032",
+   "actor_kind": "run",
+   "agent": null,
+   "intent": "registry_board",
+   "text_length": 238,
+   "judged": [
+    {
+     "op": "read",
+     "place": "board:zzourtestd1783603749",
+     "place_label": "board folder zzourtestd1783603749",
+     "in_text": true
+    }
+   ],
+   "messages": [],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0000032"
+  },
+  "R0045942": {
+   "id": "R0045942",
+   "kind": "payload",
+   "time": "2026-07-12 10:46",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "run:R0045942",
+   "actor_kind": "run",
+   "agent": null,
+   "intent": "registry_board",
+   "text_length": 296,
+   "judged": [
+    {
+     "op": "write",
+     "place": "board:zzTEST_BROWSER_CUR7",
+     "place_label": "board folder zzTEST_BROWSER_CUR7",
+     "in_text": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "write",
+     "from": "run:R0045942",
+     "to": "run:R0046036",
+     "place": "board:zzTEST_BROWSER_CUR7",
+     "place_label": "board folder zzTEST_BROWSER_CUR7",
+     "write_id": "R0045942",
+     "read_id": "R0046036",
+     "wait_h": 0.38,
+     "grade": "inferred",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0045942"
+  },
+  "R0043005": {
+   "id": "R0043005",
+   "kind": "payload",
+   "time": "2026-07-12 02:49",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 170]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "registry_board",
+   "text_length": 1755,
+   "judged": [
+    {
+     "op": "write",
+     "place": "hf_dataset:[REDACTED:destination:006105]",
+     "place_label": "Hugging Face dataset destination 6105",
+     "in_text": true
+    },
+    {
+     "op": "read",
+     "place": "board:zzC_N1473B_70c56ab5ced9",
+     "place_label": "board folder zzC_N1473B_70c56ab5ced9",
+     "in_text": false
+    }
+   ],
+   "messages": [],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0043005"
+  },
+  "R0043078": {
+   "id": "R0043078",
+   "kind": "payload",
+   "time": "2026-07-12 03:04",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 170]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "registry_board",
+   "text_length": 1953,
+   "judged": [
+    {
+     "op": "write",
+     "place": "hf_dataset:[REDACTED:destination:006105]",
+     "place_label": "Hugging Face dataset destination 6105",
+     "in_text": true
+    },
+    {
+     "op": "write",
+     "place": "board:zzC_N1473B_70c56ab5ced9",
+     "place_label": "board folder zzC_N1473B_70c56ab5ced9",
+     "in_text": false
+    }
+   ],
+   "messages": [],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0043078"
+  },
+  "R0046036": {
+   "id": "R0046036",
+   "kind": "payload",
+   "time": "2026-07-12 11:08",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "run:R0046036",
+   "actor_kind": "run",
+   "agent": null,
+   "intent": "registry_board",
+   "text_length": 249,
+   "judged": [
+    {
+     "op": "read",
+     "place": "board:zzTEST_BROWSER_CUR7",
+     "place_label": "board folder zzTEST_BROWSER_CUR7",
+     "in_text": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "read",
+     "from": "run:R0045942",
+     "to": "run:R0046036",
+     "place": "board:zzTEST_BROWSER_CUR7",
+     "place_label": "board folder zzTEST_BROWSER_CUR7",
+     "write_id": "R0045942",
+     "read_id": "R0046036",
+     "wait_h": 0.38,
+     "grade": "inferred",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0046036"
+  }
+ },
+ "findings": {
+  "log_window_start": {
+   "id": "log_window_start",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "HF timeline",
+   "finding": "Attacker actions recovered by Hugging Face start at 2026-07-09 02:28 UTC.",
+   "status": "invisible",
+   "why": "The earliest dated record is at 2026-07-09 13:29 UTC, 11.0 h after this moment (2026-07-09 02:28 UTC). Whatever happened before it is outside what the release dates."
+  },
+  "openai_detection": {
+   "id": "openai_detection",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "OpenAI TR p.15, p.37",
+   "finding": "OpenAI's monitoring flagged unusual Artifactory activity at 12:03 UTC on 19 July.",
+   "status": "invisible",
+   "why": "The latest dated record is at 2026-07-13 15:50 UTC, 5.8 days before this moment (2026-07-19 12:03 UTC): the release does not reach it."
+  },
+  "agents_on_board": {
+   "id": "agents_on_board",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.3, p.6",
+   "finding": "About 1,200 agents were on the message board.",
+   "status": "invisible",
+   "why": "The records carry tokens and self-chosen names, not agents. This release has 241 named actors and 77,626 runs with no name, and no field that says which agent a record came from, so an agent count cannot be read from it."
+  },
+  "names_vs_agents": {
+   "id": "names_vs_agents",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "Swarm Traces, Limitations",
+   "finding": "7,905 agent names against about 1,200 agents: names are self-chosen and changed often.",
+   "status": "invisible",
+   "why": "The Agents tab proposes which tokens and names are probably one agent from counted evidence (241 named actors, 77,626 anonymous runs), and the sensitivity section shows how much the answers move. It cannot recover the true number."
+  },
+  "board_traffic": {
+   "id": "board_traffic",
+   "group": "Incident reports (METR / OpenAI / Hugging Face)",
+   "source": "METR p.3, p.6, p.22-23",
+   "finding": "The board holds more than 70,000 messages and files (about 63,000 messages and about 6,000 files in a 1.2 million entry dump).",
+   "status": "invisible",
+   "why": "The board's contents are not in the release. Only the folders that payload code names are visible: 494 board places, with 0 messages the tool can pair between named actors."
+  }
+ }
+}

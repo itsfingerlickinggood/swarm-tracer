@@ -230,6 +230,12 @@ def cmd_precision(a):
     print(text)
 
 
+def cmd_verify(a):
+    from .tools import provenance
+    flags = [f for f in ("--allow-known", "--texts-only", "--no-cache", "--json") if getattr(a, f[2:].replace("-", "_"))]
+    raise SystemExit(provenance.main(["verify"] + flags))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="agenttrace", description="General analysis of agent traces.")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -308,6 +314,11 @@ def main(argv=None):
     q.add_argument("labels")
     q.add_argument("--out")
     q.set_defaults(fn=cmd_precision)
+
+    vf = sub.add_parser("verify", help="check every published number against the provenance manifest (agenttrace.tools.provenance verify)")
+    for flag in ("--allow-known", "--texts-only", "--no-cache", "--json"):
+        vf.add_argument(flag, action="store_true")
+    vf.set_defaults(fn=cmd_verify)
 
     a = ap.parse_args(argv)
     a.fn(a)

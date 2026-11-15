@@ -536,7 +536,7 @@
     const types = [...new Set(D.named.map((r) => String(r[2]).split(":")[0]).concat(Object.keys(S.summary?.flow?.channel_types || {})))].sort();
     if (!types.length) { host.innerHTML = '<p class="muted small">No message between named actors on an exact place, so no sign rests on a place type.</p>'; return; }
     const cnt = (ty) => D.named.filter((r) => String(r[2]).split(":")[0] === ty).length;
-    const cur = ST.drop && types.includes(ST.drop) ? ST.drop : types.sort((a, b) => cnt(b) - cnt(a))[0];
+    const cur = ST.drop && types.includes(ST.drop) ? ST.drop : [...types].sort((a, b) => cnt(b) - cnt(a))[0];   // a copy: sorting in place reordered the menu on the first draw only
     ST.drop = cur;
     const kept = D.named.filter((r) => String(r[2]).split(":")[0] !== cur);
     const msgKinds = new Set(["message", "two_way", "group"]);

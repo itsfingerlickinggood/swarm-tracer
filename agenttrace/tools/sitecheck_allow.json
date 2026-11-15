@@ -1,0 +1,98 @@
+[
+ {
+  "rule": "unredacted-hf-repo",
+  "match": "Kevin355/Who_and_When",
+  "path": "dataset*",
+  "reason": "public dataset card on Hugging Face, linked from the datasets page as a source; not a redacted name"
+ },
+ {
+  "rule": "unredacted-hf-repo",
+  "match": "PatronusAI/TRAIL",
+  "path": "dataset*",
+  "reason": "public dataset card on Hugging Face, linked from the datasets page as a source; not a redacted name"
+ },
+ {
+  "rule": "unredacted-hf-repo",
+  "match": "SALT-NLP/agent-collusion",
+  "path": "dataset*",
+  "reason": "public dataset card on Hugging Face, linked from the datasets page as a source; not a redacted name"
+ },
+ {
+  "rule": "unredacted-hf-repo",
+  "match": "SimulaMet/moltbook-observatory-archive",
+  "path": "dataset*",
+  "reason": "public dataset card on Hugging Face, linked from the datasets page as a source; not a redacted name"
+ },
+ {
+  "rule": "unredacted-hf-repo",
+  "match": "aidigestorg/ai-village",
+  "path": "dataset*",
+  "reason": "public dataset card on Hugging Face, linked from the datasets page as a source; not a redacted name"
+ },
+ {
+  "rule": "unredacted-hf-repo",
+  "match": "iNLP-Lab/Moltbook-MoltNet",
+  "path": "dataset*",
+  "reason": "public dataset card on Hugging Face, linked from the datasets page as a source; not a redacted name"
+ },
+ {
+  "rule": "unredacted-hf-repo",
+  "match": "mcemri/MAST-Data",
+  "path": "dataset*",
+  "reason": "public dataset card on Hugging Face, linked from the datasets page as a source; not a redacted name"
+ },
+ {
+  "rule": "unredacted-hf-repo",
+  "match": "metr-evals/malt-public",
+  "path": "dataset*",
+  "reason": "public dataset card on Hugging Face, linked from the datasets page as a source; not a redacted name"
+ },
+ {
+  "rule": "email",
+  "match": "alex@parse.bot",
+  "path": "dataset*",
+  "reason": "contact address the dataset's publisher gives on its own public page, quoted on the datasets page (as that page states; not re-verified by the site check's author)"
+ },
+ {
+  "rule": "email",
+  "match": "darshan@patronus.ai",
+  "path": "dataset*",
+  "reason": "contact address the dataset's publisher gives on its own public page, quoted on the datasets page (as that page states; not re-verified by the site check's author)"
+ },
+ {
+  "rule": "email",
+  "match": "hello@theaidigest.org",
+  "path": "dataset*",
+  "reason": "contact address the dataset's publisher gives on its own public page, quoted on the datasets page (as that page states; not re-verified by the site check's author)"
+ },
+ {
+  "rule": "email",
+  "match": "info@transluce.org",
+  "path": "dataset*",
+  "reason": "contact address the dataset's publisher gives on its own public page, quoted on the datasets page (as that page states; not re-verified by the site check's author)"
+ },
+ {
+  "rule": "email",
+  "match": "sydney@nightingalecollective.org",
+  "path": "dataset*",
+  "reason": "contact address the dataset's publisher gives on its own public page, quoted on the datasets page (as that page states; not re-verified by the site check's author)"
+ },
+ {
+  "rule": "unredacted-hf-repo",
+  "match": "/^swarmhub\\/ds-[a-z]+$/",
+  "path": "demo/*",
+  "reason": "made-up repository names written by Swarm Tracer's simulator (agenttrace/samples/demo_swarm); no such data is redacted"
+ },
+ {
+  "rule": "ip-address",
+  "match": "169.254.169.254",
+  "path": "demo/*",
+  "reason": "the well-known cloud metadata address, in simulated payloads of the demo swarm"
+ },
+ {
+  "rule": "ip-address",
+  "match": "10.0.0.1",
+  "path": "demo/*",
+  "reason": "a made-up private address in simulated payloads of the demo swarm"
+ }
+]

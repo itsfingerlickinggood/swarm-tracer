@@ -1,0 +1,1256 @@
+{
+ "about": "mutation testing of the counting rule; see agenttrace/tools/mutate.py. The top-level numbers are the latest full run ('after'). A survivor is a change to the rule that no test noticed; each is marked equivalent (with the reason no input can tell it apart) or unjudged.",
+ "made": "2026-11-15T09:42:43Z",
+ "targets": [
+  "messages"
+ ],
+ "mode": "full",
+ "tests": [
+  "agenttrace.tests.test_messages",
+  "agenttrace.tests.test_mutants",
+  "agenttrace.tests.test_properties",
+  "agenttrace.tests.test_refcount"
+ ],
+ "mutants_possible": 1173,
+ "mutants_run": 1173,
+ "killed": 1124,
+ "killed_by_timeout": 1,
+ "survived": 49,
+ "kill_rate": 0.9582,
+ "seconds": 78.4,
+ "seed": null,
+ "by_function": {
+  "_call_end": {
+   "mutants": 29,
+   "killed": 28,
+   "survived": 1
+  },
+  "_descriptor_verb": {
+   "mutants": 44,
+   "killed": 42,
+   "survived": 2
+  },
+  "_direct_perf": {
+   "mutants": 6,
+   "killed": 6,
+   "survived": 0
+  },
+  "_helper_verb": {
+   "mutants": 59,
+   "killed": 59,
+   "survived": 0
+  },
+  "_hidden_holder_written": {
+   "mutants": 22,
+   "killed": 22,
+   "survived": 0
+  },
+  "_how": {
+   "mutants": 10,
+   "killed": 10,
+   "survived": 0
+  },
+  "_how_group": {
+   "mutants": 2,
+   "killed": 2,
+   "survived": 0
+  },
+  "_in_order": {
+   "mutants": 20,
+   "killed": 20,
+   "survived": 0
+  },
+  "_judge": {
+   "mutants": 238,
+   "killed": 217,
+   "survived": 21
+  },
+  "_judge.nearest": {
+   "mutants": 10,
+   "killed": 7,
+   "survived": 3
+  },
+  "_lines": {
+   "mutants": 3,
+   "killed": 3,
+   "survived": 0
+  },
+  "_mention_index": {
+   "mutants": 8,
+   "killed": 7,
+   "survived": 1
+  },
+  "_norm": {
+   "mutants": 2,
+   "killed": 2,
+   "survived": 0
+  },
+  "_opts_write": {
+   "mutants": 29,
+   "killed": 29,
+   "survived": 0
+  },
+  "_short": {
+   "mutants": 4,
+   "killed": 4,
+   "survived": 0
+  },
+  "_thread_identity": {
+   "mutants": 12,
+   "killed": 9,
+   "survived": 3
+  },
+  "actor_of": {
+   "mutants": 16,
+   "killed": 15,
+   "survived": 1
+  },
+  "channel_ops": {
+   "mutants": 97,
+   "killed": 92,
+   "survived": 5
+  },
+  "compile_channels": {
+   "mutants": 6,
+   "killed": 6,
+   "survived": 0
+  },
+  "content_spread": {
+   "mutants": 49,
+   "killed": 48,
+   "survived": 1
+  },
+  "content_spread.touches": {
+   "mutants": 29,
+   "killed": 27,
+   "survived": 2
+  },
+  "deliveries": {
+   "mutants": 223,
+   "killed": 220,
+   "survived": 3
+  },
+  "direct_messages": {
+   "mutants": 55,
+   "killed": 52,
+   "survived": 3
+  },
+  "direct_messages.who": {
+   "mutants": 4,
+   "killed": 3,
+   "survived": 1
+  },
+  "families": {
+   "mutants": 13,
+   "killed": 13,
+   "survived": 0
+  },
+  "grade_of": {
+   "mutants": 39,
+   "killed": 39,
+   "survived": 0
+  },
+  "judge_how": {
+   "mutants": 8,
+   "killed": 8,
+   "survived": 0
+  },
+  "judge_op": {
+   "mutants": 9,
+   "killed": 9,
+   "survived": 0
+  },
+  "judge_span": {
+   "mutants": 10,
+   "killed": 10,
+   "survived": 0
+  },
+  "message_flow": {
+   "mutants": 106,
+   "killed": 104,
+   "survived": 2
+  },
+  "program_prefix": {
+   "mutants": 11,
+   "killed": 11,
+   "survived": 0
+  }
+ },
+ "by_operator": {
+  "and/or": {
+   "mutants": 58,
+   "killed": 58,
+   "survived": 0
+  },
+  "drop break": {
+   "mutants": 2,
+   "killed": 2,
+   "survived": 0
+  },
+  "drop continue": {
+   "mutants": 14,
+   "killed": 13,
+   "survived": 1
+  },
+  "drop not": {
+   "mutants": 26,
+   "killed": 26,
+   "survived": 0
+  },
+  "flip comparison": {
+   "mutants": 132,
+   "killed": 126,
+   "survived": 6
+  },
+  "flip returned bool": {
+   "mutants": 10,
+   "killed": 9,
+   "survived": 1
+  },
+  "guard always false": {
+   "mutants": 150,
+   "killed": 148,
+   "survived": 2
+  },
+  "guard always true": {
+   "mutants": 150,
+   "killed": 143,
+   "survived": 7
+  },
+  "off by one": {
+   "mutants": 489,
+   "killed": 466,
+   "survived": 23
+  },
+  "swap write/read": {
+   "mutants": 40,
+   "killed": 40,
+   "survived": 0
+  },
+  "window size": {
+   "mutants": 102,
+   "killed": 93,
+   "survived": 9
+  }
+ },
+ "survivors": [
+  {
+   "id": "messages.py:33:1",
+   "file": "agenttrace/messages.py",
+   "function": "_thread_identity",
+   "line": 33,
+   "operator": "guard always true",
+   "old": "\"_thread_ident\" not in rec",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -33 +33 @@\n-    if \"_thread_ident\" not in rec:\n+    if True:\n",
+   "judgement": "equivalent",
+   "reason": "only a cache: computing the table again gives the same table"
+  },
+  {
+   "id": "messages.py:39:7",
+   "file": "agenttrace/messages.py",
+   "function": "_thread_identity",
+   "line": 39,
+   "operator": "off by one",
+   "old": "1",
+   "new": "2",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -39 +39 @@\n-                    votes[res[\"_root\"][rid]][t] += 1\n+                    votes[res[\"_root\"][rid]][t] += 2\n",
+   "judgement": "equivalent",
+   "reason": "every vote counts double, so the most used token is the same"
+  },
+  {
+   "id": "messages.py:40:9",
+   "file": "agenttrace/messages.py",
+   "function": "_thread_identity",
+   "line": 40,
+   "operator": "off by one",
+   "old": "1",
+   "new": "2",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -40 +40 @@\n-        rec[\"_thread_ident\"] = {root: c.most_common(1)[0][0] for root, c in votes.items()}\n+        rec[\"_thread_ident\"] = {root: c.most_common(2)[0][0] for root, c in votes.items()}\n",
+   "judgement": "equivalent",
+   "reason": "most_common(2)[0] is most_common(1)[0]"
+  },
+  {
+   "id": "messages.py:55:24",
+   "file": "agenttrace/messages.py",
+   "function": "actor_of",
+   "line": 55,
+   "operator": "off by one",
+   "old": "1",
+   "new": "0",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -55 +55 @@\n-            return family_of(m.group(1), pack), \"handle\"\n+            return family_of(m.group(0), pack), \"handle\"\n",
+   "judgement": "equivalent",
+   "reason": "packs.py builds the handle pattern as lookbehind + (group 1) + lookahead, so group(0) equals group(1)"
+  },
+  {
+   "id": "messages.py:82:34",
+   "file": "agenttrace/messages.py",
+   "function": "direct_messages",
+   "line": 82,
+   "operator": "guard always true",
+   "old": "e.parent",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -82 +82 @@\n-            if e.parent:\n+            if True:\n",
+   "judgement": "equivalent",
+   "reason": "children[None] is filled but never looked up (lookups use a record id)"
+  },
+  {
+   "id": "messages.py:90:37",
+   "file": "agenttrace/messages.py",
+   "function": "direct_messages.who",
+   "line": 90,
+   "operator": "guard always true",
+   "old": "j not in memo",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -90 +90 @@\n-            if j not in memo:\n+            if True:\n",
+   "judgement": "equivalent",
+   "reason": "only a memo: actor_of gives the same answer again"
+  },
+  {
+   "id": "messages.py:104:57",
+   "file": "agenttrace/messages.py",
+   "function": "direct_messages",
+   "line": 104,
+   "operator": "off by one",
+   "old": "1",
+   "new": "0",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -104 +104 @@\n-                reply = next((j for j in lst[k + 1:k + 60] if ok(j)), None)\n+                reply = next((j for j in lst[k + 0:k + 60] if ok(j)), None)\n",
+   "judgement": "equivalent",
+   "reason": "the slice then starts at the message itself, which the reply test rejects (j != i)"
+  },
+  {
+   "id": "messages.py:106:67",
+   "file": "agenttrace/messages.py",
+   "function": "direct_messages",
+   "line": 106,
+   "operator": "guard always true",
+   "old": "reply is not None",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -106 +106 @@\n-            rt = times.get(rid) if reply is not None else t\n+            rt = times.get(rid) if True else t\n",
+   "judgement": "equivalent",
+   "reason": "with no reply rid is the message's own id, and times.get of it is t"
+  },
+  {
+   "id": "messages.py:165:108",
+   "file": "agenttrace/messages.py",
+   "function": "_call_end",
+   "line": 165,
+   "operator": "off by one",
+   "old": "1",
+   "new": "0",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -165 +165 @@\n-    nx = REQUEST_START.search(text, i + 1, end)      # redaction can swallow the closing parenthesis:\n+    nx = REQUEST_START.search(text, i + 0, end)      # redaction can swallow the closing parenthesis:\n",
+   "judgement": "equivalent",
+   "reason": "no request-call pattern can match starting at the '(' itself"
+  },
+  {
+   "id": "messages.py:237:229",
+   "file": "agenttrace/messages.py",
+   "function": "_descriptor_verb",
+   "line": 237,
+   "operator": "flip comparison",
+   "old": ">=",
+   "new": ">",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -237 +237 @@\n-    obj = text[max(lo, pos - 600):(hi if hi >= 0 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n+    obj = text[max(lo, pos - 600):(hi if hi > 0 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n",
+   "judgement": "equivalent",
+   "reason": "hi is searched from pos and pos > 0 (the url key comes before it), so hi is -1 or greater than 0"
+  },
+  {
+   "id": "messages.py:237:230",
+   "file": "agenttrace/messages.py",
+   "function": "_descriptor_verb",
+   "line": 237,
+   "operator": "off by one",
+   "old": "0",
+   "new": "1",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -237 +237 @@\n-    obj = text[max(lo, pos - 600):(hi if hi >= 0 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n+    obj = text[max(lo, pos - 600):(hi if hi >= 1 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n",
+   "judgement": "equivalent",
+   "reason": "hi is -1 or greater than 0 (see 237 '>=' -> '>')"
+  },
+  {
+   "id": "messages.py:279:282",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 279,
+   "operator": "off by one",
+   "old": "160",
+   "new": "159",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=159, after=260):\n",
+   "judgement": "equivalent",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:283",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 279,
+   "operator": "off by one",
+   "old": "160",
+   "new": "161",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=161, after=260):\n",
+   "judgement": "equivalent",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:284",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 279,
+   "operator": "window size",
+   "old": "160",
+   "new": "40",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=40, after=260):\n",
+   "judgement": "equivalent",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:285",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 279,
+   "operator": "window size",
+   "old": "160",
+   "new": "640",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=640, after=260):\n",
+   "judgement": "equivalent",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:286",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 279,
+   "operator": "off by one",
+   "old": "260",
+   "new": "259",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=259):\n",
+   "judgement": "equivalent",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:287",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 279,
+   "operator": "off by one",
+   "old": "260",
+   "new": "261",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=261):\n",
+   "judgement": "equivalent",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:288",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 279,
+   "operator": "window size",
+   "old": "260",
+   "new": "1040",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=1040):\n",
+   "judgement": "equivalent",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:289",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 279,
+   "operator": "window size",
+   "old": "260",
+   "new": "65",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=65):\n",
+   "judgement": "equivalent",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:327:377",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 327,
+   "operator": "off by one",
+   "old": "0",
+   "new": "1",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(1, um.start() - 80):um.end() + 120]\n",
+   "judgement": "equivalent",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:378",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 327,
+   "operator": "off by one",
+   "old": "80",
+   "new": "79",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 79):um.end() + 120]\n",
+   "judgement": "equivalent",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:379",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 327,
+   "operator": "off by one",
+   "old": "80",
+   "new": "81",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 81):um.end() + 120]\n",
+   "judgement": "equivalent",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:380",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 327,
+   "operator": "window size",
+   "old": "80",
+   "new": "20",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 20):um.end() + 120]\n",
+   "judgement": "equivalent",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:381",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 327,
+   "operator": "window size",
+   "old": "80",
+   "new": "320",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 320):um.end() + 120]\n",
+   "judgement": "equivalent",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:382",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 327,
+   "operator": "off by one",
+   "old": "120",
+   "new": "119",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 119]\n",
+   "judgement": "equivalent",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:383",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 327,
+   "operator": "off by one",
+   "old": "120",
+   "new": "121",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 121]\n",
+   "judgement": "equivalent",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:384",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 327,
+   "operator": "window size",
+   "old": "120",
+   "new": "30",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 30]\n",
+   "judgement": "equivalent",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:385",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 327,
+   "operator": "window size",
+   "old": "120",
+   "new": "480",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 480]\n",
+   "judgement": "equivalent",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:338:403",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 338,
+   "operator": "guard always true",
+   "old": "_helper_verb(text, um.start()) is not None",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -338 +338 @@\n-                elif _helper_verb(text, um.start()) is not None:   # passed to a helper with the verb as an argument\n+                elif True:   # passed to a helper with the verb as an argument\n",
+   "judgement": "equivalent",
+   "reason": "when the helper carries no verb both branches set the same verdict and span"
+  },
+  {
+   "id": "messages.py:352:457",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 352,
+   "operator": "off by one",
+   "old": "90",
+   "new": "89",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -352 +352 @@\n-        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 90])\n+        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 89])\n",
+   "judgement": "equivalent",
+   "reason": "the pattern matches at most 78 characters (70 + quote + DELETE + quote), so a slice of 89 is enough"
+  },
+  {
+   "id": "messages.py:352:458",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 352,
+   "operator": "off by one",
+   "old": "90",
+   "new": "91",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -352 +352 @@\n-        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 90])\n+        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 91])\n",
+   "judgement": "equivalent",
+   "reason": "the pattern matches at most 78 characters, a longer slice changes nothing"
+  },
+  {
+   "id": "messages.py:352:460",
+   "file": "agenttrace/messages.py",
+   "function": "_judge",
+   "line": 352,
+   "operator": "window size",
+   "old": "90",
+   "new": "360",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -352 +352 @@\n-        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 90])\n+        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 360])\n",
+   "judgement": "equivalent",
+   "reason": "the pattern matches at most 78 characters, a longer slice changes nothing"
+  },
+  {
+   "id": "messages.py:372:484",
+   "file": "agenttrace/messages.py",
+   "function": "_judge.nearest",
+   "line": 372,
+   "operator": "flip comparison",
+   "old": "<=",
+   "new": "<",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -372 +372 @@\n-            d = 0 if m.start() <= pos <= m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n+            d = 0 if m.start() < pos <= m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n",
+   "judgement": "equivalent",
+   "reason": "when pos equals m.start() the other branch also gives distance 0"
+  },
+  {
+   "id": "messages.py:372:485",
+   "file": "agenttrace/messages.py",
+   "function": "_judge.nearest",
+   "line": 372,
+   "operator": "flip comparison",
+   "old": "<=",
+   "new": "<",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -372 +372 @@\n-            d = 0 if m.start() <= pos <= m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n+            d = 0 if m.start() <= pos < m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n",
+   "judgement": "equivalent",
+   "reason": "when pos equals m.end() the other branch also gives distance 0"
+  },
+  {
+   "id": "messages.py:373:490",
+   "file": "agenttrace/messages.py",
+   "function": "_judge.nearest",
+   "line": 373,
+   "operator": "flip comparison",
+   "old": "<",
+   "new": "<=",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -373 +373 @@\n-            if best is None or d < best:\n+            if best is None or d <= best:\n",
+   "judgement": "equivalent",
+   "reason": "replaces the best distance by an equal one"
+  },
+  {
+   "id": "messages.py:419:562",
+   "file": "agenttrace/messages.py",
+   "function": "_mention_index",
+   "line": 419,
+   "operator": "guard always true",
+   "old": "e.channel",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -419 +419 @@\n-        if e.channel:\n+        if True:\n",
+   "judgement": "equivalent",
+   "reason": "_short(None) is None, which the next guard skips"
+  },
+  {
+   "id": "messages.py:450:584",
+   "file": "agenttrace/messages.py",
+   "function": "channel_ops",
+   "line": 450,
+   "operator": "guard always true",
+   "old": "midx",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -450 +450 @@\n-        if midx:\n+        if True:\n",
+   "judgement": "equivalent",
+   "reason": "with an empty index every lookup misses, so the loop adds nothing"
+  },
+  {
+   "id": "messages.py:485:640",
+   "file": "agenttrace/messages.py",
+   "function": "channel_ops",
+   "line": 485,
+   "operator": "guard always false",
+   "old": "not found",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -485 +485 @@\n-        if not found:\n+        if False:\n",
+   "judgement": "equivalent",
+   "reason": "with nothing found the loop over found does nothing"
+  },
+  {
+   "id": "messages.py:486:642",
+   "file": "agenttrace/messages.py",
+   "function": "channel_ops",
+   "line": 486,
+   "operator": "drop continue",
+   "old": "continue",
+   "new": "pass",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -486 +486 @@\n-            continue\n+            pass\n",
+   "judgement": "equivalent",
+   "reason": "with nothing found the loop over found does nothing"
+  },
+  {
+   "id": "messages.py:491:649",
+   "file": "agenttrace/messages.py",
+   "function": "channel_ops",
+   "line": 491,
+   "operator": "flip comparison",
+   "old": ">",
+   "new": ">=",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -491 +491 @@\n-            if len(toks) > 1 and ch in seg_of:\n+            if len(toks) >= 1 and ch in seg_of:\n",
+   "judgement": "equivalent",
+   "reason": "with one token, `here` can only hold that token, which is already the actor"
+  },
+  {
+   "id": "messages.py:491:650",
+   "file": "agenttrace/messages.py",
+   "function": "channel_ops",
+   "line": 491,
+   "operator": "off by one",
+   "old": "1",
+   "new": "0",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -491 +491 @@\n-            if len(toks) > 1 and ch in seg_of:\n+            if len(toks) > 0 and ch in seg_of:\n",
+   "judgement": "equivalent",
+   "reason": "with one token `here` can only hold the actor; with none it is empty"
+  },
+  {
+   "id": "messages.py:584:778",
+   "file": "agenttrace/messages.py",
+   "function": "deliveries",
+   "line": 584,
+   "operator": "off by one",
+   "old": "4",
+   "new": "3",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -584 +584 @@\n-        reads = sorted(reads, key=lambda o: (o[4] is None, o[4] or 0, o[5]))\n+        reads = sorted(reads, key=lambda o: (o[3] is None, o[4] or 0, o[5]))\n",
+   "judgement": "equivalent",
+   "reason": "the first key element only places undated reads among dated ones; an undated read never affects another read"
+  },
+  {
+   "id": "messages.py:584:779",
+   "file": "agenttrace/messages.py",
+   "function": "deliveries",
+   "line": 584,
+   "operator": "off by one",
+   "old": "4",
+   "new": "5",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -584 +584 @@\n-        reads = sorted(reads, key=lambda o: (o[4] is None, o[4] or 0, o[5]))\n+        reads = sorted(reads, key=lambda o: (o[5] is None, o[4] or 0, o[5]))\n",
+   "judgement": "equivalent",
+   "reason": "as 584:778"
+  },
+  {
+   "id": "messages.py:584:780",
+   "file": "agenttrace/messages.py",
+   "function": "deliveries",
+   "line": 584,
+   "operator": "flip comparison",
+   "old": "is",
+   "new": "is not",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -584 +584 @@\n-        reads = sorted(reads, key=lambda o: (o[4] is None, o[4] or 0, o[5]))\n+        reads = sorted(reads, key=lambda o: (o[4] is not None, o[4] or 0, o[5]))\n",
+   "judgement": "equivalent",
+   "reason": "undated reads are then handled first instead of last; the order among dated reads is unchanged"
+  },
+  {
+   "id": "messages.py:688:988",
+   "file": "agenttrace/messages.py",
+   "function": "content_spread.touches",
+   "line": 688,
+   "operator": "guard always false",
+   "old": "e is None",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -688 +688 @@\n-        if e is None:\n+        if False:\n",
+   "judgement": "equivalent",
+   "reason": "rid always comes from the events, so by_id.get(rid) is never None"
+  },
+  {
+   "id": "messages.py:689:991",
+   "file": "agenttrace/messages.py",
+   "function": "content_spread.touches",
+   "line": 689,
+   "operator": "flip returned bool",
+   "old": "False",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -689 +689 @@\n-            return False\n+            return True\n",
+   "judgement": "equivalent",
+   "reason": "unreachable: by_id.get(rid) is never None"
+  },
+  {
+   "id": "messages.py:710:1022",
+   "file": "agenttrace/messages.py",
+   "function": "content_spread",
+   "line": 710,
+   "operator": "off by one",
+   "old": "1",
+   "new": "0",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -710 +710 @@\n-        dated = sorted((x for x in lst if x[0] is not None), key=lambda x: (x[0], x[1]))\n+        dated = sorted((x for x in lst if x[0] is not None), key=lambda x: (x[0], x[0]))\n",
+   "judgement": "equivalent",
+   "reason": "the copies are appended in input order and the sort is stable, so ties already fall in input order"
+  },
+  {
+   "id": "messages.py:771:1103",
+   "file": "agenttrace/messages.py",
+   "function": "message_flow",
+   "line": 771,
+   "operator": "off by one",
+   "old": "1",
+   "new": "2",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -771 +771 @@\n-        t = p[\"channel\"].split(\":\", 1)[0]\n+        t = p[\"channel\"].split(\":\", 2)[0]\n",
+   "judgement": "equivalent",
+   "reason": "[0] of split(':', n) is the same for any n >= 1"
+  },
+  {
+   "id": "messages.py:794:1132",
+   "file": "agenttrace/messages.py",
+   "function": "message_flow",
+   "line": 794,
+   "operator": "off by one",
+   "old": "6",
+   "new": "5",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -794 +794 @@\n-        \"records_on_channels\": len({o[6] for o in ops}),\n+        \"records_on_channels\": len({o[5] for o in ops}),\n",
+   "judgement": "unjudged",
+   "note": "len({o[6]}) -> len({o[5]}): distinct record ids against distinct input positions. The two counts are equal whenever record ids are unique; left unjudged because that is a property of the loader, not of messages.py, and no test here feeds duplicate ids."
+  }
+ ],
+ "survivors_equivalent": 48,
+ "survivors_unjudged": 1,
+ "judged_equivalent_but_killed": [],
+ "kill_rate_non_equivalent": 0.9991,
+ "survivors_equivalent_list": [
+  {
+   "id": "messages.py:33:1",
+   "function": "_thread_identity",
+   "old": "\"_thread_ident\" not in rec",
+   "new": "True",
+   "reason": "only a cache: computing the table again gives the same table"
+  },
+  {
+   "id": "messages.py:39:7",
+   "function": "_thread_identity",
+   "old": "1",
+   "new": "2",
+   "reason": "every vote counts double, so the most used token is the same"
+  },
+  {
+   "id": "messages.py:40:9",
+   "function": "_thread_identity",
+   "old": "1",
+   "new": "2",
+   "reason": "most_common(2)[0] is most_common(1)[0]"
+  },
+  {
+   "id": "messages.py:55:24",
+   "function": "actor_of",
+   "old": "1",
+   "new": "0",
+   "reason": "packs.py builds the handle pattern as lookbehind + (group 1) + lookahead, so group(0) equals group(1)"
+  },
+  {
+   "id": "messages.py:82:34",
+   "function": "direct_messages",
+   "old": "e.parent",
+   "new": "True",
+   "reason": "children[None] is filled but never looked up (lookups use a record id)"
+  },
+  {
+   "id": "messages.py:90:37",
+   "function": "direct_messages.who",
+   "old": "j not in memo",
+   "new": "True",
+   "reason": "only a memo: actor_of gives the same answer again"
+  },
+  {
+   "id": "messages.py:104:57",
+   "function": "direct_messages",
+   "old": "1",
+   "new": "0",
+   "reason": "the slice then starts at the message itself, which the reply test rejects (j != i)"
+  },
+  {
+   "id": "messages.py:106:67",
+   "function": "direct_messages",
+   "old": "reply is not None",
+   "new": "True",
+   "reason": "with no reply rid is the message's own id, and times.get of it is t"
+  },
+  {
+   "id": "messages.py:165:108",
+   "function": "_call_end",
+   "old": "1",
+   "new": "0",
+   "reason": "no request-call pattern can match starting at the '(' itself"
+  },
+  {
+   "id": "messages.py:237:229",
+   "function": "_descriptor_verb",
+   "old": ">=",
+   "new": ">",
+   "reason": "hi is searched from pos and pos > 0 (the url key comes before it), so hi is -1 or greater than 0"
+  },
+  {
+   "id": "messages.py:237:230",
+   "function": "_descriptor_verb",
+   "old": "0",
+   "new": "1",
+   "reason": "hi is -1 or greater than 0 (see 237 '>=' -> '>')"
+  },
+  {
+   "id": "messages.py:279:282",
+   "function": "_judge",
+   "old": "160",
+   "new": "159",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:283",
+   "function": "_judge",
+   "old": "160",
+   "new": "161",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:284",
+   "function": "_judge",
+   "old": "160",
+   "new": "40",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:285",
+   "function": "_judge",
+   "old": "160",
+   "new": "640",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:286",
+   "function": "_judge",
+   "old": "260",
+   "new": "259",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:287",
+   "function": "_judge",
+   "old": "260",
+   "new": "261",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:288",
+   "function": "_judge",
+   "old": "260",
+   "new": "1040",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:279:289",
+   "function": "_judge",
+   "old": "260",
+   "new": "65",
+   "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
+  },
+  {
+   "id": "messages.py:327:377",
+   "function": "_judge",
+   "old": "0",
+   "new": "1",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:378",
+   "function": "_judge",
+   "old": "80",
+   "new": "79",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:379",
+   "function": "_judge",
+   "old": "80",
+   "new": "81",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:380",
+   "function": "_judge",
+   "old": "80",
+   "new": "20",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:381",
+   "function": "_judge",
+   "old": "80",
+   "new": "320",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:382",
+   "function": "_judge",
+   "old": "120",
+   "new": "119",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:383",
+   "function": "_judge",
+   "old": "120",
+   "new": "121",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:384",
+   "function": "_judge",
+   "old": "120",
+   "new": "30",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:327:385",
+   "function": "_judge",
+   "old": "120",
+   "new": "480",
+   "reason": "the variable `near` is assigned and never read"
+  },
+  {
+   "id": "messages.py:338:403",
+   "function": "_judge",
+   "old": "_helper_verb(text, um.start()) is not None",
+   "new": "True",
+   "reason": "when the helper carries no verb both branches set the same verdict and span"
+  },
+  {
+   "id": "messages.py:352:457",
+   "function": "_judge",
+   "old": "90",
+   "new": "89",
+   "reason": "the pattern matches at most 78 characters (70 + quote + DELETE + quote), so a slice of 89 is enough"
+  },
+  {
+   "id": "messages.py:352:458",
+   "function": "_judge",
+   "old": "90",
+   "new": "91",
+   "reason": "the pattern matches at most 78 characters, a longer slice changes nothing"
+  },
+  {
+   "id": "messages.py:352:460",
+   "function": "_judge",
+   "old": "90",
+   "new": "360",
+   "reason": "the pattern matches at most 78 characters, a longer slice changes nothing"
+  },
+  {
+   "id": "messages.py:372:484",
+   "function": "_judge.nearest",
+   "old": "<=",
+   "new": "<",
+   "reason": "when pos equals m.start() the other branch also gives distance 0"
+  },
+  {
+   "id": "messages.py:372:485",
+   "function": "_judge.nearest",
+   "old": "<=",
+   "new": "<",
+   "reason": "when pos equals m.end() the other branch also gives distance 0"
+  },
+  {
+   "id": "messages.py:373:490",
+   "function": "_judge.nearest",
+   "old": "<",
+   "new": "<=",
+   "reason": "replaces the best distance by an equal one"
+  },
+  {
+   "id": "messages.py:419:562",
+   "function": "_mention_index",
+   "old": "e.channel",
+   "new": "True",
+   "reason": "_short(None) is None, which the next guard skips"
+  },
+  {
+   "id": "messages.py:450:584",
+   "function": "channel_ops",
+   "old": "midx",
+   "new": "True",
+   "reason": "with an empty index every lookup misses, so the loop adds nothing"
+  },
+  {
+   "id": "messages.py:485:640",
+   "function": "channel_ops",
+   "old": "not found",
+   "new": "False",
+   "reason": "with nothing found the loop over found does nothing"
+  },
+  {
+   "id": "messages.py:486:642",
+   "function": "channel_ops",
+   "old": "continue",
+   "new": "pass",
+   "reason": "with nothing found the loop over found does nothing"
+  },
+  {
+   "id": "messages.py:491:649",
+   "function": "channel_ops",
+   "old": ">",
+   "new": ">=",
+   "reason": "with one token, `here` can only hold that token, which is already the actor"
+  },
+  {
+   "id": "messages.py:491:650",
+   "function": "channel_ops",
+   "old": "1",
+   "new": "0",
+   "reason": "with one token `here` can only hold the actor; with none it is empty"
+  },
+  {
+   "id": "messages.py:584:778",
+   "function": "deliveries",
+   "old": "4",
+   "new": "3",
+   "reason": "the first key element only places undated reads among dated ones; an undated read never affects another read"
+  },
+  {
+   "id": "messages.py:584:779",
+   "function": "deliveries",
+   "old": "4",
+   "new": "5",
+   "reason": "as 584:778"
+  },
+  {
+   "id": "messages.py:584:780",
+   "function": "deliveries",
+   "old": "is",
+   "new": "is not",
+   "reason": "undated reads are then handled first instead of last; the order among dated reads is unchanged"
+  },
+  {
+   "id": "messages.py:688:988",
+   "function": "content_spread.touches",
+   "old": "e is None",
+   "new": "False",
+   "reason": "rid always comes from the events, so by_id.get(rid) is never None"
+  },
+  {
+   "id": "messages.py:689:991",
+   "function": "content_spread.touches",
+   "old": "False",
+   "new": "True",
+   "reason": "unreachable: by_id.get(rid) is never None"
+  },
+  {
+   "id": "messages.py:710:1022",
+   "function": "content_spread",
+   "old": "1",
+   "new": "0",
+   "reason": "the copies are appended in input order and the sort is stable, so ties already fall in input order"
+  },
+  {
+   "id": "messages.py:771:1103",
+   "function": "message_flow",
+   "old": "1",
+   "new": "2",
+   "reason": "[0] of split(':', n) is the same for any n >= 1"
+  }
+ ],
+ "survivors_unjudged_list": [
+  {
+   "id": "messages.py:794:1132",
+   "function": "message_flow",
+   "old": "6",
+   "new": "5",
+   "note": "len({o[6]}) -> len({o[5]}): distinct record ids against distinct input positions. The two counts are equal whenever record ids are unique; left unjudged because that is a property of the loader, not of messages.py, and no test here feeds duplicate ids."
+  }
+ ],
+ "baseline_tests_git_HEAD": {
+  "mode": "full, baseline tests (git HEAD)",
+  "tests": [
+   "agenttrace.tests.test_messages"
+  ],
+  "mutants_run": 1173,
+  "killed": 342,
+  "survived": 831,
+  "kill_rate": 0.2916
+ },
+ "before": {
+  "made": "2026-11-14T21:12:02Z",
+  "mode": "full",
+  "tests": [
+   "agenttrace.tests.test_messages",
+   "agenttrace.tests.test_properties",
+   "agenttrace.tests.test_refcount"
+  ],
+  "mutants_run": 1173,
+  "killed": 678,
+  "killed_by_timeout": 1,
+  "survived": 495,
+  "kill_rate": 0.578,
+  "seconds": 498.2,
+  "survivors_by_function": {
+   "_call_end": 11,
+   "_descriptor_verb": 33,
+   "_direct_perf": 3,
+   "_helper_verb": 26,
+   "_hidden_holder_written": 10,
+   "_how_group": 1,
+   "_in_order": 12,
+   "_judge": 122,
+   "_judge.nearest": 7,
+   "_lines": 3,
+   "_mention_index": 6,
+   "_norm": 1,
+   "_opts_write": 18,
+   "_short": 1,
+   "_thread_identity": 4,
+   "actor_of": 5,
+   "channel_ops": 38,
+   "compile_channels": 3,
+   "content_spread": 24,
+   "content_spread.touches": 27,
+   "deliveries": 26,
+   "direct_messages": 19,
+   "direct_messages.who": 1,
+   "families": 9,
+   "grade_of": 1,
+   "judge_how": 6,
+   "judge_op": 9,
+   "judge_span": 10,
+   "message_flow": 52,
+   "program_prefix": 7
+  },
+  "note": "tests: test_messages, test_refcount, test_properties, before agenttrace/tests/test_mutants.py existed; no survivor had been judged"
+ },
+ "after": {
+  "made": "2026-11-15T09:42:43Z",
+  "mode": "full",
+  "tests": [
+   "agenttrace.tests.test_messages",
+   "agenttrace.tests.test_mutants",
+   "agenttrace.tests.test_properties",
+   "agenttrace.tests.test_refcount"
+  ],
+  "mutants_run": 1173,
+  "killed": 1124,
+  "killed_by_timeout": 1,
+  "survived": 49,
+  "kill_rate": 0.9582,
+  "seconds": 78.4,
+  "survivors_equivalent": 48,
+  "survivors_unjudged": 1,
+  "judged_equivalent_but_killed": [],
+  "kill_rate_non_equivalent": 0.9991
+ },
+ "note": "Full run, every mutant of messages.py (1,173). Baseline (test_messages at git HEAD): 342 killed. Before: 678 killed (0.578). After adding agenttrace/tests/test_mutants.py: 1124 killed (0.9582), 49 survive: 48 judged equivalent by hand (reasons in agenttrace/tools/mutate.py EQUIVALENT), 1 unjudged. Killed share of non-equivalent mutants: 1124/1125 = 0.9991. The equivalence judgements are a person's reading of the code, not a proof."
+}

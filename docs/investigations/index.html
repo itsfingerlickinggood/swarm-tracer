@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investigations · Swarm Tracer</title>
+<meta name="description" content="Written investigations of the Swarm Traces incident. Every claim opens the records behind it.">
+<link rel="stylesheet" href="story.css">
+</head>
+<body class="gallery">
+<a class="skip" href="#main">Skip to the content</a><header class="site"><div class="bar"><a class="brand" href="../"><svg width="24" height="24" viewBox="0 0 26 26" aria-hidden="true"><g fill="none" stroke="#7fb3e6" stroke-width="1.3"><path d="M5 7L13 4L21 8L19 17L11 21L5 15Z" opacity=".55"/><path d="M13 4L11 21M5 7L19 17M21 8L5 15" opacity=".35"/></g><g fill="#fff"><circle cx="5" cy="7" r="2"/><circle cx="13" cy="4" r="2"/><circle cx="21" cy="8" r="2"/><circle cx="19" cy="17" r="2"/><circle cx="11" cy="21" r="2"/><circle cx="5" cy="15" r="2"/></g><circle cx="13" cy="12.5" r="2.6" fill="#e3a43b"/></svg><span>Swarm Tracer</span></a><nav aria-label="Site"><a href="../">Home</a><a href="../demo/">Demo</a><a href="../investigations/" aria-current="page">Investigations</a><a href="../datasets.html">Datasets</a><a href="https://github.com/itsfingerlickinggood/swarm-tracer">GitHub</a></nav></div></header>
+<main id="main" class="wrap">
+<p class="kicker">Investigations</p>
+<h1>What the records show, claim by claim</h1>
+<p class="dek">Three short investigations of the Swarm Traces incident, written with Swarm Tracer. Every claim is a link. It opens the records behind it: the record id, the time and whether it is estimated, the token and agent, and what the tool judged.</p>
+<ol class="cases"><li class="case"><a href="first-message/"><span class="n" aria-hidden="true">1</span><h2>The first message between agents</h2><p>The tool finds <span class="v" data-v="deliveries">23</span> messages in the release. Only <span class="v" data-v="named">6</span> are between named tokens, and <span class="v" data-v="inside">3</span> of those stay inside one estimated agent. That moves the first message between agents by almost two days.</p><span class="foot">12 claims · 12 records cited<b>Read the investigation →</b></span></a></li><li class="case"><a href="shared-place-sign/"><span class="n" aria-hidden="true">2</span><h2>The one sign that warned early</h2><p>In our simulated swarms one sign fired hours before the first harm: two identities using the same place. On the real incident it did not come early. Here is what each result rests on.</p><span class="foot">10 claims · 4 records cited<b>Read the investigation →</b></span></a></li><li class="case"><a href="what-is-missed/"><span class="n" aria-hidden="true">3</span><h2>What an investigator would still miss</h2><p>The people who ran the incident published what they found. We checked each finding against the public release. <span class="v" data-v="invisible">15</span> of <span class="v" data-v="total">41</span> cannot be seen in it at all.</p><span class="foot">13 claims · 5 records cited<b>Read the investigation →</b></span></a></li></ol>
+<section class="about">
+<h2>How these are made</h2>
+<p>Each story is a small JSON file with no numbers in it. A build script fills every number and record from the dataset, and writes an evidence bundle that holds only the cited records. A check fails the site if a claim has no record, if a number on a page differs from the bundle, or if anything that looks like a secret is published.</p>
+<p>The pages publish record ids, times, tokens and what the tool judged. They do not reproduce record text: each record links to the publisher's own viewer.</p>
+<p><b>Data.</b> Forman, Kharlov, Tom et al., "<a href="https://swarmtraces.org/" rel="noopener">Revealing the details of how OpenAI agents hacked Hugging Face</a>", swarmtraces.org, 25 Sep 2026. The release states no licence; see <a href="../datasets.html">Datasets</a> for what we publish and why.</p>
+<p class="produced">Numbers: Swarm Tracer 2.1.0, pack "code traces (Swarm Traces release)", agents counted by the "estimate" rule (tokens merged on direct evidence), on redacted_columns.csv (189,579 records). Times marked estimated are dated from timestamps in the agents' code.</p>
+<p><a class="btn" href="../demo/">Try the tool on a simulated swarm</a> <a class="btn ghost" href="../getting-started.html">Install it and run your own</a></p>
+</section>
+</main>
+</body>
+</html>

@@ -91,7 +91,7 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
   <div class="big">
     <div><b>59%</b><span>of 91,037 payloads given an estimated time (the release could date 3%)</span></div>
     <div><b>2.2 h</b><span>largest gap between 7 moments we date and times METR and Hugging Face published</span></div>
-    <div><b>6</b><span>messages between 8 named tokens in 5 pairs (24 in all), all through Hugging Face datasets; a first count of 166 fell after auditing 258 links</span></div>
+    <div><b>6</b><span>messages between 8 named tokens in 5 pairs (23 in all), nearly all through Hugging Face datasets; a first count of 166 fell after auditing 258 links</span></div>
     <div><b>ρ = 1.0</b><span>our actions per day rank the five days as Hugging Face's own logs do</span></div>
   </div>
   <p class="small muted" style="margin-top:28px">Every number recomputed with <code>python3 -m agenttrace evaluate</code>; published times from METR pp. 34–38 and Hugging Face's technical timeline.</p>
@@ -104,7 +104,7 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
     <div>
       <h2>Two clusters, joined by a few brokers</h2>
       <ul>
-        <li>Agents talked almost entirely through Hugging Face datasets: 493 of 495 messages.</li>
+        <li>Agents talked almost entirely through Hugging Face datasets: 22 of 23 messages.</li>
         <li>Tokens 169 and 170 talked evenly both ways, shared programs and a name prefix: probably one agent with two keys. The tool proposes this merge with direct evidence.</li>
         <li>Naive counting overstates contact: on the wiki swarm, the rules cut 20,535 apparent messages to 9,866.</li>
       </ul>
@@ -133,17 +133,17 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
 
 <section class="s">
   <div class="k">How accurate is it?</div>
-  <h2>Scored on 50 simulated swarms with known answers</h2>
+  <h2>Scored on 60 simulated swarms with known answers</h2>
   <table>
     <tr><th>Measure</th><th>Result (min–median–max)</th></tr>
-    <tr><td>Message links: precision / recall</td><td>66–<b>79</b>–88% / 57–<b>73</b>–80%</td></tr>
-    <tr><td>Agent pairs that talked: precision / recall</td><td>81–<b>89</b>–96% / 71–<b>83</b>–89%</td></tr>
+    <tr><td>Message links: precision / recall</td><td>66–<b>79</b>–88% / 57–<b>73</b>–81%</td></tr>
+    <tr><td>Agent pairs that talked: precision / recall</td><td>81–<b>89</b>–96% / 71–<b>83</b>–91%</td></tr>
     <tr><td>Dating error, median</td><td>about one minute</td></tr>
-    <tr><td>Identity merges labelled high: before / after a rule change</td><td>10 of 240 right / 10 of 10 right</td></tr>
-    <tr><td>Benign swarms: messages between different agents</td><td>0 in 10 runs</td></tr>
+    <tr><td>Identity merges labelled high: before / after a rule change</td><td>10 of 240 right / 12 of 12 right</td></tr>
+    <tr><td>Benign swarms: messages between different agents</td><td>0 in 15 runs</td></tr>
     <tr><td>Benign swarms: program-reuse sign, before / after counting only reuse that touches a shared place or does harm</td><td>10 of 10 / 0 of 10</td></tr>
     <tr><td>Places named only in code comments, before / after they stop counting as reads</td><td>message precision 66% / 79%</td></tr>
-    <tr><td>Hand audit of the release's links: a GET of a dataset plus a POST elsewhere was counted as a write</td><td>166 links → 24; 258 audited, one reader; the simulator never wrote this pattern until we added it</td></tr>
+    <tr><td>Hand audit of the release's links: a GET of a dataset plus a POST elsewhere was counted as a write</td><td>166 links → 23; 258 audited, one reader; the simulator never wrote this pattern until we added it</td></tr>
   </table>
   <div class="foot"><span>docs/validation.md · report Appendix C</span><span>8</span></div>
 </section>
@@ -154,7 +154,7 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
   <ul>
     <li><b>A token is not an agent.</b> 241 named tokens and names against about 1,200 agents in the reports; 85% of actions carry no named actor. Merged into estimated agents, tokens 169 and 170 are likely one agent: 3 of the 6 messages fall inside one agent, and every sign of shared control fires later (the earliest with 38% of harm to come, not 57%).</li>
     <li><b>Time:</b> 60% of records cannot be placed at all; with dating error, the 6 named messages range 6&ndash;7 (95%).</li>
-    <li><b>Reading is inferred:</b> code shows attempts, not results; 97 of 495 messages sit on places the redaction may have merged.</li>
+    <li><b>Reading is inferred:</b> code shows attempts, not results; 3 of 23 messages sit on places the redaction may have merged.</li>
     <li><b>Hindsight:</b> the signals and the harm list were written knowing how the incident unfolded.</li>
     <li><b>Dual use:</b> these gaps are also what a careful swarm could exploit; we describe them only at the level of the public reports and test no evasion.</li>
   </ul>
@@ -181,7 +181,7 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
 <section class="s dark">
   <div style="margin-top:1.1in">
     <div class="k">Try it</div>
-    <h1 style="font-size:44px">pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v1.0.0</h1>
+    <h1 style="font-size:44px">pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.1.0</h1>
     <p class="sub">then <code>swarm-tracer demo</code>, or <code>swarm-tracer serve --input your-swarm.jsonl</code></p>
     <p class="sub" style="font-size:22px;margin-top:30px">Code: github.com/itsfingerlickinggood/swarm-tracer<br>Website, docs and video: itsfingerlickinggood.github.io/swarm-tracer</p>
   </div>

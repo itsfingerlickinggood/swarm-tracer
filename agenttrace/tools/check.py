@@ -4,7 +4,8 @@
                                                   # format samples and the odd files; oracle on the demo swarm
     python3 -m agenttrace.tools.check --quick    # unit tests; smoke on the demo swarm and the samples, API only
                                                   # (no browser); oracle on the demo swarm
-    python3 -m agenttrace.tools.check --full     # also the two real datasets (smoke + oracle) and the concurrency checks
+    python3 -m agenttrace.tools.check --full     # also the two real datasets (smoke + oracle), the concurrency checks
+                                                  # and the interaction test (tools.interact --quick) on the demo swarm
 
 Prints one line per stage and a summary, and exits non-zero when anything fails. Servers run on free ports.
 """
@@ -46,6 +47,25 @@ def run_oracle(label, path, pack, port):
         lines = [ln for ln in buf.getvalue().splitlines() if ln.startswith("FAIL")]
         return not c.failed, f"{len(c.rows) - len(c.failed)}/{len(c.rows)} checks pass" + \
             ("".join("\n      " + ln for ln in lines) if lines else ""), time.time() - t0
+    finally:
+        srv.stop()
+
+
+def run_interact(port):
+    """Hover, click and type on one control of each kind per tab (tools.interact --quick), on the demo swarm."""
+    from . import interact
+    srv = smoke.Server(port, os.path.join(smoke.PKG, "samples", "demo_swarm"))
+    try:
+        if not srv.wait(300):
+            return False, f"server did not start: {srv.output(300)}", 0
+        t0 = time.time()
+        ds = interact.run_dataset("demo swarm", srv.base, mode="quick")
+        buf = io.StringIO()
+        fails = interact.print_report([ds], out=buf)
+        used = sum(sum(r["exercised"].values()) for r in ds["pages"])
+        lines = [ln for ln in buf.getvalue().splitlines() if ln.startswith("FAIL")]
+        return not fails, f"{used} controls exercised on {len(ds['pages'])} pages, {len(ds['checks'])} scripted checks, {fails} failures" + \
+            "".join("\n      " + ln[:200] for ln in lines[:20]), time.time() - t0
     finally:
         srv.stop()
 
@@ -95,8 +115,13 @@ def main(argv=None):
 
     stage("oracle on the demo swarm", lambda: run_oracle("demo swarm", os.path.join(smoke.PKG, "samples", "demo_swarm"), None, port))
     if a.full:
+        stage("interactions on the demo swarm (quick)", lambda: run_interact(port))
         stage("oracle on the collusion.wiki logs", lambda: run_oracle("wiki", os.path.join(ROOT, "full-wiki-logs"), None, port))
         stage("oracle on the Swarm Traces release", lambda: run_oracle("big", os.path.join(ROOT, "redacted_columns.csv"), "code_traces.json", port))
+
+    # published numbers against the provenance manifest (--quick: printed texts and file hashes only, nothing re-derived)
+    from . import provenance
+    stage("provenance" + (" (texts only)" if a.quick else ""), lambda: provenance.check_stage(texts_only=a.quick))
 
     failed = [s for s in stages if not s[1]]
     sys.stdout.write("\n" + "\n".join(f"{'PASS' if ok else 'FAIL'}  {name}" for name, ok, _, _ in stages) + "\n")

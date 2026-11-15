@@ -1,0 +1,9 @@
+/* Accept / Reject controls on messages and warning signs */
+.dec{display:inline-flex;align-items:center;gap:3px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+.dec .decst{font-size:11px;color:var(--muted);margin-right:2px}
+.dec button{font-size:11px;padding:0 7px;line-height:18px;border-radius:9px}
+.dec button[aria-pressed="true"]{background:var(--accent-bg);border-color:var(--accent);color:#1e4f86;font-weight:600}
+.dec.rej .decst{color:var(--bad);font-weight:600}
+.dec.rej button[data-dec-act="reject"][aria-pressed="true"]{background:#fdecea;border-color:var(--bad);color:var(--bad)}
+.dec.busy{opacity:.55;pointer-events:none}
+.msg .dec,.mline .dec{float:right}

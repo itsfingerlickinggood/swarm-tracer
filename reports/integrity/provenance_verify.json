@@ -1,0 +1,1369 @@
+{
+ "drift": [],
+ "disagreements": [],
+ "skipped": [],
+ "checked": {
+  "values": 179,
+  "places": 375,
+  "dataset_files": 13,
+  "claim_files": 8,
+  "blocks": 1,
+  "saved_fields": 0
+ },
+ "unregistered": [
+  {
+   "file": "paper/report.html",
+   "number": "1,200",
+   "context": "h Apart Research Abstract In July 2026 about 1,200 AI agents in a security evaluation turned a "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "3%",
+   "context": "9% of payloads, where the release could date 3%. Seven moments it dates fall within about 2."
+  },
+  {
+   "file": "paper/report.html",
+   "number": "100%",
+   "context": "uch as the first dataset write fired with 90–100%. Counting rules remove false contact: on wik"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "1,200",
+   "context": "er 2026 1. Introduction In July 2026 roughly 1,200 agents running inside an OpenAI security eva"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "1,200",
+   "context": " they used 7,905 different names for roughly 1,200 agents (Forman et al., 2026). Every contact "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "3%",
+   "context": "times for 59% of payloads (the release dates 3% of payloads), seven estimated event times fa"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "100%",
+   "context": ") and much later than single-agent signs (90–100%). Three counting rules that remove false con"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "80,000",
+   "context": "). The Swarm Traces authors reassembled over 80,000 attack payloads from public link-shortener c"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "53.5%",
+   "context": "m to fail. Their best method finds the agent 53.5% of the time but the step only 14.2%, using L"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "14.2%",
+   "context": "he agent 53.5% of the time but the step only 14.2%, using LLM judgments. We attribute communica"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "3%",
+   "context": "s Time field None; the release authors dated 3% of payloads from embedded headers On every r"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "3.2",
+   "context": "69] is the same hidden token everywhere None 3.2 Reconstruction Swarm Tracer runs one pipelin"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "20",
+   "context": "a quarter or more of all runs in traces with 20 or more tokens. As a check on stability, 39 "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "90%",
+   "context": "five or more times keep one role in at least 90% of their uses. Places and messages. A place "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "60",
+   "context": "e same program as the writer (the same first 60 normalized tokens) is one sender retrying, n"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "58",
+   "context": "port sections show up in the traces, and all 58 cited records are present. The behavior patt"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "192",
+   "context": "patterns were checked on a labeled sample of 192 records (Appendix B). 4. Results 4.1 The rec"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "22%",
+   "context": "days). Our July 9 share is lower (6% against 22%) because the dated records begin at 13:29 th"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "95%",
+   "context": "se 100 times, σ = 0.12 h gives 6–7 messages (95% range) and σ = 2 h gives 5–9, so dating erro"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "11",
+   "context": ", such as a token check (R0014376) run under 11 tokens. The widest non-routine program, a da"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "9",
+   "context": " in R0016522 at 12:59 on July 11 and then by 9 other tokens within 16 hours, the last being"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "95%",
+   "context": "lines. Light vertical bars show each point's 95% range when every time is perturbed by the da"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "169",
+   "context": "thers, which makes the first message, 170 to 169, likely one agent talking to itself. Between "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "95%",
+   "context": "nts are not in the release; it held at least 95% of Artifactory communication (OpenAI, 2026b)"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "192",
+   "context": "rates. The behavior patterns were checked on 192 records labeled by the AI assistant that hel"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "201",
+   "context": "hours before the swarm-wide surge, and share 201 programs, one of which runs under six of the"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "385",
+   "context": "re times and never read by another identity. 385 records carry self-termination code (os.kill"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "95%",
+   "context": "h its share of timed harm still to come, the 95% range under the conservative time-error test"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "95%",
+   "context": "ater. Signal First fired (UTC) Still to come 95% range −1 h +1 h {{ROBUST_ROWS}} Table 6. Pre"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "10",
+   "context": "behavior patterns on a labeled sample (about 10 records per pattern; labels by the AI assist"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "95%",
+   "context": "judgeable records are omitted. Intervals are 95% Wilson intervals (Wilson, 1927). Pattern Jud"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "95%",
+   "context": "son, 1927). Pattern Judged Correct Precision 95% interval {{PRECISION_ROWS}} Of 30 untagged c"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "30",
+   "context": "Precision 95% interval {{PRECISION_ROWS}} Of 30 untagged control records, 18 showed a behavi"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "14",
+   "context": "sted on July 10 where OpenAI's report counts 14 tokens. The app shows the file only for data"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "600",
+   "context": "t no AI output. The test suite has more than 600 tests, and a local check runs a smoke test o"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "80",
+   "context": "lidation run): 9 coordinated settings (20 to 80 agents, some holding two tokens, hidden read"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "240",
+   "context": "erges labelled high were right in only 10 of 240 pairs (first run; docs/validation.md) becaus"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "66%",
+   "context": "of 12 and 60 of 60 pairs. Message links were 66% precise (median, first run) because places n"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "79%",
+   "context": "ted as reads; ignoring comments raised it to 79%. Program-reuse signs fired in 10 of 10 benig"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "10",
+   "context": "t to 79%. Program-reuse signs fired in 10 of 10 benign runs on shared boilerplate; counting "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "66%",
+   "context": " there the first version’s rules reach about 66% precision and 57% recall, the final rules 79"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "57%",
+   "context": "ersion’s rules reach about 66% precision and 57% recall, the final rules 79% and 79%, and on "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "79%",
+   "context": "6% precision and 57% recall, the final rules 79% and 79%, and on the benign version of that s"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "79%",
+   "context": "sion and 57% recall, the final rules 79% and 79%, and on the benign version of that setting t"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "282",
+   "context": "rsion of that setting the first rules report 282 links between different agents and the final"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "1,200",
+   "context": "od.github.io/swarm-tracer The incident About 1,200 agents built a message board; about 700 brok"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "3%",
+   "context": " 169], with no agent field and timestamps on 3% of payloads. The question: from public logs "
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "3%",
+   "context": "en an estimated time (the release could date 3%) 2.2 h largest gap between 7 moments we date"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "100%",
+   "context": " Single-agent signs (first dataset write) 90–100% First message between tokens 90% Volume alar"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "95%",
+   "context": "ime errors as large as the dating fit's own (95% ranges in the report). Report Section 4.4 an"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "88%",
+   "context": "max) Message links: precision / recall 66–79–88% / 57–73–81% Agent pairs that talked: precisi"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "96%",
+   "context": " pairs that talked: precision / recall 81–89–96% / 71–83–91% Dating error, median about one m"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "10",
+   "context": " a shared place or does harm 10 of 10 / 0 of 10 Places named only in code comments, before /"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "66%",
+   "context": "hey stop counting as reads message precision 66% / 79% Hand audit of the release's links: a G"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "79%",
+   "context": "op counting as reads message precision 66% / 79% Hand audit of the release's links: a GET of "
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "1,200",
+   "context": "nt. 241 named tokens and names against about 1,200 agents in the reports; 85% of actions carry "
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "95%",
+   "context": "ating error, the 6 named messages range 6–7 (95%). Reading is inferred: code shows attempts, "
+  },
+  {
+   "file": "README.md",
+   "number": "19",
+   "context": "ubmitted to the hackathon say the tool finds 19 messages between named tokens in the Swarm T"
+  },
+  {
+   "file": "README.md",
+   "number": "19",
+   "context": "records) found that count wrong: most of the 19 were two tokens committing to the same datas"
+  },
+  {
+   "file": "README.md",
+   "number": "23",
+   "context": "sagrees heavily on the Swarm Traces release (23 deliveries against 192). The disagreements w"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "20",
+   "context": "e bars, and can run a quick check (one seed, 20 agents) without a terminal. GET /api/x/valid"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "3,260",
+   "context": "h seeds 1–5, so 45 coordinated swarms of 660–3,260 records each): | setting | what changes | |-"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "40",
+   "context": "ach): | setting | what changes | |---|---| | 40 agents, defaults | 12% of agents hold two to"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "12%",
+   "context": " changes | |---|---| | 40 agents, defaults | 12% of agents hold two tokens; 8% of reads hidde"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "8%",
+   "context": "s, defaults | 12% of agents hold two tokens; 8% of reads hidden; a few place-naming notes pe"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "60%",
+   "context": "ce-naming notes per agent; times embedded in 60% of records | | 20 agents / 80 agents | swarm"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "20",
+   "context": " agent; times embedded in 60% of records | | 20 agents / 80 agents | swarm size | | 35% hold"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "80",
+   "context": "s embedded in 60% of records | | 20 agents / 80 agents | swarm size | | 35% hold two tokens "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "35%",
+   "context": "s | | 20 agents / 80 agents | swarm size | | 35% hold two tokens | many more agents with a se"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "25%",
+   "context": " many more agents with a second identity | | 25% of reads hidden | more messages the patterns"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "5",
+   "context": " that name a place without reading it, about 5 per agent | | no hidden reads, no notes | th"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "60%",
+   "context": " estimated | | real-world payload patterns | 60% of dataset reads and writes use the code sha"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "40",
+   "context": "h make --mode benign, 3 settings × 5 seeds): 40 agents work in parallel sessions on their ow"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "12",
+   "context": "e ships in agenttrace/samples/benign_swarm/ (12 agents, 361 records). What is scored for eac"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "95%",
+   "context": "med tokens, precision 18 of 18 on the audit (95% range 82%–100%, optimistic: see below). We r"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "178",
+   "context": " every one the code at v1.3.0 reported (19): 178 links, of which one was a message by our rea"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "95%",
+   "context": " decidable ones judged true (precision 100%, 95% range 82–100%; all 6 named ones true). One l"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": "es judged true (precision 100%, 95% range 82–100%; all 6 named ones true). One labeller, and 7"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "81%",
+   "context": "e true. Pairs of agents: 71%–83%–91% recall, 81%–89%–96% precision. On the new real-world set"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "96%",
+   "context": "Pairs of agents: 71%–83%–91% recall, 81%–89%–96% precision. On the new real-world setting the"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "75%",
+   "context": "d setting the current rule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rul"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79%",
+   "context": "tting the current rule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules r"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "83%",
+   "context": "g the current rule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "73%",
+   "context": "ule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach about 66% and "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79%",
+   "context": "reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach about 66% and 57% "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "81%",
+   "context": "hes precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach about 66% and 57% ther"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "66%",
+   "context": "call 73%–79%–81%; v1.1.0's rules reach about 66% and 57% there, and on the benign version of "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "57%",
+   "context": "–79%–81%; v1.1.0's rules reach about 66% and 57% there, and on the benign version of that set"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "282",
+   "context": "e benign version of that setting they report 282 links between different agents where the cur"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "45",
+   "context": " and first registry board are found in 45 of 45 swarms within an hour. Coordination signs ar"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "45",
+   "context": "ents is within an hour of the truth in 45 of 45 swarms, groups of 3/5/10 in 37–40 of 45, the"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "84%",
+   "context": " (0.01–0.03 h), 90th percentile 3–7 minutes; 84%–87%–91% of estimated times fall inside the s"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "91%",
+   "context": ".03 h), 90th percentile 3–7 minutes; 84%–87%–91% of estimated times fall inside the stated 90"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "90%",
+   "context": "1% of estimated times fall inside the stated 90% range (slightly under the 90% it promises). "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "90%",
+   "context": "ide the stated 90% range (slightly under the 90% it promises). - Identity merging, before and"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "4%",
+   "context": "ooled over the first swarms those were right 4% of the time (10 of 240). Pairs with direct e"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "1%",
+   "context": "edium 60 of 60, and the rest stay low (about 1% right), so the low band should be read as \"w"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "5",
+   "context": "different agents (0 in all 15, including the 5 with real-world payload patterns, where v1.1"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "66%",
+   "context": "ites or actions. Message precision rose from 66% to 79% (median) and the registry-board sign "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79%",
+   "context": " actions. Message precision rose from 66% to 79% (median) and the registry-board sign moved t"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "40",
+   "context": "oved to within an hour of the truth in 40 of 40 swarms. 2. The verb nearest the mention deci"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "19",
+   "context": " recognising urlopen/.read() as reads leaves 19 messages in 12 pairs among 9 tokens (a Pytho"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "12",
+   "context": "lopen/.read() as reads leaves 19 messages in 12 pairs among 9 tokens (a Python urlopen(url) "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "9",
+   "context": "s reads leaves 19 messages in 12 pairs among 9 tokens (a Python urlopen(url) with one argum"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "178",
+   "context": "re each checked by hand. A full audit of all 178 links, with the two records of each read sid"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "166",
+   "context": "79 records, code-traces pack) to recover the 166 messages between named tokens it reported. W"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "19",
+   "context": "orted. We ran the current code the same way (19 messages; 7 of them among the 166). For each"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "178",
+   "context": "s; 7 of them among the 166). For each of the 178 links we read the write record and the read "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "178",
+   "context": "enttrace/claims/audited_links.json. What the 178 links are. | what the reading found | audite"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "18",
+   "context": "run redacted_columns.csv): - Precision: 0 of 18 links that could be decided (95% range 0%–18"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "95%",
+   "context": "cision: 0 of 18 links that could be decided (95% range 0%–18%); 1 more is unclear. At v1.1.0 "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "0%",
+   "context": "of 18 links that could be decided (95% range 0%–18%); 1 more is unclear. At v1.1.0 it was 1 "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "18%",
+   "context": "18 links that could be decided (95% range 0%–18%); 1 more is unclear. At v1.1.0 it was 1 of 1"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "0%",
+   "context": " more is unclear. At v1.1.0 it was 1 of 165 (0%–3%). - Recall: 0 of 1 true link in the audit"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "3%",
+   "context": "re is unclear. At v1.1.0 it was 1 of 165 (0%–3%). - Recall: 0 of 1 true link in the audited "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "1",
+   "context": ".1.0 it was 1 of 165 (0%–3%). - Recall: 0 of 1 true link in the audited pool (95% range 0%–"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "95%",
+   "context": "ecall: 0 of 1 true link in the audited pool (95% range 0%–79%). The one link read as true (on"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "0%",
+   "context": "f 1 true link in the audited pool (95% range 0%–79%). The one link read as true (one token c"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79%",
+   "context": " true link in the audited pool (95% range 0%–79%). The one link read as true (one token chang"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "149",
+   "context": "e v1.1.0 did what they were meant to do: all 149 read-then-post links are gone, as are the di"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "18",
+   "context": "itory links and most of the downloads. - The 18 false links the current code reports are the"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "40",
+   "context": "1.1.0 rules | current code | |---|---|---| | 40 agents, defaults (the old simulator) | preci"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79%",
+   "context": "ts, defaults (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% (ide"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "73%",
+   "context": " (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% (identical links"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79%",
+   "context": "tor) | precision 79%, recall 73% | precision 79%, recall 73% (identical links) | | 40 agents,"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "73%",
+   "context": "sion 79%, recall 73% | precision 79%, recall 73% (identical links) | | 40 agents, real-world "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "40",
+   "context": "cision 79%, recall 73% (identical links) | | 40 agents, real-world payload patterns | precis"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "66%",
+   "context": "nts, real-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "63%",
+   "context": "real-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% ("
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "69%",
+   "context": "-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "57%",
+   "context": "d patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "54%",
+   "context": "terns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% ("
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "60%",
+   "context": "s | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "72%",
+   "context": " (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "68%",
+   "context": "–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "74%",
+   "context": "), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-worl"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "62%",
+   "context": " (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-world payload pat"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "59%",
+   "context": "–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-world payload patterns"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "65%",
+   "context": ") | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-world payload patterns (no"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "292",
+   "context": "l-world payload patterns (no true message) | 292 links, 282 between different agents | 9 link"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "282",
+   "context": "load patterns (no true message) | 292 links, 282 between different agents | 9 links, 0 betwee"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "9",
+   "context": " | 292 links, 282 between different agents | 9 links, 0 between different agents | The old "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "0",
+   "context": "nks, 282 between different agents | 9 links, 0 between different agents | The old simulator"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "56",
+   "context": " can: on the benign one v1.1.0 invents about 56 messages between agents per swarm and the cu"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "59",
+   "context": "as on the real data: writes taken for reads (59 false links over the 5 coordinated swarms), "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "5",
+   "context": "tes taken for reads (59 false links over the 5 coordinated swarms), writes not seen as writ"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "124",
+   "context": "/commit become two places; this is among the 124 messages missed because write and read ended"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "177",
+   "context": "e.benchmark run redacted_columns.csv: of the 177 audited false links it reports none; it keep"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79%",
+   "context": "t truth, is the independent check: precision 79%, recall 79% (median), against 66% and 57% fo"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79%",
+   "context": "the independent check: precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "66%",
+   "context": " precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; an intermediat"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "57%",
+   "context": "on 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; an intermediate versio"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "45",
+   "context": "this fix raised benign false links from 0 to 45 across five swarms and the simulator caught "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "3",
+   "context": "okens (5 pairs); counted by estimated agent, 3 between agents and 3 inside one. The report "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "74",
+   "context": ", not only the named ones. The code reported 74 deliveries on the release; only 5 were betwe"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "6",
+   "context": "is an anonymous run: endpoint). Of those 69: 6 were true messages, 28 were a GET of the pla"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79.4%",
+   "context": "mber). The simulator did not move: precision 79.4% and recall 73.0% on the default setting, 80."
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "73.0%",
+   "context": "tor did not move: precision 79.4% and recall 73.0% on the default setting, 80.0% and 78.1% on t"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "80.0%",
+   "context": ".4% and recall 73.0% on the default setting, 80.0% and 78.1% on the real-world setting, and 9 f"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "78.1%",
+   "context": "call 73.0% on the default setting, 80.0% and 78.1% on the real-world setting, and 9 false links"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "9",
+   "context": ".0% and 78.1% on the real-world setting, and 9 false links, none between agents, on the ben"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "95%",
+   "context": "group | reported | read as true | precision (95% range) | |---|---|---|---| | all deliveries "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": " | | between two named tokens | 6 | 6 of 6 | 100% (61%–100%) | | an anonymous run on one side "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "61%",
+   "context": "etween two named tokens | 6 | 6 of 6 | 100% (61%–100%) | | an anonymous run on one side | 17 "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": "en two named tokens | 6 | 6 of 6 | 100% (61%–100%) | | an anonymous run on one side | 17 (5 un"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": "un on one side | 17 (5 unclear) | 12 of 12 | 100% (76%–100%) | Until 15 November one false lin"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "76%",
+   "context": "one side | 17 (5 unclear) | 12 of 12 | 100% (76%–100%) | Until 15 November one false link was"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": "side | 17 (5 unclear) | 12 of 12 | 100% (76%–100%) | Until 15 November one false link was repo"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "18",
+   "context": "that POSTs); a rule fix removed it, with all 18 true links kept. Read these as optimistic. T"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "18",
+   "context": " while looking at these same links, 7 of the 18 true links were added after the change, and "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "44%",
+   "context": "not separate. On the audit: inferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simu"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": "separate. On the audit: inferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simulated"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "80%",
+   "context": ": inferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simulated swarms, pooled over "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": "ferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simulated swarms, pooled over 5 see"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "45",
+   "context": "e simulated swarms, pooled over 5 seeds (all 45 coordinated runs): direct 82% (46 of 56; 70%"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "82%",
+   "context": "er 5 seeds (all 45 coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "70%",
+   "context": " 45 coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 78"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "90%",
+   "context": "coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 78% (4"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "78%",
+   "context": "s): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 78% (4,745 of 6,057);"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "78%",
+   "context": "0%–90%), inferred 78% (2,088 of 2,670), weak 78% (4,745 of 6,057); on the real-world setting "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "82%",
+   "context": " of 6,057); on the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "81%",
+   "context": " the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712;"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "75%",
+   "context": "etting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ra"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "85%",
+   "context": "ng direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "80%",
+   "context": "2%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges overlap, s"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "77%",
+   "context": "(175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges overlap, so a reader should"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "82%",
+   "context": " of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges overlap, so a reader should not"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "78%",
+   "context": "ral earlier writers: it moved precision from 78% to 88% on only 5% of messages, so we left it"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "88%",
+   "context": "lier writers: it moved precision from 78% to 88% on only 5% of messages, so we left it out. T"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "5%",
+   "context": ": it moved precision from 78% to 88% on only 5% of messages, so we left it out. The simulato"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "95%",
+   "context": ", 231 links): raw agreement 98% (226 of 231; 95%–99%), Cohen's kappa 0.83. It never calls a f"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "99%",
+   "context": "1 links): raw agreement 98% (226 of 231; 95%–99%), Cohen's kappa 0.83. It never calls a false"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "4",
+   "context": "wrapper). 27 links are unclear, and it calls 4 of them messages. We fixed the method twice "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "40",
+   "context": "more often than one agent's two tokens. With 40 agents active over 36 hours, one agent stopp"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "80%",
+   "context": "suite after the change; the target is high ≥ 80% precision. 2. Program signs (done): routine "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79%",
+   "context": "ns were too easy once already. v1.1.0 scored 79% message precision on them while 165 of its 1"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "166",
+   "context": "% message precision on them while 165 of its 166 links on the real release were false. The re"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": " threads can mix. The direct-evidence rule's 100% is therefore an upper bound, while the old h"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "4%",
+   "context": "re an upper bound, while the old high band's 4% was a real failure on this kind of swarm, wh"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "15",
+   "context": "line is narrow. Three kinds of benign swarm, 15 runs, one pack. Benign swarms that share a w"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "95%",
+   "context": "intervals; the pooled identity figures carry 95% Wilson ranges."
+  },
+  {
+   "file": "docs/index.html",
+   "number": "1,200",
+   "context": " Built on a real incident In July 2026 about 1,200 AI agents in a security evaluation turned a "
+  },
+  {
+   "file": "docs/index.html",
+   "number": "3%",
+   "context": " into their own code (the release could date 3% of payloads) 2.2 h largest gap between seven"
+  },
+  {
+   "file": "reports/submission/SUBMISSION.md",
+   "number": "1,200",
+   "context": "ent Swarm Project summary In July 2026 about 1,200 AI agents in an OpenAI security evaluation c"
+  },
+  {
+   "file": "reports/submission/SUBMISSION.md",
+   "number": "3%",
+   "context": "9% of payloads, where the release could date 3%, and seven moments it dates fall within abou"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "5",
+   "context": "te\" R0038810 is a download). The release has 5 audited messages between named tokens. Secti"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "24",
+   "context": " of 10:40 UTC on 9 November 2026, which gave 24 named messages. A later fix (a Python urlope"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "19",
+   "context": "pen(url) with one argument is a read) leaves 19 messages in 12 pairs among 9 tokens; the fiv"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "12",
+   "context": "ne argument is a read) leaves 19 messages in 12 pairs among 9 tokens; the five dropped links"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "9",
+   "context": "a read) leaves 19 messages in 12 pairs among 9 tokens; the five dropped links were in the t"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "24",
+   "context": "an: 07-09 13:29 → 07-13 15:50. --- ## 1. The 24 named messages messages.deliveries returns 8"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "89",
+   "context": "4 named messages messages.deliveries returns 89 deliveries total (unknown-order 63, rereads "
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "24",
+   "context": "ites 0). Filtering out run: endpoints leaves 24 named messages — a write by one credential-t"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "5",
+   "context": "outs: …005057 (1 write, 18 reads, 6 readers, 5 deliveries) and …005898[USER46] (1 write, 12"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "6",
+   "context": "05898[USER46] (1 write, 12 reads, 7 readers, 6 deliveries). These are shared drop boxes — a"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "24",
+   "context": " - Inference: The named-message graph is not 24 independent agent conversations. It is domin"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "18,796",
+   "context": "estimated agent (group key [CREDENTIAL 170], 18,796 records). The first merged message (R0006579"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "5",
+   "context": "this agent's share of all harm to 0.877. ### 5 strongest records FOR one controller 1. Shar"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "201",
+   "context": "e controller 1. Shared distinctive programs. 201 content_spread program families run under ≥2"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "2",
+   "context": "1 content_spread program families run under ≥2 of these tokens, of which 36 are non-routine"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "163",
+   "context": "r inside single records: 169+220 co-occur in 163 records (e.g. R0007146 posts with 220 and na"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "5",
+   "context": "erver endpoints. (Evidence / Inference.) ### 5 strongest records AGAINST (several agents sh"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "3",
+   "context": "nute. (Evidence) 2. 1069 is an outlier: only 3 records, all via_variable, spanning 3.4 h — "
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "18,796",
+   "context": " what whatif concludes (one estimated agent, 18,796 records). It cannot be ruled out that 222/16"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "5,194",
+   "context": "collector / other host ### hf_dataset_write (5,194 records) | class | count | share | |---|---|"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "93.1%",
+   "context": "-| | POST to a huggingface.co host | 4,838 | 93.1% | | — direct https://…huggingface.co/… | 3,6"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "6.9%",
+   "context": "| 1,197 | | | other / collector host | 356 | 6.9% | Example ids — HF: R0005279, R0005303, R000"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "4,838",
+   "context": "005330, R0005336, R0006262, R0006335. (Note: 4,838 counts records referencing any huggingface.c"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "622",
+   "context": "references, immaterial.) ### kubernetes_api (622 records) python kr = [rid for rid,i in inten"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "239",
+   "context": "tely, the intent label kubernetes_token tags 239 records (R0009849, R0010016, R0014594, …) — "
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "239",
+   "context": "e-reads of the serviceaccount token with the 239 kubernetes_token intent records. --- ## 6. T"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "385",
+   "context": "lf-destruct / anti-analysis code (Evidence): 385 records contain os.kill or SystemExit. Sever"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "18,796",
+   "context": "20/222/1334/1623/1069 into a single agent of 18,796 records, carrying a 0.877 harm share after i"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "93.1%",
+   "context": "taset_write host split: state 4,838 / 5,194 (93.1%) target a huggingface.co host (3,641 direct "
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "6.9%",
+   "context": "+ 1,197 via [SERVICE HOST n] proxy) and 356 (6.9%) go to collector/other hosts — not \"all to H"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "622",
+   "context": "t \"all to Hugging Face.\" - kubernetes_api is 622 records, and only 24 of them read …/servicea"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "239",
+   "context": " Kubernetes-API total, and keep the separate 239 kubernetes_token intent records distinct. - "
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "385",
+   "context": "wer. - Add the evasion/persistence findings: 385 self-destruct-guarded records, an encrypted "
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "24",
+   "context": "1 future-dated (07-18/19) epoch literals. - \"24 messages\" overstates coordination: most are "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "30",
+   "context": "igns were not written on: 90 coordinated and 30 benign simulated swarms (seeds 21 to 30 in e"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "90",
+   "context": "ntities both use (about 5.8 h before, in all 90 swarms, never on a benign swarm). The defaul"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "12",
+   "context": "l-wiki-logs/, present on this machine) fires 12 signs; its first harmful record is at hour 0"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "30",
+   "context": "m rates Alarms per 24 h of trace time on the 30 benign swarms: 1,049 trace hours, 41,960 age"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "41,960",
+   "context": " on the 30 benign swarms: 1,049 trace hours, 41,960 agent-hours observed (agents in the swarm ti"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "95%",
+   "context": "times the hours of the trace), exact Poisson 95% interval. A sign or rule is counted once per"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "95%",
+   "context": "for it. | Rule or sign | alarms | per 24 h | 95% interval | |---|---|---|---| | Watch: first "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "95%",
+   "context": "ns that never fired on a benign swarm have a 95% upper bound of about 0.084 per 24 h (43.7 da"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "3",
+   "context": "check) | 500,000 | | program families (up to 3 actors and 8 copies each) | 100,000 | | plac"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "40",
+   "context": "replay, on simulated swarms (seeds 21 to 30, 40 agents; tolerance 15 minutes; difference is "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "20",
+   "context": "ithin 1 h | |---|---|---|---| | coordinated, 20 swarms (base and real-world payloads) | 290 "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "10",
+   "context": "orld payloads) | 290 | 280 | 285 | | benign, 10 swarms | 32 | 30 | 31 | Per sign, the median"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "13",
+   "context": " both sides. On the bundled demo swarm 13 of 13 shared signs match, and a volume alarm fires"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "189,579",
+   "context": "es online only. On the Swarm Traces release (189,579 records, redacted_columns.csv, code_traces.j"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "13,400",
+   "context": "ds, redacted_columns.csv, code_traces.json): 13,400 records per second (14.2 s), peak memory 97 "
+  },
+  {
+   "file": "docs/how-it-works.md",
+   "number": "20",
+   "context": "e first program reused, a group of 3, 5, 10, 20 actors linked by messages, the first two-way"
+  },
+  {
+   "file": "docs/limitations.md",
+   "number": "1%",
+   "context": "ed programs) were almost always wrong (about 1% right), so the tool now keeps those at low c"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "6",
+   "context": "hose links false; the final rule reports 24, 6 between named tokens. The deep dive (docs/de"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "66%",
+   "context": "ounts as a read (simulated message precision 66% → 79%). A place named in a printed string or"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "79%",
+   "context": "as a read (simulated message precision 66% → 79%). A place named in a printed string or a var"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "40",
+   "context": " is now within an hour of the truth in 40 of 40 swarms; groups of 20+ still fire early in so"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "1%",
+   "context": "es at low confidence are rarely right (about 1% on simulated swarms). Treat low as \"worth a "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "23",
+   "context": "tion disagrees with the rule on the release (23 deliveries against 192); see [integrity]. Mo"
+  },
+  {
+   "file": "docs/collect-next-time.md",
+   "number": "6%",
+   "context": "ul 11:51 to 12 Jul 17:22; harm still to come 6% to 90%; messages 1 to 7; pairs 1 to 6 | Chea"
+  },
+  {
+   "file": "docs/collect-next-time.md",
+   "number": "90%",
+   "context": "51 to 12 Jul 17:22; harm still to come 6% to 90%; messages 1 to 7; pairs 1 to 6 | Cheap. The "
+  },
+  {
+   "file": "docs/collect-next-time.md",
+   "number": "90%",
+   "context": "ul 13:29 to 10 Jul 11:51; harm still to come 90% to 100%; messages 7 to 895 (parametric) | Ne"
+  },
+  {
+   "file": "docs/collect-next-time.md",
+   "number": "100%",
+   "context": "9 to 10 Jul 11:51; harm still to come 90% to 100%; messages 7 to 895 (parametric) | Needs the "
+  },
+  {
+   "file": "docs/collect-next-time.md",
+   "number": "50%",
+   "context": "3:06; messages 3 to 7 (parametric: 0, 25 and 50% of reads failed) | Storage and privacy. Resp"
+  },
+  {
+   "file": "docs/collect-next-time.md",
+   "number": "60%",
+   "context": "50 to 13:12; messages 7 to 10; pairs 6 to 8. 60% of records have no time, so the early-flag r"
+  },
+  {
+   "file": "docs/packs.md",
+   "number": "1",
+   "context": "els | [{name, pattern, write}] places: group 1 is the place's name; write is the code that "
+  }
+ ],
+ "computed_datasets": [
+  "release",
+  "wiki",
+  "audit",
+  "validation",
+  "variance",
+  "samples",
+  "repo"
+ ]
+}

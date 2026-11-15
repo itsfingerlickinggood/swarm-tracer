@@ -71,6 +71,7 @@
 .ch-gtot{height:54px;text-align:center;vertical-align:middle;border-radius:6px;background:#fff;border:1px dashed #cfd5dc;font-size:12px;cursor:pointer;padding:2px}
 .ch-gtotrow th{color:var(--ink)}
 .ch-g-all{background:#f4f6f8;cursor:default}
+.ch-gtot.ch-g-empty{cursor:default;background:#f6f7f9}
 .ch-gcell:hover:not(.ch-g-empty),.ch-gtot:hover:not(.ch-g-empty):not(.ch-g-all),.ch-gcell:focus-visible,.ch-gtot:focus-visible,.ch-g-sel{outline:2px solid var(--ink);outline-offset:1px}
 th.ch-g-ro{color:#5c6672}th.ch-g-never{color:#6b56a0}
 .ch-glegend{margin-top:6px;row-gap:3px}

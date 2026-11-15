@@ -12,7 +12,7 @@ body{margin:0;font:16px/1.6 -apple-system,system-ui,"Segoe UI",sans-serif;color:
 a{color:var(--accent)}
 .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
 header.hero{background:linear-gradient(180deg,#18283b,var(--top));color:#e9eef4;padding:28px 0 56px}
-nav{display:flex;align-items:center;gap:22px;font-size:14px}
+nav{display:flex;align-items:center;gap:6px 22px;font-size:14px;flex-wrap:wrap}
 nav .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;color:#fff;margin-right:auto;text-decoration:none}
 nav a{color:#b9c7d6;text-decoration:none}
 nav a:hover{color:#fff}
@@ -58,9 +58,12 @@ footer a{color:#cfdbe8}
   <div class="wrap">
     <nav>
       <a class="brand" href="./"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><g fill="none" stroke="#7fb3e6" stroke-width="1.3"><path d="M5 7L13 4L21 8L19 17L11 21L5 15Z" opacity=".55"/><path d="M13 4L11 21M5 7L19 17M21 8L5 15" opacity=".35"/></g><g fill="#fff"><circle cx="5" cy="7" r="2"/><circle cx="13" cy="4" r="2"/><circle cx="21" cy="8" r="2"/><circle cx="19" cy="17" r="2"/><circle cx="11" cy="21" r="2"/><circle cx="5" cy="15" r="2"/></g><circle cx="13" cy="12.5" r="2.6" fill="#e3a43b"/></svg>Swarm Tracer</a>
+      <a href="demo/">Demo</a>
+      <a href="investigations/">Investigations</a>
       <a href="getting-started.html">Get started</a>
       <a href="user-guide.html">Guide</a>
       <a href="how-it-works.html">How it works</a>
+      <a href="datasets.html">Datasets</a>
       <a href="assets/Swarm_Tracer_report.pdf">Report (PDF)</a>
       <a href="https://github.com/itsfingerlickinggood/swarm-tracer">GitHub</a>
     </nav>
@@ -68,6 +71,7 @@ footer a{color:#cfdbe8}
     <p class="sub">Swarm Tracer reads the logs an agent swarm leaves behind and reconstructs who talked to whom, how information and code spread between agents, and whether the coordination could have been flagged early. It also measures what an investigator still cannot see. It runs on your machine and works with any agent trace.</p>
     <div class="btns">
       <a class="btn primary" href="getting-started.html">Get started</a>
+      <a class="btn ghost" href="demo/">Try the demo in your browser</a>
       <a class="btn ghost" href="https://github.com/itsfingerlickinggood/swarm-tracer">View on GitHub</a>
       <a class="btn ghost" href="assets/Swarm_Tracer_report.pdf">Read the report</a>
     </div>
@@ -90,13 +94,26 @@ footer a{color:#cfdbe8}
     <div class="stats">
       <div class="stat"><b>59%</b><span>of 91,037 payloads given an estimated time, fitted from 1,395 timestamps the agents wrote into their own code (the release could date 3% of payloads)</span></div>
       <div class="stat"><b>2.2 h</b><span>largest gap between seven moments the tool dates from the records (matched by rules set out in the report) and the times METR and Hugging Face published</span></div>
-      <div class="stat"><b>6</b><span>messages between named tokens (24 in all), after auditing 258 links. The submitted report said 19; most of those were false (<a href="validation.html">details</a>)</span></div>
+      <div class="stat"><b>6</b><span>messages between named tokens (23 in all), after auditing 258 links. The submitted report said 19; most of those were false (<a href="validation.html">details</a>)</span></div>
       <div class="stat"><b>50–57%</b><span>of the 8,124 dated harmful actions were still to come when signs of shared control fired; a plain volume alarm fired with 83% to come</span></div>
     </div>
   </div>
 </section>
 
-<section class="alt">
+<section class="alt" id="investigations">
+  <div class="wrap">
+    <h2>Investigations: every claim opens its evidence</h2>
+    <p class="lead">Three short written investigations of the incident. Each claim is a link that opens the records behind it: the record id, the time and whether it is estimated, the token and agent, and what the tool judged. Record text is not reproduced; each record links to the publisher's own viewer.</p>
+    <ul class="docs">
+      <li><a href="investigations/first-message/"><b>The first message between agents</b><span>Why the first message moves by almost two days once tokens are counted as agents</span></a></li>
+      <li><a href="investigations/shared-place-sign/"><b>The one sign that warned early</b><span>Early in our simulator, late on the real incident: what each result rests on</span></a></li>
+      <li><a href="investigations/what-is-missed/"><b>What an investigator would still miss</b><span>The insider findings the public release cannot show, and what would close the gaps</span></a></li>
+    </ul>
+    <p class="note" style="margin-top:18px"><a href="investigations/">All investigations</a> · <a href="demo/">Hosted demo</a>: the whole app in your browser, read-only, on the simulated swarm that ships with the tool. Upload, live mode and the AI investigator need the installed tool.</p>
+  </div>
+</section>
+
+<section>
   <div class="wrap">
     <h2>What it does</h2>
     <p class="lead">One local web app, one tab per question. Every actor, place and record is clickable, and every number says what it counts.</p>
@@ -109,14 +126,14 @@ footer a{color:#cfdbe8}
       <div class="card"><div class="k">AI investigator</div><h3>Answers as charts, checked</h3><p>Any OpenAI-compatible model, including local ones. Answers come back as timelines, flow diagrams and evidence cards, and every record id is checked against the data.</p></div>
       <div class="card"><div class="k">Case file</div><h3>Evidence you can hand over</h3><p>Pin records, agents and conversations, add notes, and export a self-contained dossier.</p></div>
       <div class="card"><div class="k">Forensics</div><h3>Follow any thread</h3><p>Trace any token, URL or line of code through the swarm; credential lifecycles; command-and-control pickups; dead drops; how code evolved; each agent's climb through the attack stages; a story written from the data; and SOC exports with a chain of custody.</p></div>
-      <div class="card"><div class="k">Accuracy</div><h3>Measured, not assumed</h3><p>Scored on 50 simulated swarms with known answers, including benign ones, so every claim about messages, timing and identity comes with a measured range.</p></div>
+      <div class="card"><div class="k">Accuracy</div><h3>Measured, not assumed</h3><p>Scored on 60 simulated swarms with known answers, including benign ones, so every claim about messages, timing and identity comes with a measured range.</p></div>
       <div class="card"><div class="k">Compare</div><h3>Swarm against swarm</h3><p>Load two swarms and compare group sizes, message speed and which signs fired first, from a library of past incidents.</p></div>
       <div class="card"><div class="k">What's missing</div><h3>Blind spots, measured</h3><p>How much of the data has no time, no named actor or only weak evidence, which question each gap limits, and how to close it.</p></div>
     </div>
   </div>
 </section>
 
-<section>
+<section class="alt">
   <div class="wrap two">
     <div>
       <h2>Any swarm, not one dataset</h2>
@@ -127,22 +144,22 @@ footer a{color:#cfdbe8}
   </div>
 </section>
 
-<section class="alt">
+<section>
   <div class="wrap two">
     <img src="assets/app_early.jpg" alt="The early-flag replay stopped at 06:00 on July 11">
     <div>
       <h2>Could it have been flagged early?</h2>
-      <p>The replay steps through the incident hour by hour. In this swarm, single-agent signs such as the first write to a dataset fired a day or more ahead, a link between two tokens through a shared place fired three hours before the surge, and signs that tokens shared control came only when half the harm was still to come.</p>
+      <p>The replay steps through the incident hour by hour. In this swarm, single-agent signs such as the first write to a dataset fired a day or more ahead, a link between two tokens through a shared place fired eighteen hours before the surge, and signs that tokens shared control came only when half the harm was still to come.</p>
       <p class="note">The signals were chosen with hindsight. On simulated benign swarms some still fire, mostly because the pack counts every dataset commit as harm, as the <a href="deep-dive.html">Deep dive</a> · <a href="validation.html">validation page</a> measures. The <a href="how-it-works.html">method</a> and the <a href="limitations.html">limits</a> say exactly what the numbers rest on.</p>
     </div>
   </div>
 </section>
 
-<section>
+<section class="alt">
   <div class="wrap">
     <h2>Start in a minute</h2>
     <p class="lead">Python 3.9 or newer, standard library only. Nothing leaves your machine unless you turn on the AI investigator.</p>
-<pre><code>pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.0.0
+<pre><code>pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.1.0
 swarm-tracer demo                 # a small simulated swarm with known answers
 swarm-tracer serve --input my-swarm.jsonl
 # then open http://127.0.0.1:8010</code></pre>
@@ -150,7 +167,7 @@ swarm-tracer serve --input my-swarm.jsonl
   </div>
 </section>
 
-<section class="alt">
+<section>
   <div class="wrap">
     <h2>Documentation</h2>
     <ul class="docs">
@@ -162,6 +179,9 @@ swarm-tracer serve --input my-swarm.jsonl
       <li><a href="ai-investigator.html"><b>AI investigator</b><span>Providers, checked answers, privacy</span></a></li>
       <li><a href="cli.html"><b>Command line</b><span>serve, evaluate, demo, ground truth, replay</span></a></li>
       <li><a href="api.html"><b>HTTP API</b><span>Every endpoint the app uses</span></a></li>
+      <li><a href="datasets.html"><b>Datasets</b><span>Sources, reuse terms, what the tool can conclude</span></a></li>
+      <li><a href="investigations/"><b>Investigations</b><span>Written cases where every claim opens its records</span></a></li>
+      <li><a href="demo/"><b>Hosted demo</b><span>The app in your browser on a simulated swarm</span></a></li>
       <li><a href="validation.html"><b>How accurate is it?</b><span>Scored on simulated swarms with known answers</span></a></li>
       <li><a href="forensics.html"><b>Forensics</b><span>Trace, credentials, C2, evolution, stages, exports</span></a></li>
       <li><a href="known-issues.html"><b>Known issues</b><span>What is weak, wrong or untested</span></a></li>

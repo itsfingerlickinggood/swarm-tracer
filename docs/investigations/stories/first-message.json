@@ -1,0 +1,313 @@
+{
+ "slug": "first-message",
+ "order": 1,
+ "title": "The first message between agents",
+ "dek": "The tool finds {deliveries} messages in the release. Only {named} are between named tokens, and {inside} of those stay inside one estimated agent. That moves the first message between agents by almost two days.",
+ "figures": {
+  "deliveries": {
+   "from": "/api/state",
+   "path": "summary.flow.deliveries",
+   "as": "int",
+   "label": "messages in the release (a read of a place after a different actor wrote it)"
+  },
+  "named": {
+   "from": "/api/state",
+   "path": "summary.flow.deliveries_between_named_actors",
+   "as": "int",
+   "label": "messages between two named tokens"
+  },
+  "named_pairs": {
+   "from": "/api/state",
+   "path": "summary.flow.named_actor_pairs",
+   "as": "int",
+   "label": "sender and receiver pairs of named tokens"
+  },
+  "records": {
+   "from": "/api/state",
+   "path": "summary.records",
+   "as": "int",
+   "label": "records in the release"
+  },
+  "inside": {
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "inside_one_agent",
+   "as": "int",
+   "label": "messages between two tokens of one estimated agent"
+  },
+  "between": {
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "messages",
+   "as": "int",
+   "label": "messages between different estimated agents"
+  },
+  "agent_a_tokens": {
+   "from": "/api/x/units_map",
+   "path": "agent_list[name=Agent A].tokens.#",
+   "as": "int",
+   "label": "tokens merged into Agent A"
+  },
+  "agent_a_confidence": {
+   "from": "/api/x/units_map",
+   "path": "agent_list[name=Agent A].confidence",
+   "as": "text",
+   "label": "confidence of the weakest merge in Agent A"
+  },
+  "share_tok": {
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=message].as_counted.harm_share_after",
+   "as": "pct",
+   "label": "of the dated harmful actions came after the first message, counting tokens"
+  },
+  "share_agent": {
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=message].by_agent.harm_share_after",
+   "as": "pct",
+   "label": "of the dated harmful actions came after the first message, counting estimated agents"
+  },
+  "first_tok": {
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=message].as_counted.time",
+   "as": "time",
+   "label": "first message, counting tokens (UTC)"
+  },
+  "first_agent": {
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=message].by_agent.time",
+   "as": "time",
+   "label": "first message, counting estimated agents (UTC)"
+  },
+  "audited": {
+   "from": "/api/x/benchmark",
+   "path": "groups.named_named.audited",
+   "as": "int",
+   "label": "named messages read by a person"
+  },
+  "audited_true": {
+   "from": "/api/x/benchmark",
+   "path": "groups.named_named.true",
+   "as": "int",
+   "label": "of them judged a real write and a real read"
+  }
+ },
+ "body": [
+  {
+   "h": "What counts as a message"
+  },
+  {
+   "p": "The release is a set of code payloads and responses. Nothing in it says that one agent sent something to another. So the tool looks for something weaker. [[c1|One record writes to a shared place. Later, a record from a different actor reads the same place.]] The tool calls that a message. It shows the reader could have seen the write. It does not show that it did."
+  },
+  {
+   "p": "[[c2|On the whole release the tool finds {deliveries} such messages.]] Most have an anonymous run on one side: a record with no token and no name. [[c3|Only {named} are between two named tokens, across {named_pairs} sender and receiver pairs.]]"
+  },
+  {
+   "h": "The first one"
+  },
+  {
+   "p": "[[c4|The earliest of the {named} is on {rec:R0005421.time}.]] {rec:R0005366.actor} commits a file to a Hugging Face dataset. Within the hour {rec:R0005421.actor} downloads it. [[c5|At that moment {share_tok} of the dated harmful actions were still to come.]] If this was the first time two agents talked, a warning then would have been early."
+  },
+  {
+   "h": "Two tokens, one agent"
+  },
+  {
+   "p": "But a token is not an agent. One agent can hold several tokens. [[c6|The tool's evidence says {rec:R0005366.actor} and {rec:R0005421.actor} belong to the same agent.]] Both tokens appear inside the same records. Both use the same self-chosen place names. Both run the same rare programs. The tool merges {agent_a_tokens} tokens into one estimated agent and calls it Agent A."
+  },
+  {
+   "p": "[[c7|Counted by estimated agent, {inside} of the {named} messages are Agent A writing to itself.]] An agent that reads its own file is not coordination. That leaves {between} messages between different agents."
+  },
+  {
+   "h": "The first message moves"
+  },
+  {
+   "p": "[[c8|The first message between two different agents is on {rec:R0045143.time}.]] {rec:R0044824.actor} commits to a dataset. About an hour later {rec:R0045143.actor}, one of Agent A's tokens, reads it. [[c9|By then only {share_agent} of the dated harmful actions were still to come.]] The same sign that looked early now looks late."
+  },
+  {
+   "h": "How sure is this"
+  },
+  {
+   "p": "Not very, and a reader should know why. [[c10|Every time in this story is estimated.]] The release has no time field for these records, so the tool dates them from timestamps the agents wrote into their code. [[c11|The tool also grades its own messages. The first one is graded inferred. The one that replaces it is graded weak.]]"
+  },
+  {
+   "p": "[[c12|A person read all {audited} named messages and judged {audited_true} of them real.]] That is one reader, once. The merge into Agent A is an estimate too. If the merge is wrong, the earlier date stands."
+  }
+ ],
+ "claims": {
+  "c1": {
+   "evidence": "A message is a write and a later read of the same place by a different actor. Here is one pair.",
+   "records": [
+    {
+     "id": "R0005366",
+     "note": "The write: {rec:R0005366.actor} commits to a dataset."
+    },
+    {
+     "id": "R0005421",
+     "note": "The read: {rec:R0005421.actor} fetches a file from the same dataset."
+    }
+   ],
+   "docs": [
+    {
+     "href": "../../how-it-works.html",
+     "label": "How the tool judges a write, a read and a message"
+    }
+   ]
+  },
+  "c2": {
+   "evidence": "The tool counts {deliveries} messages in {records} records.",
+   "figures": [
+    "deliveries",
+    "records"
+   ],
+   "docs": [
+    {
+     "href": "../../validation.html",
+     "label": "The audit that fixed this count (it was reported as 19)"
+    }
+   ]
+  },
+  "c3": {
+   "evidence": "{named} messages have a named token on both sides.",
+   "figures": [
+    "named",
+    "named_pairs"
+   ],
+   "records": [
+    {
+     "id": "R0006584",
+     "note": "Second message from {rec:R0006584.actor}: the write."
+    },
+    {
+     "id": "R0006786",
+     "note": "Read by {rec:R0006786.actor}."
+    },
+    {
+     "id": "R0007854",
+     "note": "{rec:R0007854.actor} reads the dataset first written in R0005366."
+    },
+    {
+     "id": "R0044999",
+     "note": "{rec:R0044999.actor} writes."
+    },
+    {
+     "id": "R0045751",
+     "note": "{rec:R0045751.actor} reads."
+    },
+    {
+     "id": "R0046969",
+     "note": "{rec:R0046969.actor} reads what {rec:R0044824.actor} wrote in R0044824."
+    }
+   ]
+  },
+  "c4": {
+   "evidence": "The first message between named tokens: written {rec:R0005366.time}, read {rec:R0005421.time}.",
+   "figures": [
+    "first_tok"
+   ],
+   "records": [
+    "R0005366",
+    "R0005421"
+   ]
+  },
+  "c5": {
+   "evidence": "Share of the dated harmful actions that came after this moment.",
+   "figures": [
+    "share_tok"
+   ],
+   "caveat": "Harm here means actions that match the pack's harm patterns. A pattern match is not proof that the action worked."
+  },
+  "c6": {
+   "evidence": "Why the tool counts the two tokens as one agent: they share records, place names and programs.",
+   "figures": [
+    "agent_a_tokens",
+    "agent_a_confidence"
+   ],
+   "records": [
+    {
+     "id": "R0016746",
+     "note": "{rec:R0016746.actor} uses a self-chosen place name."
+    },
+    {
+     "id": "R0028572",
+     "note": "{rec:R0028572.actor} uses the same place name, hours later."
+    }
+   ],
+   "caveat": "This is an estimate from counted evidence, not an identity. The Agents tab of the tool shows every piece of it and lets an investigator reject the merge."
+  },
+  "c7": {
+   "evidence": "Counted by estimated agent: {inside} inside Agent A, {between} between agents.",
+   "figures": [
+    "inside",
+    "between",
+    "named"
+   ],
+   "records": [
+    "R0005366",
+    "R0005421",
+    "R0006584",
+    "R0006786",
+    "R0007854"
+   ]
+  },
+  "c8": {
+   "evidence": "The first message whose two ends are different estimated agents.",
+   "figures": [
+    "first_agent"
+   ],
+   "records": [
+    {
+     "id": "R0044824",
+     "note": "The write: {rec:R0044824.actor} commits to a dataset."
+    },
+    {
+     "id": "R0045143",
+     "note": "The read: {rec:R0045143.actor}, a token of Agent A."
+    }
+   ]
+  },
+  "c9": {
+   "evidence": "Share of the dated harmful actions still to come, by estimated agent.",
+   "figures": [
+    "share_agent",
+    "share_tok"
+   ]
+  },
+  "c10": {
+   "evidence": "Each cited record carries an estimated time. Open any of them to see the mark.",
+   "records": [
+    "R0005421",
+    "R0045143"
+   ],
+   "docs": [
+    {
+     "href": "../../how-it-works.html",
+     "label": "How records are dated, and the size of the error"
+    }
+   ]
+  },
+  "c11": {
+   "evidence": "The grade the tool gives each of the two first messages.",
+   "records": [
+    "R0005421",
+    "R0045143"
+   ],
+   "docs": [
+    {
+     "href": "../../validation.html",
+     "label": "What the grades mean and how each scored in the audit"
+    }
+   ]
+  },
+  "c12": {
+   "evidence": "The hand audit of the messages between named tokens.",
+   "figures": [
+    "audited",
+    "audited_true"
+   ],
+   "docs": [
+    {
+     "href": "../../validation.html",
+     "label": "The full audit: every link, both records read"
+    }
+   ],
+   "caveat": "One reader, one pass. The audit says nothing about true messages the tool missed."
+  }
+ }
+}

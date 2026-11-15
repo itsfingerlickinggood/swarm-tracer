@@ -198,7 +198,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     });
     nodes.forEach((n) => {
       const rr = 5 + Math.min(7, Math.log10(1 + n.records) * 2.2);
-      s += `<g data-agent="${esc(n.unit)}"><circle cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${rr.toFixed(1)}" fill="#fdf3e1" stroke="#b7791f" stroke-width="1.6"/><text x="${n.x.toFixed(1)}" y="${(n.y - rr - 4).toFixed(1)}" text-anchor="middle" font-size="10.5" fill="#5c3b08" paint-order="stroke" stroke="#fff" stroke-width="3">${esc(short(n.unit))}</text><title>${esc(short(n.unit))}: ${fmt(n.records)} records, ${n.degree} linked agent(s)${n.tokens.length > 1 ? `\n${n.tokens.length} tokens in one estimated agent` : ""}</title></g>`;
+      s += `<g ${agentInfo(n.unit) ? "data-agent" : "data-actor"}="${esc(n.unit)}" style="cursor:pointer"><circle cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${rr.toFixed(1)}" fill="#fdf3e1" stroke="#b7791f" stroke-width="1.6"/><text x="${n.x.toFixed(1)}" y="${(n.y - rr - 4).toFixed(1)}" text-anchor="middle" font-size="10.5" fill="#5c3b08" paint-order="stroke" stroke="#fff" stroke-width="3">${esc(short(n.unit))}</text><title>${esc(short(n.unit))}: ${fmt(n.records)} records, ${n.degree} linked agent(s)${n.tokens.length > 1 ? `\n${n.tokens.length} tokens in one estimated agent` : ""}</title></g>`;
     });
     host.innerHTML = s + "</svg>";
     host.querySelectorAll(".fxsedge").forEach((g) => g.addEventListener("click", () => { const p = r.pairs.find((x) => pk(x) === g.dataset.pair); if (p) showPair(p); }));
@@ -230,7 +230,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
         ${kpi("by behaviour link", fmt(sm.behaviour), `${fmt(sm.behaviour_beyond)} with no message; passed the chance tests`)}
       </div>
       ${card("Agents and the evidence between them", `
-        <div class="fxsbar" id="fxsTog">${Object.keys(EK).map((k) => `<label class="fxschip"><input type="checkbox" data-ev="${k}" ${ST.vis.has(k) ? "checked" : ""}> <svg width="34" height="10"><line x1="2" y1="5" x2="32" y2="5" stroke="${EK[k].color}" stroke-width="${EK[k].w}" ${EK[k].dash ? `stroke-dasharray="${EK[k].dash}"` : ""} stroke-linecap="round"/></svg> ${esc(EK[k].label)} <span class="muted small">${fmt(sm[k])}</span></label>`).join("")}</div>
+        <div class="fxsbar" id="fxsTog">${Object.keys(EK).map((k) => `<label class="fxschip"><input type="checkbox" data-evkind="${k}" ${ST.vis.has(k) ? "checked" : ""}> <svg width="34" height="10"><line x1="2" y1="5" x2="32" y2="5" stroke="${EK[k].color}" stroke-width="${EK[k].w}" ${EK[k].dash ? `stroke-dasharray="${EK[k].dash}"` : ""} stroke-linecap="round"/></svg> ${esc(EK[k].label)} <span class="muted small">${fmt(sm[k])}</span></label>`).join("")}</div>
         <div id="fxsGraph"></div>
         <div class="legend"><span><svg width="30" height="10"><line x1="1" y1="5" x2="29" y2="5" stroke="${EK.message.color}" stroke-width="2.2"/></svg>solid: message</span><span><svg width="30" height="10"><line x1="1" y1="5" x2="29" y2="5" stroke="${EK.content.color}" stroke-width="2.2" stroke-dasharray="7 4"/></svg>dashed: content-only hand-over</span><span><svg width="30" height="10"><line x1="1" y1="5" x2="29" y2="5" stroke="${EK.behaviour.color}" stroke-width="2.6" stroke-dasharray="1.5 4" stroke-linecap="round"/></svg>dotted: behaviour link</span><span><i style="background:#2f6fb3;opacity:.3;border-radius:5px"></i>halo: one estimated agent with several tokens</span></div>`,
         { sub: "Only agents with at least one link are drawn. A pair with several kinds of evidence shows one line per kind, side by side. Click a line, or a row below, for the evidence." })}
@@ -244,7 +244,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     const draw = () => drawGraph($("fxsGraph"), r);
     draw();
     onResize(host, draw);
-    $("fxsTog").addEventListener("change", (e) => { const k = e.target.dataset.ev; if (!k) return; e.target.checked ? ST.vis.add(k) : ST.vis.delete(k); draw(); });
+    $("fxsTog").addEventListener("change", (e) => { const k = e.target.dataset.evkind; if (!k) return; e.target.checked ? ST.vis.add(k) : ST.vis.delete(k); draw(); });
     $("fxsPairs").innerHTML = table(["Agent", "Agent", "Evidence", "Messages", "Hand-overs", "Behaviour"], r.pairs.map((p) => [unitChip(p.a), unitChip(p.b), kinds3(p), p.message, p.content, p.behaviour]), true);
     bindRows($("fxsPairs"), (i) => { showPair(r.pairs[i]); $("fxsPair").scrollIntoView({ block: "center", behavior: "smooth" }); });
     if (r.pairs[0]) showPair(r.pairs.find((p) => p.kinds.length > 1) || r.pairs[0]);

@@ -1,6 +1,6 @@
 # Swarm Tracer demo video: narration script
 
-Video: `docs/assets/demo.mp4` (about 4 min 14 s, 1440x900, narrated by macOS `say`, voice Samantha, 175 wpm). Each segment shows the listed screens; frames within a segment share its time evenly.
+Video: `docs/assets/demo.mp4` (about 4 min 40 s, 1440x900, narrated by macOS `say`, voice Samantha, 175 wpm). Each segment shows the listed screens; frames within a segment share its time evenly.
 
 ## 1. The problem
 
@@ -24,13 +24,13 @@ The overview gives short, measured answers to each question in the challenge, st
 
 Screens: `#tab=network&scroll=470`, `#tab=timeline&order=messages&rows=messages&scroll=560`
 
-Next, who talked to whom. Polling a mailbox a hundred times is still one message, so each write counts once per reader. That leaves 24 messages in all, six of them between named tokens, in five sender-receiver pairs. A first count said 166; reading the records by hand showed most were two tokens fetching the same dataset, and the rules were fixed. Every one of them passed through Hugging Face datasets. The graph shows the whole network, and the swimlanes show each conversation in time order, with its record ids.
+Next, who talked to whom. Polling a mailbox a hundred times is still one message, so each write counts once per reader. That leaves 23 messages in all, six of them between eight named tokens, in five sender-receiver pairs. Three of those six are between tokens that Swarm Tracer estimates belong to one agent. A first count said 166; reading the records by hand showed most were two tokens fetching the same dataset, and the rules were fixed. Twenty-two of the 23 passed through Hugging Face datasets, and one through a board folder. The graph shows the whole network, and the swimlanes show each conversation in time order, with its record ids.
 
 ## 5. Early-flag replay
 
 Screens: `#tab=early&hour=2026-07-10T06&scroll=330`, `#tab=early&hour=2026-07-10T18&scroll=330`, `#tab=early&hour=2026-07-11T06&scroll=330`, `#tab=early&hour=2026-07-11T18&scroll=330`, `#tab=early&hour=2026-07-12T06&scroll=330`, `#tab=early&hour=2026-07-12T18&scroll=330`, `#tab=early&hour=2026-07-13T12&scroll=330`
 
-Could it have been flagged early? The replay steps through the incident hour by hour, from July tenth to July thirteenth, and shows every warning sign as it fires, beside the share of harm still to come. Signs of shared control between agents fire when fifty to fifty-seven percent of the harm is still ahead. A simple volume alarm only fires with eighty-three percent ahead, and single-agent signs at ninety to one hundred percent. So the earliest signs are the noisy ones, and the swarm-level signs come later, but still well before the end. The alert rules are editable, and live mode watches a growing trace.
+Could it have been flagged early? The replay steps through the incident hour by hour, from July tenth to July thirteenth, and shows every warning sign as it fires, beside the share of harm still to come. Signs of shared control between agents fire when fifty to fifty-seven percent of the harm is still ahead. A simple volume alarm only fires with eighty-three percent ahead, and the first single-agent signs at ninety to one hundred percent. So the earliest signs are the noisy ones, and the swarm-level signs come later, but still well before the end. The alert rules are editable, and live mode watches a growing trace.
 
 ## 6. Agents and identity
 
@@ -48,7 +48,7 @@ The Forensics tab is where an investigator digs in. Trace any string through the
 
 Screens: `#tab=forensics&fx=validation`
 
-How far can you trust it? We scored the tool on fifty simulated swarms with known answers, including benign ones. Median message precision is seventy-nine percent, and recall seventy-three percent. Measuring also caught real mistakes. Places named only in code comments had been counted as reads, and shared boilerplate code fired the program-reuse sign on every benign swarm; both are fixed. Our first identity rule labelled pairs high confidence on coordination evidence alone, and only ten of two hundred forty were right. We changed the rule to require direct evidence. After the change, ten of ten high-confidence merges were right.
+How far can you trust it? We scored the tool on sixty simulated swarms with known answers, including benign ones. Median message precision is seventy-nine percent, and recall seventy-three percent. Measuring also caught real mistakes. Places named only in code comments had been counted as reads, and shared boilerplate code fired the program-reuse sign on every benign swarm; both are fixed. Our first identity rule labelled pairs high confidence on coordination evidence alone, and only ten of two hundred forty were right. We changed the rule to require direct evidence. After the change, twelve of twelve high-confidence merges were right.
 
 ## 9. What's missing
 
@@ -60,4 +60,4 @@ And what would an investigator still miss? The What's missing tab measures each 
 
 Screens: the website (`docs/index.html`)
 
-Try it yourself. Install with pipx from our GitHub repository at version one point oh, then run swarm tracer demo to explore a simulated swarm with known answers, or serve your own trace. The website has the documentation, the report, and the slides. Swarm Tracer: forensics for AI agent swarms.
+Try it yourself. Install with pipx from our GitHub repository at version two point oh, then run swarm tracer demo to explore a simulated swarm with known answers, or serve your own trace. The website has the documentation, the report, and the slides. Swarm Tracer: forensics for AI agent swarms.

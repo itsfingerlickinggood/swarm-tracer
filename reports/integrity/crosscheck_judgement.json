@@ -1,0 +1,1135 @@
+{
+ "about": "Every delivery on which agenttrace/messages.py (A) and agenttrace/refcount.py (B) disagree after the last crosscheck run, grouped by cause, with a judgement of which side is right. Judged by reading samples of each group and by the hand-audit labels (agenttrace/claims/audited_links.json); not every row was read.",
+ "tuning_rounds_of_the_reference": 1,
+ "tuning_note": "The reference was written from docs/counting-rule.md and debugged on synthetic examples. It was then run once on all datasets (round 0: release 7 both / 16 only A / 418 only B; wiki 9111 / 756 / 180; demo, benign and the eight samples identical in deliveries). The disagreements were read once and the reference changed once (redaction markers with spaces inside a string, JSON-wrapped programs, shell pipes, LFS operations inside strings, R7 with an indexed name, assignments inside callbacks, grades of structural reads, the marker definition of R27). It was not changed again after the second run, except that its tie-break was set to the spec's (input order; with record-id order the wiki logs differ on 29 + 29 deliveries). Later the same day R17 got an exception (the quoted value of a config key, such as data_files: \"reference://...\" in a pasted dataset card, is not a held name); it was stated in docs/counting-rule.md and added to both implementations at once. That is a rule change, not a tuning round: the delivery sets of both sides on every dataset were the same before and after it (release 19 both / 4 only A / 173 only B).",
+ "swarm_traces_release": {
+  "both": 19,
+  "only_A": 4,
+  "only_B": 173,
+  "groups": [
+   {
+    "group": "B_writer_is_a_reader",
+    "deliveries": 44,
+    "audit_labels": {
+     "not audited": 35,
+     "false_write": 9
+    },
+    "judgement": "main (A) is right in every audited one and every one we read",
+    "why": "The 'write' record only reads the place: a name declared in a comma chain (let u='...',r=await fetch(u,{headers})) or a list of URLs in a loop, followed by a POST to another address. B attaches the later POST to the place.",
+    "rows": [
+     {
+      "write_id": "R0007299",
+      "read_id": "R0007370",
+      "place": "hf_dataset:[HF REPO 1]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007299",
+      "read_id": "R0007372",
+      "place": "hf_dataset:[HF REPO 1]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007415",
+      "read_id": "R0007472",
+      "place": "hf_dataset:[HF REPO 1]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007415",
+      "read_id": "R0008580",
+      "place": "hf_dataset:[HF REPO 1]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007415",
+      "read_id": "R0008613",
+      "place": "hf_dataset:[HF REPO 1]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007415",
+      "read_id": "R0012983",
+      "place": "hf_dataset:[HF REPO 1]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007415",
+      "read_id": "R0013930",
+      "place": "hf_dataset:[HF REPO 1]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0047073",
+      "read_id": "R0048326",
+      "place": "hf_dataset:[HF REPO 689]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0047073",
+      "read_id": "R0048432",
+      "place": "hf_dataset:[HF REPO 689]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007288",
+      "read_id": "R0007444",
+      "place": "hf_dataset:[REDACTED:destination:000279][REDACTED:destination:000280][REDACTED:destination:000281][REDACTED:query_value:000102]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007288",
+      "read_id": "R0007658",
+      "place": "hf_dataset:[REDACTED:destination:000279][REDACTED:destination:000280][REDACTED:destination:000281][REDACTED:query_value:000102]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007288",
+      "read_id": "R0009162",
+      "place": "hf_dataset:[REDACTED:destination:000279][REDACTED:destination:000280][REDACTED:destination:000281][REDACTED:query_value:000102]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022550",
+      "read_id": "R0022566",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022550",
+      "read_id": "R0022575",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022550",
+      "read_id": "R0022862",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022751",
+      "read_id": "R0022809",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "false_write"
+     },
+     {
+      "write_id": "R0022818",
+      "read_id": "R0022978",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "false_write"
+     },
+     {
+      "write_id": "R0022818",
+      "read_id": "R0023028",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022818",
+      "read_id": "R0023080",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "false_write"
+     },
+     {
+      "write_id": "R0022818",
+      "read_id": "R0023111",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022818",
+      "read_id": "R0023188",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022818",
+      "read_id": "R0024287",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022818",
+      "read_id": "R0025225",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022818",
+      "read_id": "R0026245",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022818",
+      "read_id": "R0027196",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022818",
+      "read_id": "R0033297",
+      "place": "hf_dataset:[REDACTED:destination:002181]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0027977",
+      "read_id": "R0048700",
+      "place": "hf_dataset:[REDACTED:destination:003376]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0048734",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "false_write"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0048752",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "false_write"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0048755",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "false_write"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0048811",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "false_write"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0048899",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0048901",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "false_write"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0048953",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0048964",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "false_write"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0049005",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0049009",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0049059",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0049062",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0049101",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0049136",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0049325",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048724",
+      "read_id": "R0049367",
+      "place": "hf_dataset:[REDACTED:destination:006999]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048308",
+      "read_id": "R0048387",
+      "place": "hf_dataset:[REDACTED:destination:007676]",
+      "audit_label": "not audited"
+     }
+    ]
+   },
+   {
+    "group": "B_reader_is_a_writer",
+    "deliveries": 127,
+    "audit_labels": {
+     "not audited": 126,
+     "read_not_a_read": 1
+    },
+    "judgement": "main (A) is right in every one we read",
+    "why": "The 'read' record is a commit (x.open('POST', ...), fetch(..., {method:'POST'}), a /commit/ path). The reference (B) calls it a read because its tokenizer pairs quotes, and a quote lost to redaction ([ENCODED BLOB]) earlier on the line hides the call around the mention. Two tokens committing to one dataset then look like a message: the same false class the audit found in v1.3.0.",
+    "rows": [
+     {
+      "write_id": "R0025312",
+      "read_id": "R0027673",
+      "place": "hf_dataset:[HF REPO 472]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0005305",
+      "read_id": "R0005325",
+      "place": "hf_dataset:[REDACTED:destination:000407]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0005416",
+      "read_id": "R0005432",
+      "place": "hf_dataset:[REDACTED:destination:000407]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0005613",
+      "read_id": "R0005623",
+      "place": "hf_dataset:[REDACTED:destination:000407]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0008060",
+      "read_id": "R0008180",
+      "place": "hf_dataset:[REDACTED:destination:000407]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0008917",
+      "read_id": "R0009734",
+      "place": "hf_dataset:[REDACTED:destination:000407]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0013441",
+      "read_id": "R0013751",
+      "place": "hf_dataset:[REDACTED:destination:000407]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0019062",
+      "read_id": "R0019091",
+      "place": "hf_dataset:[REDACTED:destination:000407]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0019062",
+      "read_id": "R0023267",
+      "place": "hf_dataset:[REDACTED:destination:000407]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0032363",
+      "read_id": "R0032935",
+      "place": "hf_dataset:[REDACTED:destination:000407]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0006810",
+      "read_id": "R0006815",
+      "place": "hf_dataset:[REDACTED:destination:000454]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007589",
+      "read_id": "R0007639",
+      "place": "hf_dataset:[REDACTED:destination:000454]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007589",
+      "read_id": "R0007692",
+      "place": "hf_dataset:[REDACTED:destination:000454]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0008298",
+      "read_id": "R0008351",
+      "place": "hf_dataset:[REDACTED:destination:000454]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0012769",
+      "read_id": "R0023900",
+      "place": "hf_dataset:[REDACTED:destination:000454]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0006393",
+      "read_id": "R0006397",
+      "place": "hf_dataset:[REDACTED:destination:000478]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0006784",
+      "read_id": "R0006821",
+      "place": "hf_dataset:[REDACTED:destination:000478]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0008026",
+      "read_id": "R0008096",
+      "place": "hf_dataset:[REDACTED:destination:000655]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0007906",
+      "read_id": "R0008422",
+      "place": "hf_dataset:[REDACTED:destination:000715]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0008549",
+      "read_id": "R0008591",
+      "place": "hf_dataset:[REDACTED:destination:000721]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0008611",
+      "read_id": "R0008659",
+      "place": "hf_dataset:[REDACTED:destination:000721]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0009877",
+      "read_id": "R0010064",
+      "place": "hf_dataset:[REDACTED:destination:000912]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0024699",
+      "read_id": "R0027093",
+      "place": "hf_dataset:[REDACTED:destination:000912]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0042891",
+      "read_id": "R0043249",
+      "place": "hf_dataset:[REDACTED:destination:000912]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0010144",
+      "read_id": "R0013918",
+      "place": "hf_dataset:[REDACTED:destination:000916]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0010144",
+      "read_id": "R0013945",
+      "place": "hf_dataset:[REDACTED:destination:000916]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0010144",
+      "read_id": "R0015192",
+      "place": "hf_dataset:[REDACTED:destination:000916]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0010144",
+      "read_id": "R0015908",
+      "place": "hf_dataset:[REDACTED:destination:000916]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0009303",
+      "read_id": "R0009888",
+      "place": "hf_dataset:[REDACTED:destination:000997]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0010589",
+      "read_id": "R0011146",
+      "place": "hf_dataset:[REDACTED:destination:001047]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0011272",
+      "read_id": "R0011336",
+      "place": "hf_dataset:[REDACTED:destination:001047]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0012109",
+      "read_id": "R0012144",
+      "place": "hf_dataset:[REDACTED:destination:001198]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0012109",
+      "read_id": "R0013624",
+      "place": "hf_dataset:[REDACTED:destination:001198]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0012492",
+      "read_id": "R0017769",
+      "place": "hf_dataset:[REDACTED:destination:001514]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0021912",
+      "read_id": "R0024085",
+      "place": "hf_dataset:[REDACTED:destination:001514]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0024403",
+      "read_id": "R0032809",
+      "place": "hf_dataset:[REDACTED:destination:001514]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0022529",
+      "read_id": "R0031288",
+      "place": "hf_dataset:[REDACTED:destination:001588]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0028855",
+      "read_id": "R0028875",
+      "place": "hf_dataset:[REDACTED:destination:001588]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0014757",
+      "read_id": "R0014912",
+      "place": "hf_dataset:[REDACTED:destination:001629]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0041535",
+      "read_id": "R0041691",
+      "place": "hf_dataset:[REDACTED:destination:001629]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0035135",
+      "read_id": "R0038764",
+      "place": "hf_dataset:[REDACTED:destination:001661]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0035135",
+      "read_id": "R0038994",
+      "place": "hf_dataset:[REDACTED:destination:001661]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0035135",
+      "read_id": "R0040015",
+      "place": "hf_dataset:[REDACTED:destination:001661]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0012943",
+      "read_id": "R0013561",
+      "place": "hf_dataset:[REDACTED:destination:001662]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0014282",
+      "read_id": "R0015093",
+      "place": "hf_dataset:[REDACTED:destination:001662]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0025715",
+      "read_id": "R0025938",
+      "place": "hf_dataset:[REDACTED:destination:001662]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0026189",
+      "read_id": "R0029989",
+      "place": "hf_dataset:[REDACTED:destination:001662]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0032959",
+      "read_id": "R0033390",
+      "place": "hf_dataset:[REDACTED:destination:001662]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0033227",
+      "read_id": "R0039168",
+      "place": "hf_dataset:[REDACTED:destination:001662]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0033227",
+      "read_id": "R0040066",
+      "place": "hf_dataset:[REDACTED:destination:001662]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0038048",
+      "read_id": "R0042271",
+      "place": "hf_dataset:[REDACTED:destination:001687]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0042945",
+      "read_id": "R0043066",
+      "place": "hf_dataset:[REDACTED:destination:001687]",
+      "audit_label": "read_not_a_read"
+     },
+     {
+      "write_id": "R0043531",
+      "read_id": "R0043604",
+      "place": "hf_dataset:[REDACTED:destination:001687]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0013862",
+      "read_id": "R0013980",
+      "place": "hf_dataset:[REDACTED:destination:001704]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0014005",
+      "read_id": "R0014101",
+      "place": "hf_dataset:[REDACTED:destination:001704]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0014335",
+      "read_id": "R0014628",
+      "place": "hf_dataset:[REDACTED:destination:001704]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0014430",
+      "read_id": "R0015873",
+      "place": "hf_dataset:[REDACTED:destination:001737]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0013777",
+      "read_id": "R0013813",
+      "place": "hf_dataset:[REDACTED:destination:001780]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0035181",
+      "read_id": "R0035321",
+      "place": "hf_dataset:[REDACTED:destination:001794]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0020402",
+      "read_id": "R0024920",
+      "place": "hf_dataset:[REDACTED:destination:001886]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0020402",
+      "read_id": "R0025045",
+      "place": "hf_dataset:[REDACTED:destination:001886]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0020402",
+      "read_id": "R0025243",
+      "place": "hf_dataset:[REDACTED:destination:001886]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0026583",
+      "read_id": "R0032224",
+      "place": "hf_dataset:[REDACTED:destination:001886]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0016051",
+      "read_id": "R0019412",
+      "place": "hf_dataset:[REDACTED:destination:001937]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0018418",
+      "read_id": "R0022485",
+      "place": "hf_dataset:[REDACTED:destination:001943]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0019798",
+      "read_id": "R0022548",
+      "place": "hf_dataset:[REDACTED:destination:001958]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0018318",
+      "read_id": "R0019368",
+      "place": "hf_dataset:[REDACTED:destination:001970]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0018318",
+      "read_id": "R0020448",
+      "place": "hf_dataset:[REDACTED:destination:001970]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0016146",
+      "read_id": "R0018376",
+      "place": "hf_dataset:[REDACTED:destination:001995]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0018600",
+      "read_id": "R0038373",
+      "place": "hf_dataset:[REDACTED:destination:002031]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0016519",
+      "read_id": "R0032054",
+      "place": "hf_dataset:[REDACTED:destination:002059]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0035936",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036122",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036142",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036254",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036367",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036404",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036664",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036665",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036666",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036850",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036867",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036968",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0036980",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0037205",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0037237",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0037280",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0037463",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0037835",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0037960",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0037984",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0037998",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0038133",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0038192",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0038321",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0038370",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0038514",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0038714",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0038894",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0038905",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0040115",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034848",
+      "read_id": "R0040530",
+      "place": "hf_dataset:[REDACTED:destination:002182]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0039895",
+      "read_id": "R0039963",
+      "place": "hf_dataset:[REDACTED:destination:002208]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0019495",
+      "read_id": "R0023223",
+      "place": "hf_dataset:[REDACTED:destination:002213]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0021455",
+      "read_id": "R0023123",
+      "place": "hf_dataset:[REDACTED:destination:002213]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0030787",
+      "read_id": "R0034542",
+      "place": "hf_dataset:[REDACTED:destination:002360]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0037168",
+      "read_id": "R0037171",
+      "place": "hf_dataset:[REDACTED:destination:002459]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0018072",
+      "read_id": "R0032292",
+      "place": "hf_dataset:[REDACTED:destination:002473]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0032567",
+      "read_id": "R0034154",
+      "place": "hf_dataset:[REDACTED:destination:002473]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0019339",
+      "read_id": "R0019779",
+      "place": "hf_dataset:[REDACTED:destination:002619]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0021355",
+      "read_id": "R0029947",
+      "place": "hf_dataset:[REDACTED:destination:002632]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0020385",
+      "read_id": "R0021781",
+      "place": "hf_dataset:[REDACTED:destination:002740]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0027900",
+      "read_id": "R0028689",
+      "place": "hf_dataset:[REDACTED:destination:002740]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0028711",
+      "read_id": "R0030981",
+      "place": "hf_dataset:[REDACTED:destination:002740]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0021458",
+      "read_id": "R0034336",
+      "place": "hf_dataset:[REDACTED:destination:002753]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0021716",
+      "read_id": "R0021931",
+      "place": "hf_dataset:[REDACTED:destination:002883]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0024229",
+      "read_id": "R0024383",
+      "place": "hf_dataset:[REDACTED:destination:003258]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0030730",
+      "read_id": "R0043372",
+      "place": "hf_dataset:[REDACTED:destination:003396]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0033289",
+      "read_id": "R0043621",
+      "place": "hf_dataset:[REDACTED:destination:003396]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0027291",
+      "read_id": "R0035274",
+      "place": "hf_dataset:[REDACTED:destination:003501]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0050462",
+      "read_id": "R0050670",
+      "place": "hf_dataset:[REDACTED:destination:004713]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0050740",
+      "read_id": "R0050896",
+      "place": "hf_dataset:[REDACTED:destination:004713]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0033275",
+      "read_id": "R0033626",
+      "place": "hf_dataset:[REDACTED:destination:005053]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0033742",
+      "read_id": "R0033963",
+      "place": "hf_dataset:[REDACTED:destination:005053]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0034043",
+      "read_id": "R0039208",
+      "place": "hf_dataset:[REDACTED:destination:005053]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0050224",
+      "read_id": "R0050258",
+      "place": "hf_dataset:[REDACTED:destination:006948]",
+      "audit_label": "not audited"
+     },
+     {
+      "write_id": "R0048104",
+      "read_id": "R0048530",
+      "place": "hf_dataset:[REDACTED:destination:007647]",
+      "audit_label": "not audited"
+     }
+    ]
+   },
+   {
+    "group": "B_other",
+    "deliveries": 2,
+    "audit_labels": {
+     "read_not_a_read": 1,
+     "not audited": 1
+    },
+    "judgement": "main (A) right on the audited one; the other not judged",
+    "why": "B counts a read that A drops as never passed or cut off.",
+    "rows": [
+     {
+      "write_id": "R0013482",
+      "read_id": "R0014420",
+      "place": "hf_dataset:[REDACTED:destination:001737]",
+      "audit_label": "read_not_a_read"
+     },
+     {
+      "write_id": "R0033641",
+      "read_id": "R0033735",
+      "place": "hf_dataset:[REDACTED:destination:005053]",
+      "audit_label": "not audited"
+     }
+    ]
+   },
+   {
+    "group": "A_only",
+    "deliveries": 4,
+    "audit_labels": {
+     "true_message": 3,
+     "unclear": 1
+    },
+    "judgement": "A right on the three audited true links; B right by the letter of R13 on two of them",
+    "why": "R0022674 is a commit whose call is cut at 'POS' (A sees the /commit/ path; B drops any open call with no whole verb). R0006584 -> R0006786 is an access-request POST then a GET. R0006575 -> R0006578 is labelled unclear.",
+    "rows": [
+     {
+      "write_id": "R0022674",
+      "read_id": "R0032250",
+      "place": "hf_dataset:[HF REPO 280]",
+      "audit_label": "true_message"
+     },
+     {
+      "write_id": "R0022674",
+      "read_id": "R0032842",
+      "place": "hf_dataset:[HF REPO 280]",
+      "audit_label": "true_message"
+     },
+     {
+      "write_id": "R0006584",
+      "read_id": "R0006786",
+      "place": "hf_dataset:[REDACTED:repo_locator:000055]",
+      "audit_label": "true_message"
+     },
+     {
+      "write_id": "R0006575",
+      "read_id": "R0006578",
+      "place": "hf_dataset:[REDACTED:username:000033]",
+      "audit_label": "unclear"
+     }
+    ]
+   }
+  ]
+ },
+ "wiki": [
+  {
+   "dataset": "collusion.wiki logs",
+   "both": 9867,
+   "only_A": 0,
+   "only_B": 0
+  }
+ ],
+ "checked_again": {
+  "when": "2026-11-15",
+  "with": "python3 -m agenttrace.tools.crosscheck --out reports/integrity/crosscheck.json",
+  "result": "every disagreement in the fresh run is one of the 177 rows judged here; none new, none gone"
+ }
+}

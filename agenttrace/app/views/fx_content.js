@@ -133,6 +133,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
         { sub: `Ranked: strong pairs first, then by rarity. Bar = rarity of each string (1 ÷ actors holding it). Strong = ${th.strong_items}+ strings held by these two actors only, each specific (a digit, a path, a file name or a numbered placeholder), first uses more than ${th.order_margin_h} h apart.` })}
       ${card("Who held a string, and when", `
         <form id="fxcF" class="fxcform"><input id="fxcQ" type="text" maxlength="200" placeholder="a file name, marker or other string (4+ characters)" aria-label="String to trace"><button type="submit">Trace</button></form>
+        <p id="fxcHint" class="small muted" role="status" hidden>Type a string of 4 or more characters to trace, or click one above.</p>
         <div id="fxcItem"><p class="muted">Click any string above, or type one.</p></div>`,
         { sub: "One lane per actor that holds the string, in order of first appearance; tokens of one estimated agent are grouped." })}
       ${card("How far to trust this", `
@@ -148,7 +149,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
       `<span class="fxcnw">${esc(gapWord(m.wait_h, true))}</span>`, fmt(m.traceable), `<span class="small muted fxcwhy">${esc(m.why)}</span>`]), true)}</div>`;
     bindRows($("fxcAll"), (i) => selectEvent(r.messages[i].read_id));
     host.addEventListener("click", (e) => { const b = e.target.closest(".fxcitem"); if (b) { showItem(b.dataset.item); $("fxcItem").scrollIntoView({ block: "center", behavior: "smooth" }); } });
-    $("fxcF").addEventListener("submit", (e) => { e.preventDefault(); const q = $("fxcQ").value.trim(); if (q) showItem(q); });
+    $("fxcF").addEventListener("submit", (e) => { e.preventDefault(); const q = $("fxcQ").value.trim(); $("fxcHint").hidden = !!q; if (q) showItem(q); else $("fxcQ").focus(); });   // an empty Trace says what to type instead of doing nothing
     const firstItem = (used[0] && used[0].used[0].item) || (r.handovers[0] && r.handovers[0].items[0] && r.handovers[0].items[0].item);
     if (firstItem) showItem(firstItem);
   }

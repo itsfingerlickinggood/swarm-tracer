@@ -1,0 +1,241 @@
+{
+ "slug": "shared-place-sign",
+ "order": 2,
+ "title": "The one sign that warned early",
+ "dek": "In our simulated swarms one sign fired hours before the first harm: two identities using the same place. On the real incident it did not come early. Here is what each result rests on.",
+ "figures": {
+  "sim_n": {
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].coordinated.harm.n",
+   "as": "int",
+   "label": "simulated coordinated swarms in the forward test"
+  },
+  "sim_fired": {
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].coordinated.harm.fired",
+   "as": "int",
+   "label": "of them where the sign fired"
+  },
+  "lead_harm": {
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].coordinated.harm.median_lead_h",
+   "as": "h1",
+   "label": "hours: median lead before the first true harmful action (simulated)"
+  },
+  "lead_msg": {
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].coordinated.message.median_lead_h",
+   "as": "h1",
+   "label": "hours: median lead before the first true message (simulated)"
+  },
+  "benign_n": {
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].benign.n",
+   "as": "int",
+   "label": "simulated benign swarms"
+  },
+  "benign_fired": {
+   "from": "/api/x/earlywarn_summary",
+   "path": "forward.signs[id=coordination: two identities use one place].benign.fired",
+   "as": "int",
+   "label": "of them where the sign fired"
+  },
+  "caveat_sim": {
+   "from": "/api/x/earlywarn_summary",
+   "path": "caveats.0",
+   "as": "text",
+   "label": "the forward test's own first caveat"
+  },
+  "harm_first": {
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=replay:first: registry_board].as_counted.time",
+   "as": "time",
+   "label": "first harmful sign on the release (UTC)"
+  },
+  "place_tok": {
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=replay:coordination: two identities use one place].as_counted.time",
+   "as": "time",
+   "label": "shared-place sign on the release, counting tokens (UTC)"
+  },
+  "place_agent": {
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=replay:coordination: two identities use one place].by_agent.time",
+   "as": "time",
+   "label": "shared-place sign on the release, counting estimated agents (UTC)"
+  },
+  "share_tok": {
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=replay:coordination: two identities use one place].as_counted.harm_share_after",
+   "as": "pct",
+   "label": "of the dated harm still to come when it fired, counting tokens"
+  },
+  "share_agent": {
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=replay:coordination: two identities use one place].by_agent.harm_share_after",
+   "as": "pct",
+   "label": "of the dated harm still to come when it fired, counting estimated agents"
+  },
+  "agent_a_tokens": {
+   "from": "/api/x/units_map",
+   "path": "agent_list[name=Agent A].tokens.#",
+   "as": "int",
+   "label": "tokens merged into Agent A"
+  }
+ },
+ "body": [
+  {
+   "h": "The sign"
+  },
+  {
+   "p": "Agents that work together need somewhere to leave things. A dataset. A folder. A page. [[c1|The sign fires the first time two different identities use the same named place.]] It does not need a message. It does not need to know who wrote and who read. Two names on one place is enough."
+  },
+  {
+   "h": "In the simulator it was early"
+  },
+  {
+   "p": "We froze the definitions of every sign. Then we generated swarms the signs had never seen. [[c2|The shared-place sign fired in {sim_fired} of {sim_n} coordinated swarms.]] [[c3|Its median lead was {lead_harm} hours before the first harmful action, and {lead_msg} hours before the first message.]] No other sign fired well before the first harm. [[c4|It fired in {benign_fired} of {benign_n} benign swarms.]]"
+  },
+  {
+   "note": "Read this with care. [[c5|These swarms come from our own simulator.]] We wrote the generator and we wrote the sign. Real swarms differ. We had no real benign traffic from many agents to test for false alarms. So early here means early in a world we built."
+  },
+  {
+   "h": "On the real incident it was not"
+  },
+  {
+   "p": "The Swarm Traces release is real. It has no truth file, so nobody can say how early a sign should have been. We can only say when it fired. [[c6|The first harmful sign fires on {rec:R0000032.time}: an anonymous run reads a folder on the package registry.]] [[c7|The shared-place sign fires on {rec:R0028572.time}, more than two days later.]] {rec:R0016746.actor} had used a place name. Now {rec:R0028572.actor} used it too. [[c8|At that point {share_tok} of the dated harm was still to come.]] Half of it had already happened."
+  },
+  {
+   "h": "And the two identities were probably one agent"
+  },
+  {
+   "p": "[[c9|{rec:R0016746.actor} and {rec:R0028572.actor} are two tokens of the same estimated agent.]] One agent using its own place under two tokens is not two agents meeting. [[c10|Counted by estimated agent the sign moves to {rec:R0049451.time}, with {share_agent} of the harm still to come.]]"
+  },
+  {
+   "h": "What to take from it"
+  },
+  {
+   "p": "The sign is cheap and it needs little data. In simulation it is the earliest warning we have. On the one real incident we could test, it came late, and its first hit was one agent seen twice. Both things are true. We would not ship it as an alarm on this evidence. We would test it on real traffic first."
+  }
+ ],
+ "claims": {
+  "c1": {
+   "evidence": "The sign needs one place name and two identities. On the release these two records set it off.",
+   "records": [
+    {
+     "id": "R0016746",
+     "note": "First use of the place name, by {rec:R0016746.actor}."
+    },
+    {
+     "id": "R0028572",
+     "note": "Second identity, {rec:R0028572.actor}: the sign fires here."
+    }
+   ],
+   "docs": [
+    {
+     "href": "../../early-warning.html",
+     "label": "Every sign and its frozen definition"
+    }
+   ]
+  },
+  "c2": {
+   "evidence": "Forward test on simulated coordinated swarms.",
+   "figures": [
+    "sim_fired",
+    "sim_n"
+   ],
+   "docs": [
+    {
+     "href": "../../early-warning.html",
+     "label": "The forward test: settings, seeds and every sign"
+    }
+   ]
+  },
+  "c3": {
+   "evidence": "Median lead in the simulation, measured against the simulation's own truth file.",
+   "figures": [
+    "lead_harm",
+    "lead_msg"
+   ],
+   "caveat": "Simulated. A lead is hours before the first true harm or message in the truth file our generator writes."
+  },
+  "c4": {
+   "evidence": "False alarms on simulated benign swarms.",
+   "figures": [
+    "benign_fired",
+    "benign_n"
+   ],
+   "caveat": "Zero alarms in this many benign swarms still leaves room for a real false-alarm rate. The benign swarms are simulated too."
+  },
+  "c5": {
+   "evidence": "The forward test states its own limit.",
+   "figures": [
+    "caveat_sim"
+   ],
+   "docs": [
+    {
+     "href": "../../early-warning.html",
+     "label": "Could the coordination have been flagged early?"
+    },
+    {
+     "href": "../../limitations.html",
+     "label": "Limits of the tool"
+    }
+   ]
+  },
+  "c6": {
+   "evidence": "The first harmful sign on the real release.",
+   "figures": [
+    "harm_first"
+   ],
+   "records": [
+    {
+     "id": "R0000032",
+     "note": "An anonymous run reads a folder on the registry that the agents used as a board."
+    }
+   ]
+  },
+  "c7": {
+   "evidence": "The shared-place sign on the real release, counting tokens.",
+   "figures": [
+    "place_tok",
+    "harm_first"
+   ],
+   "records": [
+    "R0016746",
+    "R0028572"
+   ]
+  },
+  "c8": {
+   "evidence": "Share of the dated harmful actions that came after the sign.",
+   "figures": [
+    "share_tok"
+   ],
+   "caveat": "No truth exists for a real release. This shows where the sign fires on the replay, not how early it was."
+  },
+  "c9": {
+   "evidence": "Both tokens are counted as Agent A.",
+   "figures": [
+    "agent_a_tokens"
+   ],
+   "records": [
+    "R0016746",
+    "R0028572"
+   ],
+   "caveat": "The merge is an estimate from counted evidence. If it is wrong, the earlier time stands."
+  },
+  "c10": {
+   "evidence": "The sign by estimated agent: the first place two different agents both use.",
+   "figures": [
+    "place_agent",
+    "share_agent"
+   ],
+   "records": [
+    {
+     "id": "R0049451",
+     "note": "{rec:R0049451.actor} uses a place name that Agent A also uses. The sign fires here when tokens are merged."
+    }
+   ]
+  }
+ }
+}

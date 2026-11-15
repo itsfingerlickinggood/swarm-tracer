@@ -11,6 +11,10 @@ reports/*
 !reports/evaluation/
 !reports/evaluation-wiki/
 !reports/validation/
+!reports/integrity/
+reports/integrity/labelkit/
+reports/integrity/.cache/
+reports/integrity/crosscheck.json
 reports/validation/swarms/
 reports/validation/quick/
 

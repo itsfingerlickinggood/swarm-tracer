@@ -1,0 +1,744 @@
+{
+ "schema": 1,
+ "story": "first-message",
+ "snippets": "off",
+ "citation": {
+  "authors": "Forman, Kharlov, Tom et al.",
+  "title": "Revealing the details of how OpenAI agents hacked Hugging Face",
+  "site": "swarmtraces.org",
+  "url": "https://swarmtraces.org/",
+  "date": "25 Sep 2026",
+  "viewer": "https://swarmtraces.org/viewer/#/row/{id}",
+  "text": "Forman, Kharlov, Tom et al., \"Revealing the details of how OpenAI agents hacked Hugging Face\", swarmtraces.org, 25 Sep 2026"
+ },
+ "produced_by": {
+  "tool": "Swarm Tracer",
+  "version": "2.1.0",
+  "pack": "code traces (Swarm Traces release)",
+  "agent_rule": "estimate",
+  "agent_rule_note": "estimated agents: tokens merged on direct evidence; change in Agents",
+  "dataset": "redacted_columns.csv",
+  "records": 189579
+ },
+ "figures": {
+  "deliveries": {
+   "value": 23,
+   "text": "23",
+   "as": "int",
+   "from": "/api/state",
+   "path": "summary.flow.deliveries",
+   "label": "messages in the release (a read of a place after a different actor wrote it)"
+  },
+  "named": {
+   "value": 6,
+   "text": "6",
+   "as": "int",
+   "from": "/api/state",
+   "path": "summary.flow.deliveries_between_named_actors",
+   "label": "messages between two named tokens"
+  },
+  "named_pairs": {
+   "value": 5,
+   "text": "5",
+   "as": "int",
+   "from": "/api/state",
+   "path": "summary.flow.named_actor_pairs",
+   "label": "sender and receiver pairs of named tokens"
+  },
+  "records": {
+   "value": 189579,
+   "text": "189,579",
+   "as": "int",
+   "from": "/api/state",
+   "path": "summary.records",
+   "label": "records in the release"
+  },
+  "inside": {
+   "value": 3,
+   "text": "3",
+   "as": "int",
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "inside_one_agent",
+   "label": "messages between two tokens of one estimated agent"
+  },
+  "between": {
+   "value": 3,
+   "text": "3",
+   "as": "int",
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "messages",
+   "label": "messages between different estimated agents"
+  },
+  "agent_a_tokens": {
+   "value": 7,
+   "text": "7",
+   "as": "int",
+   "from": "/api/x/units_map",
+   "path": "agent_list[name=Agent A].tokens.#",
+   "label": "tokens merged into Agent A"
+  },
+  "agent_a_confidence": {
+   "value": "high",
+   "text": "high",
+   "as": "text",
+   "from": "/api/x/units_map",
+   "path": "agent_list[name=Agent A].confidence",
+   "label": "confidence of the weakest merge in Agent A"
+  },
+  "share_tok": {
+   "value": 0.895,
+   "text": "90%",
+   "as": "pct",
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=message].as_counted.harm_share_after",
+   "label": "of the dated harmful actions came after the first message, counting tokens"
+  },
+  "share_agent": {
+   "value": 0.083,
+   "text": "8%",
+   "as": "pct",
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=message].by_agent.harm_share_after",
+   "label": "of the dated harmful actions came after the first message, counting estimated agents"
+  },
+  "first_tok": {
+   "value": "2026-07-10 11:51",
+   "text": "Jul 10 11:51",
+   "as": "time",
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=message].as_counted.time",
+   "label": "first message, counting tokens (UTC)"
+  },
+  "first_agent": {
+   "value": "2026-07-12 07:47",
+   "text": "Jul 12 07:47",
+   "as": "time",
+   "from": "/api/x/units_summary?unit=agent",
+   "path": "signs[key=message].by_agent.time",
+   "label": "first message, counting estimated agents (UTC)"
+  },
+  "audited": {
+   "value": 6,
+   "text": "6",
+   "as": "int",
+   "from": "/api/x/benchmark",
+   "path": "groups.named_named.audited",
+   "label": "named messages read by a person"
+  },
+  "audited_true": {
+   "value": 6,
+   "text": "6",
+   "as": "int",
+   "from": "/api/x/benchmark",
+   "path": "groups.named_named.true",
+   "label": "of them judged a real write and a real read"
+  }
+ },
+ "records": {
+  "R0005366": {
+   "id": "R0005366",
+   "kind": "payload",
+   "time": "2026-07-10 11:18",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 170]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "hf_read",
+   "text_length": 656,
+   "judged": [
+    {
+     "op": "write",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "in_text": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 170]",
+     "to": "[CREDENTIAL 169]",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "write_id": "R0005366",
+     "read_id": "R0005421",
+     "wait_h": 0.56,
+     "grade": "inferred",
+     "estimated": true,
+     "merged_place": false
+    },
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 170]",
+     "to": "run:R0005427",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "write_id": "R0005366",
+     "read_id": "R0005427",
+     "wait_h": 0.62,
+     "grade": "inferred",
+     "estimated": true,
+     "merged_place": false
+    },
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 170]",
+     "to": "run:R0005607",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "write_id": "R0005366",
+     "read_id": "R0005607",
+     "wait_h": 2.47,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    },
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 170]",
+     "to": "run:R0006753",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "write_id": "R0005366",
+     "read_id": "R0006753",
+     "wait_h": 15.43,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    },
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 170]",
+     "to": "run:R0006788",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "write_id": "R0005366",
+     "read_id": "R0006788",
+     "wait_h": 15.84,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    },
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 170]",
+     "to": "run:R0006791",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "write_id": "R0005366",
+     "read_id": "R0006791",
+     "wait_h": 15.87,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    },
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 170]",
+     "to": "run:R0006792",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "write_id": "R0005366",
+     "read_id": "R0006792",
+     "wait_h": 15.88,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    },
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 170]",
+     "to": "run:R0006793",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "write_id": "R0005366",
+     "read_id": "R0006793",
+     "wait_h": 15.9,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    },
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 170]",
+     "to": "[CREDENTIAL 220]",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "write_id": "R0005366",
+     "read_id": "R0007854",
+     "wait_h": 20.48,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0005366"
+  },
+  "R0005421": {
+   "id": "R0005421",
+   "kind": "payload",
+   "time": "2026-07-10 11:51",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 169]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "hf_read",
+   "text_length": 427,
+   "judged": [
+    {
+     "op": "read",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "in_text": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "read",
+     "from": "[CREDENTIAL 170]",
+     "to": "[CREDENTIAL 169]",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "write_id": "R0005366",
+     "read_id": "R0005421",
+     "wait_h": 0.56,
+     "grade": "inferred",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0005421"
+  },
+  "R0006584": {
+   "id": "R0006584",
+   "kind": "payload",
+   "time": "2026-07-11 00:45",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 170]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "hf_read",
+   "text_length": 613,
+   "judged": [
+    {
+     "op": "write",
+     "place": "hf_dataset:[REDACTED:repo_locator:000055]",
+     "place_label": "Hugging Face dataset repo locator 55",
+     "in_text": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 170]",
+     "to": "[CREDENTIAL 169]",
+     "place": "hf_dataset:[REDACTED:repo_locator:000055]",
+     "place_label": "Hugging Face dataset repo locator 55",
+     "write_id": "R0006584",
+     "read_id": "R0006786",
+     "wait_h": 2.35,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0006584"
+  },
+  "R0006786": {
+   "id": "R0006786",
+   "kind": "payload",
+   "time": "2026-07-11 03:06",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 169]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "hf_read",
+   "text_length": 354,
+   "judged": [
+    {
+     "op": "read",
+     "place": "hf_dataset:[REDACTED:repo_locator:000055]",
+     "place_label": "Hugging Face dataset repo locator 55",
+     "in_text": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "read",
+     "from": "[CREDENTIAL 170]",
+     "to": "[CREDENTIAL 169]",
+     "place": "hf_dataset:[REDACTED:repo_locator:000055]",
+     "place_label": "Hugging Face dataset repo locator 55",
+     "write_id": "R0006584",
+     "read_id": "R0006786",
+     "wait_h": 2.35,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0006786"
+  },
+  "R0007854": {
+   "id": "R0007854",
+   "kind": "payload",
+   "time": "2026-07-11 07:46",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 220]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "hf_read",
+   "text_length": 609,
+   "judged": [
+    {
+     "op": "read",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "in_text": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "read",
+     "from": "[CREDENTIAL 170]",
+     "to": "[CREDENTIAL 220]",
+     "place": "hf_dataset:[REDACTED:username:000002]] REPO 1]",
+     "place_label": "Hugging Face dataset username 2] REPO 1]",
+     "write_id": "R0005366",
+     "read_id": "R0007854",
+     "wait_h": 20.48,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0007854"
+  },
+  "R0044999": {
+   "id": "R0044999",
+   "kind": "payload",
+   "time": "2026-07-12 07:00",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 1722]",
+   "actor_kind": "token",
+   "agent": null,
+   "intent": "hf_dataset_write",
+   "text_length": 873,
+   "judged": [
+    {
+     "op": "write",
+     "place": "hf_dataset:[HF REPO 672]",
+     "place_label": "Hugging Face dataset HF REPO 672",
+     "in_text": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 1722]",
+     "to": "[CREDENTIAL 1721]",
+     "place": "hf_dataset:[HF REPO 672]",
+     "place_label": "Hugging Face dataset HF REPO 672",
+     "write_id": "R0044999",
+     "read_id": "R0045751",
+     "wait_h": 3.06,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0044999"
+  },
+  "R0045751": {
+   "id": "R0045751",
+   "kind": "payload",
+   "time": "2026-07-12 10:04",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 1721]",
+   "actor_kind": "token",
+   "agent": null,
+   "intent": "hf_read",
+   "text_length": 333,
+   "judged": [
+    {
+     "op": "read",
+     "place": "hf_dataset:[HF REPO 672]",
+     "place_label": "Hugging Face dataset HF REPO 672",
+     "in_text": true
+    },
+    {
+     "op": "read",
+     "place": "hf_dataset:[HF REPO 671]",
+     "place_label": "Hugging Face dataset HF REPO 671",
+     "in_text": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "read",
+     "from": "[CREDENTIAL 1722]",
+     "to": "[CREDENTIAL 1721]",
+     "place": "hf_dataset:[HF REPO 672]",
+     "place_label": "Hugging Face dataset HF REPO 672",
+     "write_id": "R0044999",
+     "read_id": "R0045751",
+     "wait_h": 3.06,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0045751"
+  },
+  "R0046969": {
+   "id": "R0046969",
+   "kind": "payload",
+   "time": "2026-07-12 13:06",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 1602]",
+   "actor_kind": "token",
+   "agent": null,
+   "intent": "hf_read",
+   "text_length": 393,
+   "judged": [
+    {
+     "op": "read",
+     "place": "hf_dataset:[HF REPO 646]",
+     "place_label": "Hugging Face dataset HF REPO 646",
+     "in_text": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "read",
+     "from": "[CREDENTIAL 1720]",
+     "to": "[CREDENTIAL 1602]",
+     "place": "hf_dataset:[HF REPO 646]",
+     "place_label": "Hugging Face dataset HF REPO 646",
+     "write_id": "R0044824",
+     "read_id": "R0046969",
+     "wait_h": 6.37,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0046969"
+  },
+  "R0016746": {
+   "id": "R0016746",
+   "kind": "payload",
+   "time": "2026-07-11 13:19",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 169]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "hf_dataset_write",
+   "text_length": 452,
+   "judged": [
+    {
+     "op": "write",
+     "place": "hf_dataset:[REDACTED:destination:001593]",
+     "place_label": "Hugging Face dataset destination 1593",
+     "in_text": true
+    }
+   ],
+   "messages": [],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0016746"
+  },
+  "R0028572": {
+   "id": "R0028572",
+   "kind": "payload",
+   "time": "2026-07-11 20:05",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 170]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "kubernetes_api",
+   "text_length": 15272,
+   "judged": [
+    {
+     "op": "write",
+     "place": "hf_dataset:[REDACTED:destination:004387]",
+     "place_label": "Hugging Face dataset destination 4387",
+     "in_text": true
+    },
+    {
+     "op": "read",
+     "place": "hf_dataset:[REDACTED:destination:004388]",
+     "place_label": "Hugging Face dataset destination 4388",
+     "in_text": false
+    }
+   ],
+   "messages": [],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0028572"
+  },
+  "R0044824": {
+   "id": "R0044824",
+   "kind": "payload",
+   "time": "2026-07-12 06:44",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 1720]",
+   "actor_kind": "token",
+   "agent": null,
+   "intent": "hf_dataset_write",
+   "text_length": 672,
+   "judged": [
+    {
+     "op": "write",
+     "place": "hf_dataset:[HF REPO 646]",
+     "place_label": "Hugging Face dataset HF REPO 646",
+     "in_text": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 1720]",
+     "to": "[CREDENTIAL 1623]",
+     "place": "hf_dataset:[HF REPO 646]",
+     "place_label": "Hugging Face dataset HF REPO 646",
+     "write_id": "R0044824",
+     "read_id": "R0045143",
+     "wait_h": 1.06,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    },
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 1720]",
+     "to": "run:R0045338",
+     "place": "hf_dataset:[HF REPO 646]",
+     "place_label": "Hugging Face dataset HF REPO 646",
+     "write_id": "R0044824",
+     "read_id": "R0045338",
+     "wait_h": 2.02,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    },
+    {
+     "role": "write",
+     "from": "[CREDENTIAL 1720]",
+     "to": "[CREDENTIAL 1602]",
+     "place": "hf_dataset:[HF REPO 646]",
+     "place_label": "Hugging Face dataset HF REPO 646",
+     "write_id": "R0044824",
+     "read_id": "R0046969",
+     "wait_h": 6.37,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0044824"
+  },
+  "R0045143": {
+   "id": "R0045143",
+   "kind": "payload",
+   "time": "2026-07-12 07:47",
+   "time_estimated": true,
+   "time_source": "estimated",
+   "actor": "[CREDENTIAL 1623]",
+   "actor_kind": "token",
+   "agent": {
+    "id": "[CREDENTIAL 170]",
+    "name": "Agent A",
+    "tokens": 7,
+    "confidence": "high"
+   },
+   "intent": "submit_to_eval_api",
+   "text_length": 3405,
+   "judged": [
+    {
+     "op": "read",
+     "place": "hf_dataset:[HF REPO 630]",
+     "place_label": "Hugging Face dataset HF REPO 630",
+     "in_text": false
+    },
+    {
+     "op": "read",
+     "place": "hf_dataset:[REDACTED:destination:030317]",
+     "place_label": "Hugging Face dataset destination 30317",
+     "in_text": false
+    },
+    {
+     "op": "read",
+     "place": "hf_dataset:[HF REPO 646]",
+     "place_label": "Hugging Face dataset HF REPO 646",
+     "in_text": false
+    },
+    {
+     "op": "read",
+     "place": "hf_dataset:[REDACTED:destination:030314]",
+     "place_label": "Hugging Face dataset destination 30314",
+     "in_text": false
+    }
+   ],
+   "messages": [
+    {
+     "role": "read",
+     "from": "[CREDENTIAL 1720]",
+     "to": "[CREDENTIAL 1623]",
+     "place": "hf_dataset:[HF REPO 646]",
+     "place_label": "Hugging Face dataset HF REPO 646",
+     "write_id": "R0044824",
+     "read_id": "R0045143",
+     "wait_h": 1.06,
+     "grade": "weak",
+     "estimated": true,
+     "merged_place": false
+    }
+   ],
+   "viewer": "https://swarmtraces.org/viewer/#/row/R0045143"
+  }
+ },
+ "findings": {}
+}

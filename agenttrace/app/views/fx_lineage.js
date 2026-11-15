@@ -30,12 +30,12 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     });
     return s;
   };
-  // take a q/fx deep link once, then drop it from the address so the side menu keeps working
+  // take a q deep link once, then drop the q from the address so a later visit starts from the section's own state
   function takeLink(id) {
     const d = typeof deepLink === "function" ? deepLink() : {};
     if (d.fx !== id || d.q == null) return null;
     const p = new URLSearchParams(location.hash.replace(/^#/, ""));
-    p.delete("fx"); p.delete("q");
+    p.delete("q");      // fx stays: the address names the section (the menu rewrites it on a click)
     history.replaceState(null, "", location.pathname + location.search + (p.toString() ? "#" + p.toString() : ""));
     return d.q;
   }
@@ -74,7 +74,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
         <button class="primary" type="submit">Trace</button> <button type="button" id="trlink">Copy link</button></form>
       <p class="small muted">${term("fx_trace", "Traces")} any string through every record. Try: ${ex.map((x) => `<button type="button" class="link trex" data-q="${esc(x)}">${esc(short(x))}</button>`).join(" · ") || "a word from a record"}. ${(s.identities || []).some((i) => /^\[CREDENTIAL \d+\]$/.test(i.identity)) ? "“cred 169” finds [CREDENTIAL 169]." : ""}</p>
       <div id="trout"></div>`;
-    const go = (q) => { TR.q = q.trim(); $("trq").value = TR.q; run(); };
+    const go = (q) => { TR.q = q.trim(); $("trq").value = TR.q; if (!TR.q) { $("trout").innerHTML = '<p class="muted" role="status">Type a token, URL, host, path or line of code to trace.</p>'; $("trq").focus(); return; } run(); };
     $("trform").addEventListener("submit", (e) => { e.preventDefault(); go($("trq").value); });
     host.querySelectorAll(".trex").forEach((b) => b.addEventListener("click", () => go(b.dataset.q)));
     $("trlink").addEventListener("click", (e) => copyLink(e.target, linkFor("trace", $("trq").value.trim())));

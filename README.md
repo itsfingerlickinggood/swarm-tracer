@@ -10,14 +10,14 @@ The main tool is **agenttrace** and its web app, **Swarm Tracer**. It works on a
 
 **Website and documentation:** <https://itsfingerlickinggood.github.io/swarm-tracer/>
 
-> **Correction, 13 November 2026.** The report and slides submitted to the hackathon say the tool finds 19 messages between named tokens in the Swarm Traces release. A full audit after the deadline (every link read, both records) found that count wrong: most of the 19 were two tokens committing to the same dataset. The rule was fixed and scored against the audit; the release shows **24 messages, 6 of them between named tokens**. Details: [docs/validation.md](docs/validation.md#audited-links-on-the-real-release). The PDF is left as submitted.
+> **Correction, 13 November 2026.** The report and slides submitted to the hackathon say the tool finds 19 messages between named tokens in the Swarm Traces release. A full audit after the deadline (every link read, both records) found that count wrong: most of the 19 were two tokens committing to the same dataset. The rule was fixed and scored against the audit; the release shows **23 messages, 6 of them between named tokens** (24 until 15 November, when the one link the audit judged false was removed by a rule fix). Details: [docs/validation.md](docs/validation.md#audited-links-on-the-real-release). The PDF is left as submitted.
 
 ## Quick start
 
 Python 3.9+ standard library only.
 
 ```bash
-pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.0.0
+pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.1.0
 swarm-tracer demo                         # a simulated swarm with known answers
 swarm-tracer serve --input my-swarm.jsonl # then open http://127.0.0.1:8010
 ```
@@ -59,6 +59,29 @@ python3 -m agenttrace.tools.check                                      # tests, 
 - **AI investigator** (optional; any OpenAI-compatible model, including local Ollama): answers drawn as charts and cards with every id checked against the data, a gap audit, and a draft incident report.
 - Large datasets are cached on disk (32.7 s to 0.5 s for the Swarm Traces release).
 
+## Integrity checks
+
+Every number this project publishes can be re-derived, and the rule behind the message count is written down and tested. See [docs/integrity.md](docs/integrity.md) for what each check proves and what it does not.
+
+```bash
+python3 -m agenttrace verify                      # every published number against the data and the texts
+python3 -m agenttrace.tools.crosscheck            # the counting rule against a second, separate implementation
+python3 -m agenttrace.tools.mutate --quick        # break the rule on purpose; do the tests notice?
+python3 -m agenttrace.tools.repro                 # clean copy, fresh environment, same outputs
+python3 -m agenttrace.tools.sitecheck             # site links resolve; no secrets or record text published
+python3 -m agenttrace.tools.labelkit export       # a blind sheet for a second human labeller
+```
+
+- The counting rule as numbered statements: [docs/counting-rule.md](docs/counting-rule.md).
+- The second implementation agrees exactly on the collusion.wiki logs, the demo swarm and the format samples, and **disagrees heavily on the Swarm Traces release** (23 deliveries against 192). The disagreements we read favour the rule, but most were not hand-audited.
+- The audit labels are still one reader's. The labelling kit is ready for a second.
+
+## Hosted demo, investigations, datasets
+
+- **[Demo](https://itsfingerlickinggood.github.io/swarm-tracer/demo/):** the app on the built-in simulated swarm, with no server. Loading your own data, Live and the AI investigator need the installed tool.
+- **[Investigations](https://itsfingerlickinggood.github.io/swarm-tracer/investigations/):** three short cases from the Swarm Traces incident. Each claim opens its evidence. No record text is republished; each record links to the publisher's viewer.
+- **[Datasets](https://itsfingerlickinggood.github.io/swarm-tracer/datasets.html):** 11 sources with their reuse terms and what the tool can and cannot conclude on each ([licensing notes](docs/dataset-licensing.md)).
+
 ## Screenshots
 
 **Overview and Inspector.** Short answers to the challenge, measured from the records, beside a record explained in plain words: what it does, its role in the swarm, and how much harm was still to come.
@@ -95,7 +118,7 @@ Earlier prototypes (`analyzer/`, `forensics/`) were replaced by `agenttrace` and
 ## How a message is counted
 
 A message is a read of a place after a different actor wrote to it. Three rules keep the count honest:
-- **Each write counts once per reader.** Polling a mailbox or re-linking the same page is one message, not many. In the Swarm Traces release polling does not multiply messages; the Swarm Traces release has 24 messages (6 between named tokens) once reads and writes are judged call by call.
+- **Each write counts once per reader.** Polling a mailbox or re-linking the same page is one message, not many. In the Swarm Traces release polling does not multiply messages; the Swarm Traces release has 23 messages (6 between named tokens) once reads and writes are judged call by call.
 - **Overwrites are not messages.** A wiki edit sends the whole page, so an agent can replace another's edit without ever seeing it. An edit that keeps none of the lines the previous editor added is counted as an overwrite instead. In the wiki logs this removes 4,587 edits. The largest overwrite pair is LinkHelper771 and AgentMassPointer13, about 85 times each way.
 - **Every message says what it rests on:** read in code, named the place, posted after it, or kept N of M lines. "Named the place" shows the place was known, not that it was read.
 

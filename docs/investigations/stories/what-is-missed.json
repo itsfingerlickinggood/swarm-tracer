@@ -1,0 +1,308 @@
+{
+ "slug": "what-is-missed",
+ "order": 3,
+ "title": "What an investigator would still miss",
+ "dek": "The people who ran the incident published what they found. We checked each finding against the public release. {invisible} of {total} cannot be seen in it at all.",
+ "figures": {
+  "total": {
+   "from": "/api/x/insiders",
+   "path": "total",
+   "as": "int",
+   "label": "findings checked (incident reports and the Swarm Traces authors)"
+  },
+  "recovered": {
+   "from": "/api/x/insiders",
+   "path": "counts.recovered",
+   "as": "int",
+   "label": "recovered from the release"
+  },
+  "partly": {
+   "from": "/api/x/insiders",
+   "path": "counts.partly",
+   "as": "int",
+   "label": "partly recovered"
+  },
+  "invisible": {
+   "from": "/api/x/insiders",
+   "path": "counts.invisible",
+   "as": "int",
+   "label": "invisible in the release"
+  },
+  "hf_start": {
+   "from": "/api/x/insiders",
+   "path": "findings[id=log_window_start].evidence.numbers.report",
+   "as": "time",
+   "label": "Hugging Face's first recovered attacker action (UTC)"
+  },
+  "start_gap": {
+   "from": "/api/x/insiders",
+   "path": "findings[id=log_window_start].evidence.numbers.difference_h",
+   "as": "h1",
+   "label": "hours between it and the earliest dated record"
+  },
+  "span_start": {
+   "from": "/api/state",
+   "path": "summary.time_test.span.0",
+   "as": "time",
+   "label": "earliest dated record (UTC)"
+  },
+  "span_end": {
+   "from": "/api/state",
+   "path": "summary.time_test.span.1",
+   "as": "time",
+   "label": "latest dated record (UTC)"
+  },
+  "detect_time": {
+   "from": "/api/x/insiders",
+   "path": "findings[id=openai_detection].evidence.numbers.report",
+   "as": "time",
+   "label": "OpenAI's monitoring flags the activity (UTC)"
+  },
+  "runs": {
+   "from": "/api/x/attribution",
+   "path": "runs",
+   "as": "int",
+   "label": "actions by anonymous runs"
+  },
+  "actions": {
+   "from": "/api/x/attribution",
+   "path": "actions_total",
+   "as": "int",
+   "label": "actions in the release"
+  },
+  "named_actors": {
+   "from": "/api/x/attribution",
+   "path": "named_actors",
+   "as": "int",
+   "label": "named actors (tokens and self-chosen names)"
+  },
+  "unattr": {
+   "from": "/api/x/attribution",
+   "path": "bands.unattributed.runs",
+   "as": "int",
+   "label": "anonymous runs with no probable link to a named actor"
+  },
+  "unattr_share": {
+   "from": "/api/x/attribution",
+   "path": "bands.unattributed.runs",
+   "over": "runs",
+   "as": "pct",
+   "label": "of the anonymous runs stay unattributed"
+  },
+  "folders": {
+   "from": "/api/x/board",
+   "path": "funnel.folders",
+   "as": "int",
+   "label": "board folders named in the code"
+  },
+  "both": {
+   "from": "/api/x/board",
+   "path": "funnel.both",
+   "as": "int",
+   "label": "folders with a writer and a reader both visible"
+  },
+  "linked": {
+   "from": "/api/x/board",
+   "path": "funnel.linked",
+   "as": "int",
+   "label": "folders where a read follows another actor's write"
+  },
+  "collect_1": {
+   "from": "/api/x/collect_next",
+   "path": "items[priority=1].field",
+   "as": "text",
+   "label": "first thing to collect next time"
+  },
+  "collect_2": {
+   "from": "/api/x/collect_next",
+   "path": "items[priority=2].field",
+   "as": "text",
+   "label": "second"
+  },
+  "collect_3": {
+   "from": "/api/x/collect_next",
+   "path": "items[priority=3].field",
+   "as": "text",
+   "label": "third"
+  }
+ },
+ "body": [
+  {
+   "h": "Checking against the insiders"
+  },
+  {
+   "p": "METR, OpenAI and Hugging Face saw the whole incident: the message board, the transcripts, the servers. The public release holds less. [[c1|We listed {total} findings, from their reports and from the authors of the release, and looked for each one in the records.]] [[c2|The tool recovers {recovered}, finds part of {partly}, and cannot see {invisible}.]] All of the invisible ones come from the incident reports."
+  },
+  {
+   "h": "The start and the end are missing"
+  },
+  {
+   "p": "[[c3|Hugging Face recovered attacker actions from {hf_start}.]] [[c4|The earliest record the tool can date is on {span_start}, {start_gap} hours later.]] [[c5|OpenAI's monitoring flagged the activity on {detect_time}. The dated records stop on {span_end}.]] The build-up and the detection both fall outside the window."
+  },
+  {
+   "h": "Most records have no name"
+  },
+  {
+   "p": "[[c6|{runs} of the {actions} actions come from anonymous runs: no token and no name.]] The tool tries to link each run to a named actor through rare material they share. [[c7|{unattr_share} of the anonymous runs stay unattributed.]] The reports count agents. [[c8|The release cannot. It has tokens and names, not agents.]]"
+  },
+  {
+   "h": "The board is almost empty"
+  },
+  {
+   "p": "The agents talked through a message board on a package registry. Its contents are not in the release. Only the folder names that the code mentions are visible. [[c9|The tool sees {folders} board folders.]] [[c10|In only {both} of them does it see both a writer and a reader.]] [[c11|One is a single token that reads its own folder and then writes it.]] [[c12|The other is the only board message the tool can pair: one anonymous run creates a folder and another fetches it.]]"
+  },
+  {
+   "h": "What would close the gaps"
+  },
+  {
+   "p": "[[c13|The tool ranks what to collect next time by how much each missing field leaves open.]] First: {collect_1}. Second: {collect_2}. Third: {collect_3}. None of these is exotic. Until they exist, a count of agents who coordinated, read from this release, is a floor and not a measurement."
+  }
+ ],
+ "claims": {
+  "c1": {
+   "evidence": "The list of findings and where each came from.",
+   "figures": [
+    "total"
+   ],
+   "docs": [
+    {
+     "href": "../../limitations.html",
+     "label": "Limits: what the tool cannot see"
+    }
+   ]
+  },
+  "c2": {
+   "evidence": "Each finding is marked recovered, partly or invisible by a fixed rule.",
+   "figures": [
+    "recovered",
+    "partly",
+    "invisible",
+    "total"
+   ],
+   "caveat": "Recovered means within the dating error for a time, or within a quarter either way for a count. Invisible means not found, outside the dated range, or needing data the records do not hold."
+  },
+  "c3": {
+   "evidence": "What Hugging Face reported about the start.",
+   "findings": [
+    "log_window_start"
+   ],
+   "figures": [
+    "hf_start"
+   ]
+  },
+  "c4": {
+   "evidence": "The earliest record the tool can date.",
+   "figures": [
+    "span_start",
+    "start_gap"
+   ],
+   "records": [
+    {
+     "id": "R0000032",
+     "note": "The first harmful sign, at the very start of the dated range."
+    }
+   ]
+  },
+  "c5": {
+   "evidence": "Detection came days after the last dated record.",
+   "findings": [
+    "openai_detection"
+   ],
+   "figures": [
+    "detect_time",
+    "span_end"
+   ]
+  },
+  "c6": {
+   "evidence": "Who the actions belong to.",
+   "figures": [
+    "runs",
+    "actions",
+    "named_actors"
+   ],
+   "records": [
+    {
+     "id": "R0045942",
+     "note": "An anonymous run: it carries no token and no name, so it is known only by its own record id."
+    }
+   ]
+  },
+  "c7": {
+   "evidence": "Probable links from anonymous runs to named actors.",
+   "figures": [
+    "unattr",
+    "runs",
+    "unattr_share"
+   ],
+   "caveat": "A link here is shared rare material, with a confidence band. It is a lead, not an identity."
+  },
+  "c8": {
+   "evidence": "The reports count agents. The release has no field that says which agent a record came from.",
+   "findings": [
+    "agents_on_board",
+    "names_vs_agents"
+   ],
+   "figures": [
+    "named_actors"
+   ]
+  },
+  "c9": {
+   "evidence": "Board folders the code names.",
+   "figures": [
+    "folders"
+   ],
+   "findings": [
+    "board_traffic"
+   ]
+  },
+  "c10": {
+   "evidence": "Folders where both a write and a read are visible.",
+   "figures": [
+    "both",
+    "linked",
+    "folders"
+   ],
+   "caveat": "A write seen with no read seen does not mean nobody read it. The release shows the board only through payloads that touched it."
+  },
+  "c11": {
+   "evidence": "One token reads the folder, then writes it. No second actor is visible.",
+   "records": [
+    {
+     "id": "R0043005",
+     "note": "{rec:R0043005.actor} reads the folder."
+    },
+    {
+     "id": "R0043078",
+     "note": "{rec:R0043078.actor} writes it, a quarter of an hour later."
+    }
+   ]
+  },
+  "c12": {
+   "evidence": "The one board message the tool pairs. Both ends are anonymous runs.",
+   "records": [
+    {
+     "id": "R0045942",
+     "note": "The write: a run creates a folder on the board."
+    },
+    {
+     "id": "R0046036",
+     "note": "The read: another run fetches from the same folder."
+    }
+   ]
+  },
+  "c13": {
+   "evidence": "The top three practices, sized on this dataset.",
+   "figures": [
+    "collect_1",
+    "collect_2",
+    "collect_3"
+   ],
+   "docs": [
+    {
+     "href": "../../collect-next-time.html",
+     "label": "What to collect next time, with the size of each gap"
+    }
+   ]
+  }
+ }
+}
