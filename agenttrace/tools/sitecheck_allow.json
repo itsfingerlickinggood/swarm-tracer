@@ -94,5 +94,11 @@
   "match": "10.0.0.1",
   "path": "demo/*",
   "reason": "a made-up private address in simulated payloads of the demo swarm"
+ },
+ {
+  "rule": "ip-address",
+  "match": "169.254.169.254",
+  "path": "audit-v2.1.md",
+  "reason": "the well-known cloud metadata address, named in the audit as a string the simulator writes; not a leaked address"
  }
 ]
