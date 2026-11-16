@@ -29,6 +29,7 @@ import hashlib
 import json
 import math
 import os
+import random
 import shutil
 import subprocess
 import sys
@@ -37,16 +38,19 @@ import threading
 import time
 from collections import defaultdict
 
-from . import evaluate, groundtruth, insight, live, validation
+from . import baselines, evaluate, groundtruth, indepgen, insight, live, validation
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 FROZEN = os.path.join(HERE, "claims", "frozen_signs.json")
-FROZEN_DATE = "2026-11-13"
-FORWARD_SEEDS = tuple(range(21, 31))
+FROZEN_DATE = "2026-11-16"
+FORWARD_SEEDS = tuple(range(31, 41))        # v2.2.0: fresh seeds (21-30 were the v2.1.0 forward run and have been seen)
+INDEP_SEEDS = tuple(range(501, 511))        # the independent generator: no seed of it has been run before the freeze
+INDEP_CELL = "chrono_epoch60"
 HOUR = 3600.0
 CODE_FILES = ["agenttrace/insight.py", "agenttrace/live.py", "agenttrace/evaluate.py", "agenttrace/reconstruct.py",
-              "agenttrace/messages.py", "agenttrace/packs/code_traces.json", "agenttrace/packs/wiki_swarm.json"]
+              "agenttrace/messages.py", "agenttrace/packs/code_traces.json", "agenttrace/packs/wiki_swarm.json",
+              "agenttrace/baselines.py", "agenttrace/groundtruth.py", "agenttrace/indepgen.py", "agenttrace/earlywarn.py"]
 DEFAULT_RULE_IDS = ("watch-harm", "alert-coord2", "baseline-volume")
 
 # the rule families of the cost curve: a threshold swept over values; `default` is the frozen default (None: no default)
@@ -114,6 +118,17 @@ def poisson_ci(k, exposure, alpha=0.05):
     return lo / exposure, ((a + b) / 2) / exposure
 
 
+def wilson(k, n, z=1.96):
+    """Wilson 95% interval for k of n swarms (each swarm counted once: a Bernoulli outcome, not a Poisson count)."""
+    if not n:
+        return None
+    p = k / n
+    den = 1 + z * z / n
+    mid = (p + z * z / (2 * n)) / den
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / den
+    return [round(max(0.0, mid - half), 3), round(min(1.0, mid + half), 3)]
+
+
 def _median(xs):
     v = sorted(x for x in xs if x is not None)
     if not v:
@@ -170,6 +185,7 @@ def extract(s, truth=None, meta=None):
     for k in FAMILY["group"]["values"]:
         g = next((g for g in sigs if g["key"] == f"group{k}"), None)
         al["group"][str(k)] = h(g["t"]) if g else None
+    al["baseline"] = {k: h(t) for k, t in baselines.alarms(s).items()}
     run["alarms"] = al
     if truth:
         recs = truth["records"]
@@ -196,12 +212,39 @@ def _fire_summary(rows, key):
     return [key(r) for r in rows]
 
 
+def _boot_median(groups, draws=1000, seed=11):
+    """95% percentile interval of the median of pooled values, resampling whole groups (settings) with replacement.
+    groups: list of lists of values. Settings that share seeds are not independent swarms, so the setting is the unit."""
+    groups = [g for g in groups if g]
+    if len(groups) < 2:
+        return None
+    rng = random.Random(seed)
+    meds = []
+    for _ in range(draws):
+        pool = [x for _ in groups for x in groups[rng.randrange(len(groups))]]
+        meds.append(_median(pool))
+    meds.sort()
+    return [_r(meds[int(0.025 * draws)]), _r(meds[min(draws - 1, int(0.975 * draws))])]
+
+
 def _lead_stats(runs, getter, truth_key):
-    fired = [(getter(r), r[truth_key]) for r in runs if getter(r) is not None]
-    leads = [t - g for g, t in fired if t is not None]
+    fired = [(getter(r), r[truth_key], r.get("setting")) for r in runs if getter(r) is not None]
+    leads = [t - g for g, t, _ in fired if t is not None]
+    by = defaultdict(list)
+    for g, t, st in fired:
+        if t is not None:
+            by[st].append(t - g)
+    rng = random.Random(5)
+    swarm_ci = None
+    if len(leads) >= 2:
+        meds = sorted(_median([leads[rng.randrange(len(leads))] for _ in leads]) for _ in range(1000))
+        swarm_ci = [_r(meds[25]), _r(meds[974])]
     return {"n": len(runs), "fired": len(fired),
             "median_lead_h": _r(_median(leads)), "min_lead_h": _r(min(leads)) if leads else None,
-            "max_lead_h": _r(max(leads)) if leads else None, "leads_n": len(leads)}
+            "max_lead_h": _r(max(leads)) if leads else None, "leads_n": len(leads),
+            "share_lead_positive": _r(sum(1 for x in leads if x > 0) / len(leads), 3) if leads else None,
+            "median_ci_swarms": swarm_ci, "median_ci_settings": _boot_median(list(by.values())),
+            "settings_firing": len(by)}
 
 
 def sign_ids(runs):
@@ -233,6 +276,13 @@ def forward_table(runs):
                       "coordinated": {"harm": _lead_stats(coord, get, "first_true_harm_h"),
                                       "message": _lead_stats(coord, get, "first_true_message_h")},
                       "benign": {"n": len(benign), "fired": sum(1 for r in benign if get(r) is not None)}})
+    base_rows = []
+    for key, name in baselines.BASELINES:
+        get = lambda r, key=key: (r["alarms"].get("baseline") or {}).get(key)
+        base_rows.append({"id": key, "name": name,
+                          "coordinated": {"harm": _lead_stats(coord, get, "first_true_harm_h"),
+                                          "message": _lead_stats(coord, get, "first_true_message_h")},
+                          "benign": {"n": len(benign), "fired": sum(1 for r in benign if get(r) is not None)}})
     by_setting = []
     for name, label, _ in validation.SETTINGS:
         rs = [r for r in runs if r.get("setting") == name and r["dated"]]
@@ -240,7 +290,7 @@ def forward_table(runs):
             continue
         by_setting.append({"setting": name, "label": label, "mode": rs[0]["mode"], "runs": len(rs),
                            "rules": {rid: sum(1 for r in rs if r["rules"].get(rid) is not None) for rid in DEFAULT_RULE_IDS}})
-    return {"signs": rows, "rules": rules, "by_setting": by_setting, "coordinated_runs": len(coord), "benign_runs": len(benign)}
+    return {"signs": rows, "rules": rules, "baselines": base_rows, "by_setting": by_setting, "coordinated_runs": len(coord), "benign_runs": len(benign)}
 
 
 # ------------------------------------------------------------------ false alarms
@@ -257,11 +307,15 @@ def false_alarms(runs):
     def row(kind, ident, name, count):
         lo, hi = poisson_ci(count, days) if days else (None, None)
         return {"kind": kind, "id": ident, "name": name, "alarms": count, "per_24h": _r(count / days, 3) if days else None,
-                "ci_low": _r(lo, 3), "ci_high": _r(hi, 3), "zero_bound": _r(3.0 / days, 3) if days and count == 0 else None}
+                "ci_low": _r(lo, 3), "ci_high": _r(hi, 3), "zero_bound": _r(3.0 / days, 3) if days and count == 0 else None,
+                "swarms": len(benign), "swarm_share": _r(count / len(benign), 3) if benign else None,
+                "swarm_share_ci": wilson(count, len(benign))}
     rows = []
     for rid in DEFAULT_RULE_IDS:
         name = next((x["name"] for x in live.DEFAULT_RULES if x["id"] == rid), rid)
         rows.append(row("rule", rid, name, sum(1 for r in benign if r["rules"].get(rid) is not None)))
+    for key, bname in baselines.BASELINES:
+        rows.append(row("baseline", key, bname, sum(1 for r in benign if (r["alarms"].get("baseline") or {}).get(key) is not None)))
     meta = sign_ids(runs)
     for sid, g in meta.items():
         c = sum(1 for r in benign if any(x["id"] == sid for x in r["signs"]))
@@ -270,7 +324,7 @@ def false_alarms(runs):
     for sid, g in meta.items():     # signs that fired on coordinated runs and never on benign ones
         if not any(r["id"] == sid for r in rows) and sid not in ("rate_harm",):
             rows.append(row("sign", sid, g["name"], 0))
-    rows.sort(key=lambda r: (r["kind"] != "rule", -r["alarms"], r["id"]))
+    rows.sort(key=lambda r: ({"rule": 0, "baseline": 1}.get(r["kind"], 2), -r["alarms"], r["id"]))
     return {"benign_runs": len(benign), "trace_hours": round(hours, 1), "trace_days": _r(days, 2),
             "agent_hours": round(agent_hours), "rows": rows,
             "caveat": "Simulated benign swarms only. No real benign multi-agent traffic with model-written code was available "
@@ -426,15 +480,28 @@ def build_frozen():
     dirty = [l[3:] for l in _git("status", "--porcelain", "--", "agenttrace").splitlines() if l[3:].startswith("agenttrace/") and l[3:].endswith((".py", ".json"))]
     return {
         "frozen_on": FROZEN_DATE,
-        "note": ("Written on 2026-11-13 by the people who built the tool, who by then knew how the Swarm Traces incident unfolded: "
+        "note": ("Rewritten on 2026-11-16 (v2.2.0; the 2026-11-13 version was committed and then rewritten, and its forward results were never committed). "
+                 "Written by the people who built the tool, who by then knew how the Swarm Traces incident unfolded: "
                  "which actions were harmful, in what order, and when. On that incident (and on the wiki swarm, whose pack was written on it) "
                  "the timing of these signs is hindsight, not a test. The forward test uses data they were not written on."),
         "code": {"git_head": head, "uncommitted_code_files_at_freeze": dirty, "sha256": code_hashes(),
                  "how_to_check": "python3 -m agenttrace.earlywarn freeze --check"},
         "signs": signs, "rules": rules,
         "volume_baseline": {"k_sigma": 3.0, "min_history_hours": 12, "min_sd": 1.0},
-        "forward_test": {"seeds": list(FORWARD_SEEDS), "settings": [n for n, _, _ in validation.SETTINGS],
-                         "rule": "seeds 21-30 were not run before this file was written"},
+        "baselines": [{"id": k, "name": n} for k, n in baselines.BASELINES],
+        "forward_test": {
+            "seeds": list(FORWARD_SEEDS), "settings": [n for n, _, _ in validation.SETTINGS],
+            "independent_generator": {"module": "agenttrace/indepgen.py", "seeds": list(INDEP_SEEDS), "cell": INDEP_CELL,
+                                      "scenarios": list(indepgen.SCENARIOS), "agents": 30, "hours": 48},
+            "grading": "a sign's lead is the hours between the sign and the first true harm (or first true message) in the generator's truth file",
+            "rule": ("v2.2.0 freeze. This file and reports/earlywarn/prereg.json (sha256 of this file, of every code file and of both "
+                     "generators, written by `earlywarn prereg` before any forward swarm is generated) are written first; the "
+                     "forward run then records the hashes it ran with and says whether they differ. Nothing is committed by the tool: "
+                     "tag or commit both files before the run to make the order verifiable from history."),
+            "seeds_not_run_before_freeze": "old generator 31-40 and independent generator 501-510; 21-30 were the v2.1.0 forward run"},
+        "changes_since_v2_1_0": ["the shared-place sign ignores a place named only inside a code comment (reconstruct.places_of)",
+                                 "the signs are scored beside simple baselines (agenttrace/baselines.py)",
+                                 "an independent generator (agenttrace/indepgen.py) is run beside the old one"],
     }
 
 
@@ -537,9 +604,105 @@ def run_forward(out=None, seeds=FORWARD_SEEDS, settings=None, log=print, wiki=Tr
         else:
             os.environ["SWARM_TRACER_NO_CACHE"] = no_cache
     summary = summarize(runs, sample_runs, wiki_run)
+    summary.update(_provenance_block())
     summary.update({"generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "seeds": list(seeds),
+                    "generator": "agenttrace.groundtruth (the original simulator)",
                     "seconds": round(time.time() - started, 1),
                     "command": "python3 -m agenttrace.earlywarn forward --out " + out + " --seeds " + " ".join(map(str, seeds))})
+    os.makedirs(out, exist_ok=True)
+    with open(os.path.join(out, fname), "w", encoding="utf-8") as f:
+        json.dump({**summary, "runs": runs}, f, indent=1)
+    return summary
+
+
+def _provenance_block():
+    """What the run was made with, and whether it differs from the frozen file and the pre-registration."""
+    out = {"code_at_run": code_hashes(), "git_head_at_run": _git("rev-parse", "HEAD")}
+    try:
+        st = frozen_status()
+        out["code_changed_since_freeze"] = st["drift"]
+        out["frozen_on"] = st["frozen"].get("frozen_on")
+    except (OSError, ValueError):
+        out["code_changed_since_freeze"] = None
+    try:
+        with open(os.path.join(default_out(), "prereg.json"), encoding="utf-8") as f:
+            pr = json.load(f)
+        with open(FROZEN, "rb") as f:
+            out["frozen_file_matches_prereg"] = hashlib.sha256(f.read()).hexdigest() == pr.get("frozen_signs_sha256")
+        out["prereg_written"] = pr.get("written_utc")
+    except (OSError, ValueError):
+        out["frozen_file_matches_prereg"] = None
+    return out
+
+
+def prereg(out=None):
+    """Write <out>/prereg.json: sha256 of the frozen file, of every code file and of both generators, the seeds, and the
+    time, BEFORE any forward swarm is generated. The tool cannot commit for you; commit this file and the frozen file
+    first, then run `forward` and `independent`, and the order is on the record."""
+    out = out or default_out()
+    os.makedirs(out, exist_ok=True)
+    with open(FROZEN, "rb") as f:
+        fz = hashlib.sha256(f.read()).hexdigest()
+    rec = {"written_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+           "frozen_signs_sha256": fz, "git_head": _git("rev-parse", "HEAD"), "code_sha256": code_hashes(),
+           "forward_seeds_original_generator": list(FORWARD_SEEDS), "forward_seeds_independent_generator": list(INDEP_SEEDS),
+           "independent_cell": INDEP_CELL, "scenarios": list(indepgen.SCENARIOS),
+           "rule": "no forward swarm exists when this file is written; run `forward` and `independent` afterwards"}
+    with open(os.path.join(out, "prereg.json"), "w", encoding="utf-8") as f:
+        json.dump(rec, f, indent=1)
+        f.write("\n")
+    return rec
+
+
+def run_independent(out=None, seeds=INDEP_SEEDS, scenarios=None, log=print, fname="forward_independent.json"):
+    """The forward test again on swarms from agenttrace.indepgen (different naming, code styles, clocks, notes, and
+    benign look-alike classes). Same signs, same rules, same baselines; nothing tuned on them."""
+    out = out or default_out()
+    no_cache = os.environ.get("SWARM_TRACER_NO_CACHE")
+    os.environ["SWARM_TRACER_NO_CACHE"] = "1"
+    from . import identity as idm
+    save_dec = idm.SAVE_DECISIONS
+    idm.SAVE_DECISIONS = False
+    started = time.time()
+    tmp = tempfile.mkdtemp(prefix="st_indep_")
+    runs = []
+    try:
+        for sc, (mode, label) in indepgen.SCENARIOS.items():
+            if scenarios and sc not in scenarios:
+                continue
+            for seed in seeds:
+                folder = os.path.join(tmp, f"{sc}-s{seed}")
+                truth = indepgen.make(folder, sc, seed, agents=30, hours=48, **indepgen.CELLS[INDEP_CELL][1])
+                s = validation._load(folder, truth)
+                runs.append(extract(s, truth, {"setting": sc, "label": label, "seed": seed, "mode": mode,
+                                               "agents": truth["params"]["agents"]}))
+                shutil.rmtree(folder, ignore_errors=True)
+            log(f"  {sc}: {len(seeds)} swarms")
+    finally:
+        idm.SAVE_DECISIONS = save_dec
+        shutil.rmtree(tmp, ignore_errors=True)
+        if no_cache is None:
+            os.environ.pop("SWARM_TRACER_NO_CACHE", None)
+        else:
+            os.environ["SWARM_TRACER_NO_CACHE"] = no_cache
+    summary = summarize(runs, [], {"available": False, "note": "not run"})
+    coord = [r for r in runs if r["mode"] != "benign" and r["dated"]]
+    summary["by_scenario"] = {}
+    for sc, (mode, label) in indepgen.SCENARIOS.items():
+        rs = [r for r in runs if r.get("setting") == sc]
+        if rs:
+            summary["by_scenario"][sc] = {
+                "label": label, "mode": mode, "swarms": len(rs), "dated": sum(1 for r in rs if r["dated"]),
+                "fired": {rid: sum(1 for r in rs if r["rules"].get(rid) is not None) for rid in DEFAULT_RULE_IDS},
+                "signs_fired": {k: sum(1 for r in rs if any(g["id"] == k for g in r["signs"]))
+                                for k in sorted({g["id"] for r in rs for g in r["signs"]})},
+                "baselines_fired": {k: sum(1 for r in rs if (r["alarms"].get("baseline") or {}).get(k) is not None)
+                                    for k, _ in baselines.BASELINES}}
+    summary.update(_provenance_block())
+    summary.update({"generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "seeds": list(seeds),
+                    "generator": "agenttrace.indepgen", "cell": INDEP_CELL, "coordinated_runs": len(coord),
+                    "seconds": round(time.time() - started, 1),
+                    "command": "python3 -m agenttrace.earlywarn independent --out " + out})
     os.makedirs(out, exist_ok=True)
     with open(os.path.join(out, fname), "w", encoding="utf-8") as f:
         json.dump({**summary, "runs": runs}, f, indent=1)
@@ -689,6 +852,10 @@ def main(argv=None):
     w.add_argument("--out", default=None)
     w.add_argument("--seeds", type=int, nargs="*", default=list(FORWARD_SEEDS))
     w.add_argument("--no-wiki", action="store_true")
+    sub.add_parser("prereg", help="write reports/earlywarn/prereg.json (hashes and seeds) before any forward swarm exists").add_argument("--out", default=None)
+    iv = sub.add_parser("independent", help="forward test on the independent generator's swarms")
+    iv.add_argument("--out", default=None)
+    iv.add_argument("--seeds", type=int, nargs="*", default=list(INDEP_SEEDS))
     r = sub.add_parser("run", help="the same tables for your own trace")
     r.add_argument("trace")
     r.add_argument("--pack", default="auto")
@@ -701,6 +868,11 @@ def main(argv=None):
             return 0
         d = freeze()
         print(f"wrote {FROZEN}: {len(d['signs'])} signs, {len(d['rules'])} rules, git {d['code']['git_head'][:10]}")
+    elif a.cmd == "prereg":
+        rec = prereg(a.out)
+        print(f"wrote prereg.json at {rec['written_utc']}: frozen file {rec['frozen_signs_sha256'][:12]}, git {rec['git_head'][:10]}")
+    elif a.cmd == "independent":
+        summarize_and_print(run_independent(a.out, tuple(a.seeds)))
     elif a.cmd == "forward":
         sm = summarize_and_print(run_forward(a.out, tuple(a.seeds), wiki=not a.no_wiki))
     elif a.cmd == "run":

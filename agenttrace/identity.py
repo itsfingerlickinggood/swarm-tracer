@@ -206,7 +206,7 @@ def _base(s):
     actor_names = defaultdict(lambda: defaultdict(list))      # actor -> family -> record ids
     if s.pack.shared_names or s.pack.handles_rx:
         from .packs import family_of
-        for a in named:
+        for a in sorted(named):
             for rid in s.by_actor.get(a, []):
                 e = s.by_id[rid]
                 if not reconstruct.is_action(e, s.pack):
@@ -245,7 +245,7 @@ def _base(s):
                 for j in range(i + 1, len(users)):
                     P(users[i], users[j]).families.append(f)
     stems = defaultdict(list)
-    for a in named:
+    for a in sorted(named):
         k = _stem(a)
         if k:
             stems[k].append(a)
@@ -272,7 +272,7 @@ def _base(s):
 
     # activity sessions
     sess = {}
-    for a in named:
+    for a in sorted(named):
         ts = [times[r] for r in s.by_actor.get(a, []) if r in times]
         sess[a] = _sessions(ts)
 
@@ -312,7 +312,7 @@ def _score(s, base, a, b, p):
                                            for c in p.carried) + " before that token's first use.", recs)
     # (c)
     if p.places:
-        pl = sorted(p.places, key=lambda x: len(base["place_users"][x]))
+        pl = sorted(p.places, key=lambda x: (len(base["place_users"][x]), x))
         recs = []
         for x in pl[:3]:
             recs += base["actor_places"][a][x][:1] + base["actor_places"][b][x][:1]
@@ -320,7 +320,7 @@ def _score(s, base, a, b, p):
             + ", ".join(pl[:4]) + (f" and {len(pl) - 4} more" if len(pl) > 4 else "")
             + f" (used by {min(len(base['place_users'][x]) for x in pl)} named actors).", recs, places=pl[:8])
     elif p.families:
-        f = sorted(p.families, key=lambda x: len(base["fam_users"][x]))
+        f = sorted(p.families, key=lambda x: (len(base["fam_users"][x]), x))
         recs = base["actor_names"][a][f[0]][:2] + base["actor_names"][b][f[0]][:2]
         add(ev, "same_family", 1, "Both write names from the same family: " + ", ".join(f[:4])
             + f" (written by {len(base['fam_users'][f[0]])} named actors).", recs)
@@ -380,6 +380,20 @@ def _score(s, base, a, b, p):
 
 
 # ------------------------------------------------------------------ decisions
+
+def sweep_self_pairs(base):
+    """Pairs to join as one agent on the audit's reading (v2.2.0, plan B6). Two tokens that run the same programs,
+    are seen together only inside key-sweep records (4+ tokens at once), have messages passing between them and are
+    never active in parallel: the "message" is most likely one agent testing the keys it holds, talking to itself.
+    Each of these alone is weak (the pair scores "low"), so the join is limited to pairs that have all three and
+    nothing against them. Returns a set of (a, b) with a < b."""
+    out = set()
+    for x in base["scored"]:
+        keys = {e["key"] for e in x["evidence"]}
+        if {"key_sweep", "same_programs", "messages"} <= keys and not x["against"]:
+            out.add((x["a"], x["b"]) if x["a"] < x["b"] else (x["b"], x["a"]))
+    return out
+
 
 def _decision_path(s):
     name = re.sub(r"[^A-Za-z0-9_.-]+", "_", s.name or "dataset")[:80]
@@ -607,14 +621,14 @@ def roles(s):
         a, ak = s.actor[e.id]
         if a in named and reconstruct.is_action(e, s.pack):
             actions[a] += 1
-    msg_actors = [a for a in named if sent[a] or recv[a]]
+    msg_actors = [a for a in sorted(named) if sent[a] or recv[a]]
     th = {"out_partners": max(5, _pctl([len(outp[a]) for a in msg_actors], 0.95)),
           "broker_share": _pctl([btw.get(a, 0) for a in msg_actors], 0.95),
           "first_contacts": max(3, _pctl([first_contact[a] for a in msg_actors], 0.95)),
           "worker_actions": _pctl([actions[a] for a in msg_actors], 0.5)}
     rank = {a: i + 1 for i, a in enumerate(sorted((a for a in btw if btw[a] > 0), key=lambda a: -btw[a]))}
     rows = {}
-    for a in named:
+    for a in sorted(named):
         st = send_times.get(a, [])
         early = (sum(1 for t in st if t <= mid_t) / len(st)) if (st and mid_t is not None) else None
         r = {"actor": a, "sent": sent[a], "received": recv[a], "out_partners": len(outp[a]), "in_partners": len(inp[a]),

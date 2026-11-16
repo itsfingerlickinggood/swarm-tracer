@@ -31,8 +31,8 @@ anywhere; a replaced upload's folder is deleted.
 Safety (agenttrace/tests/test_security.py):
 - binds 127.0.0.1 only; requests whose Host is not a loopback name are refused (DNS rebinding), and
   POSTs whose Origin is another site are refused (a web page cannot drive this server);
-- paths that live mode and Compare read must lie under an allowed folder (allowed_roots()) and be a
-  regular file or folder, with no '..' and no link out of the allowed folders; packs are names from
+- paths that live mode and Compare read must lie under an allowed folder (allowed_roots(): SWARM_TRACER_DATA, --allow-path, the --input folder, the bundled samples) and be a
+  regular file with a trace extension or a folder, with no '..' and no link out of the allowed folders; packs are names from
   agenttrace/packs only;
 - request bodies are capped: uploads at MAX_UPLOAD (2 GB, SWARM_TRACER_MAX_UPLOAD), JSON at 1 MB
   (a few routes that take a file more, see X_BODY_LIMITS);
@@ -41,6 +41,7 @@ Safety (agenttrace/tests/test_security.py):
 - every response says X-Content-Type-Options: nosniff; the app's pages get a Content-Security-Policy. The AI endpoint forwards the brief, selected event traces and the chat to the
 provider the user configures; the API key is used for that one request and not stored.
 """
+import atexit
 import json
 import mimetypes
 import os
@@ -85,7 +86,51 @@ CSP = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
 STATE = {"session": Session(), "busy": False, "error": None, "lock": threading.Lock(), "upload_dir": None,
          # live mode and Compare call these on every path and pack the app sends (see live.py, compare.py)
          "path_guard": lambda p, **kw: check_data_path(p, **kw), "pack_guard": lambda p: check_pack(p)}
-UPLOAD_DIR = tempfile.mkdtemp(prefix="swarmtracer-")
+UPLOAD_MARKER = ".swarm-tracer-uploads"   # a folder is this tool's only if it carries this file (and is ours)
+UPLOAD_PREFIX = "swarmtracer-"
+STALE_UPLOAD_S = 24 * 3600
+
+
+def _new_upload_dir():
+    d = tempfile.mkdtemp(prefix=UPLOAD_PREFIX)
+    with open(os.path.join(d, UPLOAD_MARKER), "w", encoding="utf-8") as f:
+        f.write("created by swarm-tracer; safe to delete when the server is not running\n")
+    return d
+
+
+def clean_stale_uploads(tmp=None, older_than=STALE_UPLOAD_S, now=None):
+    """Delete swarmtracer-* folders in the temp directory that are more than a day old, are owned by this
+    user, carry this tool's marker file, are not links, and are not the running server's own. Returns how many."""
+    import time
+    tmp = tmp or tempfile.gettempdir()
+    now = time.time() if now is None else now
+    n = 0
+    try:
+        names = os.listdir(tmp)
+    except OSError:
+        return 0
+    for f in names:
+        p = os.path.join(tmp, f)
+        try:
+            if not f.startswith(UPLOAD_PREFIX) or os.path.islink(p) or not os.path.isdir(p):
+                continue
+            if os.path.realpath(p) == os.path.realpath(UPLOAD_DIR):
+                continue
+            st = os.lstat(p)
+            if hasattr(os, "getuid") and st.st_uid != os.getuid():
+                continue
+            marker = os.path.join(p, UPLOAD_MARKER)
+            if not os.path.isfile(marker) or os.path.islink(marker) or now - st.st_mtime < older_than:
+                continue
+            shutil.rmtree(p, ignore_errors=True)
+            n += 1
+        except OSError:
+            continue
+    return n
+
+
+UPLOAD_DIR = _new_upload_dir()
+atexit.register(lambda: shutil.rmtree(UPLOAD_DIR, ignore_errors=True))   # an import that never served leaves nothing
 EXTRA_ROOTS = []      # --allow-path folders and the folder of the dataset loaded at start
 
 
@@ -97,8 +142,10 @@ class TooLarge(ValueError):
 
 def allowed_roots():
     """Folders live mode and Compare may read from (real paths, existing ones only)."""
+    # only what the user named (SWARM_TRACER_DATA, --allow-path, the --input folder) and the bundled samples;
+    # not the working directory or the package's parent folder, which could be a home folder or a project root
     roots = [p for p in (os.environ.get("SWARM_TRACER_DATA") or "").split(os.pathsep) if p.strip()]
-    roots += [PKG_DIR, os.path.dirname(PKG_DIR), os.getcwd()] + EXTRA_ROOTS
+    roots += [os.path.join(PKG_DIR, "samples")] + EXTRA_ROOTS
     out = []
     for r in roots:
         rr = os.path.realpath(os.path.expanduser(r))
@@ -138,6 +185,8 @@ def check_data_path(raw, allow_missing=False, trusted=False):
             raise ValueError(f"No file or folder at {p} on this machine.")
         if not trusted and not _under(parent, roots):
             raise _outside(p, roots)
+        if not trusted and os.path.splitext(p)[1].lower() not in TRACE_EXTS:
+            raise ValueError(f"{p} is not a trace file: only {', '.join(TRACE_EXTS)} files can be read.")
         return p
     real = os.path.realpath(p)
     if not trusted and not _under(real, roots):
@@ -157,6 +206,8 @@ def check_data_path(raw, allow_missing=False, trusted=False):
                 raise ValueError(f"{f} in {p} is not a regular file (devices, pipes and sockets cannot be read).")
     elif not stat.S_ISREG(mode):
         raise ValueError(f"{p} is not a regular file or folder (devices, pipes and sockets cannot be read).")
+    elif not trusted and os.path.splitext(real)[1].lower() not in TRACE_EXTS:
+        raise ValueError(f"{p} is not a trace file: only {', '.join(TRACE_EXTS)} files can be read.")
     return p
 
 
@@ -246,6 +297,16 @@ VIEWS = {
 
 
 XGET, XPOST = extensions.routes()
+
+# One request at a time per route: the first request for a slow view fills a cache, and several at once
+# each recomputed it (four concurrent attribution requests took 66 s and 3.8 GB each). The later ones wait
+# and then find the cache full. Different routes still run side by side.
+_ROUTE_LOCKS, _ROUTE_LOCKS_GUARD = {}, threading.Lock()
+
+
+def route_lock(name):
+    with _ROUTE_LOCKS_GUARD:
+        return _ROUTE_LOCKS.setdefault(name, threading.Lock())
 
 
 def run_load(path, pack, mapping, name):
@@ -376,10 +437,14 @@ class Handler(BaseHTTPRequestHandler):
                 s = self.need_session()
                 return self.send_json(s.conversation(q.get("a", ""), q.get("b", "")))
             if u.path.startswith("/api/x/") and u.path[7:] in XGET:
-                return self.send_json(XGET[u.path[7:]](STATE, q))
+                with route_lock("x/" + u.path[7:]):
+                    out = XGET[u.path[7:]](STATE, q)
+                return self.send_json(out)
             if u.path.startswith("/api/") and u.path[5:] in VIEWS:
                 s = self.need_session()
-                return self.send_json(VIEWS[u.path[5:]](s, q))
+                with route_lock(u.path[5:]):
+                    out = VIEWS[u.path[5:]](s, q)
+                return self.send_json(out)
             return self.serve_static(u.path)
         except LookupError as e:
             return self.send_json({"error": str(e)}, 409)
@@ -590,6 +655,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def serve(port=8010, input_path=None, pack="generic.json", mapping=None, allow_paths=()):
+    clean_stale_uploads()
     for d in allow_paths or ():
         d = os.path.abspath(os.path.expanduser(d))
         if not os.path.isdir(d):

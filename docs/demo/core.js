@@ -27,6 +27,15 @@ async function api(path, opts) {
   if (!r.ok || (data.error && Object.keys(data).length === 1)) throw new Error(data.error || `HTTP ${r.status}`);
   return data;
 }
+// A slow request (attribution and the insiders comparison take 10 to 20 s on a large release) shows what it is
+// doing and how long it has been going, in the box that will hold the answer.
+async function withProgress(host, what, promise, { expect = "" } = {}) {
+  const t0 = Date.now();
+  const draw = () => { if (host && host.isConnected) host.innerHTML = `<p class="muted" role="status" aria-live="polite">${esc(what)}… ${Math.round((Date.now() - t0) / 1000)} s${expect ? ` (${esc(expect)})` : ""}</p>`; };
+  draw();
+  const timer = setInterval(draw, 1000);
+  try { return await promise; } finally { clearInterval(timer); }
+}
 // GET once per dataset; views share the result
 function cached(path) {
   if (!S.cache.has(path)) S.cache.set(path, api(path).catch((e) => { S.cache.delete(path); throw e; }));
@@ -117,11 +126,11 @@ function fitName(s, max, font) {
 // Every actor, place and record anywhere in the app is one of these: hover for a card, click to inspect.
 const xtra = (x) => (typeof x === "string" ? x : "");   // .map(ent.rec) passes an index here; ignore it
 const ent = {
-  actor: (a, extra = "") => a ? `<span class="ent actor${String(a).startsWith("run:") ? " run" : ""}" data-actor="${esc(a)}"><i></i>${esc(short(a))}${xtra(extra)}</span>` : "–",
-  place: (ch, extra = "") => ch ? `<span class="ent place" data-place="${esc(ch)}" title="${esc(ch)}"><i></i>${esc(placeLabel(ch))}${xtra(extra)}</span>` : "–",
-  rec: (id, extra = "") => id ? `<span class="ent rec" data-id="${esc(id)}">${esc(id)}${xtra(extra)}</span>` : "–",
+  actor: (a, extra = "") => a ? `<span class="ent actor${String(a).startsWith("run:") ? " run" : ""}" data-actor="${esc(a)}" tabindex="0" role="button"><i></i>${esc(short(a))}${xtra(extra)}</span>` : "–",
+  place: (ch, extra = "") => ch ? `<span class="ent place" data-place="${esc(ch)}" title="${esc(ch)}" tabindex="0" role="button"><i></i>${esc(placeLabel(ch))}${xtra(extra)}</span>` : "–",
+  rec: (id, extra = "") => id ? `<span class="ent rec" data-id="${esc(id)}" tabindex="0" role="button">${esc(id)}${xtra(extra)}</span>` : "–",
   // an estimated agent: a chip that opens a card of its tokens; a token no merge touches is drawn as the actor it is
-  agent: (id, extra = "") => { const g = agentInfo(id); return !id ? "–" : !g ? ent.actor(id, extra) : `<span class="ent agent" data-agent="${esc(g.id)}" title="${esc(`${g.label}: ${UNIT_TIP}`)}"><i></i>${esc(g.name)}<em>${fmt(g.tokens.length)}</em>${xtra(extra)}</span>`; },
+  agent: (id, extra = "") => { const g = agentInfo(id); return !id ? "–" : !g ? ent.actor(id, extra) : `<span class="ent agent" data-agent="${esc(g.id)}" title="${esc(`${g.label}: ${UNIT_TIP}`)}" tabindex="0" role="button"><i></i>${esc(g.name)}<em>${fmt(g.tokens.length)}</em>${xtra(extra)}</span>`; },
   intent: (k) => k ? `<span class="pill" style="--c:${intentColor(k)}" title="${esc(intentName(k))}"><i></i>${esc(human(k))}</span>` : "",
 };
 const idlink = (id) => ent.rec(id);
@@ -211,7 +220,7 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("[data-agentclose]")) { closeAgentCard(); return; }
   if (e.target.closest("[data-goagents]")) { closeAgentCard(); goTab("agents"); return; }
   const a = e.target.closest("[data-agent]");
-  if (a) { openAgentCard(a.dataset.agent, e.clientX, e.clientY); return; }
+  if (a) { const r = a.getBoundingClientRect(); openAgentCard(a.dataset.agent, e.clientX || r.left, e.clientY || r.bottom); return; }
   if (!e.target.closest("#agentcard")) closeAgentCard();
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAgentCard(); });
@@ -253,7 +262,7 @@ function table(headers, rows, onclick) {
   if (!rows.length) return '<p class="muted">None found.</p>';
   // numeric cells never wrap; the wrapper scrolls sideways instead of squeezing the columns
   const num = (c) => typeof c === "number" || /^[\d.,]+(\s*(%|h|min|s))?$/.test(String(c).trim());
-  return `<div class="tablewrap"><table><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r, i) => `<tr${onclick ? ` class="click" data-i="${i}"` : ""}>${r.map((c) => `<td${num(c) ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  return `<div class="tablewrap"><table><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r, i) => `<tr${onclick ? ` class="click" data-i="${i}" tabindex="0"` : ""}>${r.map((c) => `<td${num(c) ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 }
 function bindRows(el, onclick) { el.querySelectorAll("tr.click").forEach((tr) => tr.addEventListener("click", (e) => { if (e.target.closest(".ent,button,a")) return; onclick(+tr.dataset.i); })); }
 // a table that starts with the rows the summary carries and can page through the whole list on the server
@@ -516,6 +525,47 @@ document.addEventListener("click", (e) => {
   if (t.dataset.actor) inspectActor(t.dataset.actor);
   else if (t.dataset.place) inspectPlace(t.dataset.place);
   else selectEvent(t.dataset.id || t.dataset.ev);
+});
+
+// ------------------------------------------------------------------ keyboard and screen-reader access
+// Chips, clickable table rows and the like are spans or rows, not buttons: give each a tab stop and a role,
+// let Enter or Space press it, show its hover card while it has keyboard focus, and move focus to the
+// Inspector when a press opens it, so the whole app works without a mouse.
+const KEY_TARGETS = "tr.click,.ent,[data-actor],[data-place],[data-id],[data-ev],[data-agent],[data-term],.hb[data-actor],.hb[data-place]";
+const NATIVE = /^(BUTTON|A|INPUT|SELECT|TEXTAREA|SUMMARY|OPTION)$/;
+function makeFocusable(root) {
+  if (!root || root.nodeType !== 1) return;
+  const list = root.matches?.(KEY_TARGETS) ? [root] : [];
+  root.querySelectorAll?.(KEY_TARGETS).forEach((el) => list.push(el));
+  list.forEach((el) => {
+    if (NATIVE.test(el.tagName) || el.hasAttribute("tabindex") || el.closest(".oi") || el.hidden) return;
+    el.tabIndex = 0;
+    if (el.tagName !== "TR" && !el.hasAttribute("role")) el.setAttribute("role", "button");
+  });
+}
+makeFocusable(document.body);
+new MutationObserver((muts) => muts.forEach((m) => m.addedNodes.forEach(makeFocusable))).observe(document.body, { childList: true, subtree: true });
+document.addEventListener("keydown", (e) => {
+  if ((e.key !== "Enter" && e.key !== " ") || e.altKey || e.ctrlKey || e.metaKey) return;
+  const el = e.target;
+  if (!el || NATIVE.test(el.tagName) || el.isContentEditable || !el.matches?.(KEY_TARGETS) || el.classList?.contains("oi")) return;
+  e.preventDefault();
+  dropCard();
+  const opensInspector = !!el.closest("#left,#ribbon,#trace,#ai,body") && !!el.matches("[data-actor],[data-place],[data-id],[data-ev],.ent");
+  el.click();
+  if (opensInspector && !el.closest("#trace")) setTimeout(() => { const t = $("trace"); if (t) { t.tabIndex = -1; t.focus({ preventScroll: true }); } }, 60);
+});
+// a keyboard user sees the same card a hovering user does, positioned at the chip
+document.addEventListener("focusin", (e) => {
+  const t = e.target.closest?.("[data-term],[data-actor],[data-place],[data-id],[data-ev]");
+  if (!t || t.closest(".hovercard") || t.dataset.nocard != null || !t.matches(":focus-visible")) return;
+  const r = t.getBoundingClientRect();
+  clearTimeout(HC.hide); clearTimeout(HC.timer);
+  HC.timer = setTimeout(() => { showCard(t, r.left, r.bottom); const el = hcEl(); el.setAttribute("role", "tooltip"); el.id = "hovercard"; t.setAttribute("aria-describedby", "hovercard"); }, 200);
+});
+document.addEventListener("focusout", (e) => {
+  const t = e.target.closest?.("[data-term],[data-actor],[data-place],[data-id],[data-ev]");
+  if (t) { hideCard(); t.removeAttribute("aria-describedby"); }
 });
 
 // ------------------------------------------------------------------ accessibility fallbacks
@@ -851,7 +901,16 @@ function setSummary(s) {
 (() => {
   const box = $("omni"), out = $("omniout");
   let t = null, seq = 0;
-  const close = () => { out.hidden = true; };
+  const close = () => { out.hidden = true; box.setAttribute("aria-expanded", "false"); box.removeAttribute("aria-activedescendant"); };
+  box.setAttribute("role", "combobox"); box.setAttribute("aria-autocomplete", "list"); box.setAttribute("aria-expanded", "false"); box.setAttribute("aria-controls", "omniout");
+  out.setAttribute("role", "listbox"); out.setAttribute("aria-label", "Search results");
+  const opts = () => [...out.querySelectorAll(".oi")];
+  const activate = (i) => {
+    const o = opts(); o.forEach((x) => { x.classList.remove("on"); x.setAttribute("aria-selected", "false"); });
+    if (i < 0 || i >= o.length) { box.removeAttribute("aria-activedescendant"); return; }
+    o[i].classList.add("on"); o[i].setAttribute("aria-selected", "true"); box.setAttribute("aria-activedescendant", o[i].id);
+    o[i].scrollIntoView({ block: "nearest" });
+  };
   box.addEventListener("input", () => {
     clearTimeout(t);
     t = setTimeout(async () => {
@@ -865,12 +924,20 @@ function setSummary(s) {
           sec("Places", r.places.map((p) => `<div class="oi" data-place="${esc(p.channel)}" data-nocard><span class="ent place wrap"><i></i>${esc(placeLabel(p.channel))}</span><span class="muted">${p.messages ? plural(p.messages, "message") : plural(p.ops, "operation")}</span></div>`)) +
           sec("Records", r.records.map((x) => `<div class="oi" data-id="${esc(x.id)}" data-nocard><span class="ent rec">${esc(x.id)}</span><span class="muted">${esc(x.kind)} · ${esc(short(x.actor))} · ${esc(x.time || "no time")}</span></div>`)) +
           `<div class="oi" data-search="${esc(q)}"><span>Search all record text for “${esc(q)}”</span></div>`;
-        out.hidden = false;
+        out.querySelectorAll(".oh").forEach((h) => h.setAttribute("role", "presentation"));
+        opts().forEach((o, i) => { o.id = "omniopt" + i; o.setAttribute("role", "option"); o.setAttribute("aria-selected", "false"); });
+        out.hidden = false; box.setAttribute("aria-expanded", "true");
         out.querySelector("[data-search]").addEventListener("click", () => { close(); goEvents({ q }); });
       } catch (e) { out.innerHTML = `<div class="oh">${esc(e.message)}</div>`; out.hidden = false; }
     }, 180);
   });
-  box.addEventListener("keydown", (e) => { if (e.key === "Enter") { const first = out.querySelector(".oi"); if (first) first.click(); } if (e.key === "Escape") close(); });
+  box.addEventListener("keydown", (e) => {
+    const o = opts(), cur = o.findIndex((x) => x.classList.contains("on"));
+    if (e.key === "ArrowDown" && !out.hidden && o.length) { e.preventDefault(); activate((cur + 1) % o.length); }
+    else if (e.key === "ArrowUp" && !out.hidden && o.length) { e.preventDefault(); activate((cur - 1 + o.length) % o.length); }
+    else if (e.key === "Enter") { const pick = cur >= 0 ? o[cur] : o[0]; if (pick) pick.click(); }
+    else if (e.key === "Escape") close();
+  });
   out.addEventListener("click", () => setTimeout(close, 0));
   document.addEventListener("click", (e) => { if (!e.target.closest(".omni")) close(); });
 })();

@@ -37,7 +37,7 @@ class TestStats(unittest.TestCase):
 class TestFrozen(unittest.TestCase):
     def test_file_is_dated_and_complete(self):
         fz = earlywarn.load_frozen()
-        self.assertEqual(fz["frozen_on"], "2026-11-13")
+        self.assertEqual(fz["frozen_on"], "2026-11-16")
         self.assertIn("knew how the Swarm Traces incident unfolded", fz["note"])
         self.assertEqual(len(fz["code"]["git_head"]), 40)
         self.assertTrue(fz["code"]["sha256"]["agenttrace/insight.py"])
@@ -63,7 +63,7 @@ class TestFrozen(unittest.TestCase):
             self.assertIn(g["id"], ids)
         self.assertIsNotNone(r["first_true_harm_h"])
         self.assertIn("watch-harm", r["rules"])
-        self.assertEqual(set(r["alarms"]), {f["id"] for f in earlywarn.FAMILIES})
+        self.assertEqual(set(r["alarms"]) - {"baseline"}, {f["id"] for f in earlywarn.FAMILIES})
 
     def test_drift_is_reported_not_fatal(self):
         st = earlywarn.frozen_status()

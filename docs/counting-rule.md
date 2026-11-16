@@ -55,6 +55,13 @@ download, `urlopen(url)` with one argument, `requests.get`).
   often built first and sent by that call); for a mention inside a request call whose path the redaction
   swallowed, only up to the start of the next request call. A mention followed by `/info/lfs` with no
   visible operation is not counted.
+- **R6a. A POST to `…/paths-info` is a read.** It only asks about files; a mention followed by `/paths-info` is a
+  read (inferred), whatever method the call names.
+- **R6b. An LFS upload batch is a write only if the object goes up.** The batch announces an upload. It counts
+  as a write only when (a) its object id was not asked for with `operation: 'download'` earlier in the trace (an
+  object that could be downloaded already existed, so the batch is a probe) and (b) a later record sends that
+  object (a commit that names it as an `lfsFile`, a PUT). With no visible object id it is not counted. This
+  removed 10 of the 23 deliveries counted by v2.1.0, all resting on one probe of one file.
 - **R7. A repository held in a variable names only an owner.** `…/<owner>/' + repo + '/…` is not counted.
 - **R8. A mention inside a request call is judged by that call.** The mention is *inside* a request call
   when a request call starts before it with no `;` and no line break in between. The verbs of that call
@@ -76,7 +83,8 @@ download, `urlopen(url)` with one argument, `requests.get`).
   (keys `u`/`url`, `m`/`method`, `b`/`body`/`data`) the method decides; without a method, a body makes it
   a write.
 - **R13. A cut-off call is not counted.** If the text is cut inside the call before its verb (`…place…',
-  {metho`), the operation is unknown and not counted. The same holds when no verb is in reach (R14), the
+  {metho`), or the record ends inside the verb itself (`…place…',{method:'POS`), the operation is unknown and
+  not counted. The same holds when no verb is in reach (R14), the
   record ends within 40 characters after the place with no `)` in between, and either the place sits inside
   an open call or the record up to the place is a bare URL (redaction markers such as `[HF REPO 5]` count
   as part of the URL).
@@ -134,6 +142,10 @@ download, `urlopen(url)` with one argument, `requests.get`).
 - **R22. Same place.** The write and the read are operations on the same place (R1).
 - **R23. Different actors, different records.** The write's actor differs from the read's actor (R21), and
   they are different records.
+- **R23a. A read that lists the writer's own token is not a delivery.** When the actor of the write was found
+  as an identity token (kind `token`) and the read record contains that token as a whole word (a loop over a
+  list of tokens that includes it), the read may be the writer reading its own write, so that write is not a
+  candidate for it. Actors named by a field or a handle are not tested this way.
 - **R24. The write is not later than the read.** Both must be dated; the write's time is less than or
   equal to the read's time. A write counts as a writer if it is a write or a post; a read counts if it is
   a read or a post.
@@ -162,13 +174,30 @@ download, `urlopen(url)` with one argument, `requests.get`).
 
 - **R31. Weak.** A delivery is *weak* when the write or the read operation was a default (no verb found:
   R8 last sentence, R14 last sentence), or its place matches one of the pack's `coarse_channels` (a
-  redaction that may have merged several places), or either record's time was estimated and the two are
+  redaction that may have merged several places: an owner only, `[HF REPO]` and other unnumbered markers,
+  `[USER n]`), or either record's time was estimated and the two are
   more than one hour apart.
 - **R32. Direct.** Otherwise it is *direct* when both sides are a post or have their verb in the very call
   that names the place (R8).
 - **R33. Inferred.** Otherwise it is *inferred* (the verb came through a variable, a helper's arguments,
   an LFS operation, a request written as data, or text nearby).
 - **R34. The grade never changes the count.** It records how the verb was found.
+
+## The two counts
+
+- **R38. Two counts are reported, never one for the other.** *Write then later read* is the count of R30:
+  one actor wrote to a place and a different actor read it later. *Reader uses what was written* is the
+  subset that passes the written-content test. For each delivery that is not a logged direct message, the
+  terms (identifiers, paths, file names and numbered redaction markers of 8 or more characters) found in
+  both the writer's and the reader's record, leaving out the place's address and credentials, are listed; the
+  delivery passes when at least one such term is rare, that is, found in at most 5 records of the trace. A wiki
+  edit that kept lines the writer added passes by R29. A logged direct message passes as it stands. The output
+  keeps `deliveries_write_then_read`, `deliveries_reader_uses_content` and, for each delivery, `uses_content`
+  and up to three `shared_terms`. The test measures a shared quotation, not understanding: a pass does not
+  prove the reader acted on the content, a failure does not prove it did not (it may have used it
+  without quoting).
+- **R39. Board places are keyed by their full path.** A folder `zzNAME/CHILD_A` and a read of
+  `zzNAME/GETCHILD_…` are different places; naming only the top folder merged them.
 
 ## Counting by agent
 
@@ -179,7 +208,11 @@ download, `urlopen(url)` with one argument, `requests.get`).
 - **R36. Between agents.** Only deliveries between two named actors are regrouped. A delivery whose writer
   and reader map to the same agent is counted "inside one agent", never between agents. So the number of
   deliveries between agents plus the number inside one agent equals the number between named tokens (less
-  any the investigator rejected), and regrouping can never raise the between-unit count.
+  any the investigator rejected), and regrouping can never raise the between-unit count. The estimate also
+  joins a pair that shows all of: the same programs run, both seen together only in key-sweep records (4 or
+  more tokens at once), messages passing between them, and no evidence against (never active in parallel). Each
+  is weak alone; together they read as one agent talking to itself. This is a heuristic of v2.2.0 and is not
+  validated on data with known agents.
 - **R37. The first message between agents** is the earliest-read delivery between two different agents on
   a place that is not coarse (R31).
 
@@ -193,11 +226,22 @@ download, `urlopen(url)` with one argument, `requests.get`).
 | a repository held in a variable | R7 | the place is not known |
 | a call cut off before its verb | R13 | the verb cannot be seen |
 | a place held by a hidden name when a later call through a name writes | R17 | read or write cannot be told |
-| a read by the writer itself | R23 | not a message between two actors |
+| a read by the writer itself | R23, R23a | not a message between two actors |
+| an LFS upload batch of an object already requested for download, or never sent | R6b | a probe of a file that existed |
+| a record that ends inside the verb | R13 | the verb cannot be seen |
 | a read before any write, or with no time | R24, R25 | order is the only evidence of direction |
 | the same program rerun under another token | R27 | one sender retrying |
 | a repeat read of the same write | R28 | one message, read twice |
 | a full-body post that keeps none of the lines | R29 | it may have been written without reading |
+
+## What the rule counts on the Swarm Traces release
+
+With the rules above, the release gives 9 deliveries (write then later read), 4 of them between two named
+tokens, 6 on places the redaction names exactly (the other 3 are weak by R31). None passes the written-content
+test: no reader quotes a term the writer wrote. v2.1.0 counted 23; 10 were one LFS upload probe (R6b), 1 a reader
+listing the writer's own token (R23a), 2 a call cut inside its verb (R13), 1 a board folder read by random
+names (R39). By agent the 4 named deliveries become 2 between agents and 2 inside one agent. One reviewer
+defends about 5 (range 3 to 7); the rule has not been checked by a second human labeller.
 
 ## Properties the rule must have
 
@@ -222,15 +266,18 @@ These follow from the statements and are tested in `agenttrace/tests/test_proper
 
 | check | command | what it shows |
 |---|---|---|
-| unit and property tests | `python3 -m unittest agenttrace.tests.test_messages agenttrace.tests.test_properties agenttrace.tests.test_refcount` | each statement on known answers; P1 to P7 on seeded random swarms |
+| unit and property tests | `python3 -m unittest agenttrace.tests.test_messages agenttrace.tests.test_properties agenttrace.tests.test_refcount agenttrace.tests.test_audit_rules` | each statement on known answers; P1 to P7 on seeded random swarms |
 | second implementation | `python3 -m agenttrace.tools.crosscheck --out reports/integrity/crosscheck.json` | deliveries found by both implementations, by one only, with record ids; exit 1 above 10% disagreement on any dataset |
 | mutation testing | `python3 -m agenttrace.tools.mutate --quick` (sample) or without `--quick` (all) | how many deliberate breaks of `messages.py` the tests notice, and the ones they miss |
 
 The second implementation (`agenttrace/refcount.py`) reads the call around a mention with a tokenizer instead
-of character windows. It agrees exactly with the main one on the demo swarm, the benign swarm, the framework
-samples and generated swarms. On the Swarm Traces release it does not: redaction breaks quote pairing, and it
-then takes commits for reads. `reports/integrity/crosscheck_judgement.json` lists every disagreement with a
-judgement. Treat agreement between the two as a check on clean code shapes, not as evidence about the release.
+of character windows. It finds the same deliveries as the main one on every dataset checked: the release (9), the
+collusion.wiki logs (9,867), the demo swarm, the benign swarm, the framework samples. On the release it did not
+until v2.2.0: redaction breaks quote pairing, and it then took commits for reads (191 deliveries against 9). It was
+fixed by implementing R6a, R6b, R23a, R38 and R39 from this page and by reading the call from the raw text where the
+tokens cannot be trusted, while reading where it differed from the main one on the release; so its agreement
+there is not independent evidence. 262 single operations on the release still differ without changing a delivery.
+`reports/integrity/crosscheck_judgement.json` lists them with a judgement.
 
 ## What the rule does not see
 
@@ -270,6 +317,7 @@ one statement each, that fail when the statement's code is changed. Test names c
 | R22 to R25, R28, R29, R31 | `DeliveryTests` |
 | R27 | `ProgramTests` |
 | R30, R31, R37, list caps | `FlowTests` |
+| R6a, R6b, R13 (inside the verb), R23a, R31 (coarse), R38, R39, R35 (sweep pairs), release counts | `agenttrace/tests/test_audit_rules.py` |
 
 The full mutation run (1,173 mutants of `messages.py`) is in `reports/integrity/mutation.json`: 1,124 killed,
 49 survive, of which 48 are judged equivalent by hand (each with its reason, listed in

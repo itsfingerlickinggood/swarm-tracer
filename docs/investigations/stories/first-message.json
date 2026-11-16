@@ -1,20 +1,20 @@
 {
  "slug": "first-message",
  "order": 1,
- "title": "The first message between agents",
- "dek": "The tool finds {deliveries} messages in the release. Only {named} are between named tokens, and {inside} of those stay inside one estimated agent. That moves the first message between agents by almost two days.",
+ "title": "The first delivery between agents",
+ "dek": "The tool finds {deliveries} write-then-read deliveries in the release. Only {named} are between named tokens, and {inside} of those stay inside one estimated agent. None shows the reader using what was written. Counting agents moves the first delivery between agents by more than a day.",
  "figures": {
   "deliveries": {
    "from": "/api/state",
    "path": "summary.flow.deliveries",
    "as": "int",
-   "label": "messages in the release (a read of a place after a different actor wrote it)"
+   "label": "write-then-read deliveries in the release (a read of a place after a different actor wrote it)"
   },
   "named": {
    "from": "/api/state",
    "path": "summary.flow.deliveries_between_named_actors",
    "as": "int",
-   "label": "messages between two named tokens"
+   "label": "deliveries between two named tokens"
   },
   "named_pairs": {
    "from": "/api/state",
@@ -32,13 +32,13 @@
    "from": "/api/x/units_summary?unit=agent",
    "path": "inside_one_agent",
    "as": "int",
-   "label": "messages between two tokens of one estimated agent"
+   "label": "deliveries between two tokens of one estimated agent"
   },
   "between": {
    "from": "/api/x/units_summary?unit=agent",
    "path": "messages",
    "as": "int",
-   "label": "messages between different estimated agents"
+   "label": "deliveries between different estimated agents"
   },
   "agent_a_tokens": {
    "from": "/api/x/units_map",
@@ -56,102 +56,108 @@
    "from": "/api/x/units_summary?unit=agent",
    "path": "signs[key=message].as_counted.harm_share_after",
    "as": "pct",
-   "label": "of the dated harmful actions came after the first message, counting tokens"
+   "label": "of the dated harmful actions came after the first delivery, counting tokens"
   },
   "share_agent": {
    "from": "/api/x/units_summary?unit=agent",
    "path": "signs[key=message].by_agent.harm_share_after",
    "as": "pct",
-   "label": "of the dated harmful actions came after the first message, counting estimated agents"
+   "label": "of the dated harmful actions came after the first delivery, counting estimated agents"
   },
   "first_tok": {
    "from": "/api/x/units_summary?unit=agent",
    "path": "signs[key=message].as_counted.time",
    "as": "time",
-   "label": "first message, counting tokens (UTC)"
+   "label": "first delivery, counting tokens (UTC)"
   },
   "first_agent": {
    "from": "/api/x/units_summary?unit=agent",
    "path": "signs[key=message].by_agent.time",
    "as": "time",
-   "label": "first message, counting estimated agents (UTC)"
+   "label": "first delivery, counting estimated agents (UTC)"
   },
   "audited": {
    "from": "/api/x/benchmark",
    "path": "groups.named_named.audited",
    "as": "int",
-   "label": "named messages read by a person"
+   "label": "named deliveries read by one reader, the authors' AI assistant (not a person by hand)"
   },
   "audited_true": {
    "from": "/api/x/benchmark",
    "path": "groups.named_named.true",
    "as": "int",
-   "label": "of them judged a real write and a real read"
+   "label": "of them judged a real write and a later read of the same place"
+  },
+  "uses": {
+   "from": "/api/state",
+   "path": "summary.flow.deliveries_reader_uses_content",
+   "as": "int",
+   "label": "deliveries where the reader's record shares what the writer wrote"
   }
  },
  "body": [
   {
-   "h": "What counts as a message"
+   "h": "What counts as a delivery"
   },
   {
-   "p": "The release is a set of code payloads and responses. Nothing in it says that one agent sent something to another. So the tool looks for something weaker. [[c1|One record writes to a shared place. Later, a record from a different actor reads the same place.]] The tool calls that a message. It shows the reader could have seen the write. It does not show that it did."
+   "p": "The release is a set of code payloads and responses. Nothing in it says that one agent sent something to another. So the tool looks for something weaker. [[c1|One record writes to a shared place. Later, a record from a different actor reads the same place.]] The tool calls that a delivery. Earlier versions called it a message, which says too much. It shows the reader could have seen the write. It does not show that it did, and [[c13|in {uses} of the {deliveries} the reader's record shares anything the writer wrote.]]"
   },
   {
-   "p": "[[c2|On the whole release the tool finds {deliveries} such messages.]] Most have an anonymous run on one side: a record with no token and no name. [[c3|Only {named} are between two named tokens, across {named_pairs} sender and receiver pairs.]]"
+   "p": "[[c2|On the whole release the tool finds {deliveries} deliveries.]] An earlier version found more. An audit after the deadline, then four independent reviewers, removed the ones that rested on one upload probe, a reader that listed the writer's own token and calls cut inside their verb. Most of the rest have an anonymous run on one side: a record with no token and no name. [[c3|Only {named} are between two named tokens, across {named_pairs} sender and receiver pairs.]]"
   },
   {
    "h": "The first one"
   },
   {
-   "p": "[[c4|The earliest of the {named} is on {rec:R0005421.time}.]] {rec:R0005366.actor} commits a file to a Hugging Face dataset. Within the hour {rec:R0005421.actor} downloads it. [[c5|At that moment {share_tok} of the dated harmful actions were still to come.]] If this was the first time two agents talked, a warning then would have been early."
+   "p": "[[c4|The earliest of the {named} is on {rec:R0006786.time}.]] {rec:R0006584.actor} posts to a Hugging Face dataset. Hours later {rec:R0006786.actor} fetches from it. [[c5|At that moment {share_tok} of the dated harmful actions were still to come.]] If this was the first time two agents talked, a warning then would have been early. The version before this one counted an upload by {rec:R0005366.actor} and a download by {rec:R0005421.actor} as the first; the upload turned out to be a probe of a file that already existed, so it is no longer counted."
   },
   {
    "h": "Two tokens, one agent"
   },
   {
-   "p": "But a token is not an agent. One agent can hold several tokens. [[c6|The tool's evidence says {rec:R0005366.actor} and {rec:R0005421.actor} belong to the same agent.]] Both tokens appear inside the same records. Both use the same self-chosen place names. Both run the same rare programs. The tool merges {agent_a_tokens} tokens into one estimated agent and calls it Agent A."
+   "p": "But a token is not an agent. One agent can hold several tokens. [[c6|The tool's evidence says {rec:R0006584.actor} and {rec:R0006786.actor} belong to the same agent.]] Both tokens appear inside the same records. Both use the same self-chosen place names. Both run the same rare programs. The tool merges {agent_a_tokens} tokens into one estimated agent and calls it Agent A."
   },
   {
-   "p": "[[c7|Counted by estimated agent, {inside} of the {named} messages are Agent A writing to itself.]] An agent that reads its own file is not coordination. That leaves {between} messages between different agents."
+   "p": "[[c7|Counted by estimated agent, {inside} of the {named} deliveries stay inside one agent.]] An agent that reads its own file is not coordination. That leaves {between} deliveries between different agents."
   },
   {
-   "h": "The first message moves"
+   "h": "The first delivery moves"
   },
   {
-   "p": "[[c8|The first message between two different agents is on {rec:R0045143.time}.]] {rec:R0044824.actor} commits to a dataset. About an hour later {rec:R0045143.actor}, one of Agent A's tokens, reads it. [[c9|By then only {share_agent} of the dated harmful actions were still to come.]] The same sign that looked early now looks late."
+   "p": "[[c8|The first delivery between two different agents is on {rec:R0045143.time}.]] {rec:R0044824.actor} commits to a dataset. A little over an hour later {rec:R0045143.actor}, one of Agent A's tokens, reads it. [[c9|By then only {share_agent} of the dated harmful actions were still to come.]] The same sign that looked early now looks late."
   },
   {
    "h": "How sure is this"
   },
   {
-   "p": "Not very, and a reader should know why. [[c10|Every time in this story is estimated.]] The release has no time field for these records, so the tool dates them from timestamps the agents wrote into their code. [[c11|The tool also grades its own messages. The first one is graded inferred. The one that replaces it is graded weak.]]"
+   "p": "Not very, and a reader should know why. [[c10|Every time in this story is estimated.]] The release has no time field for these records, so the tool dates them from timestamps the agents wrote into their code. [[c11|The tool also grades its own deliveries by how it found the verbs. All of them are graded weak.]]"
   },
   {
-   "p": "[[c12|A person read all {audited} named messages and judged {audited_true} of them real.]] That is one reader, once. The merge into Agent A is an estimate too. If the merge is wrong, the earlier date stands."
+   "p": "[[c12|One reader, the authors' AI assistant, labelled all {audited} named deliveries with a helper script and judged {audited_true} of them a real write and a later read.]] That is one reader, once; no person read them by hand and nobody labelled them a second time, and the labels were changed in the same commit as the rule they score. The merge into Agent A is an estimate too. If the merge is wrong, the earlier date stands."
   }
  ],
  "claims": {
   "c1": {
-   "evidence": "A message is a write and a later read of the same place by a different actor. Here is one pair.",
+   "evidence": "A delivery is a write and a later read of the same place by a different actor. Here is one pair.",
    "records": [
     {
-     "id": "R0005366",
-     "note": "The write: {rec:R0005366.actor} commits to a dataset."
+     "id": "R0006584",
+     "note": "The write: {rec:R0006584.actor} posts to a dataset."
     },
     {
-     "id": "R0005421",
-     "note": "The read: {rec:R0005421.actor} fetches a file from the same dataset."
+     "id": "R0006786",
+     "note": "The read: {rec:R0006786.actor} fetches from the same dataset."
     }
    ],
    "docs": [
     {
      "href": "../../how-it-works.html",
-     "label": "How the tool judges a write, a read and a message"
+     "label": "How the tool judges a write, a read and a delivery"
     }
    ]
   },
   "c2": {
-   "evidence": "The tool counts {deliveries} messages in {records} records.",
+   "evidence": "The tool counts {deliveries} deliveries in {records} records.",
    "figures": [
     "deliveries",
     "records"
@@ -159,12 +165,12 @@
    "docs": [
     {
      "href": "../../validation.html",
-     "label": "The audit that fixed this count (it was reported as 19)"
+     "label": "The audits that fixed this count (it was reported as 19, then 23)"
     }
    ]
   },
   "c3": {
-   "evidence": "{named} messages have a named token on both sides.",
+   "evidence": "{named} deliveries have a named token on both sides.",
    "figures": [
     "named",
     "named_pairs"
@@ -172,15 +178,19 @@
    "records": [
     {
      "id": "R0006584",
-     "note": "Second message from {rec:R0006584.actor}: the write."
+     "note": "First delivery, the write by {rec:R0006584.actor}."
     },
     {
      "id": "R0006786",
      "note": "Read by {rec:R0006786.actor}."
     },
     {
-     "id": "R0007854",
-     "note": "{rec:R0007854.actor} reads the dataset first written in R0005366."
+     "id": "R0044824",
+     "note": "{rec:R0044824.actor} writes."
+    },
+    {
+     "id": "R0045143",
+     "note": "{rec:R0045143.actor} reads what {rec:R0044824.actor} wrote."
     },
     {
      "id": "R0044999",
@@ -197,13 +207,21 @@
    ]
   },
   "c4": {
-   "evidence": "The first message between named tokens: written {rec:R0005366.time}, read {rec:R0005421.time}.",
+   "evidence": "The first delivery between named tokens: written {rec:R0006584.time}, read {rec:R0006786.time}.",
    "figures": [
     "first_tok"
    ],
    "records": [
-    "R0005366",
-    "R0005421"
+    "R0006584",
+    "R0006786",
+    {
+     "id": "R0005366",
+     "note": "The upload the earlier rule counted as a write; it was a probe of a file that already existed."
+    },
+    {
+     "id": "R0005421",
+     "note": "The download counted as its read; no longer a delivery."
+    }
    ]
   },
   "c5": {
@@ -232,22 +250,21 @@
    "caveat": "This is an estimate from counted evidence, not an identity. The Agents tab of the tool shows every piece of it and lets an investigator reject the merge."
   },
   "c7": {
-   "evidence": "Counted by estimated agent: {inside} inside Agent A, {between} between agents.",
+   "evidence": "Counted by estimated agent: {inside} inside one agent, {between} between agents.",
    "figures": [
     "inside",
     "between",
     "named"
    ],
    "records": [
-    "R0005366",
-    "R0005421",
     "R0006584",
     "R0006786",
-    "R0007854"
+    "R0044999",
+    "R0045751"
    ]
   },
   "c8": {
-   "evidence": "The first message whose two ends are different estimated agents.",
+   "evidence": "The first delivery whose two ends are different estimated agents.",
    "figures": [
     "first_agent"
    ],
@@ -272,7 +289,7 @@
   "c10": {
    "evidence": "Each cited record carries an estimated time. Open any of them to see the mark.",
    "records": [
-    "R0005421",
+    "R0006786",
     "R0045143"
    ],
    "docs": [
@@ -283,9 +300,9 @@
    ]
   },
   "c11": {
-   "evidence": "The grade the tool gives each of the two first messages.",
+   "evidence": "The grade the tool gives each of the two first deliveries.",
    "records": [
-    "R0005421",
+    "R0006786",
     "R0045143"
    ],
    "docs": [
@@ -296,7 +313,7 @@
    ]
   },
   "c12": {
-   "evidence": "The hand audit of the messages between named tokens.",
+   "evidence": "The audit of the deliveries between named tokens.",
    "figures": [
     "audited",
     "audited_true"
@@ -304,10 +321,18 @@
    "docs": [
     {
      "href": "../../validation.html",
-     "label": "The full audit: every link, both records read"
+     "label": "The audit: every link, both records read, one reader"
     }
    ],
-   "caveat": "One reader, one pass. The audit says nothing about true messages the tool missed."
+   "caveat": "One reader, one pass, and the labels for 13 links were changed in the same commit as the rule. The audit says nothing about true deliveries the tool missed."
+  },
+  "c13": {
+   "evidence": "Deliveries where the reader's record shares identifiers, paths or file names with the writer's record (the written-content test).",
+   "figures": [
+    "uses",
+    "deliveries"
+   ],
+   "caveat": "A shared term is not proof of use, and no shared term is not proof of non-use. The test is deliberately strict."
   }
  }
 }

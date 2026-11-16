@@ -11,6 +11,7 @@ reports/*
 !reports/evaluation/
 !reports/evaluation-wiki/
 !reports/validation/
+!reports/earlywarn/
 !reports/integrity/
 reports/integrity/labelkit/
 reports/integrity/.cache/

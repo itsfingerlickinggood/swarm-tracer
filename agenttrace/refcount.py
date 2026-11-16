@@ -3,21 +3,33 @@
     from agenttrace import refcount
     out = refcount.count(events, pack, rec, res)      # out["deliveries"]: [{place, write_id, read_id, ...}]
 
-It implements docs/counting-rule.md (statements R1 to R34) and nothing else. It does not import
-messages.py. It takes from the rest of the tool only what is not the counting rule: the loaded records,
-the pack (its place patterns and verb vocabulary), each record's identity tokens and time (rec["_ids"],
-rec["_times"]) and its thread root (res["_root"]).
+It implements docs/counting-rule.md (statements R1 to R39, including the v2.2.0 changes R6a, R6b, R23a, R38 and
+R39) and nothing else. It does not import messages.py. It takes from the rest of the tool only what is not the
+counting rule: the loaded records, the pack (its place patterns, verb vocabulary and coarse places), each
+record's identity tokens and time (rec["_ids"], rec["_times"]) and its thread root (res["_root"]). R39 (board
+places keyed by their full path) is carried by the pack's board pattern, which captures the whole path.
 
 The method is different on purpose. messages.py judges a mention by regular expressions over a window of
 characters around it (the nearest verb wins). This file splits the record into tokens (strings, names,
 punctuation), finds the call whose parentheses hold the mention, and reads that call's callee and
 arguments. Deliveries are then linked by a sweep over each place's operations in (time, input position) order.
 
+Redaction deletes text, quote marks included, so quote pairing from the start of a record cannot be trusted.
+The first version of this file trusted it and, on the Swarm Traces release, took POSTs for reads and a later
+POST for the write of a place that was only read (191 deliveries against 9). Since then the tokens are only used
+where they line up with the quote before the mention; where they do not, the code is read again from a point
+near the mention (the name being assigned, else the request call that starts before it, R8) or straight from
+the text (R8 and R16 by `;`, line break, next request call and 600 characters).
+
 Known differences of method (each can produce a disagreement, listed by tools/crosscheck.py):
-  - a call is bounded by its real parentheses, not by a character cap;
+  - a call is bounded by its real parentheses, the next request call and 600 characters, not by a character cap;
   - a Python f-string or raw-string assignment (u=f'...') is followed like any other assignment;
-  - an open call with no verb at the end of a record is not counted, however far the end is;
-  - string quotes are paired by the tokenizer, so a quote lost to redaction can hide the call around a mention.
+  - an open call with no verb at the end of a record is not counted, however far the end is (R13 says 40);
+  - for a mention nothing else settles (R14) only a verb in the same statement counts (no `;` or line break
+    between), where messages.py takes the nearest verb in a window of characters;
+  - an upload batch is a probe (R6b) unless a later record names the object as an `lfsFile` or sends it with a PUT
+    (messages.py also accepts upload_file and uploadId);
+  - a place named inside the body or data argument of a call is data, not the call's address.
 """
 import re
 from collections import Counter, defaultdict
@@ -127,7 +139,10 @@ def _match_close(toks, j):
 
 def _is_block(toks, j):
     """Is the '{' at j a code block (function body, loop body) and not an object literal?"""
-    if j + 2 < len(toks) and toks[j + 1].kind in ("s", "i") and _is(toks[j + 2], "p", ":"):
+    x = j + 1
+    while x < len(toks) and toks[x].kind == "n":
+        x += 1                            # a key may sit on the next line
+    if x + 1 < len(toks) and toks[x].kind in ("s", "i") and _is(toks[x + 1], "p", ":"):
         return False                      # { key: ... } is an object literal
     if j == 0:
         return True
@@ -197,13 +212,23 @@ def _nearest(cands, k):
 class Judge:
     """Judges the mentions of one record for one channel (R6 to R17)."""
 
-    def __init__(self, text, wrx, rrx, depth=0):
+    def __init__(self, text, wrx, rrx, depth=0, mentions=(), anchor=None):
         self.text, self.wrx, self.rrx, self.depth = text, wrx, rrx, depth
+        self.anchor = anchor                      # tokens start at this offset (chosen near the mention), not at the record start
+        self.local = anchor is not None
+        self.opening = None
+        self.ctx, self.pos = None, None           # trace-level facts for R6b (set by operations())
+        self.mentions = mentions                  # (start, end) of every place mention in the record, for R14
         self._toks = {}
 
     def toks(self, level):
         if level not in self._toks:
-            self._toks[level] = tokens(self.text, level)
+            a = self.anchor or 0
+            ts = tokens(self.text[a:], level) if a else tokens(self.text, level)
+            for t in ts:
+                t.lo += a
+                t.hi += a
+            self._toks[level] = ts
         return self._toks[level]
 
     # -- one call ------------------------------------------------------------
@@ -211,11 +236,20 @@ class Judge:
         """(verdict, how, lo, hi) for the call opened at toks[j], asked about token k inside it.
         verdict: write, read, None (this call says nothing: not a request, no verb) or 'cut'."""
         end, closed = _match_close(toks, j)
+        stop = self.call_limit(toks[j].hi)                 # R16: a call ends at the next request call or after 600 characters
+        if toks[end].hi > stop:
+            while end > j and toks[end].lo >= stop:
+                end -= 1
+            closed = True
         name = _callee(toks, j)
         last = name.rsplit(".", 1)[-1].lower()
         lo = toks[j - 1].lo if name else toks[j].lo
         hi = toks[end].hi
         own = _own(toks, j, end if closed else end + 1)
+        for n, (x, t) in enumerate(own):                   # a `;` ends the statement: what follows is not this call's argument
+            if _is(t, "p", ";"):
+                own = own[:n]
+                break
         cands = []
         for x, t in own:
             if t.kind == "s" and t.val in WRITE_VERBS:
@@ -234,11 +268,15 @@ class Judge:
                     break
                 if toks[x].kind == "i" and toks[x].val.endswith(".open"):
                     break
-        op = None
+        op, oids = None, ()
         for m in re.finditer(r"operation[\\'\"]*\s*:\s*[\\'\"]*(upload|download)", self.text[lo:body_hi]):
-            op = m.group(1)
+            op, oids = m.group(1), tuple(self._OID.findall(self.text[max(0, lo + m.start() - 300):lo + m.start() + 800]))
         if op:                                             # R6: the request carries a Git LFS operation
-            return ("write" if op == "upload" else "read"), "inferred", lo, hi
+            if re.search(r"info/lfs|git-lfs|objects/batch", self.text[lo:body_hi], re.I):
+                v = self.lfs_batch(op, oids)                # R6b: only a Git LFS batch is a probe when it names no object that goes up
+            else:
+                v = "write" if op == "upload" else "read"   # an `operation` field in an ordinary request body
+            return (v if v else "cut"), "inferred", lo, hi
         if last in WRITE_METHODS:
             return "write", "call", lo, hi
         v = _nearest(cands, k)
@@ -263,22 +301,82 @@ class Judge:
         return "read", "default", lo, hi
 
     def options(self, toks, j, own):
-        """R15: an argument that is a bare name holding an object literal with a verb (fetch(u, o))."""
-        names = [t.val for x, t in own if t.kind == "i" and "." not in t.val
-                 and _is(toks[x - 1], "p") and toks[x - 1].val in "(," and x + 1 < len(toks) and _is(toks[x + 1], "p") and toks[x + 1].val in ",)"]
-        for name in names[1:] if len(names) > 1 else []:
-            for x in range(j - 1, -1, -1):
-                if _is(toks[x], "i", name) and _is(toks[x + 1], "p", "=") and _is(toks[x + 2], "p", "{"):
-                    end, _ok = _match_close(toks, x + 2)
-                    for t in toks[x + 2:end + 1]:
-                        if t.kind == "s" and t.val in WRITE_VERBS:
-                            return "write"
-                    if self.wrx.search(self.text[toks[x + 2].lo:toks[end].hi]):
+        """R15: the second argument is a bare name (fetch(u, o)): the object literal last assigned to it before the
+        call is part of the call; if it is a parameter of a wrapper function, the wrapper's callers (the 500
+        characters after it) carry the verb."""
+        end, _ok = _match_close(toks, j)
+        args, cur, depth = [], [], 0
+        for x in range(j + 1, end):
+            t = toks[x]
+            if t.kind == "p" and t.val in OPENERS:
+                depth += 1
+            elif t.kind == "p" and t.val in CLOSERS:
+                depth -= 1
+            if t.kind == "p" and t.val == "," and depth == 0:
+                args.append(cur)
+                cur = []
+            else:
+                cur.append(t)
+        args.append(cur)
+        if len(args) < 2 or len(args[1]) != 1 or args[1][0].kind != "i" or "." in args[1][0].val:
+            return None
+        name = args[1][0].val
+        for x in range(j - 1, -1, -1):
+            if _is(toks[x], "i", name) and x + 2 < len(toks) and _is(toks[x + 1], "p", "=") and _is(toks[x + 2], "p", "{"):
+                stop, _ok = _match_close(toks, x + 2)
+                if any(t.kind == "s" and t.val in WRITE_VERBS for t in toks[x + 2:stop + 1]):
+                    return "write"
+                return "write" if self.wrx.search(self.text[toks[x + 2].lo:toks[stop].hi]) else None
+        return self.wrapper_callers(toks, j, name)
+
+    def wrapper_callers(self, toks, j, name):
+        """R15, second half: `name` is a parameter of the function that holds the call at toks[j]; do that function's
+        callers, in the 500 characters after it, carry a write verb?"""
+        here = toks[j].lo
+        for x in range(j - 1, max(-1, j - 400), -1):
+            if not (_is(toks[x], "i", "function") or (_is(toks[x], "p", ">") and _is(toks[x - 1], "p", "=") and x >= 2 and _is(toks[x - 2], "p", ")"))):
+                continue
+            if toks[x].kind == "i":
+                y = x + 1
+                fname = toks[y].val if toks[y].kind == "i" else None
+                y += 1 if fname else 0
+                if not _is(toks[y], "p", "("):
+                    continue
+                popen = y
+            else:                                           # name = (a, b) => { ... }
+                popen = None
+                depth = 0
+                for y in range(x - 2, max(-1, x - 40), -1):
+                    if _is(toks[y], "p", ")"):
+                        depth += 1
+                    elif _is(toks[y], "p", "("):
+                        depth -= 1
+                        if depth == 0:
+                            popen = y
+                            break
+                if popen is None:
+                    continue
+                fname = toks[popen - 2].val if popen >= 2 and _is(toks[popen - 1], "p", "=") and toks[popen - 2].kind == "i" else None
+            pclose, _ok = _match_close(toks, popen)
+            if not any(_is(t, "i", name) for t in toks[popen + 1:pclose]):
+                continue
+            body = pclose + 1 + (2 if toks[x].kind == "p" else 0)
+            if body >= len(toks) or not _is(toks[body], "p", "{") or not fname:
+                continue
+            bend, _ok = _match_close(toks, body)
+            if toks[bend].hi < here:
+                continue
+            for z in range(bend + 1, len(toks)):
+                if toks[z].lo - toks[bend].hi > 500:
+                    break
+                if _is(toks[z], "i", fname) and z + 1 < len(toks) and _is(toks[z + 1], "p", "("):
+                    close, _ok = _match_close(toks, z + 1)
+                    if any(t.kind == "s" and t.val in WRITE_VERBS for t in toks[z + 2:close]):
                         return "write"
-                    return None
+            return None
         return None
 
-    def climb(self, toks, k):
+    def climb(self, toks, k, pos=None):
         """The verdict of the call around token k, climbing through wrappers that say nothing."""
         at = k
         first = None
@@ -290,9 +388,143 @@ class Judge:
             if first is None:
                 first = (lo, hi)
             if v is not None:
+                if not self.holds(toks[j].hi, toks[k].lo if pos is None else pos):
+                    return None, None, toks[k].lo, toks[k].hi, False     # R8, R16: too far, or another call starts first
                 return v, how, lo, hi, True
             at = j
         return None, None, (first or (toks[k].lo, toks[k].hi))[0], (first or (toks[k].lo, toks[k].hi))[1], first is not None
+
+    def call_limit(self, after):
+        """R16: where the call whose '(' ends at `after` stops: the start of the next request call, else 600 characters on."""
+        stop = after + 600
+        nxt = self._REQUEST_START.search(self.text, after, stop)
+        return nxt.start() if nxt else stop
+
+    def resync(self, start, end, opened):
+        """The quote before the mention opens its string, but the quote pairing from the start of the record says
+        otherwise (redaction removed a quote somewhere before). Read the code from a nearby point that does not
+        depend on that pairing: the name being assigned (`u='...`), else the request call that holds the mention,
+        else the opening quote itself. None when the string still does not line up."""
+        text = self.text
+        m = self._NAME_BEFORE.search(text[max(0, opened - 60):opened + 1])
+        anchor = None
+        if m:
+            anchor = max(0, opened - 60) + m.start(1)
+        else:
+            head = text[max(0, opened - 600):opened]
+            last = None
+            for r in self._REQUEST_START.finditer(head):
+                last = r
+            if last and not (";" in head[last.end():] or "\n" in head[last.end():] or "\\n" in head[last.end():]):
+                anchor = opened - len(head) + last.start()
+        if anchor is None:
+            anchor = opened
+        sub = Judge(text, self.wrx, self.rrx, self.depth + 1, self.mentions, anchor=anchor)
+        sub.ctx, sub.pos = self.ctx, self.pos
+        level, k, wrapper = sub.literal(start, end)
+        if k is None:
+            return None
+        return sub.judge(start, end)
+
+    _DATA_ARG = re.compile(r"(?:body|data|json)['\"]?\s*[:=]\s*[\w.$()]*\s*['\"`][^'\"`\n]{0,70}$")
+
+    def uploaded(self, start, end):
+        """A place named inside the data a call sends (its body) is not the call's address. It is judged as plain text:
+        a curl line there, else a read by default (the rule does not see into uploaded data)."""
+        cmd = self.command(start, end)
+        if cmd:
+            return cmd
+        lo, hi = self.line(start, end)
+        return "read", "default", lo, hi
+
+    _NAME_BEFORE = re.compile(r"(?<![\w$.])([A-Za-z_$][\w$]*)\s*=(?!=)\s*(?:[\w$.]+\s*\+\s*)?[frbu]{0,2}['\"`]$")
+
+    def assigned_text(self, start):
+        """The name a mention is assigned to (name = '...place'), read from the raw text where the quote pairing
+        cannot be trusted. The opening quote is the first quote before the mention, across any marker."""
+        i = start
+        floor = max(0, start - 300)
+        while i > floor:
+            c = self.text[i - 1]
+            if c == "]":
+                o = self.text.rfind("[", max(floor, i - 90), i - 1)
+                if o >= 0:
+                    i = o
+                    continue
+            if c in "'\"`":
+                m = self._NAME_BEFORE.search(self.text[max(0, i - 60):i])
+                return m.group(1) if m else None
+            if c.isspace():
+                return None
+            i -= 1
+        return None
+
+    def follow_text(self, name, start, end):
+        """R9 on the raw text: every later use of the name (a whole word, not a key, not an assignment) up to the
+        point where it is given another value; the call around each use judges it (R8, R16)."""
+        text = self.text
+        use = re.compile(r"(?<![\w$.])" + re.escape(name) + r"(?![\w$])")
+        passed, span = False, None
+        stop = min(len(text), end + 4000)
+        for m in use.finditer(text, end, stop):
+            after = text[m.end():m.end() + 3].lstrip()
+            before = text[max(0, m.start() - 2):m.start()].strip()
+            if after[:1] == "=" and after[1:2] != "=":
+                break                                                               # given another value
+            if after[:1] == ":" and before[-1:] in ("{", ","):
+                continue                                                            # an object key
+            call = self.textual_call(m.start(), m.end())
+            if call and call[0] != "cut":
+                if call[0] == "write":
+                    return "write", "inferred", call[2], call[3]
+                passed, span = True, span or (call[2], call[3])
+        if passed:
+            return "read", "inferred", span[0], span[1]
+        return None, None, start, end
+
+    _VERBS = ("POST", "PUT", "PATCH", "DELETE", "GET", "HEAD")
+    _CUT_IN_VERB = re.compile(r"(?:method\s*[:=]\s*|\.open\s*\(\s*)['\"]([A-Za-z]{1,6})$")
+
+    def cut_in_verb(self, end):
+        """R13: the record ends inside the verb of the call that names the place (`...place',{method:'POS`)."""
+        m = self._CUT_IN_VERB.search(self.text, end, min(len(self.text), end + 80))
+        return bool(m and m.end() == len(self.text) and any(v.startswith(m.group(1).upper()) and v != m.group(1).upper() for v in self._VERBS)
+                    and ";" not in self.text[end:m.start()] and "\n" not in self.text[end:m.start()])
+
+    def window(self, start, end):
+        """R14: for a mention nothing else settles, the nearest write or read verb within 160 characters before it
+        and 260 after it decides (a tie goes to the write); the window stops at the neighbouring place mentions and
+        at the start of the next request call. With no verb the mention is a read by default."""
+        text = self.text
+        lo, hi = max(0, start - 160), min(len(text), end + 260)
+        for a, b in self.mentions:
+            if b <= start:
+                lo = max(lo, b)
+            elif a >= end:
+                hi = min(hi, a)
+        nxt = self._REQUEST_START.search(text, end, hi)
+        if nxt:
+            hi = nxt.start()
+        found = []
+        for rx, side in ((self._VERB_LITERAL, None), (self.wrx, 0), (self.rrx, 1)):
+            for m in rx.finditer(text, lo, hi):
+                kind = side if side is not None else (0 if m.group(1) in WRITE_VERBS else 1)
+                between = text[m.end():start] if m.end() <= start else text[end:m.start()]
+                if ";" in between or "\n" in between or "\\n" in between:
+                    continue                                    # another statement (R8's own boundary): not this mention's verb
+                found.append((len(between), kind))
+        if found:
+            return ("write" if min(found)[1] == 0 else "read"), "call", lo, hi
+        return "read", "default", lo, hi
+
+    def holds(self, call_from, pos):
+        """R8 and R16, read from the raw text: can the call whose parenthesis ends at call_from still hold text at
+        pos? Not when a `;` or a line break lies between, when another request call starts in between, or when
+        pos is more than 600 characters on. Quote pairing is not used, because redaction breaks it."""
+        if pos - call_from > 600:
+            return False
+        seg = self.text[call_from:pos]
+        return not (";" in seg or "\n" in seg or "\\n" in seg or self._REQUEST_START.search(seg))
 
     # -- a mention -----------------------------------------------------------
     def literal(self, start, end):
@@ -314,6 +546,7 @@ class Judge:
                 while i - 2 - b >= 0 and text[i - 2 - b] == "\\":
                     b += 1
                 opened = i - 1 - b
+                self.opening = (opened, b)
                 toks = self.toks(b)
                 for x, t in enumerate(toks):
                     if t.kind == "s" and t.lo <= start and end <= t.hi:
@@ -331,36 +564,77 @@ class Judge:
                 break
         return None, None, None
 
+    _OID = re.compile(r"\boid[\\'\"]*\s*[:=]\s*[\\'\"]*(\[[^\]]+\]|[0-9A-Za-z]{8,})")
+
     def lfs(self, toks, k, j):
-        """R6: the operation of an LFS batch, read from the call and the code just before it (the body is often
-        built into a variable first, and often sits inside a string)."""
+        """R6: the operation of an LFS batch and the object ids it names, read from the call and the code just
+        before it (the body is often built into a variable first, and often sits inside a string)."""
         lo = toks[max(0, (j if j is not None else k) - 120)].lo
-        hi = toks[_match_close(toks, j)[0]].hi if j is not None else toks[min(len(toks) - 1, k + 200)].hi
+        if j is not None:
+            hi = toks[_match_close(toks, j)[0]].hi
+        else:                                              # a name: up to the end of the next request call
+            hi = toks[min(len(toks) - 1, k + 200)].hi
+            nxt = self._REQUEST_START.search(self.text, toks[k].hi, toks[k].hi + 1500)
+            if nxt:
+                depth, x = 0, self.text.find("(", nxt.start(), nxt.start() + 60)
+                stop = min(len(self.text), nxt.start() + 600)
+                while 0 <= x < stop:
+                    depth += (self.text[x] == "(") - (self.text[x] == ")")
+                    if depth == 0:
+                        break
+                    x += 1
+                hi = max(hi, min(x + 1, stop))
         best = None
         for m in re.finditer(r"operation[\\'\"]*\s*:\s*[\\'\"]*(upload|download)", self.text[lo:hi]):
-            best = m.group(1)
-        return best
+            best = m
+        if best is None:
+            return None, ()
+        at = lo + best.start()
+        return best.group(1), tuple(self._OID.findall(self.text[max(0, at - 300):at + 800]))
+
+    def lfs_batch(self, op, oids):
+        """R6, R6b: write, read or None for a batch that carries `op`. An upload batch is a write only if one of its
+        objects was not requested for download earlier in the trace and a later record sends it."""
+        if op == "download":
+            return "read"
+        if self.ctx is None:
+            return "write"
+        return "write" if self.ctx.goes_up(oids, self.pos) else None
 
     def judge(self, start, end):
         """(op, how, lo, hi): op is write, read or None (not counted); how is call, inferred or default."""
         text = self.text
+        if self.cut_in_verb(end):                                                    # R13
+            return None, None, start, end
+        if re.match(r"/paths-info\b", text[end:end + 12]):                           # R6a: a POST that only asks about files
+            return "read", "inferred", start, min(len(text), end + 12)
+        self.opening = None
         level, k, wrapper = self.literal(start, end)
+        if k is None and self.opening and self.opening[1] == 0 and not self.local:
+            r = self.resync(start, end, self.opening[0])
+            if r:
+                return r
         if wrapper is not None and self.depth < 4:
             lo = wrapper.lo + len(wrapper.q)
             hi = wrapper.hi - (len(wrapper.q) if wrapper.closed else 0)
             inner = Judge(text[lo:hi], self.wrx, self.rrx, self.depth + 1)
+            inner.ctx, inner.pos = self.ctx, self.pos
             op, how, a, b = inner.judge(start - lo, end - lo)
             return op, how, a + lo, b + lo
         if k is None:
             return self.unquoted(start, end)
         toks = self.toks(level)
         lit = toks[k]
+        if k >= 2 and toks[k - 1].kind == "p" and toks[k - 1].val in ":=" and toks[k - 2].kind in ("i", "s") \
+                and toks[k - 2].val in ("body", "data", "json"):
+            return self.uploaded(start, end)                                         # a place named in data that is sent
         j, obj = _around(toks, k)
         if "info/lfs" in text[end:end + 40]:                                        # R6
-            op = self.lfs(toks, k, j)
-            if op is None:
+            op, oids = self.lfs(toks, k, j)
+            v = self.lfs_batch(op, oids) if op else None
+            if v is None:
                 return None, None, start, end
-            return ("write" if op == "upload" else "read"), "inferred", start, end
+            return v, "inferred", start, end
         after = text[end:lit.hi - len(lit.q)] if lit.closed else text[end:lit.hi]
         if after == "/" and k + 3 < len(toks) and _is(toks[k + 1], "p", "+") and toks[k + 2].kind == "i":   # R7
             x = k + 3
@@ -374,20 +648,29 @@ class Judge:
                 return v, "inferred", start, end
         name = self.assigned(toks, k, j)
         if name:                                                                     # R9
-            return self.follow(toks, k, name, level, start, end)
+            r = self.follow(toks, k, name, level, start, end)
+            if r[0] is None:                       # nothing seen: the quote pairing after the mention may be wrong
+                r2 = self.follow_text(name, start, end)
+                if r2[0] is not None:
+                    return r2
+            return r
         if j is not None:
-            v, how, lo, hi, _in = self.climb(toks, k)
+            v, how, lo, hi, inside = self.climb(toks, k, start)
             if v == "cut":
                 return None, None, start, end                                        # R13
             if v is not None:
                 return v, how, lo, hi                                                # R8, R10, R11
-            return "read", "default", lo, hi                                         # R14: a helper with no verb
+            if inside:
+                return "read", "default", lo, hi                                     # R14: a helper with no verb
+            call = self.textual_call(start, end)
+            if call:
+                return (None, None, start, end) if call[0] == "cut" else call
         cmd = self.command(start, end)
         if cmd:
             return cmd
         if self.closes_statement(toks, k) and not self.config_entry(start) and self.later_write_through_name(end):    # R17
             return None, None, start, end
-        return "read", "default", start, end                                         # R14
+        return self.window(start, end)                                               # R14
 
     def descriptor(self, toks, k, obj):
         key = None
@@ -443,6 +726,8 @@ class Judge:
                     break                                               # given another value
                 if x + 1 < len(toks) and _is(toks[x + 1], "p", "="):
                     continue
+                if x + 1 < len(toks) and _is(toks[x + 1], "p", ":") and _is(toks[x - 1], "p") and toks[x - 1].val in "{,":
+                    continue                                            # an object key that has the same spelling
                 v, how, lo, hi, inside = self.climb(toks, x)
                 if not inside:
                     cmd = self.command(t.lo, t.hi)
@@ -478,6 +763,7 @@ class Judge:
         """A string that is itself code (a script that writes a script): the call around the interpolated name."""
         inner_lo = t.lo + len(t.q)
         inner = Judge(self.text[inner_lo:t.hi - (len(t.q) if t.closed else 0)], self.wrx, self.rrx)
+        inner.ctx, inner.pos = self.ctx, self.pos
         for level in (0, 1, 2):
             itoks = inner.toks(level)
             for x, it in enumerate(itoks):
@@ -570,19 +856,96 @@ class Judge:
             return "write", "call", lo + c, lo + c + len(seg)
         return "read", ("call" if self.rrx.search(seg) or re.search(r"(?<!\w)(?:-I|--head)\b", seg) else "default"), lo + c, lo + c + len(seg)
 
+    _REQUEST_START = re.compile(
+        r"(?<![\w$.])(?:fetch|urlopen)\s*\(|\bRequest\s*\(|\.open\s*\(|new\s+XMLHttpRequest|requests\.(?:get|post|put|patch|delete|head)\s*\(|"
+        r"http\.request|axios\.|\$\.ajax|navigator\.sendBeacon")
+    _VERB_LITERAL = re.compile(r"(?<=['\"])(POST|PUT|PATCH|DELETE|MKCOL|GET|HEAD)(?=['\"])")
+
+    def textual_call(self, start, end):
+        """R8 read straight from the text, for a mention the tokenizer could not place in a string (redaction
+        removes quote characters, so quote pairing cannot be trusted). The mention is inside a request call when
+        a request call starts before it with no `;` and no line break between (R8); the call ends at its closing
+        parenthesis, at the start of the next request call, or after 600 characters (R16). (op, how, lo, hi), or
+        None when no request call holds the mention. The op is "cut" when the call is open at the end of the
+        record with no verb (R13)."""
+        text = self.text
+        head = text[max(0, start - 1500):start]
+        last = None
+        for m in self._REQUEST_START.finditer(head):
+            last = m
+        if last is None:
+            return None
+        between = head[last.end():]
+        if ";" in between or "\n" in between or "\\n" in between:
+            return None
+        lo = start - len(head) + last.start()
+        if text.find("(", lo, start) >= 0:                  # the call must still be open where the mention is
+            depth = 0
+            for ch in text[text.find("(", lo, start):start]:
+                depth += (ch == "(") - (ch == ")")
+                if depth <= 0:
+                    return None
+        if self._DATA_ARG.search(text[max(0, start - 80):start]):
+            return None
+        stop = min(len(text), lo + 600)
+        nxt = self._REQUEST_START.search(text, end, stop)
+        if nxt:
+            stop = nxt.start()
+        depth, hi, closed = 0, stop, False
+        opened = text.find("(", lo, start)
+        if opened >= 0:
+            for x in range(opened, stop):
+                if text[x] == "(":
+                    depth += 1
+                elif text[x] == ")":
+                    depth -= 1
+                    if depth == 0:
+                        hi, closed = x + 1, True
+                        break
+        span = text[lo:hi]
+        at = start - lo
+        found = [(abs(m.start() - at), 0 if m.group(1) in WRITE_VERBS else 1) for m in self._VERB_LITERAL.finditer(span)]
+        found += [(abs(m.start() - at), 0) for m in self.wrx.finditer(span)]
+        found += [(abs(m.start() - at), 1) for m in self.rrx.finditer(span)]
+        if found:
+            return ("write" if min(found)[1] == 0 else "read"), "call", lo, hi
+        if not closed and hi >= len(text) and nxt is None:
+            return "cut", None, lo, hi
+        m = re.match(r"[^,()]*,\s*([A-Za-z_$][\w$]*)\s*\)", text[opened + 1:hi]) if opened >= 0 else None   # fetch(u, o)
+        if m:                                                                       # R15 on the raw text
+            held = re.compile(r"(?<![\w$.])" + re.escape(m.group(1)) + r"\s*=\s*\{").search(text, max(0, lo - 1500), lo)
+            if held:
+                x = text.find("{", held.start())
+                depth = 0
+                for y in range(x, min(len(text), x + 800)):
+                    depth += (text[y] == "{") - (text[y] == "}")
+                    if depth == 0:
+                        break
+                body = text[x:y + 1]
+                if self._VERB_LITERAL.search(body) and any(v in WRITE_VERBS for v in self._VERB_LITERAL.findall(body)) or self.wrx.search(body):
+                    return "write", "call", lo, hi
+        return "read", "default", lo, hi
+
     def unquoted(self, start, end):
         text = self.text
         cmd = self.command(start, end)
         if cmd:
             return cmd
+        call = self.textual_call(start, end)
+        if call:
+            if call[0] == "cut":
+                return None, None, start, end
+            return call
+        name = self.assigned_text(start)
+        if name:                                                                    # R9 on the raw text
+            return self.follow_text(name, start, end)
         tail = text[end:end + 90]
         closing = re.match(r"[^'\"`\s;,(){}]{0,80}\\*['\"`][ \t]*(?:;|\r?\n|$)", tail)
         if closing and not self.config_entry(start) and self.later_write_through_name(end):   # R17: the opening is hidden
             return None, None, start, end
         if re.match(r"\s*https?://\S*\s*$", re.sub(r"\[[^\[\]]*\]", "X", text)):         # R13: the record is a bare URL
             return None, None, start, end
-        lo, hi = self.line(start, end)
-        return "read", "default", lo, hi
+        return self.window(start, end)
 
 
 # ------------------------------------------------------------------ comments (R3)
@@ -640,6 +1003,51 @@ def actors(events, pack, rec, res):
     return out
 
 
+# ------------------------------------------------------------------ Git LFS objects (R6b)
+
+_BATCH_OP = re.compile(r"operation[\\'\"]*\s*:\s*[\\'\"]*(upload|download)")
+_SENDS = re.compile(r"lfsFile|['\"]PUT['\"]|requests\.put\s*\(|-X\s*PUT\b|--upload-file")
+
+
+class LfsFacts:
+    """What R6b needs from the whole trace: for each object id named in an upload batch, where it was first asked for
+    with a download batch, and which records send it (name it as an `lfsFile`, or carry a PUT). Positions are input
+    order."""
+
+    def __init__(self, events):
+        down, up = {}, set()
+        for pos, e in enumerate(events):
+            t = e.text
+            if "operation" not in t:
+                continue
+            for m in _BATCH_OP.finditer(t):
+                oids = Judge._OID.findall(t[max(0, m.start() - 300):m.start() + 800])
+                if m.group(1) == "download":
+                    for o in oids:
+                        down.setdefault(o, pos)
+                else:
+                    up.update(oids)
+        self.down = down
+        self.sent = defaultdict(list)
+        if up:
+            for pos, e in enumerate(events):
+                t = e.text
+                if _SENDS.search(t):
+                    for o in up:
+                        if o in t:
+                            self.sent[o].append(pos)
+
+    def goes_up(self, oids, pos):
+        """True when one of the objects was not requested for download before position `pos` and a later record
+        sends it. No visible object id: not counted."""
+        for o in oids:
+            if self.down.get(o, pos + 1) < pos:
+                continue
+            if any(x > pos for x in self.sent.get(o, ())):
+                return True
+        return False
+
+
 # ------------------------------------------------------------------ operations
 
 class Op:
@@ -676,6 +1084,7 @@ def operations(events, pack, rec, res, who=None):
             if e.channel and len(_short(e.channel)) >= 6:
                 by_short[_short(e.channel)].add(e.channel)
     ops = []
+    lfs_facts = LfsFacts(events)
     for idx, e in enumerate(events):
         if not is_action(e, pack):                                                   # R2
             continue
@@ -693,13 +1102,18 @@ def operations(events, pack, rec, res, who=None):
                 for key in near or keys:
                     if key != e.channel and "place:" + key not in found:
                         found["place:" + key] = ("read", None, None)
+        spans = None
         for name, rx, wrx, rrx in chans:
             judge = None
             here = {}
             for m in rx.finditer(e.text):
                 if not m.group(1) or commented(e.text, m.start()):                   # R1, R3
                     continue
-                judge = judge or Judge(e.text, wrx, rrx)
+                if spans is None:
+                    spans = sorted((x.start(), x.end()) for _n, r2, _w, _r in chans for x in r2.finditer(e.text) if x.group(1))
+                if judge is None:
+                    judge = Judge(e.text, wrx, rrx, mentions=spans)
+                    judge.ctx, judge.pos = lfs_facts, idx
                 op, how, lo, hi = judge.judge(m.start(), m.end())                    # R4
                 if op is None:
                     continue
@@ -789,6 +1203,17 @@ def _lines(text):
 
 # ------------------------------------------------------------------ linking (R22 to R34)
 
+_WORD_RX = {}
+
+
+def _holds_word(text, token):
+    """R23a: does the record contain the token as a whole word?"""
+    rx = _WORD_RX.get(token)
+    if rx is None:
+        rx = _WORD_RX[token] = re.compile(r"(?<!\w)" + re.escape(token) + r"(?!\w)")
+    return bool(rx.search(text))
+
+
 def link(ops, texts=None, program=None, full_body=False, coarse=None, estimated=None):
     """Deliveries, overwrites and counters from operations. A sweep over each place in (time, input position) order."""
     program = program or {}
@@ -817,6 +1242,9 @@ def link(ops, texts=None, program=None, full_body=False, coarse=None, estimated=
                     order_unknown += 1
                 continue
             cands = [w for w in dated_writes if w.time <= r.time and w.actor != r.actor and w.rid != r.rid]   # R22 to R24
+            if texts:                                                                # R23a
+                body = texts.get(r.rid, "")
+                cands = [w for w in cands if not (w.kind == "token" and _holds_word(body, w.actor))]
             fresh = [w for w in cands if not (program.get(w.rid) and program.get(w.rid) == program.get(r.rid))]   # R27
             if cands and not fresh:
                 same_program += 1
@@ -834,6 +1262,8 @@ def link(ops, texts=None, program=None, full_body=False, coarse=None, estimated=
                 if new and not (new & _lines(texts.get(r.rid, ""))):
                     overwrites.append(d)
                     continue
+                if new:
+                    d["overlap"] = True                                              # the read kept lines the write added (R38)
             d["grade"] = _grade(d, w, r, coarse, estimated)
             deliveries.append(d)
     return {"deliveries": deliveries, "overwrites": overwrites, "order_unknown": order_unknown,
@@ -852,13 +1282,61 @@ def _grade(d, w, r, coarse, estimated):
     return "inferred"                                                                # R33
 
 
+# ------------------------------------------------------------------ the written-content test (R38)
+
+_TERM = re.compile(r"\[[A-Z][A-Za-z]*(?:[ :_][A-Za-z_]+)*[ :]\d+\]"            # numbered redaction markers
+                   r"|[A-Za-z0-9_.~-]+(?:/[A-Za-z0-9_.~-]+)+"                       # paths
+                   r"|[A-Za-z0-9_-]+\.[A-Za-z0-9]{1,6}\b"                           # file names
+                   r"|[A-Za-z_][A-Za-z0-9_]*")                                      # identifiers
+RARE = 5
+
+
+def terms(text):
+    """R38: the identifiers, paths, file names and numbered redaction markers of 8 or more characters in a text,
+    credentials left out."""
+    return {t for t in _TERM.findall(text) if len(t) >= 8 and not t.startswith("[CREDENTIAL")}
+
+
+def content_test(deliveries, events, full_body_overlap=None):
+    """Marks each delivery with uses_content and shared_terms (up to three). A delivery passes when the writer's and the
+    reader's records share at least one term, leaving out the place's own address, that is found in at most 5 records
+    of the trace. A logged direct message passes as it stands; a wiki edit whose read kept lines the writer added
+    passes by R29 (full_body_overlap: the set of (write, read) record ids that did). Returns the number that pass."""
+    by_id = {e.id: e for e in events}
+    cache, df = {}, None
+
+    def of(rid):
+        if rid not in cache:
+            cache[rid] = terms(by_id[rid].text) if rid in by_id else set()
+        return cache[rid]
+    passed = 0
+    for d in deliveries:
+        if d.get("grade") == "direct" and d["place"].startswith("inbox:"):
+            d["uses_content"], d["shared_terms"] = True, []
+        elif full_body_overlap and (d["write_id"], d["read_id"]) in full_body_overlap:
+            d["uses_content"], d["shared_terms"] = True, []
+        else:
+            shared = of(d["write_id"]) & of(d["read_id"])
+            if shared:
+                if df is None:
+                    df = Counter()
+                    for e in events:
+                        df.update(terms(e.text) if e.id not in cache else cache[e.id])
+                own = terms(d["place"].split(":", 1)[-1])
+                shared = {t for t in shared if t not in own and not any(t in o or o in t for o in own)}
+            rare = sorted((t for t in shared if df[t] <= RARE), key=lambda t: (df[t], -len(t), t))
+            d["uses_content"], d["shared_terms"] = bool(rare), rare[:3]
+        passed += bool(d["uses_content"])
+    return passed
+
+
 def count(events, pack, rec, res):
     """The whole count for a loaded trace. Returns deliveries (pattern places, structural places and dated direct
     messages), overwrites, and the counters of R25, R27 and R28."""
     who = actors(events, pack, rec, res)
     ops = operations(events, pack, rec, res, who)
     full_body = bool(pack.raw.get("full_body_posts"))
-    texts = {e.id: e.text for e in events} if full_body else None
+    texts = {e.id: e.text for e in events}
     program = {}
     for rid in {o.rid for o in ops}:
         program[rid] = None
@@ -876,4 +1354,7 @@ def count(events, pack, rec, res):
     out["named"] = len(named)
     out["named_pairs"] = len({(d["from"], d["to"]) for d in named})
     out["_ops"] = ops
+    overlap = {(d["write_id"], d["read_id"]) for d in out["deliveries"] if d.get("overlap")}
+    out["deliveries_write_then_read"] = len(out["deliveries"])
+    out["deliveries_reader_uses_content"] = content_test(out["deliveries"], events, overlap)
     return out

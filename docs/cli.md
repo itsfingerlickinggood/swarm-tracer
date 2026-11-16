@@ -6,7 +6,7 @@
 
 | Command | What it does |
 |---|---|
-| `serve [--input PATH] [--pack PACK] [--port 8010] [--map role=field] [--allow-path DIR]` | run the app on 127.0.0.1; preload a file or folder; `--allow-path` lets live mode and Compare read another folder |
+| `serve [--input PATH] [--pack PACK] [--port 8010] [--map role=field] [--allow-path DIR]` | run the app on 127.0.0.1; preload a file or folder; `--allow-path` lets live mode and Compare read another folder (only the `--input` folder, `SWARM_TRACER_DATA`, `--allow-path` folders and the bundled samples are readable, not the current folder; only `.csv .tsv .json .jsonl .txt .log` files) |
 | `demo [--port] [--no-browser]` | serve the bundled simulated swarm |
 | `evaluate PATH --pack PACK --out DIR` | baselines, robustness under time error, counting rules, the external timing check, report figures |
 | `analyze PATH --pack PACK --out DIR` | a static HTML report, `summary.json` and `records.csv` |
@@ -44,4 +44,4 @@ python3 -m agenttrace.tools.replay_feed redacted.jsonl /tmp/feed.jsonl --rate 20
 python3 paper/build.py --author "Name" --affiliation "Affiliation"
 ```
 
-Environment: `SWARM_TRACER_HOME` (default `~/.swarm-tracer`: case files, labels, rules, identity decisions), `SWARM_TRACER_NO_CACHE=1` (no disk cache), `SWARM_TRACER_CACHE_DIR`, `SWARM_TRACER_DATA` (where the library looks for datasets).
+Environment: `SWARM_TRACER_HOME` (default `~/.swarm-tracer`: case files, labels, rules, identity decisions), `SWARM_TRACER_NO_CACHE=1` (no disk cache), `SWARM_TRACER_CACHE_DIR`, `SWARM_TRACER_DATA` (where the library looks for datasets, and a folder live mode and Compare may read), `SWARM_TRACER_AI_HOSTS` (comma list: the AI base URL host must be one of these, the default provider or this machine; https is required except for localhost), `SWARM_TRACER_REGEX_LIMIT` (seconds a pack's patterns get in the load-time backtracking test, default 3; 0 turns it off).

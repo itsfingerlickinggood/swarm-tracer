@@ -1,8 +1,10 @@
 """A disk cache of analyzed sessions, so reloading a large dataset takes seconds instead of a minute.
 
 Session.load calls restore() first and store() after a full analysis. The cache key is the sha1 of
-the input (path, size and modification time of every file in it), the pack, the column mapping and
-the tool's own code and packs, so editing the data, the pack or the code invalidates it.
+the input (path, size and modification time of every file in it), the pack's content, the column
+mapping, the claims files and the tool's own code, so editing the data, a pack, a claims file or the code
+invalidates it. The compiled pack is not stored in the entry: a restored session loads its pack afresh from
+the file, so a pack edit can never be served from an old pickle.
 
     ~/.swarm-tracer/cache/<sha1>.pickle      (SWARM_TRACER_CACHE_DIR moves it)
 
@@ -25,7 +27,7 @@ import tempfile
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-VERSION = 1
+VERSION = 2
 MAX_ENTRIES = 8              # keep the newest few; a large dataset's entry can be hundreds of MB
 LAST = {"hit": None, "key": None, "seconds": None, "error": None, "lazy_text": None}
 
@@ -68,26 +70,47 @@ _CODE = None
 
 
 def code_fingerprint():
-    """The tool's own code and packs: a change to either means a cached analysis may be out of date."""
+    """The tool's own code: a change means a cached analysis may be out of date. (Packs and claims files
+    are hashed by content in key(), every time, because they are the files people edit.)"""
     global _CODE
     if _CODE is None:
         h = hashlib.sha1()
-        for sub in ("", "packs"):
-            d = os.path.join(HERE, sub)
-            for f in sorted(os.listdir(d)) if os.path.isdir(d) else []:
-                if f.endswith((".py", ".json")):
-                    st = os.stat(os.path.join(d, f))
-                    h.update(f"{sub}/{f}:{st.st_size}:{st.st_mtime_ns};".encode())
+        d = HERE
+        for f in sorted(os.listdir(d)):
+            if f.endswith(".py"):
+                st = os.stat(os.path.join(d, f))
+                h.update(f"{f}:{st.st_size}:{st.st_mtime_ns};".encode())
         h.update(f"py{sys.version_info[:2]}".encode())
         _CODE = h.hexdigest()
     return _CODE
+
+
+def content_fingerprint(pack_file=None):
+    """sha1 of the bytes of every pack and claims file (and of the named pack, if it is a path elsewhere)."""
+    h = hashlib.sha1()
+    paths = []
+    for sub in ("packs", "claims"):
+        d = os.path.join(HERE, sub)
+        if os.path.isdir(d):
+            paths += [os.path.join(d, f) for f in sorted(os.listdir(d)) if f.endswith(".json")]
+    if pack_file and pack_file not in ("auto", "auto.json") and os.path.isabs(pack_file):
+        paths.append(pack_file)
+    for p in paths:
+        try:
+            with open(p, "rb") as f:
+                data = f.read()
+        except OSError:
+            data = b"?"
+        h.update(os.path.relpath(p, HERE).encode() + b"\0" + hashlib.sha1(data).digest())
+    return h.hexdigest()
 
 
 def key(path, pack_file, mapping=None):
     files = _files(path)
     h = hashlib.sha1()
     h.update(json.dumps({"v": VERSION, "path": os.path.abspath(path), "files": files, "pack": pack_file or "auto",
-                         "map": sorted((mapping or {}).items()), "code": code_fingerprint()}).encode())
+                         "map": sorted((mapping or {}).items()), "code": code_fingerprint(),
+                         "content": content_fingerprint(pack_file)}).encode())
     return h.hexdigest(), sum(f[1] for f in files)
 
 
@@ -156,6 +179,11 @@ def restore(session, path, pack_file, mapping=None, name=None):
         except OSError:
             pass
         return False
+    try:
+        _reload_pack(session, state, pack_file)
+    except (OSError, ValueError, SystemExit) as e:
+        LAST["error"] = f"pack could not be reloaded: {e}"
+        return False
     session.__dict__.update(state)
     if name:
         session.name = name
@@ -167,6 +195,20 @@ def restore(session, path, pack_file, mapping=None, name=None):
     return True
 
 
+def _reload_pack(session, state, pack_file):
+    """Put a freshly loaded pack into the restored state (the pack object is never pickled)."""
+    from . import packs
+    from .session import PACK_DIR
+    choice = state.get("pack_choice")
+    f = (choice or {}).get("pack") or pack_file
+    path = f if os.path.isabs(f) else os.path.join(PACK_DIR, f)
+    pack = packs.load_pack(path)
+    # analysis added the identities it found to the pack's own list (session._analyze); do the same here
+    if pack.raw.get("auto_shared_identities") and not pack.raw.get("shared_identities"):
+        pack.raw["shared_identities"] = [t for t, _ in state.get("auto_shared", [])]
+    state["pack"] = pack
+
+
 def store(session, path, pack_file, mapping=None):
     """Write the analyzed session. Returns the cache file, or None if it was skipped or failed."""
     try:
@@ -176,6 +218,7 @@ def store(session, path, pack_file, mapping=None):
         d = cache_dir()
         os.makedirs(d, mode=0o700, exist_ok=True)
         state = dict(session.__dict__)
+        state.pop("pack", None)        # reloaded from its file on restore
         state["_cache_version"] = VERSION
         f = os.path.join(d, k + ".pickle")
         lazy = _lazy_index(session, path, k, size, d)

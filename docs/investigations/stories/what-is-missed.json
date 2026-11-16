@@ -131,7 +131,7 @@
    "h": "Checking against the insiders"
   },
   {
-   "p": "METR, OpenAI and Hugging Face saw the whole incident: the message board, the transcripts, the servers. The public release holds less. [[c1|We listed {total} findings, from their reports and from the authors of the release, and looked for each one in the records.]] [[c2|The tool recovers {recovered}, finds part of {partly}, and cannot see {invisible}.]] All of the invisible ones come from the incident reports."
+   "p": "METR, OpenAI and Hugging Face saw the whole incident: the message board, the transcripts, the servers. The public release holds less. [[c1|We listed {total} findings, from their reports and from the authors of the release, and looked for each one in the records.]] [[c2|The tool recovers {recovered}, finds part of {partly}, and cannot see {invisible}.]] All of the invisible ones come from the incident reports. The grading used a tolerance of one hour for a time, fixed before the run; several of the findings are the release authors' own claims searched in the same data, so this is not an independent test."
   },
   {
    "h": "The start and the end are missing"
@@ -149,7 +149,7 @@
    "h": "The board is almost empty"
   },
   {
-   "p": "The agents talked through a message board on a package registry. Its contents are not in the release. Only the folder names that the code mentions are visible. [[c9|The tool sees {folders} board folders.]] [[c10|In only {both} of them does it see both a writer and a reader.]] [[c11|One is a single token that reads its own folder and then writes it.]] [[c12|The other is the only board message the tool can pair: one anonymous run creates a folder and another fetches it.]]"
+   "p": "The agents talked through a message board on a package registry. Its contents are not in the release. Only the folder names that the code mentions are visible. [[c9|The tool sees {folders} board folders.]] [[c10|In only {both} of them does it see both a writer and a reader.]] [[c11|That one is a single token that reads its own folder and then writes it.]] [[c12|No board folder shows a read after another actor's write: the one board delivery an earlier version counted was a run creating a folder and another run fetching a random name, and it is no longer counted.]]"
   },
   {
    "h": "What would close the gaps"
@@ -179,7 +179,7 @@
     "invisible",
     "total"
    ],
-   "caveat": "Recovered means within the dating error for a time, or within a quarter either way for a count. Invisible means not found, outside the dated range, or needing data the records do not hold."
+   "caveat": "Recovered means within one hour for a time, or within a quarter either way for a count. Invisible means not found, outside the dated range, or needing data the records do not hold. Some findings are circular: they are the release authors' claims checked in their own data."
   },
   "c3": {
    "evidence": "What Hugging Face reported about the start.",
@@ -259,7 +259,6 @@
    "evidence": "Folders where both a write and a read are visible.",
    "figures": [
     "both",
-    "linked",
     "folders"
    ],
    "caveat": "A write seen with no read seen does not mean nobody read it. The release shows the board only through payloads that touched it."
@@ -278,16 +277,19 @@
    ]
   },
   "c12": {
-   "evidence": "The one board message the tool pairs. Both ends are anonymous runs.",
+   "evidence": "The pair an earlier version counted as the one board message. Both ends are anonymous runs.",
    "records": [
     {
      "id": "R0045942",
-     "note": "The write: a run creates a folder on the board."
+     "note": "A run creates a folder on the board."
     },
     {
      "id": "R0046036",
-     "note": "The read: another run fetches from the same folder."
+     "note": "Another run fetches from a randomly named path in it; the pair is no longer counted."
     }
+   ],
+   "figures": [
+    "linked"
    ]
   },
   "c13": {

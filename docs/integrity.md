@@ -2,7 +2,7 @@
 
 [Home](./) · [How accurate is it?](validation.md) · [The counting rule](counting-rule.md) · [Known issues](known-issues.md)
 
-Swarm Tracer publishes numbers in a report, slides, a README and these pages. A number is only as good as the
+Swarm Tracer publishes numbers in a report, slides, a README and these pages. Not every number is covered by these checks: 180 are registered (360 places print them), and 533 further figures in the texts are outside the manifest (`reports/integrity/provenance_unregistered.tsv`). A number is only as good as the
 chain behind it: the data, the rule, the code that applies the rule, and the sentence that repeats the result.
 Each check below tests one link of that chain. None of them shows that a number is *true*; the last section says
 what still needs a person.
@@ -12,7 +12,7 @@ what still needs a person.
 | Provenance manifest | `python3 -m agenttrace.tools.provenance build` | which data, code and commit each published number came from |
 | Verify | `python3 -m agenttrace verify` | the numbers still come out the same, and the texts still print them |
 | Reproducible build | `python3 -m agenttrace.tools.repro` | a clean install computes what the working tree computes |
-| Second-labeller kit | `python3 -m agenttrace.tools.labelkit export` / `score` | whether a second reader agrees with the hand audit |
+| Second-labeller kit | `python3 -m agenttrace.tools.labelkit export` / `score` | whether a second reader agrees with the one reader's audit labels |
 | Property tests | `python3 -m unittest agenttrace.tests.test_properties` | the counting rule keeps its stated properties on random swarms |
 | Second implementation | `python3 -m agenttrace.tools.crosscheck` | a separately written counter reaches the same deliveries |
 | Mutation testing | `python3 -m agenttrace.tools.mutate` | the tests notice when the rule's code is broken on purpose |
@@ -43,7 +43,7 @@ are numbers nobody re-derives, listed so the gap is visible.
 ## Verify
 
 `python3 -m agenttrace verify` (the same as `python3 -m agenttrace.tools.provenance verify`) re-derives every
-number and checks four things:
+*registered* number and checks four things:
 
 1. the value still equals the manifest;
 2. every listed place still prints that value;
@@ -70,7 +70,7 @@ verify as its last stage (`--quick`: texts only).
 **It proves** that the texts, the manifest and the code agree today. **It does not prove** anything about
 numbers that are not registered, about figures and screenshots, or about the PDFs: it reads the HTML and
 Markdown sources, and a PDF built earlier can still be stale. A place is found by an anchor (the words around
-the number), so a reworded sentence is reported as "anchor not found" until the registry is updated.
+the number), so a reworded sentence is reported as "anchor not found" until the registry is updated. When the texts were rewritten for v2.2.0, 125 places lost their anchors; 109 were re-pointed to the new wording and 16 dropped because the corrected text no longer prints the value there, each logged with its reason in `reports/integrity/anchor_changes.md`. Verify now passes (0 drift, 0 disagreements); 533 figures are unregistered.
 
 Time, measured on the development laptop with both datasets: build about 20 seconds when the tool's own
 analysis cache is warm and 50 to 75 seconds when it is not (any change to the package's code empties it); verify
@@ -100,7 +100,7 @@ browser side of the app.
 
 ## The second-labeller kit
 
-The links in `agenttrace/claims/audited_links.json` were labelled by one reader, with the tool's help.
+The links in `agenttrace/claims/audited_links.json` were labelled by one reader, the authors' AI assistant, reading the records with a helper script. No person read them by hand.
 `python3 -m agenttrace.tools.labelkit export` writes a blind sheet into `reports/integrity/labelkit/`: one
 self-contained page (`labelling.html`, no server) and a CSV. Each link shows its two records around the place
 they are said to share, with the whole record one click away, in a shuffled order with a fixed seed. The sheet
@@ -130,13 +130,22 @@ These three belong to the counting rule; [counting-rule.md](counting-rule.md) st
 - **Second implementation** (`agenttrace/refcount.py`, compared by `python3 -m agenttrace.tools.crosscheck`): a
   separately written counter for the same written rule. Agreement shows the code does what the rule says;
   it cannot show the rule is right, and both were written from the same document by the same team.
-  Result: **mixed.** Identical on the collusion.wiki logs (9,867 deliveries), the demo swarm (163), the
-  benign swarm and all 8 format samples. On the Swarm Traces release the two disagree heavily: the rule reports
-  23 deliveries, the second implementation 192, with 19 in both. We read a share of the 177 disagreements and
-  judged the rule right on most of what we read; the second counter mostly trips on quotes broken by redaction
-  and on a read followed by a POST elsewhere. But 162 of its 173 extra deliveries were never hand-audited, and on
-  3 of the rule's 4 extra ones the second counter follows the written rule more literally. The crosscheck tool
-  exits non-zero on the release for this reason. Judgements: `reports/integrity/crosscheck_judgement.json`.
+  Result: **the deliveries agree on every dataset, but not independently on the release.** Identical on the
+  collusion.wiki logs (9,867 deliveries), the demo swarm (164), the benign swarm (1) and all 8 format samples, as
+  before. On the Swarm Traces release both now find 9 write-then-read deliveries (4 between named tokens, none
+  that passes the written-content test). Until v2.2.0 they did not: the second implementation found 191 (192 at the
+  v2.1.0 audit, against 23) with 7 in both, a disagreement of 96.4% against the 10% threshold. The cause was its
+  own: redaction removes quote marks, its tokenizer then paired the quotes wrongly, lost the call around the place
+  and took commits for reads (127 of the 184 extras), a place that was only read for a write (44), the LFS upload
+  probe (10, R6b was not in it yet) and a reader holding the writer's token (1, R23a). I read samples of each
+  group and changed the second implementation to implement R6a, R6b, R23a, R38 and R39 from the written rule and
+  to read the call from the raw text where quote pairing fails. **That fix was made while reading where the two
+  differed on the release and re-running after each change, so the agreement on the release is not an
+  independent check of `messages.py`** (the list of changes is in the judgement file). 262 single operations on the
+  release (156 only in `messages.py`, 106 only in the second implementation, of about 16,300) still differ; none
+  changes a delivery, and `reports/integrity/crosscheck_judgement.json` gives each group with a judgement (several
+  favour the second implementation, one favours the rule; a cut call with no verb is counted differently by design).
+  The crosscheck tool exits zero on all datasets now. The v2.1.0 judgement, with 162 extras never read, is replaced.
 - **Mutation testing** (`python3 -m agenttrace.tools.mutate`): the rule's code is broken on purpose, one small
   change at a time, to see whether the tests notice. A surviving mutant is a line no test defends. A killed
   mutant shows the tests are sensitive there, not that the line is correct.
@@ -145,9 +154,22 @@ These three belong to the counting rule; [counting-rule.md](counting-rule.md) st
   and 1 is left unjudged. Many of the new tests pin window sizes exactly as implemented, so they guard against
   accidental change, not against the sizes being wrong. Details: `reports/integrity/mutation.json`.
 
+## Code coverage and route determinism (v2.2.0 code fixes)
+
+- **Line coverage** (`python3 -m agenttrace.tools.coverage_lines`): **80.7%** (15,860 of 19,646 executable lines, 784 tests, measured with the standard-library `trace` module because `coverage` is not installed; 6 minutes). Lowest files: `figures.py` 0%, `cli.py` 9.9%, `evaluate.py` 31.5%, `earlywarn.py` 66.7%, `sensitivity.py` 68.7%. `server.py` shows 0% (519 lines) because its tests run the server in threads the tracer did not follow, so the total understates what the tests reach there.
+  It counts executable lines of `agenttrace/*.py` (not `tests/` or `tools/`) hit by the unit tests alone. The
+  browser smoke test is not in the figure. A hit line was run, not checked: many lines are run by tests that
+  assert only that something came back.
+- **Every route under three hash seeds** (`python3 -m agenttrace.tools.routes`, also step 7 of `tools.repro`):
+  all 98 GET routes on the bundled demo swarm give identical output under PYTHONHASHSEED 0, 1 and 12345. On the
+  collusion.wiki logs, 2 routes still differed when this was written: `attribution` (a tie in a most-common
+  list in `attribution.py`, line 842) and `fx_evolution_cluster` (it differed in one full run and not when
+  re-run alone; not yet explained). Order fixes made: identity proposals, silent-coordination pairs, message
+  and place lists, the order of a record's place operations, ties in trace starts and content grades. The audit's earlier count of 5 compared a different set of routes.
+
 ## What still needs a person
 
-- **A second labeller.** The audit's labels are one reader's. The kit makes a second reading cheap; it does not
+- **A second labeller.** The audit's labels are one reader's, the authors' AI assistant, and a reviewer disagreed with 11 to 13 of its 18 "true" labels at v2.1.0. The kit makes a second reading cheap; it does not
   do it.
 - **Whether the rule is the right rule.** Every check above takes "a read of a place after a write by another
   token" as given. Whether that is a message is a judgement.
@@ -155,6 +177,6 @@ These three belong to the counting rule; [counting-rule.md](counting-rule.md) st
   register it, cite its source, or drop it. Numbers quoted from other people's reports (about 1,200 agents,
   about 700) cannot be re-derived here at all.
 - **Wording.** Verify checks the number, not the sentence around it. "All 24 messages passed through dataset
-  repositories" can print the right total and still be false about the word "all".
-- **The PDFs, the video and the screenshots.** They are built from the sources by hand and can lag behind them.
-- **Recall.** Nothing here measures how many real messages the tool misses outside the audited pool.
+  repositories" can print the right total and still be false about the word "all", or about the word "messages": a registered count of write-then-read deliveries is not a count of messages.
+- **The PDFs, the video and the screenshots.** The PDFs are rebuilt from the sources (`python3 paper/build.py`) and were rebuilt for v2.2.0; the video narration and the screenshots in `docs/assets` were recorded earlier and lag behind them.
+- **Recall.** Nothing here measures how many real deliveries the tool misses outside the audited pool. A reviewer read about 90 places the rule ignores and found none missed, which bounds unseen misses at about 23 more at 95% confidence; it is a failed hunt, not proof.

@@ -201,7 +201,7 @@ LIB_JS = r"""(() => {
       card: !!(e.closest('[data-term],[data-actor],[data-place],[data-id],[data-ev]')) && d.nocard == null,
       title: (e.getAttribute('title') || svgTitle || e.getAttribute('aria-label') || '').trim(),
       hoverL: listens(e, HOVERS), clickL: listens(e, CLICKS) || !!e.onclick,
-      checked: e.checked === true, value: e.value == null ? null : String(e.value), href: e.getAttribute && e.getAttribute('href'),
+      checked: e.checked === true, open: e.parentElement && e.parentElement.open === true, value: e.value == null ? null : String(e.value), href: e.getAttribute && e.getAttribute('href'),
       options: e.tagName === 'SELECT' ? e.options.length : 0, external: e.tagName === 'A' && /^(https?:|mailto:)/.test(e.getAttribute('href') || '') && e.host !== location.host,
       download: e.tagName === 'A' && e.hasAttribute('download'), noclick: d.noclick != null, cursor: getComputedStyle(e).cursor };
   };
@@ -490,7 +490,18 @@ class Runner:
         # "net" is not evidence: the app re-checks /api/state whenever the window gets focus
         after, d = self.wait_change(before, timeout=1.2 if not self.quick else 0.7, ignore=("net",))
         cur = self.js("__ixh.cur()") or {}
-        own = (cur.get("checked") != loc["checked"]) or (cur.get("value") != loc["value"]) or not cur.get("connected", True)
+        own = (cur.get("checked") != loc["checked"]) or (loc.get("open") is not None and cur.get("open") != loc.get("open")) or (cur.get("value") != loc["value"]) or not cur.get("connected", True)
+        if kind == "summary" and not own and not [k for k in d if k not in ("scrolls", "net")]:
+            # the page can still be settling (late layout moves the summary between locating and clicking): once more
+            l2 = self.locate(scope, item)
+            if l2.get("p"):
+                self.click(*l2["p"])
+                br.pump(0.08)
+                self.settle()
+                self.away()
+                after, d = self.wait_change(before, timeout=1.2, ignore=("net",))
+                cur = self.js("__ixh.cur()") or {}
+                own = (l2.get("open") is not None and cur.get("open") != l2.get("open")) or not cur.get("connected", True)
         exp = loc.get("expect") if kind != "input" else None
         if loc.get("noclick"):
             # the chip for the item already open: no click by design, so it must not look clickable

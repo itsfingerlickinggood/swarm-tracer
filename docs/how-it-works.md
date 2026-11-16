@@ -22,13 +22,13 @@ A place is anywhere one actor can leave something for another: a dataset, a boar
 
 ## 5. Messages
 
-A message is a read of a place after an earlier write to it by a different actor, linked to the latest such write. Three rules keep the count honest:
+A delivery (the app and older pages call it a message) is a read of a place after an earlier write to it by a different actor, linked to the latest such write: a write then a later read. It shows the content was there to read, not that the reader used it; the tool reports separately how many deliveries pass a written-content test (the reader's record shares identifiers with the writer's), which is 0 of 9 on the Swarm Traces release. Three rules keep the count honest:
 
 1. a reader running the same program as the writer (the same first 60 normalized words) is one sender retrying, not a message;
 2. each write counts once per reader;
 3. where every post replaces a whole page, an edit that keeps none of the lines the earlier editor added is an **overwrite**, not a message.
 
-Messages agents logged to each other (handoffs, `to`/`recipient` fields) count directly, as the strongest evidence. Every message says what it rests on: logged directly, read in code, named the place, posted after it, or kept N of M lines. Places the redaction reduced to an owner's name may join several repositories; messages on them are flagged.
+Messages agents logged to each other (handoffs, `to`/`recipient` fields) count directly, as the strongest evidence; only these are messages in the strict sense. Every delivery says what it rests on: logged directly, read in code, named the place, posted after it, or kept N of M lines. Places the redaction reduced to an owner's name may join several repositories; messages on them are flagged.
 
 ## 6. Spread
 

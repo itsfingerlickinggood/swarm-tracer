@@ -34,8 +34,10 @@
         "actors": 257,
         "actors_note": "257 identities (redacted tokens and handles); 115,036 records belong to anonymous runs",
         "timed_records": 75068,
-        "messages": 23,
-        "messages_between_named": 6,
+        "messages": 9,
+        "messages_between_named": 4,
+        "messages_reader_uses_content": 0,
+        "messages_note": "v2.2.0 rule: 9 where one actor wrote to a place and another read it later (write then later read), 6 of them on places the redaction names exactly; 0 where the reader quotes or uses what was written. The earlier 23 included 10 LFS upload probes, a reader that listed the writer's own token, and a board folder read by random names.",
         "span": "2026-07-09 13:29 to 2026-07-13 15:50 UTC (estimated)",
         "loaded_via": "swarm-tracer serve --port 8025, GET /api/state, on 2026-11-15; agrees with reports/evaluation/summary.json",
         "sha256_expanded": "91e9158487a63acb12e54faa8490c4a23f664e1650c947a87d270d2022b0451e (redacted.jsonl; the publisher gives no checksum to compare with)"
@@ -64,7 +66,7 @@
       "can": [
         "Date 75,068 of 189,579 records from timestamps the agents wrote into their own code (median fit error 0.26 h).",
         "Find 257 identities (redacted tokens and handles) and what each was used for.",
-        "Count messages left in shared places: 23 found, 6 between named tokens, each one read by hand.",
+        "Count deliveries in shared places: 9 write-then-read (4 between named tokens); in 0 the reader quotes what was written.",
         "Replay the warning signs hour by hour over 9 to 13 July."
       ],
       "cannot": [
@@ -132,7 +134,7 @@
       "confidence": "high that no licence is stated on the report or the download page; we did not open the zip today (our local copy has no licence file)",
       "can": [
         "Place all 19,990 records in time. Every one has a timestamp.",
-        "Follow who edited a page after whom: 9,867 messages over 5,825 places among 3,226 names.",
+        "Follow who edited a page after whom: 9,867 deliveries over 5,825 places among 3,226 names.",
         "Tell an overwrite from a message: 4,587 edits kept none of the previous editor's lines.",
         "Show the moderator's 5,217 deletions and the 101 probes."
       ],

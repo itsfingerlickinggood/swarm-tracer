@@ -33,6 +33,22 @@ def list_packs():
     return out
 
 
+def _canonical_order(flow):
+    """Give every flow list a total order. The lists come out of loops over sets and dicts, whose order changes with
+    PYTHONHASHSEED; a sort on one key leaves ties in that order. Sorting on every identifying field makes the
+    app's output the same under any hash seed (tools/routes.py checks it)."""
+    def t(x):
+        return (x is None, x or 0)
+    flow["_deliveries"].sort(key=lambda d: (t(d.get("read_time")), t(d.get("write_time")), str(d.get("read_id")), str(d.get("write_id")),
+                                            str(d.get("channel")), str(d.get("from")), str(d.get("to"))))
+    if flow.get("_overwrites"):
+        flow["_overwrites"].sort(key=lambda d: (t(d.get("read_time")), t(d.get("write_time")), str(d.get("read_id")), str(d.get("write_id")),
+                                                str(d.get("channel")), str(d.get("from")), str(d.get("to"))))
+    for k in ("top_channels", "_channels"):
+        if flow.get(k):
+            flow[k].sort(key=lambda p: (-p.get("deliveries", 0), -p.get("actors", 0), str(p.get("channel"))))
+
+
 class Session:
     def __init__(self):
         self.loaded = False
@@ -74,6 +90,7 @@ class Session:
             self.pack.raw["shared_identities"] = [t for t, _ in self.auto_shared]
         self.rec = reconstruct.reconstruct(self.events, self.pack, self.res)
         self.flow = messages.message_flow(self.events, self.pack, self.rec, self.res)
+        _canonical_order(self.flow)
         self.name = name or os.path.basename(path)
         self._index()
         self.loaded = True
@@ -90,6 +107,8 @@ class Session:
         for e in ev:
             self.actor[e.id] = messages.actor_of(e, self.rec, self.res, self.pack)
         ops = messages.channel_ops(ev, self.pack, self.rec, self.res)
+        # the operations of one record come out in set order (messages.channel_ops); fix the order, keeping record order
+        ops.sort(key=lambda o: (o[5], o[0], o[1]))
         self.op_list = ops
         self.ops_by_id = defaultdict(list)
         for ch, op, a, ak, t, i, rid in ops:
@@ -221,6 +240,7 @@ class Session:
             "shared_identities": self.pack.raw.get("shared_identities", []),
             "auto_shared": [{"identity": t, "share_of_runs": s} for t, s in self.auto_shared],
             "read_report": self.read_report,
+            "warnings": self.warnings(),
             "records": n,
             "kinds": res["kinds"],
             "threads": res["threads"],
@@ -253,6 +273,17 @@ class Session:
             "actions": self._action_counts(),
             "phases": insight.simulate(self)["phases"],
         }
+
+    def warnings(self):
+        """Plain-language notes about how the input was read that change what the numbers mean."""
+        out = []
+        for f in (self.read_report or {}).get("files", []):
+            r = f.get("repeated_ids")
+            if r:
+                out.append(f"{f['file']}: {r['records']} record(s) reused an id already used in the same file ({r['ids']} id(s) repeat); "
+                           f"each repeat was renamed with a ~2, ~3 suffix so no record is lost (for example {'; '.join(r['examples'][:3])}). "
+                           "A parent or reference that names a repeated id points to its first record.")
+        return out
 
     def _action_counts(self):
         """Actions (records an agent ran) and who they are credited to: the scope of every actor count."""

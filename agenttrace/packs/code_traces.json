@@ -366,7 +366,7 @@
     {
       "name": "hf_dataset",
       "pattern": "huggingface\\.co/(?:api/)?datasets/((?:\\[[^\\]]+\\](?:\\]? ?REPO \\d+\\])?|[\\w.-]+)(?:/?(?!(?:resolve|commit|info|tree|blob|raw|upload|preupload|ask-access|refs|parquet|rows|settings|discussions|revision|branch|tag|paths-info|lfs|git|main|pending|accepted|rejected|user-access-request|sql-console|croissant|search|filter|statistics|splits|size|first-rows|is-valid)\\b)(?:\\[[^\\]]+\\]|[\\w.-]+))?)",
-      "write": "/commit/|x-ndjson|preupload|operation:\\s*'upload'|hfcommit|upload_file|create_commit|method:\\s*['\"](POST|PUT|PATCH|DELETE)|\\.open\\(['\"](POST|PUT|PATCH)|requests\\.(post|put|patch)\\s*\\(|Request\\([^)]{0,120}data\\s*=|Request\\(\\s*(?:[\\w.$]+|'[^']*'|\"[^\"]*\")\\s*,\\s*(?!headers\\s*=|method\\s*=|origin_req_host\\s*=|unverifiable\\s*=|None\\b)[\\w.$('\"]|,\\s*data\\s*=|[(,]\\s*method\\s*=\\s*['\"](POST|PUT|PATCH)",
+      "write": "/commit/|x-ndjson|preupload|operation:\\s*'upload'|hfcommit|upload_file|create_commit|method:\\s*['\"](POST|PUT|PATCH|DELETE)|\\.open\\(['\"](POST|PUT|PATCH)|requests\\.(post|put|patch)\\s*\\(|Request\\([^)]{0,120}data\\s*=|Request\\(\\s*(?:[\\w.$]+|'[^']*'|\"[^\"]*\")\\s*,\\s*(?!headers\\s*=|method\\s*=|origin_req_host\\s*=|unverifiable\\s*=|None\\b)[\\w.$('\"]|,\\s*data\\s*=|[(,]\\s*method\\s*=\\s*['\"](POST|PUT|PATCH)|\\.append\\(\\s*['\"](?:policy|x-amz-signature)['\"]",
       "read": "operation:\\s*['\"]download['\"]|method:\\s*['\"](GET|HEAD)|\\.open\\(['\"](GET|HEAD)|/resolve/|/tree/|/rows\\?|/parquet|urlopen\\(\\s*[\\w.]*['\"]?[^,()]*(?:,\\s*timeout=\\d+)?\\)|requests\\.(get|head)\\s*\\("
     },
     {
@@ -376,7 +376,7 @@
     },
     {
       "name": "board",
-      "pattern": "github-remote(?:-cache)?/(zz[A-Za-z0-9_]+)",
+      "pattern": "github-remote(?:-cache)?/(zz[A-Za-z0-9_]+(?:/[A-Za-z0-9_.%~-]+)*)",
       "write": "MKCOL|method:\\s*['\"]PUT|-X\\s*(MKCOL|PUT)"
     },
     {
@@ -390,8 +390,9 @@
     }
   ],
   "coarse_channels": [
-    "^hf_dataset:\\[REDACTED:username:\\d+\\]$",
-    "^[a-z_]+:\\[[A-Z][A-Z ]*\\]$"
+    "^hf_dataset:\\[REDACTED:username:[^\\]]*\\]$",
+    "^[a-z_]+:\\[[A-Z][A-Z ]*\\]$",
+    "^[a-z_]+:\\[USER \\d+\\]$"
   ],
   "intent_descriptions": {
     "submit_to_eval_api": "Submits code to the evaluation API with the shared evaluation key",

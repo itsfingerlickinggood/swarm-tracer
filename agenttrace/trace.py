@@ -559,7 +559,7 @@ def starts(s):
     # the widest-spread program
     spread = s.flow.get("_content_spread") or []
     if spread:
-        x = max(spread, key=lambda x: (x.get("actors", 0), x.get("copies", 0)))
+        x = max(spread, key=lambda x: (x.get("actors", 0), x.get("copies", 0), str(x.get("source_record"))))
         out.append({"key": "widest_program", "label": "The widest-spread program", "q": x["source_record"],
                     "detail": f"first run by {x['source']}, then run by {x['actors'] - 1} more actors ({x['copies']} copies)",
                     "time": x.get("source_time"), "estimated": insight.is_estimated(s, x["source_record"]),
@@ -568,7 +568,7 @@ def starts(s):
     shared = _shared(s)
     stu = [x for x in s.rec.get("seen_then_used", []) if x["item"] not in shared]
     if stu:
-        x = max(stu, key=lambda x: x["uses"])
+        x = max(stu, key=lambda x: (x["uses"], str(x["item"])))
         out.append({"key": "found_credential", "label": "The most-used found credential", "q": x["item"],
                     "detail": f"seen as data in {x['first_seen_id']}, then used {x['uses']} times",
                     "time": x["first_seen"], "estimated": insight.is_estimated(s, x["first_seen_id"]),
@@ -579,7 +579,7 @@ def starts(s):
         except Exception:
             rows = []
         if rows:
-            r = max(rows, key=lambda r: r["uses"])
+            r = max(rows, key=lambda r: (r["uses"], str(r["token"])))
             out.append({"key": "found_credential", "label": "The most-used credential that also appears as data",
                         "q": r["token"], "detail": f"used {r['uses']} times; appears as data in {r['data_mentions']} records",
                         "time": r["first_use"], "estimated": insight.is_estimated(s, r["first_use_record"]),
@@ -591,10 +591,10 @@ def starts(s):
         if t is None:
             continue
         k = _harm_kind(s, rid)
-        if k not in first or t < first[k][0]:
+        if k not in first or (t, rid) < first[k]:
             first[k] = (t, rid)
     counts = Counter(_harm_kind(s, rid) for rid in s.harmful)
-    for k, (t, rid) in sorted(first.items(), key=lambda kv: kv[1][0]):
+    for k, (t, rid) in sorted(first.items(), key=lambda kv: (kv[1][0], kv[0])):
         out.append({"key": "first_harm", "label": f"First harmful action: {insight.human(k)}", "harm": rid,
                     "detail": f"by {s.actor[rid][0]}; {counts[k]} such actions in all", "kind": k,
                     "time": iso(t), "estimated": insight.is_estimated(s, rid),
@@ -606,11 +606,11 @@ def starts(s):
         only = readers - writers
         if len(readers) < 2 or not writers:
             continue
-        k = (len(only), len(s.del_by_channel.get(ch, [])), len(readers))
+        k = (len(only), len(s.del_by_channel.get(ch, [])), len(readers), ch)
         if best is None or k > best[0]:
             best = (k, ch, len(writers), len(readers))
     if best:
-        (only, msgs, _), ch, nw, nr = best
+        (only, msgs, _, _), ch, nw, nr = best
         out.append({"key": "broadcast_place", "label": "The busiest broadcast place", "q": ch,
                     "detail": f"{nw} writer{'s' if nw != 1 else ''}, {nr} readers ({only} only read), {msgs} messages",
                     "place": ch})

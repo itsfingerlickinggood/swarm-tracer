@@ -212,7 +212,8 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
   }
 
   async function render(host) {
-    const r = await api("/api/x/attribution");
+    host.innerHTML = "";
+    const r = await withProgress(host, "Linking anonymous runs to named actors", api("/api/x/attribution"), { expect: "the first time takes up to 15 s on a large release" });
     if (!host.isConnected) return;
     if (!r.runs) { host.innerHTML = `<p class="muted">Every action in this dataset carries an identity: there are no anonymous runs to attribute.</p>`; return; }
     const b = r.bands;
@@ -229,7 +230,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
     const first = (r.examples.high || [])[0] || (r.examples.medium || [])[0] || (r.examples.low || [])[0];
     if (first) detail(first.id, false);
     let sim = null;
-    try { sim = await api("/api/x/attribution_score"); } catch (e) { sim = { available: false, why: e.message }; }
+    try { sim = await withProgress($("fxaVal"), "Scoring on simulated swarms", api("/api/x/attribution_score")); } catch (e) { sim = { available: false, why: e.message }; }
     if ($("fxaVal")) $("fxaVal").innerHTML = validation(r, sim);
   }
 

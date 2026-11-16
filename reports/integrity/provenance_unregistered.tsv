@@ -1,11 +1,20 @@
 file	number	context
 paper/report.html	1,200	h Apart Research Abstract In July 2026 about 1,200 AI agents in a security evaluation turned a 
 paper/report.html	3%	9% of payloads, where the release could date 3%. Seven moments it dates fall within about 2.
-paper/report.html	100%	uch as the first dataset write fired with 90–100%. Counting rules remove false contact: on wik
+paper/report.html	9	ut a first count of 166 to 19, then 23, then 9, and the labels are one reader’s, the authors
+paper/report.html	93%	to come; four simple baselines fired with 83–93%; the first dataset write fired with 90%. Cou
+paper/report.html	90%	h 83–93%; the first dataset write fired with 90%. Counting rules remove false contact: on wik
+paper/report.html	70%	ic: an independently written generator gives 70% message precision and 58% recall, against 90
+paper/report.html	58%	en generator gives 70% message precision and 58% recall, against 90% and 84% on the original 
+paper/report.html	90%	0% message precision and 58% recall, against 90% and 84% on the original simulator, and a sha
+paper/report.html	84%	ge precision and 58% recall, against 90% and 84% on the original simulator, and a shared-plac
 paper/report.html	1,200	er 2026 1. Introduction In July 2026 roughly 1,200 agents running inside an OpenAI security eva
 paper/report.html	1,200	 they used 7,905 different names for roughly 1,200 agents (Forman et al., 2026). Every contact 
 paper/report.html	3%	times for 59% of payloads (the release dates 3% of payloads), seven estimated event times fa
-paper/report.html	100%	) and much later than single-agent signs (90–100%). Three counting rules that remove false con
+paper/report.html	93%	m (83%) and three other simple baselines (87–93%), and much later than the first dataset writ
+paper/report.html	100%	e first dataset write and registry signs (90–100%); the Kubernetes and metadata signs fire at 
+paper/report.html	82%	the Kubernetes and metadata signs fire at 79–82%, after the volume alarm. Three counting rule
+paper/report.html	15	online is untested: on the release only 3 of 15 signs match the replay within 15 minutes, an
 paper/report.html	80,000	). The Swarm Traces authors reassembled over 80,000 attack payloads from public link-shortener c
 paper/report.html	53.5%	m to fail. Their best method finds the agent 53.5% of the time but the step only 14.2%, using L
 paper/report.html	14.2%	he agent 53.5% of the time but the step only 14.2%, using LLM judgments. We attribute communica
@@ -14,18 +23,51 @@ paper/report.html	3.2	69] is the same hidden token everywhere None 3.2 Reconstru
 paper/report.html	20	a quarter or more of all runs in traces with 20 or more tokens. As a check on stability, 39 
 paper/report.html	90%	five or more times keep one role in at least 90% of their uses. Places and messages. A place 
 paper/report.html	60	e same program as the writer (the same first 60 normalized tokens) is one sender retrying, n
+paper/report.html	23	ons cut off before their verb. They reported 23 links, 18 judged true by our reading. Four i
+paper/report.html	191	ond, separately written implementation finds 191 deliveries; in a sample of 40 of its extras 
+paper/report.html	91%	so run with a 6-hour history. They fire with 91%, 87%, 91% and 93% of the harm still to come 
+paper/report.html	87%	n with a 6-hour history. They fire with 91%, 87%, 91% and 93% of the harm still to come (the 
+paper/report.html	91%	h a 6-hour history. They fire with 91%, 87%, 91% and 93% of the harm still to come (the 12-ho
+paper/report.html	93%	ur history. They fire with 91%, 87%, 91% and 93% of the harm still to come (the 12-hour volum
+paper/report.html	83%	arm still to come (the 12-hour volume alarm: 83%), earlier than both shared-control signs (57
+paper/report.html	57%	3%), earlier than both shared-control signs (57% and 50%). Robustness. We recompute every sig
+paper/report.html	50%	lier than both shared-control signs (57% and 50%). Robustness. We recompute every signal's sh
 paper/report.html	58	port sections show up in the traces, and all 58 cited records are present. The behavior patt
 paper/report.html	192	patterns were checked on a labeled sample of 192 records (Appendix B). 4. Results 4.1 The rec
 paper/report.html	22%	days). Our July 9 share is lower (6% against 22%) because the dated records begin at 13:29 th
-paper/report.html	95%	se 100 times, σ = 0.12 h gives 6–7 messages (95% range) and σ = 2 h gives 5–9, so dating erro
+paper/report.html	95%	 100 times, σ = 0.12 h gives 4–5 deliveries (95% range) and σ = 2 h gives 2–7, so dating erro
 paper/report.html	11	, such as a token check (R0014376) run under 11 tokens. The widest non-routine program, a da
 paper/report.html	9	 in R0016522 at 12:59 on July 11 and then by 9 other tokens within 16 hours, the last being
 paper/report.html	95%	lines. Light vertical bars show each point's 95% range when every time is perturbed by the da
-paper/report.html	169	thers, which makes the first message, 170 to 169, likely one agent talking to itself. Between 
+paper/report.html	91%	han both: the first new host after 12 hours (91% to come), the first search_for_secrets actio
+paper/report.html	91%	 come), the first search_for_secrets action (91%) and a distinct-actor alarm (87%), and a vol
+paper/report.html	87%	ets action (91%) and a distinct-actor alarm (87%), and a volume alarm with a 6-hour history f
+paper/report.html	93%	olume alarm with a 6-hour history fires with 93% to come. The Kubernetes token, Kubernetes AP
+paper/report.html	82%	ernetes API and cloud-metadata signs fire at 82%, 80% and 79%, after the volume alarm. The ap
+paper/report.html	80%	es API and cloud-metadata signs fire at 82%, 80% and 79%, after the volume alarm. The app's r
+paper/report.html	79%	nd cloud-metadata signs fire at 82%, 80% and 79%, after the volume alarm. The app's replay tr
+paper/report.html	64%	harm list also builds in part of the answer: 64% of the 8,124 harm records are dataset writes
+paper/report.html	8,124	lso builds in part of the answer: 64% of the 8,124 harm records are dataset writes, so the firs
+paper/report.html	38%	definition moves the shared-place share from 38% to 57% and the first-delivery share from 62%
+paper/report.html	57%	ion moves the shared-place share from 38% to 57% and the first-delivery share from 62% to 96%
+paper/report.html	62%	38% to 57% and the first-delivery share from 62% to 96%, and 37,605 undated payloads are outs
+paper/report.html	96%	57% and the first-delivery share from 62% to 96%, and 37,605 undated payloads are outside the
+paper/report.html	37,605	he first-delivery share from 62% to 96%, and 37,605 undated payloads are outside the denominator
+paper/report.html	3%	 were 12 of 12 right, but those 12 are about 3% of the 380 true pairs, and the rule was rewr
+paper/report.html	380	f 12 right, but those 12 are about 3% of the 380 true pairs, and the rule was rewritten after
+paper/report.html	169	hers, which makes the first delivery, 170 to 169, likely one agent talking to itself. Between 
+paper/report.html	93%	me alarm with a short history) fired with 87–93% of the harm still to come. A write-then-read
+paper/report.html	70%	se; an independently written generator gives 70% message precision and 58% recall (19% and 10
+paper/report.html	58%	en generator gives 70% message precision and 58% recall (19% and 10% with times on 30% of rec
+paper/report.html	19%	 gives 70% message precision and 58% recall (19% and 10% with times on 30% of records, and no
+paper/report.html	10%	0% message precision and 58% recall (19% and 10% with times on 30% of records, and no dating 
+paper/report.html	30%	on and 58% recall (19% and 10% with times on 30% of records, and no dating at all when the fi
 paper/report.html	95%	nts are not in the release; it held at least 95% of Artifactory communication (OpenAI, 2026b)
-paper/report.html	192	rates. The behavior patterns were checked on 192 records labeled by the AI assistant that hel
+paper/report.html	23	aces. A reviewer would defend about 5 of the 23 deliveries counted at v2.1.0. That tokens ar
+paper/report.html	258	lse-positive rates. The audit labels for the 258 links and the behavior patterns on 192 recor
+paper/report.html	192	r the 258 links and the behavior patterns on 192 records were made by the AI assistant that h
 paper/report.html	201	hours before the swarm-wide surge, and share 201 programs, one of which runs under six of the
-paper/report.html	385	re times and never read by another identity. 385 records carry self-termination code (os.kill
+paper/report.html	385	re times and never read by another identity. 385 records carry self-termination code (73 call
 paper/report.html	95%	h its share of timed harm still to come, the 95% range under the conservative time-error test
 paper/report.html	95%	ater. Signal First fired (UTC) Still to come 95% range −1 h +1 h {{ROBUST_ROWS}} Table 6. Pre
 paper/report.html	10	behavior patterns on a labeled sample (about 10 records per pattern; labels by the AI assist
@@ -34,31 +76,83 @@ paper/report.html	95%	son, 1927). Pattern Judged Correct Precision 95% interval 
 paper/report.html	30	Precision 95% interval {{PRECISION_ROWS}} Of 30 untagged control records, 18 showed a behavi
 paper/report.html	14	sted on July 10 where OpenAI's report counts 14 tokens. The app shows the file only for data
 paper/report.html	600	t no AI output. The test suite has more than 600 tests, and a local check runs a smoke test o
+paper/report.html	2	NAL_ROWS}} Figure 6. Who talked to whom: the 2 pairs between 4 agents in the v2.2.0 list (v
+paper/report.html	4	e 6. Who talked to whom: the 2 pairs between 4 agents in the v2.2.0 list (v2.2.0 has 4 pair
 paper/report.html	80	lidation run): 9 coordinated settings (20 to 80 agents, some holding two tokens, hidden read
 paper/report.html	240	erges labelled high were right in only 10 of 240 pairs (first run; docs/validation.md) becaus
-paper/report.html	66%	of 12 and 60 of 60 pairs. Message links were 66% precise (median, first run) because places n
-paper/report.html	79%	ted as reads; ignoring comments raised it to 79%. Program-reuse signs fired in 10 of 10 benig
-paper/report.html	10	t to 79%. Program-reuse signs fired in 10 of 10 benign runs on shared boilerplate; counting 
-paper/report.html	66%	 there the first version’s rules reach about 66% precision and 57% recall, the final rules 79
-paper/report.html	57%	ersion’s rules reach about 66% precision and 57% recall, the final rules 79% and 79%, and on 
-paper/report.html	79%	6% precision and 57% recall, the final rules 79% and 79%, and on the benign version of that s
-paper/report.html	79%	sion and 57% recall, the final rules 79% and 79%, and on the benign version of that setting t
-paper/report.html	282	rsion of that setting the first rules report 282 links between different agents and the final
+paper/report.html	66%	of 12 and 60 of 60 pairs. Message links were 66% precise (median, first run; no saved run of 
+paper/report.html	79%	ted as reads; ignoring comments raised it to 79%, and the current code gives 90%. Program-reu
+paper/report.html	90%	raised it to 79%, and the current code gives 90%. Program-reuse signs fired in 10 of 10 benig
+paper/report.html	10	ives 90%. Program-reuse signs fired in 10 of 10 benign runs on shared boilerplate; counting 
+paper/report.html	66%	 there the first version’s rules reach about 66% precision and 57% recall, the v2.1.0 rules 7
+paper/report.html	57%	ersion’s rules reach about 66% precision and 57% recall, the v2.1.0 rules 79% and 79%, and on
+paper/report.html	79%	% precision and 57% recall, the v2.1.0 rules 79% and 79%, and on the benign version of that s
+paper/report.html	79%	ion and 57% recall, the v2.1.0 rules 79% and 79%, and on the benign version of that setting t
+paper/report.html	282	rsion of that setting the first rules report 282 links between different agents and the later
+paper/report.html	79%	ents and the later rules none. v1.1.0 scored 79% on the original simulator while 165 of its 1
+paper/report.html	166	% on the original simulator while 165 of its 166 links on the real release were false, so the
+paper/report.html	20	 five classes of benign look-alike swarm. On 20 coordinated swarms per layout, with the file
+paper/report.html	60%	h the file in time order and epoch stamps on 60% of records, message links reach 70% precisio
+paper/report.html	70%	tamps on 60% of records, message links reach 70% precision and 58% recall (the original simul
+paper/report.html	58%	cords, message links reach 70% precision and 58% recall (the original simulator: 90% and 84%)
+paper/report.html	90%	sion and 58% recall (the original simulator: 90% and 84%); with a time on only 30% of records
+paper/report.html	84%	 58% recall (the original simulator: 90% and 84%); with a time on only 30% of records, 19% an
+paper/report.html	30%	simulator: 90% and 84%); with a time on only 30% of records, 19% and 10%; with the file group
+paper/report.html	19%	nd 84%); with a time on only 30% of records, 19% and 10%; with the file grouped by agent the 
+paper/report.html	10%	 with a time on only 30% of records, 19% and 10%; with the file grouped by agent the trace co
+paper/report.html	20	. The shared-place sign fired in none of the 20 swarms. On 50 benign look-alike swarms (a sh
+paper/report.html	50	lace sign fired in none of the 20 swarms. On 50 benign look-alike swarms (a shared leaderboa
+paper/report.html	30	he Watch rule in 40, against 5 and 20 of the 30 original benign swarms. The independent swar
+paper/report.html	60%	on / recall (independent generator, times on 60% of records) 70% / 58% pooled (19% / 10% with
+paper/report.html	70%	ependent generator, times on 60% of records) 70% / 58% pooled (19% / 10% with times on 30%; u
+paper/report.html	58%	nt generator, times on 60% of records) 70% / 58% pooled (19% / 10% with times on 30%; undated
+paper/report.html	19%	, times on 60% of records) 70% / 58% pooled (19% / 10% with times on 30%; undated when groupe
+paper/report.html	10%	s on 60% of records) 70% / 58% pooled (19% / 10% with times on 30%; undated when grouped by a
+paper/report.html	30%	s) 70% / 58% pooled (19% / 10% with times on 30%; undated when grouped by agent) Agent pairs 
 paper/slides.html	1,200	od.github.io/swarm-tracer The incident About 1,200 agents built a message board; about 700 brok
 paper/slides.html	3%	 169], with no agent field and timestamps on 3% of payloads. The question: from public logs 
 paper/slides.html	3%	en an estimated time (the release could date 3%) 2.2 h largest gap between 7 moments we date
-paper/slides.html	100%	 Single-agent signs (first dataset write) 90–100% First message between tokens 90% Volume alar
-paper/slides.html	95%	ime errors as large as the dating fit's own (95% ranges in the report). Report Section 4.4 an
-paper/slides.html	88%	max) Message links: precision / recall 66–79–88% / 57–73–81% Agent pairs that talked: precisi
-paper/slides.html	96%	 pairs that talked: precision / recall 81–89–96% / 71–83–91% Dating error, median about one m
-paper/slides.html	10	 a shared place or does harm 10 of 10 / 0 of 10 Places named only in code comments, before /
-paper/slides.html	66%	hey stop counting as reads message precision 66% / 79% Hand audit of the release's links: a G
-paper/slides.html	79%	op counting as reads message precision 66% / 79% Hand audit of the release's links: a GET of 
+paper/slides.html	4	es this merge with direct evidence. 2 of the 4 named deliveries fall inside one agent. Naiv
+paper/slides.html	100%	ired: First dataset write; registry signs 90–100% Simple baselines (new host, distinct actors,
+paper/slides.html	93%	tinct actors, secrets search, 6 h volume) 87–93% First delivery between tokens 87% Volume ala
+paper/slides.html	96%	precision / recall, original simulator 82–90–96% / 66–84–93% Message links: precision / recal
+paper/slides.html	70%	s: precision / recall, independent generator 70% / 58% (19% / 10% with times on 30% of record
+paper/slides.html	58%	cision / recall, independent generator 70% / 58% (19% / 10% with times on 30% of records; und
+paper/slides.html	19%	n / recall, independent generator 70% / 58% (19% / 10% with times on 30% of records; undated 
+paper/slides.html	10%	call, independent generator 70% / 58% (19% / 10% with times on 30% of records; undated when g
+paper/slides.html	30%	generator 70% / 58% (19% / 10% with times on 30% of records; undated when grouped by agent) A
+paper/slides.html	99%	 pairs that talked: precision / recall 89–95–99% / 73–90–96% Dating error, median about one m
 paper/slides.html	1,200	nt. 241 named tokens and names against about 1,200 agents in the reports; 85% of actions carry 
-paper/slides.html	95%	ating error, the 6 named messages range 6–7 (95%). Reading is inferred: code shows attempts, 
-README.md	19	ubmitted to the hackathon say the tool finds 19 messages between named tokens in the Swarm T
-README.md	19	records) found that count wrong: most of the 19 were two tokens committing to the same datas
-README.md	23	sagrees heavily on the Swarm Traces release (23 deliveries against 192). The disagreements w
+paper/slides.html	95%	ing error, the 4 named deliveries range 4–5 (95%). Reading is inferred: code shows attempts, 
+README.md	19	rt and slides submitted to the hackathon say 19 messages between named tokens; an audit afte
+README.md	6	ere false. The v2.1.0 rule then reported 23 (6 between named tokens), and four independent 
+README.md	9	ng what was written. The v2.2.0 rule reports 9 write-then-read deliveries (one actor wrote 
+README.md	4	o a place, a different actor read it later), 4 between named tokens (2 between agents, 2 in
+README.md	2	ctor read it later), 4 between named tokens (2 between agents, 2 inside one agent), and 0 w
+README.md	2	), 4 between named tokens (2 between agents, 2 inside one agent), and 0 where the reader is
+README.md	258	rds with a helper script; no person read the 258 links by hand and nobody labelled them a sec
+README.md	20	after) on the original simulator and in 0 of 20 swarms on an independent one. On the real re
+README.md	50%	l release it is one of the last signs (about 50% of harm still to come), behind simple baseli
+README.md	90%	lines. > - Simulated accuracy is optimistic. 90% precision and 84% recall on the original sim
+README.md	84%	ed accuracy is optimistic. 90% precision and 84% recall on the original simulator (current co
+README.md	70%	code; it was 79%/73% before the fix) fall to 70% and 58% on an independently written generato
+README.md	58%	 was 79%/73% before the fix) fall to 70% and 58% on an independently written generator, to 19
+README.md	19%	8% on an independently written generator, to 19% and 10% when only 30% of records carry a tim
+README.md	10%	 independently written generator, to 19% and 10% when only 30% of records carry a time, and t
+README.md	30%	 written generator, to 19% and 10% when only 30% of records carry a time, and to nothing when
+README.md	7.7%	ctors on rare shared strings: on the release 7.7% of the 77,626 anonymous runs get a link. Pre
+README.md	77,626	e shared strings: on the release 7.7% of the 77,626 anonymous runs get a link. Precision per ban
+README.md	99.4%	ured on simulated swarms held out by thread (99.4% / 96.4% / 87.9%) and does not transfer to re
+README.md	96.4%	simulated swarms held out by thread (99.4% / 96.4% / 87.9%) and does not transfer to real runs.
+README.md	87.9%	d swarms held out by thread (99.4% / 96.4% / 87.9%) and does not transfer to real runs. - Was i
+README.md	130	known answers, including benign ones, and on 130 swarms from an independently written generat
+README.md	9,867	 Traces release 9 and 9, collusion.wiki logs 9,867, demo swarm 164, the format samples). It did 
+docs/validation.md	70%	nside Results) gives message precision about 70% and recall about 58% where this page's origi
+docs/validation.md	58%	message precision about 70% and recall about 58% where this page's original swarms give 90% a
+docs/validation.md	90%	t 58% where this page's original swarms give 90% and 84%, and v1.1.0 scored 79% on the origin
+docs/validation.md	84%	ere this page's original swarms give 90% and 84%, and v1.1.0 scored 79% on the original simul
+docs/validation.md	79%	l swarms give 90% and 84%, and v1.1.0 scored 79% on the original simulator while 165 of its 1
+docs/validation.md	166	% on the original simulator while 165 of its 166 links on the real release were false. Not ev
 docs/validation.md	20	e bars, and can run a quick check (one seed, 20 agents) without a terminal. GET /api/x/valid
 docs/validation.md	3,260	h seeds 1–5, so 45 coordinated swarms of 660–3,260 records each): | setting | what changes | |-
 docs/validation.md	40	ach): | setting | what changes | |---|---| | 40 agents, defaults | 12% of agents hold two to
@@ -73,37 +167,51 @@ docs/validation.md	5	 that name a place without reading it, about 5 per agent | 
 docs/validation.md	60%	 estimated | | real-world payload patterns | 60% of dataset reads and writes use the code sha
 docs/validation.md	40	h make --mode benign, 3 settings × 5 seeds): 40 agents work in parallel sessions on their ow
 docs/validation.md	12	e ships in agenttrace/samples/benign_swarm/ (12 agents, 361 records). What is scored for eac
-docs/validation.md	95%	med tokens, precision 18 of 18 on the audit (95% range 82%–100%, optimistic: see below). We r
 docs/validation.md	178	 every one the code at v1.3.0 reported (19): 178 links, of which one was a message by our rea
-docs/validation.md	95%	 decidable ones judged true (precision 100%, 95% range 82–100%; all 6 named ones true). One l
-docs/validation.md	100%	es judged true (precision 100%, 95% range 82–100%; all 6 named ones true). One labeller, and 7
-docs/validation.md	81%	e true. Pairs of agents: 71%–83%–91% recall, 81%–89%–96% precision. On the new real-world set
-docs/validation.md	96%	Pairs of agents: 71%–83%–91% recall, 81%–89%–96% precision. On the new real-world setting the
-docs/validation.md	75%	d setting the current rule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rul
-docs/validation.md	79%	tting the current rule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules r
-docs/validation.md	83%	g the current rule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach
-docs/validation.md	73%	ule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach about 66% and 
-docs/validation.md	79%	reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach about 66% and 57% 
-docs/validation.md	81%	hes precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach about 66% and 57% ther
-docs/validation.md	66%	call 73%–79%–81%; v1.1.0's rules reach about 66% and 57% there, and on the benign version of 
-docs/validation.md	57%	–79%–81%; v1.1.0's rules reach about 66% and 57% there, and on the benign version of that set
-docs/validation.md	282	e benign version of that setting they report 282 links between different agents where the cur
-docs/validation.md	45	 and first registry board are found in 45 of 45 swarms within an hour. Coordination signs ar
-docs/validation.md	45	ents is within an hour of the truth in 45 of 45 swarms, groups of 3/5/10 in 37–40 of 45, the
+docs/validation.md	6	-scored against those labels, which gave 23 (6 between named tokens) at v2.1.0. Four indepe
+docs/validation.md	2	hen-read deliveries, 4 between named tokens (2 between agents, 2 inside one agent), 0 where
+docs/validation.md	2	s, 4 between named tokens (2 between agents, 2 inside one agent), 0 where the reader is sho
+docs/validation.md	258	double-labelled them, and no person read the 258 links by hand (earlier versions of this page
+docs/validation.md	95%	the 9 score 5 of 5 decidable (4 are unclear; 95% range 57%–100%), but the labels for 13 links
+docs/validation.md	13	ear; 95% range 57%–100%), but the labels for 13 links were changed in the same commit as the
+docs/validation.md	89%	e true. Pairs of agents: 73%–90%–96% recall, 89%–95%–99% precision. On the independent genera
+docs/validation.md	99%	Pairs of agents: 73%–90%–96% recall, 89%–95%–99% precision. On the independent generator (fil
+docs/validation.md	60%	dent generator (file in time order, times on 60% of records) message precision is 70% and rec
+docs/validation.md	70%	imes on 60% of records) message precision is 70% and recall 58%; with a time on only 30% of r
+docs/validation.md	58%	records) message precision is 70% and recall 58%; with a time on only 30% of records 19% and 
+docs/validation.md	30%	n is 70% and recall 58%; with a time on only 30% of records 19% and 10%; with the file groupe
+docs/validation.md	19%	call 58%; with a time on only 30% of records 19% and 10%; with the file grouped by agent noth
+docs/validation.md	10%	; with a time on only 30% of records 19% and 10%; with the file grouped by agent nothing can 
+docs/validation.md	45	 and first registry board are found in 45 of 45 swarms within an hour; the first delivery be
+docs/validation.md	20	, and the shared-place sign fires in none of 20 coordinated swarms. - Dating is good on the 
 docs/validation.md	84%	 (0.01–0.03 h), 90th percentile 3–7 minutes; 84%–87%–91% of estimated times fall inside the s
 docs/validation.md	91%	.03 h), 90th percentile 3–7 minutes; 84%–87%–91% of estimated times fall inside the stated 90
 docs/validation.md	90%	1% of estimated times fall inside the stated 90% range (slightly under the 90% it promises). 
-docs/validation.md	90%	ide the stated 90% range (slightly under the 90% it promises). - Identity merging, before and
-docs/validation.md	4%	ooled over the first swarms those were right 4% of the time (10 of 240). Pairs with direct e
-docs/validation.md	1%	edium 60 of 60, and the rest stay low (about 1% right), so the low band should be read as "w
+docs/validation.md	90%	ide the stated 90% range (slightly under the 90% it promises). That is a property of the simu
+docs/validation.md	4%	ooled over the first swarms those were right 4% of the time (10 of 240). The rule was then r
+docs/validation.md	3%	ium 60 of 60, but the 12 high ones are about 3% of the 380 true pairs (recall), and the rest
+docs/validation.md	380	60, but the 12 high ones are about 3% of the 380 true pairs (recall), and the rest stay low (
+docs/validation.md	1%	pairs (recall), and the rest stay low (about 1% right), so the low band should be read as "w
 docs/validation.md	5	different agents (0 in all 15, including the 5 with real-world payload patterns, where v1.1
-docs/validation.md	66%	ites or actions. Message precision rose from 66% to 79% (median) and the registry-board sign 
-docs/validation.md	79%	 actions. Message precision rose from 66% to 79% (median) and the registry-board sign moved t
-docs/validation.md	40	oved to within an hour of the truth in 40 of 40 swarms. 2. The verb nearest the mention deci
+docs/validation.md	30	, and the volume baseline in 6 of 15. On the 30 benign swarms of the earlier forward test th
+docs/validation.md	78%	ike swarms the Alert rule fired in 39 to 40 (78% to 80%): in all 30 where agents share a lead
+docs/validation.md	80%	rms the Alert rule fired in 39 to 40 (78% to 80%): in all 30 where agents share a leaderboard
+docs/validation.md	30	 rule fired in 39 to 40 (78% to 80%): in all 30 where agents share a leaderboard, poll a CI 
+docs/validation.md	10	and tasks through a coordinator, and in 9 of 10 honest cloud-agent swarms. It detects inform
+docs/validation.md	15	ion flow, not malice. The slide figure "0 in 15 runs" meant no delivery between different ag
+docs/validation.md	66%	recision on the original simulator rose from 66% to 79% (median, before the later rule change
+docs/validation.md	79%	n on the original simulator rose from 66% to 79% (median, before the later rule changes; it i
+docs/validation.md	90%	median, before the later rule changes; it is 90% now) and the registry-board sign moved to wi
+docs/validation.md	40	oved to within an hour of the truth in 40 of 40 swarms then (45 of 45 now). The "66% to 79%"
+docs/validation.md	66%	in 40 of 40 swarms then (45 of 45 now). The "66% to 79%" comparison has no saved run behind i
+docs/validation.md	79%	f 40 swarms then (45 of 45 now). The "66% to 79%" comparison has no saved run behind it: the 
+docs/validation.md	66%	" comparison has no saved run behind it: the 66% run was not kept, so treat it as a recollect
 docs/validation.md	19	 recognising urlopen/.read() as reads leaves 19 messages in 12 pairs among 9 tokens (a Pytho
 docs/validation.md	12	lopen/.read() as reads leaves 19 messages in 12 pairs among 9 tokens (a Python urlopen(url) 
 docs/validation.md	9	s reads leaves 19 messages in 12 pairs among 9 tokens (a Python urlopen(url) with one argum
 docs/validation.md	178	re each checked by hand. A full audit of all 178 links, with the two records of each read sid
+docs/validation.md	23	ong. A reviewer who read both records of the 23 deliveries counted at v2.1.0 disagreed with 
+docs/validation.md	18	ted at v2.1.0 disagreed with 11 to 13 of the 18 labels that said "true" and would defend abo
 docs/validation.md	166	79 records, code-traces pack) to recover the 166 messages between named tokens it reported. W
 docs/validation.md	19	orted. We ran the current code the same way (19 messages; 7 of them among the 166). For each
 docs/validation.md	178	s; 7 of them among the 166). For each of the 178 links we read the write record and the read 
@@ -121,99 +229,139 @@ docs/validation.md	79%	 true link in the audited pool (95% range 0%–79%). The 
 docs/validation.md	149	e v1.1.0 did what they were meant to do: all 149 read-then-post links are gone, as are the di
 docs/validation.md	18	itory links and most of the downloads. - The 18 false links the current code reports are the
 docs/validation.md	40	1.1.0 rules | current code | |---|---|---| | 40 agents, defaults (the old simulator) | preci
-docs/validation.md	79%	ts, defaults (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% (ide
-docs/validation.md	73%	 (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% (identical links
-docs/validation.md	79%	tor) | precision 79%, recall 73% | precision 79%, recall 73% (identical links) | | 40 agents,
-docs/validation.md	73%	sion 79%, recall 73% | precision 79%, recall 73% (identical links) | | 40 agents, real-world 
-docs/validation.md	40	cision 79%, recall 73% (identical links) | | 40 agents, real-world payload patterns | precis
+docs/validation.md	79%	ts, defaults (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% on t
+docs/validation.md	73%	 (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% on the 13 Novemb
+docs/validation.md	79%	tor) | precision 79%, recall 73% | precision 79%, recall 73% on the 13 November code (identic
+docs/validation.md	73%	sion 79%, recall 73% | precision 79%, recall 73% on the 13 November code (identical links); 9
+docs/validation.md	90%	% on the 13 November code (identical links); 90% / 85% now | | 40 agents, real-world payload 
+docs/validation.md	85%	he 13 November code (identical links); 90% / 85% now | | 40 agents, real-world payload patter
+docs/validation.md	40	er code (identical links); 90% / 85% now | | 40 agents, real-world payload patterns | precis
 docs/validation.md	66%	nts, real-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 
-docs/validation.md	63%	real-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (
-docs/validation.md	69%	-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–
-docs/validation.md	57%	d patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 
-docs/validation.md	54%	terns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (
-docs/validation.md	60%	s | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–
-docs/validation.md	72%	 (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, 
-docs/validation.md	68%	–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-
-docs/validation.md	74%	), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-worl
-docs/validation.md	62%	 (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-world payload pat
-docs/validation.md	59%	–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-world payload patterns
-docs/validation.md	65%	) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-world payload patterns (no
+docs/validation.md	63%	real-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 80% (
+docs/validation.md	69%	-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 80% (77%–
+docs/validation.md	57%	d patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 80% (77%–82%), recall 
+docs/validation.md	54%	terns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 80% (77%–82%), recall 78% (
+docs/validation.md	60%	s | precision 66% (63%–69%), recall 57% (54%–60%) | precision 80% (77%–82%), recall 78% (75%–
+docs/validation.md	80%	 (63%–69%), recall 57% (54%–60%) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 No
+docs/validation.md	77%	–69%), recall 57% (54%–60%) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 Novembe
+docs/validation.md	82%	), recall 57% (54%–60%) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 November co
+docs/validation.md	78%	 (54%–60%) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 November code; 86% / 88%
+docs/validation.md	75%	–60%) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 November code; 86% / 88% medi
+docs/validation.md	81%	) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 November code; 86% / 88% median n
+docs/validation.md	86%	ecall 78% (75%–81%) on the 13 November code; 86% / 88% median now (summary above) | | benign,
+docs/validation.md	88%	78% (75%–81%) on the 13 November code; 86% / 88% median now (summary above) | | benign, real-
 docs/validation.md	292	l-world payload patterns (no true message) | 292 links, 282 between different agents | 9 link
 docs/validation.md	282	load patterns (no true message) | 292 links, 282 between different agents | 9 links, 0 betwee
-docs/validation.md	9	 | 292 links, 282 between different agents | 9 links, 0 between different agents | The old 
-docs/validation.md	0	nks, 282 between different agents | 9 links, 0 between different agents | The old simulator
+docs/validation.md	9	 | 292 links, 282 between different agents | 9 links, 0 between different agents (13 Novemb
+docs/validation.md	0	nks, 282 between different agents | 9 links, 0 between different agents (13 November code) 
 docs/validation.md	56	 can: on the benign one v1.1.0 invents about 56 messages between agents per swarm and the cu
 docs/validation.md	59	as on the real data: writes taken for reads (59 false links over the 5 coordinated swarms), 
 docs/validation.md	5	tes taken for reads (59 false links over the 5 coordinated swarms), writes not seen as writ
 docs/validation.md	124	/commit become two places; this is among the 124 messages missed because write and read ended
+docs/validation.md	13	g the records with a helper script (and, for 13 links in v2.2.0, a reviewer's reading); nobo
 docs/validation.md	177	e.benchmark run redacted_columns.csv: of the 177 audited false links it reports none; it keep
-docs/validation.md	79%	t truth, is the independent check: precision 79%, recall 79% (median), against 66% and 57% fo
-docs/validation.md	79%	the independent check: precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0
-docs/validation.md	66%	 precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; an intermediat
-docs/validation.md	57%	on 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; an intermediate versio
+docs/validation.md	79%	truth, was the check at that time: precision 79%, recall 79% (median), against 66% and 57% fo
+docs/validation.md	79%	he check at that time: precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0
+docs/validation.md	66%	 precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; the simulator 
+docs/validation.md	57%	on 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; the simulator is optim
 docs/validation.md	45	this fix raised benign false links from 0 to 45 across five swarms and the simulator caught 
+docs/validation.md	23	ase showed at v2.1.0 (final rules, phase 1): 23 messages, 6 of them between named tokens (5 
+docs/validation.md	5	23 messages, 6 of them between named tokens (5 pairs); counted by estimated agent, 3 betwee
 docs/validation.md	3	okens (5 pairs); counted by estimated agent, 3 between agents and 3 inside one. The report 
+docs/validation.md	23	what was wrong. One read both records of all 23 deliveries. Its findings and the rule change
+docs/validation.md	9	 [USER n] places are coarse (R31). - Result: 9 write-then-read deliveries, 4 between named 
+docs/validation.md	4	31). - Result: 9 write-then-read deliveries, 4 between named tokens in 4 pairs among 7 toke
+docs/validation.md	4	n-read deliveries, 4 between named tokens in 4 pairs among 7 tokens; counted by estimated a
+docs/validation.md	7	ies, 4 between named tokens in 4 pairs among 7 tokens; counted by estimated agent, 2 betwee
+docs/validation.md	2	 among 7 tokens; counted by estimated agent, 2 between agents and 2 inside one. All 9 are o
+docs/validation.md	192	states it. - The second implementation found 192 deliveries at v2.1.0 (it took commits for re
+docs/validation.md	0%	or reads; 40 sampled extras held no message, 0% to 8.8%). The cause was its handling of reda
+docs/validation.md	8.8%	ds; 40 sampled extras held no message, 0% to 8.8%). The cause was its handling of redaction, a
+docs/validation.md	90	- Recall is unknown. The reviewer read about 90 places the rule ignores and found no missed 
+docs/validation.md	95%	eiling for unseen misses is about 23 more at 95% confidence). ### Phase 1: every delivery aud
 docs/validation.md	74	, not only the named ones. The code reported 74 deliveries on the release; only 5 were betwe
 docs/validation.md	6	is an anonymous run: endpoint). Of those 69: 6 were true messages, 28 were a GET of the pla
-docs/validation.md	79.4%	mber). The simulator did not move: precision 79.4% and recall 73.0% on the default setting, 80.
+docs/validation.md	23	=…) is a write. At v2.1.0 the release showed 23 deliveries, 6 of them between named tokens (
+docs/validation.md	79.4%	elow). The simulator did not move: precision 79.4% and recall 73.0% on the default setting, 80.
 docs/validation.md	73.0%	tor did not move: precision 79.4% and recall 73.0% on the default setting, 80.0% and 78.1% on t
 docs/validation.md	80.0%	.4% and recall 73.0% on the default setting, 80.0% and 78.1% on the real-world setting, and 9 f
 docs/validation.md	78.1%	call 73.0% on the default setting, 80.0% and 78.1% on the real-world setting, and 9 false links
 docs/validation.md	9	.0% and 78.1% on the real-world setting, and 9 false links, none between agents, on the ben
+docs/validation.md	13	 holding the writer's own token). In-sample: 13 labels were changed in the same commit as th
 docs/validation.md	95%	group | reported | read as true | precision (95% range) | |---|---|---|---| | all deliveries 
-docs/validation.md	100%	 | | between two named tokens | 6 | 6 of 6 | 100% (61%–100%) | | an anonymous run on one side 
-docs/validation.md	61%	etween two named tokens | 6 | 6 of 6 | 100% (61%–100%) | | an anonymous run on one side | 17 
-docs/validation.md	100%	en two named tokens | 6 | 6 of 6 | 100% (61%–100%) | | an anonymous run on one side | 17 (5 un
-docs/validation.md	100%	un on one side | 17 (5 unclear) | 12 of 12 | 100% (76%–100%) | Until 15 November one false lin
-docs/validation.md	76%	one side | 17 (5 unclear) | 12 of 12 | 100% (76%–100%) | Until 15 November one false link was
-docs/validation.md	100%	side | 17 (5 unclear) | 12 of 12 | 100% (76%–100%) | Until 15 November one false link was repo
-docs/validation.md	18	that POSTs); a rule fix removed it, with all 18 true links kept. Read these as optimistic. T
-docs/validation.md	18	 while looking at these same links, 7 of the 18 true links were added after the change, and 
-docs/validation.md	44%	not separate. On the audit: inferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simu
-docs/validation.md	100%	separate. On the audit: inferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simulated
-docs/validation.md	80%	: inferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simulated swarms, pooled over 
-docs/validation.md	100%	ferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simulated swarms, pooled over 5 see
+docs/validation.md	100%	 | | between two named tokens | 4 | 4 of 4 | 100% (51%–100%) | | an anonymous run on one side 
+docs/validation.md	51%	etween two named tokens | 4 | 4 of 4 | 100% (51%–100%) | | an anonymous run on one side | 5 (
+docs/validation.md	100%	en two named tokens | 4 | 4 of 4 | 100% (51%–100%) | | an anonymous run on one side | 5 (4 unc
+docs/validation.md	100%	s run on one side | 5 (4 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the l
+docs/validation.md	21%	on one side | 5 (4 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the labels
+docs/validation.md	100%	ne side | 5 (4 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the labels of 1
+docs/validation.md	13	%) | Read these as optimistic: the labels of 13 links were changed in the same commit as the
+docs/validation.md	5	changed in the same commit as the rule, only 5 links are decidable, and the interval reflec
+docs/validation.md	82%	hat. At v2.1.0 the same table read 18 of 18 (82%–100%), which a reviewer's reading cut to abo
+docs/validation.md	100%	 At v2.1.0 the same table read 18 of 18 (82%–100%), which a reviewer's reading cut to about 5.
+docs/validation.md	57%	inferred, 9 weak. On the audit: weak 5 of 5 (57%–100%). Precision by grade does not separate 
+docs/validation.md	100%	rred, 9 weak. On the audit: weak 5 of 5 (57%–100%). Precision by grade does not separate and, 
 docs/validation.md	45	e simulated swarms, pooled over 5 seeds (all 45 coordinated runs): direct 82% (46 of 56; 70%
 docs/validation.md	82%	er 5 seeds (all 45 coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 
-docs/validation.md	70%	 45 coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 78
-docs/validation.md	90%	coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 78% (4
-docs/validation.md	78%	s): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 78% (4,745 of 6,057);
-docs/validation.md	78%	0%–90%), inferred 78% (2,088 of 2,670), weak 78% (4,745 of 6,057); on the real-world setting 
-docs/validation.md	82%	 of 6,057); on the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80
-docs/validation.md	81%	 the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712;
-docs/validation.md	75%	etting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ra
-docs/validation.md	85%	ng direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges
-docs/validation.md	80%	2%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges overlap, s
-docs/validation.md	77%	(175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges overlap, so a reader should
-docs/validation.md	82%	 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges overlap, so a reader should not
+docs/validation.md	70%	 45 coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 94
+docs/validation.md	90%	coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 94% (5
+docs/validation.md	78%	s): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 94% (5,809 of 6,154);
+docs/validation.md	94%	0%–90%), inferred 78% (2,088 of 2,670), weak 94% (5,809 of 6,154); on the real-world setting 
+docs/validation.md	82%	 of 6,154); on the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 89
+docs/validation.md	81%	 the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 89% (647 of 724;
+docs/validation.md	75%	etting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 89% (647 of 724; 87%–91%). The ra
+docs/validation.md	85%	ng direct 82%, inferred 81% (175 of 217; 75%–85%), weak 89% (647 of 724; 87%–91%). The ranges
+docs/validation.md	89%	2%, inferred 81% (175 of 217; 75%–85%), weak 89% (647 of 724; 87%–91%). The ranges overlap, s
+docs/validation.md	87%	(175 of 217; 75%–85%), weak 89% (647 of 724; 87%–91%). The ranges overlap, so a reader should
+docs/validation.md	91%	 of 217; 75%–85%), weak 89% (647 of 724; 87%–91%). The ranges overlap, so a reader should not
 docs/validation.md	78%	ral earlier writers: it moved precision from 78% to 88% on only 5% of messages, so we left it
 docs/validation.md	88%	lier writers: it moved precision from 78% to 88% on only 5% of messages, so we left it out. T
 docs/validation.md	5%	: it moved precision from 78% to 88% on only 5% of messages, so we left it out. The simulato
-docs/validation.md	95%	, 231 links): raw agreement 98% (226 of 231; 95%–99%), Cohen's kappa 0.83. It never calls a f
-docs/validation.md	99%	1 links): raw agreement 98% (226 of 231; 95%–99%), Cohen's kappa 0.83. It never calls a false
-docs/validation.md	4	wrapper). 27 links are unclear, and it calls 4 of them messages. We fixed the method twice 
+docs/validation.md	90%	, 229 links): raw agreement 94% (215 of 229; 90%–96%), Cohen's kappa 0.20 (the labels now hol
+docs/validation.md	96%	9 links): raw agreement 94% (215 of 229; 90%–96%), Cohen's kappa 0.20 (the labels now hold on
+docs/validation.md	5	Cohen's kappa 0.20 (the labels now hold only 5 true links, so kappa is dominated by them; a
+docs/validation.md	98%	kappa is dominated by them; at v2.1.0 it was 98% and 0.83 against 18). Its 14 disagreements a
+docs/validation.md	5	holding the writer's own token, and 3 of the 5 true links it cannot see (a call it finds no
+docs/validation.md	70%	in the first tables: message precision about 70% and recall about 58%, falling to 19% and 10%
+docs/validation.md	58%	message precision about 70% and recall about 58%, falling to 19% and 10% with sparse timestam
+docs/validation.md	19%	n about 70% and recall about 58%, falling to 19% and 10% with sparse timestamps and to nothin
+docs/validation.md	10%	70% and recall about 58%, falling to 19% and 10% with sparse timestamps and to nothing when t
 docs/validation.md	40	more often than one agent's two tokens. With 40 agents active over 36 hours, one agent stopp
 docs/validation.md	80%	suite after the change; the target is high ≥ 80% precision. 2. Program signs (done): routine 
-docs/validation.md	79%	ns were too easy once already. v1.1.0 scored 79% message precision on them while 165 of its 1
+docs/validation.md	79%	y once already, and still are. v1.1.0 scored 79% message precision on them while 165 of its 1
 docs/validation.md	166	% message precision on them while 165 of its 166 links on the real release were false. The re
+docs/validation.md	70%	e will be others. The independent generator (70% precision, 58% recall) shows the size of the
+docs/validation.md	58%	s. The independent generator (70% precision, 58% recall) shows the size of the optimism, and 
 docs/validation.md	100%	 threads can mix. The direct-evidence rule's 100% is therefore an upper bound, while the old h
 docs/validation.md	4%	re an upper bound, while the old high band's 4% was a real failure on this kind of swarm, wh
 docs/validation.md	15	line is narrow. Three kinds of benign swarm, 15 runs, one pack. Benign swarms that share a w
-docs/validation.md	95%	intervals; the pooled identity figures carry 95% Wilson ranges.
+docs/validation.md	95%	intervals; the pooled identity figures carry 95% Wilson ranges. The pooled-medians table resa
 docs/index.html	1,200	 Built on a real incident In July 2026 about 1,200 AI agents in a security evaluation turned a 
 docs/index.html	3%	 into their own code (the release could date 3% of payloads) 2.2 h largest gap between seven
+docs/index.html	87%	83% to come, and three simple baselines with 87% to 91% Investigations: every claim opens its
+docs/index.html	91%	come, and three simple baselines with 87% to 91% Investigations: every claim opens its eviden
+docs/index.html	130	known answers, including benign ones, and on 130 swarms from an independently written generat
+docs/index.html	70%	rator, which scores lower (message precision 70% against 90%). Simulated scores are upper bou
+docs/index.html	90%	 scores lower (message precision 70% against 90%). Simulated scores are upper bounds, and not
+docs/index.html	50	the Alert rule in 5 of 30 original and 40 of 50 independent look-alike swarms, because it de
 reports/submission/SUBMISSION.md	1,200	ent Swarm Project summary In July 2026 about 1,200 AI agents in an OpenAI security evaluation c
 reports/submission/SUBMISSION.md	3%	9% of payloads, where the release could date 3%, and seven moments it dates fall within abou
-docs/deep-dive.md	5	te" R0038810 is a download). The release has 5 audited messages between named tokens. Secti
+reports/submission/SUBMISSION.md	93%	m (83%) and three other simple baselines (87–93%). Scored on 60 simulated swarms with known a
+reports/submission/SUBMISSION.md	70%	but an independently written generator gives 70% and 58%, so treat simulated scores as optimi
+reports/submission/SUBMISSION.md	58%	ndependently written generator gives 70% and 58%, so treat simulated scores as optimistic. Th
+reports/submission/SUBMISSION.md	19	 v2.2.0; the version submitted to Apart said 19 messages. Before you press submit: - The rep
+docs/assets/demo-script.md	9	orrected script on 16 November 2026. It says 9 write-then-read deliveries, not 23, and one 
+docs/deep-dive.md	24	nd 16 November 2026). Section 1 rests on the 24 message links as counted at v1.3.0 and is ke
+docs/deep-dive.md	9	 is a download), and the v2.2.0 rule reports 9 write-then-read deliveries, 4 between named 
+docs/deep-dive.md	4	0 rule reports 9 write-then-read deliveries, 4 between named tokens, 0 where the reader is 
 docs/deep-dive.md	24	 of 10:40 UTC on 9 November 2026, which gave 24 named messages. A later fix (a Python urlope
 docs/deep-dive.md	19	pen(url) with one argument is a read) leaves 19 messages in 12 pairs among 9 tokens; the fiv
 docs/deep-dive.md	12	ne argument is a read) leaves 19 messages in 12 pairs among 9 tokens; the five dropped links
 docs/deep-dive.md	9	a read) leaves 19 messages in 12 pairs among 9 tokens; the five dropped links were in the t
-docs/deep-dive.md	24	an: 07-09 13:29 → 07-13 15:50. --- ## 1. The 24 named messages messages.deliveries returns 8
-docs/deep-dive.md	89	4 named messages messages.deliveries returns 89 deliveries total (unknown-order 63, rereads 
+docs/deep-dive.md	24	an: 07-09 13:29 → 07-13 15:50. --- ## 1. The 24 named messages (v1.3.0 list, superseded: see
+docs/deep-dive.md	89	 the note above) messages.deliveries returns 89 deliveries total (unknown-order 63, rereads 
 docs/deep-dive.md	24	ites 0). Filtering out run: endpoints leaves 24 named messages — a write by one credential-t
-docs/deep-dive.md	5	outs: …005057 (1 write, 18 reads, 6 readers, 5 deliveries) and …005898[USER46] (1 write, 12
-docs/deep-dive.md	6	05898[USER46] (1 write, 12 reads, 7 readers, 6 deliveries). These are shared drop boxes — a
+docs/deep-dive.md	7	e-writer, many-reader fan-outs read by 6 and 7 tokens. On the current rule no write has mor
 docs/deep-dive.md	24	 - Inference: The named-message graph is not 24 independent agent conversations. It is domin
 docs/deep-dive.md	18,796	estimated agent (group key [CREDENTIAL 170], 18,796 records). The first merged message (R0006579
 docs/deep-dive.md	5	this agent's share of all harm to 0.877. ### 5 strongest records FOR one controller 1. Shar
@@ -230,22 +378,78 @@ docs/deep-dive.md	4,838	005330, R0005336, R0006262, R0006335. (Note: 4,838 count
 docs/deep-dive.md	622	references, immaterial.) ### kubernetes_api (622 records) python kr = [rid for rid,i in inten
 docs/deep-dive.md	239	tely, the intent label kubernetes_token tags 239 records (R0009849, R0010016, R0014594, …) — 
 docs/deep-dive.md	239	e-reads of the serviceaccount token with the 239 kubernetes_token intent records. --- ## 6. T
-docs/deep-dive.md	385	lf-destruct / anti-analysis code (Evidence): 385 records contain os.kill or SystemExit. Sever
+docs/deep-dive.md	385	lf-destruct / anti-analysis code (Evidence): 385 records contain os.kill or SystemExit (73 co
 docs/deep-dive.md	18,796	20/222/1334/1623/1069 into a single agent of 18,796 records, carrying a 0.877 harm share after i
 docs/deep-dive.md	93.1%	taset_write host split: state 4,838 / 5,194 (93.1%) target a huggingface.co host (3,641 direct 
 docs/deep-dive.md	6.9%	+ 1,197 via [SERVICE HOST n] proxy) and 356 (6.9%) go to collector/other hosts — not "all to H
 docs/deep-dive.md	622	t "all to Hugging Face." - kubernetes_api is 622 records, and only 24 of them read …/servicea
 docs/deep-dive.md	239	 Kubernetes-API total, and keep the separate 239 kubernetes_token intent records distinct. - 
-docs/deep-dive.md	385	wer. - Add the evasion/persistence findings: 385 self-destruct-guarded records, an encrypted 
-docs/deep-dive.md	24	1 future-dated (07-18/19) epoch literals. - "24 messages" overstates coordination: most are 
-docs/early-warning.md	30	igns were not written on: 90 coordinated and 30 benign simulated swarms (seeds 21 to 30 in e
-docs/early-warning.md	90	ntities both use (about 5.8 h before, in all 90 swarms, never on a benign swarm). The defaul
+docs/deep-dive.md	385	wer. - Add the evasion/persistence findings: 385 records with self-termination code (os.kill 
+docs/deep-dive.md	24	1 future-dated (07-18/19) epoch literals. - "24 messages" overstates coordination (supersede
+docs/deep-dive.md	9	ages" overstates coordination (superseded by 9 write-then-read deliveries, 4 between named 
+docs/deep-dive.md	4	(superseded by 9 write-then-read deliveries, 4 between named tokens): most of the 24 were a
+docs/early-warning.md	30	. The original simulator (90 coordinated and 30 benign swarms, seeds 31 to 40, 12 settings) 
+docs/early-warning.md	20	### 2b. The independently written generator (20 coordinated swarms with file in time order a
+docs/early-warning.md	60%	 with file in time order and epoch stamps on 60% of records, 50 benign look-alike swarms, see
+docs/early-warning.md	50	me order and epoch stamps on 60% of records, 50 benign look-alike swarms, seeds 501 to 510) 
+docs/early-warning.md	20	n the independent generator it fired in 0 of 20 coordinated swarms, because those swarms coo
 docs/early-warning.md	12	l-wiki-logs/, present on this machine) fires 12 signs; its first harmful record is at hour 0
-docs/early-warning.md	30	m rates Alarms per 24 h of trace time on the 30 benign swarms: 1,049 trace hours, 41,960 age
-docs/early-warning.md	41,960	 on the 30 benign swarms: 1,049 trace hours, 41,960 agent-hours observed (agents in the swarm ti
-docs/early-warning.md	95%	times the hours of the trace), exact Poisson 95% interval. A sign or rule is counted once per
-docs/early-warning.md	95%	for it. | Rule or sign | alarms | per 24 h | 95% interval | |---|---|---|---| | Watch: first 
-docs/early-warning.md	95%	ns that never fired on a benign swarm have a 95% upper bound of about 0.084 per 24 h (43.7 da
+docs/early-warning.md	95%	f trace time on benign swarms, exact Poisson 95% interval. A sign or rule is counted once per
+docs/early-warning.md	30	on real systems. ### 3a. Original simulator: 30 benign swarms, 1052 trace hours, 42,080 agen
+docs/early-warning.md	42,080	mulator: 30 benign swarms, 1052 trace hours, 42,080 agent-hours | Rule, baseline or sign | alarm
+docs/early-warning.md	95%	eline or sign | alarms | swarms | per 24 h | 95% interval | |---|---|---|---|---| | Watch: fi
+docs/early-warning.md	95%	006 to 0.165 | Signs that never fired have a 95% upper bound of about 0.084 per 24 h (43.83 d
+docs/early-warning.md	50	s experiment. ### 3b. Independent generator: 50 benign look-alike swarms, 2405 trace hours, 
+docs/early-warning.md	72,535	 benign look-alike swarms, 2405 trace hours, 72,535 agent-hours | Rule, baseline or sign | alarm
+docs/early-warning.md	95%	eline or sign | alarms | swarms | per 24 h | 95% interval | |---|---|---|---|---| | Alert: 2 
+docs/early-warning.md	50	hem by class). The Alert rule fired in 40 of 50 swarms (80%; 95% range 67% to 89%), in all 3
+docs/early-warning.md	80%	s). The Alert rule fired in 40 of 50 swarms (80%; 95% range 67% to 89%), in all 30 of the thr
+docs/early-warning.md	95%	he Alert rule fired in 40 of 50 swarms (80%; 95% range 67% to 89%), in all 30 of the three cl
+docs/early-warning.md	67%	ule fired in 40 of 50 swarms (80%; 95% range 67% to 89%), in all 30 of the three classes with
+docs/early-warning.md	89%	ed in 40 of 50 swarms (80%; 95% range 67% to 89%), in all 30 of the three classes with real i
+docs/early-warning.md	10	asses with real information flow and in 9 of 10 honest cloud-agent swarms in the validation 
+docs/early-warning.md	10	e Watch rule fires in 40 of 50, and in 10 of 10 honest cloud-agent swarms, because metadata 
+docs/early-warning.md	30	.1.0 text said the Alert rule fired in 12 of 30 benign swarms; after the fixes the original 
+docs/early-warning.md	40	nal generator gives 5 of 30, and the audit's 40 look-alike swarms gave 29 (95% range 57% to 
+docs/early-warning.md	95%	nd the audit's 40 look-alike swarms gave 29 (95% range 57% to 84%). The slide's "0 in 15 runs
+docs/early-warning.md	57%	it's 40 look-alike swarms gave 29 (95% range 57% to 84%). The slide's "0 in 15 runs" counted 
+docs/early-warning.md	84%	 look-alike swarms gave 29 (95% range 57% to 84%). The slide's "0 in 15 runs" counted deliver
+docs/early-warning.md	15	29 (95% range 57% to 84%). The slide's "0 in 15 runs" counted deliveries between different a
+docs/early-warning.md	57%	ome, the shared-control signs (carried token 57%, shared name 50%) lose to the volume alarm (
+docs/early-warning.md	50%	ontrol signs (carried token 57%, shared name 50%) lose to the volume alarm (83%, or 93% with 
+docs/early-warning.md	83%	, shared name 50%) lose to the volume alarm (83%, or 93% with a 6 h history), the distinct-ac
+docs/early-warning.md	93%	 name 50%) lose to the volume alarm (83%, or 93% with a 6 h history), the distinct-actor alar
+docs/early-warning.md	87%	th a 6 h history), the distinct-actor alarm (87%), the first new host after 12 h (91%) and th
+docs/early-warning.md	91%	 alarm (87%), the first new host after 12 h (91%) and the first search_for_secrets action (91
+docs/early-warning.md	91%	1%) and the first search_for_secrets action (91%); see section 5. ## 5. Real release: the sig
+docs/early-warning.md	100%	ox, first token seen as data and then used | 100% | | Volume alarm (3 sd, 6 h history) | 93.4%
+docs/early-warning.md	93.4%	 100% | | Volume alarm (3 sd, 6 h history) | 93.4% | | First new host after 12 h | 91.3% | | Fi
+docs/early-warning.md	91.3%	ory) | 93.4% | | First new host after 12 h | 91.3% | | First search_for_secrets action | 91.2% 
+docs/early-warning.md	91.2%	 91.3% | | First search_for_secrets action | 91.2% | | First Hugging Face dataset write | 90.0%
+docs/early-warning.md	90.0%	91.2% | | First Hugging Face dataset write | 90.0% | | First program reused by another actor | 
+docs/early-warning.md	87.7%	 | | First program reused by another actor | 87.7% | | First delivery between named actors | 87
+docs/early-warning.md	87.4%	7% | | First delivery between named actors | 87.4% | | Distinct-actor alarm (3 sd, 12 h history
+docs/early-warning.md	86.9%	 Distinct-actor alarm (3 sd, 12 h history) | 86.9% | | Volume alarm (3 sd, 12 h; the published 
+docs/early-warning.md	83.2%	alarm (3 sd, 12 h; the published baseline) | 83.2% | | Kubernetes service-account token, Kubern
+docs/early-warning.md	82.0%	ernetes API, cloud metadata (single-agent) | 82.0%, 79.6%, 79.0% | | Shared-control signs: one 
+docs/early-warning.md	79.6%	 API, cloud metadata (single-agent) | 82.0%, 79.6%, 79.0% | | Shared-control signs: one identit
+docs/early-warning.md	79.0%	loud metadata (single-agent) | 82.0%, 79.6%, 79.0% | | Shared-control signs: one identity carri
+docs/early-warning.md	57.0%	her's token / two identities share a place | 57.0% / 50.2% | | A group of 3 actors linked by de
+docs/early-warning.md	50.2%	ken / two identities share a place | 57.0% / 50.2% | | A group of 3 actors linked by deliveries
+docs/early-warning.md	3	share a place | 57.0% / 50.2% | | A group of 3 actors linked by deliveries | 7.2% | The sha
+docs/early-warning.md	7.2%	| A group of 3 actors linked by deliveries | 7.2% | The shared-control signs are the latest of
+docs/early-warning.md	82%	 metadata signs fire after the volume alarm (82%, 80%, 79%). The harm list builds in part of 
+docs/early-warning.md	80%	data signs fire after the volume alarm (82%, 80%, 79%). The harm list builds in part of the a
+docs/early-warning.md	79%	signs fire after the volume alarm (82%, 80%, 79%). The harm list builds in part of the answer
+docs/early-warning.md	64%	 The harm list builds in part of the answer: 64% of the 8,124 harm records are dataset writes
+docs/early-warning.md	8,124	ist builds in part of the answer: 64% of the 8,124 harm records are dataset writes, so the firs
+docs/early-warning.md	37.7%	definition moves the shared-place share from 37.7% to 56.6% and the first-delivery share from 6
+docs/early-warning.md	56.6%	n moves the shared-place share from 37.7% to 56.6% and the first-delivery share from 62.3% to 9
+docs/early-warning.md	62.3%	% to 56.6% and the first-delivery share from 62.3% to 96.1%; 37,605 undated payloads are outsid
+docs/early-warning.md	96.1%	% and the first-delivery share from 62.3% to 96.1%; 37,605 undated payloads are outside the den
+docs/early-warning.md	37,605	he first-delivery share from 62.3% to 96.1%; 37,605 undated payloads are outside the denominator
+docs/early-warning.md	100%	d payloads are outside the denominator, and "100% to come" at 13:29 on 9 July is left-censorin
+docs/early-warning.md	95%	g, since that is the first dated record. The 95% ranges that resample the 9 settings (not swa
 docs/early-warning.md	3	check) | 500,000 | | program families (up to 3 actors and 8 copies each) | 100,000 | | plac
 docs/early-warning.md	40	replay, on simulated swarms (seeds 21 to 30, 40 agents; tolerance 15 minutes; difference is 
 docs/early-warning.md	20	ithin 1 h | |---|---|---|---| | coordinated, 20 swarms (base and real-world payloads) | 290 
@@ -253,18 +457,78 @@ docs/early-warning.md	10	orld payloads) | 290 | 280 | 285 | | benign, 10 swarms 
 docs/early-warning.md	13	 both sides. On the bundled demo swarm 13 of 13 shared signs match, and a volume alarm fires
 docs/early-warning.md	189,579	es online only. On the Swarm Traces release (189,579 records, redacted_columns.csv, code_traces.j
 docs/early-warning.md	13,400	ds, redacted_columns.csv, code_traces.json): 13,400 records per second (14.2 s), peak memory 97 
+docs/early-warning.md	15	e and warn earlier: on the release only 3 of 15 signs match the replay within 15 minutes, an
+docs/how-it-works.md	9	dentifiers with the writer's), which is 0 of 9 on the Swarm Traces release. Three rules kee
 docs/how-it-works.md	20	e first program reused, a group of 3, 5, 10, 20 actors linked by messages, the first two-way
+docs/limitations.md	9	 show the reader used what was written (0 of 9 on the Swarm Traces release do), and one tha
+docs/limitations.md	70%	ly written generator gives message precision 70% and recall 58%, against 90% and 84% on the o
+docs/limitations.md	58%	rator gives message precision 70% and recall 58%, against 90% and 84% on the original simulat
+docs/limitations.md	90%	essage precision 70% and recall 58%, against 90% and 84% on the original simulator; see [vali
+docs/limitations.md	84%	recision 70% and recall 58%, against 90% and 84% on the original simulator; see [validation].
 docs/limitations.md	1%	ed programs) were almost always wrong (about 1% right), so the tool now keeps those at low c
-docs/known-issues.md	6	hose links false; the final rule reports 24, 6 between named tokens. The deep dive (docs/de
-docs/known-issues.md	66%	ounts as a read (simulated message precision 66% → 79%). A place named in a printed string or
-docs/known-issues.md	79%	as a read (simulated message precision 66% → 79%). A place named in a printed string or a var
-docs/known-issues.md	40	 is now within an hour of the truth in 40 of 40 swarms; groups of 20+ still fire early in so
+docs/known-issues.md	23	ember 2026). What changed: - Message count. "23 messages, 6 between named tokens" is replace
+docs/known-issues.md	6	What changed: - Message count. "23 messages, 6 between named tokens" is replaced by 9 write
+docs/known-issues.md	9	ages, 6 between named tokens" is replaced by 9 write-then-read deliveries, 4 between named 
+docs/known-issues.md	4	is replaced by 9 write-then-read deliveries, 4 between named tokens (2 between agents, 2 in
+docs/known-issues.md	2	hen-read deliveries, 4 between named tokens (2 between agents, 2 inside one agent), 0 where
+docs/known-issues.md	2	s, 4 between named tokens (2 between agents, 2 inside one agent), 0 where the reader is sho
+docs/known-issues.md	258	rds with a helper script. No person read the 258 links by hand; texts that said so were corre
+docs/known-issues.md	20	t harm on the original generator and in 0 of 20 swarms on the independent one. On the real r
+docs/known-issues.md	50%	l release the shared-control signs fire with 50% to 57% of harm still to come, behind a volum
+docs/known-issues.md	57%	se the shared-control signs fire with 50% to 57% of harm still to come, behind a volume alarm
+docs/known-issues.md	83%	f harm still to come, behind a volume alarm (83%, or 93% with a 6 h history), the first new h
+docs/known-issues.md	93%	till to come, behind a volume alarm (83%, or 93% with a 6 h history), the first new host afte
+docs/known-issues.md	91%	6 h history), the first new host after 12 h (91%), the distinct-actor alarm (87%) and the fir
+docs/known-issues.md	87%	 after 12 h (91%), the distinct-actor alarm (87%) and the first search_for_secrets action (91
+docs/known-issues.md	91%	7%) and the first search_for_secrets action (91%). - Simulated accuracy. Current code on the 
+docs/known-issues.md	90%	nt code on the original simulator: precision 90%, recall 84% (the old 79% and 73% were for th
+docs/known-issues.md	84%	he original simulator: precision 90%, recall 84% (the old 79% and 73% were for the old rule).
+docs/known-issues.md	79%	imulator: precision 90%, recall 84% (the old 79% and 73% were for the old rule). Independent 
+docs/known-issues.md	73%	: precision 90%, recall 84% (the old 79% and 73% were for the old rule). Independent generato
+docs/known-issues.md	70%	re for the old rule). Independent generator: 70% and 58%; 19% and 10% with a time on only 30%
+docs/known-issues.md	58%	he old rule). Independent generator: 70% and 58%; 19% and 10% with a time on only 30% of reco
+docs/known-issues.md	19%	d rule). Independent generator: 70% and 58%; 19% and 10% with a time on only 30% of records; 
+docs/known-issues.md	10%	 Independent generator: 70% and 58%; 19% and 10% with a time on only 30% of records; no datin
+docs/known-issues.md	30%	70% and 58%; 19% and 10% with a time on only 30% of records; no dating at all when the file i
+docs/known-issues.md	79%	simulators are optimistic, and v1.1.0 scored 79% on one while 165 of its 166 real links were 
+docs/known-issues.md	166	nd v1.1.0 scored 79% on one while 165 of its 166 real links were false. - False alarms. On 50
+docs/known-issues.md	80%	ook-alike swarms the Alert rule fired in 40 (80%) and the Watch rule in 40; on the 30 origina
+docs/known-issues.md	30	in 40 (80%) and the Watch rule in 40; on the 30 original benign swarms the Alert rule fired 
+docs/known-issues.md	15	 the Watch rule in 20. The slide claim "0 in 15 runs" meant no delivery between different ag
+docs/known-issues.md	385	ore ahead" are replaced by the actual gaps. "385 self-termination records" is kept, with the 
+docs/known-issues.md	3,765	us runs" is 77,626 actions with no token, or 3,765 actors on places; the two are no longer mixe
+docs/known-issues.md	9	 and so is v2.1.0's 23. The rule now reports 9 write-then-read deliveries, 4 between named 
+docs/known-issues.md	4	le now reports 9 write-then-read deliveries, 4 between named tokens, none where the reader 
+docs/known-issues.md	70%	endently written one gives message precision 70% and recall 58% (not 90% and 84%). It also ne
+docs/known-issues.md	58%	n one gives message precision 70% and recall 58% (not 90% and 84%). It also never writes the 
+docs/known-issues.md	90%	es message precision 70% and recall 58% (not 90% and 84%). It also never writes the read-then
+docs/known-issues.md	84%	ge precision 70% and recall 58% (not 90% and 84%). It also never writes the read-then-exfiltr
+docs/known-issues.md	66%	ounts as a read (simulated message precision 66% → 79% on the original simulator, before the 
+docs/known-issues.md	79%	as a read (simulated message precision 66% → 79% on the original simulator, before the later 
+docs/known-issues.md	45	 (the first delivery between agents in 45 of 45 original swarms), but that is a property of 
+docs/known-issues.md	64%	 Hugging Face dataset commit counts as harm (64% of the 8,124 harm records are dataset writes
+docs/known-issues.md	8,124	ce dataset commit counts as harm (64% of the 8,124 harm records are dataset writes), so the fir
+docs/known-issues.md	37.7%	 the shared-place share of harm to come from 37.7% to 56.6%. - Identity merges at low confidenc
+docs/known-issues.md	56.6%	ed-place share of harm to come from 37.7% to 56.6%. - Identity merges at low confidence are rar
 docs/known-issues.md	1%	es at low confidence are rarely right (about 1% on simulated swarms). Treat low as "worth a 
-docs/known-issues.md	23	tion disagrees with the rule on the release (23 deliveries against 192); see [integrity]. Mo
-docs/collect-next-time.md	6%	ul 11:51 to 12 Jul 17:22; harm still to come 6% to 90%; messages 1 to 7; pairs 1 to 6 | Chea
-docs/collect-next-time.md	90%	51 to 12 Jul 17:22; harm still to come 6% to 90%; messages 1 to 7; pairs 1 to 6 | Cheap. The 
-docs/collect-next-time.md	90%	ul 13:29 to 10 Jul 11:51; harm still to come 90% to 100%; messages 7 to 895 (parametric) | Ne
-docs/collect-next-time.md	100%	9 to 10 Jul 11:51; harm still to come 90% to 100%; messages 7 to 895 (parametric) | Needs the 
-docs/collect-next-time.md	50%	3:06; messages 3 to 7 (parametric: 0, 25 and 50% of reads failed) | Storage and privacy. Resp
-docs/collect-next-time.md	60%	50 to 13:12; messages 7 to 10; pairs 6 to 8. 60% of records have no time, so the early-flag r
+docs/known-issues.md	30%	rder and embedded times. With a time on only 30% of records message precision falls to 19%; w
+docs/known-issues.md	19%	ly 30% of records message precision falls to 19%; with the file grouped by agent the trace co
+docs/known-issues.md	380	of 12 high-confidence merges right" is 12 of 380 true pairs (about 3% recall), and the merge 
+docs/known-issues.md	3%	merges right" is 12 of 380 true pairs (about 3% recall), and the merge rule was rewritten af
+docs/known-issues.md	7.7%	rms. - Attribution of anonymous runs reaches 7.7% of the 77,626 anonymous runs on the release.
+docs/known-issues.md	77,626	bution of anonymous runs reaches 7.7% of the 77,626 anonymous runs on the release. The held-out 
+docs/known-issues.md	99.4%	runs on the release. The held-out precision (99.4% / 96.4% / 87.9% by band) is measured on simu
+docs/known-issues.md	96.4%	the release. The held-out precision (99.4% / 96.4% / 87.9% by band) is measured on simulated sw
+docs/known-issues.md	87.9%	ase. The held-out precision (99.4% / 96.4% / 87.9% by band) is measured on simulated swarms spl
+docs/known-issues.md	41	ur tolerance fixed before the run; 15 of the 41 are the Swarm Traces authors' own claims sea
+docs/known-issues.md	15	varied. - The online monitor reproduces 3 of 15 replay signs within 15 minutes; on the onlin
+docs/known-issues.md	9	 rule on the release, but not independently (9 deliveries each; it found 191 until v2.2.0 b
+docs/collect-next-time.md	4	e pack code_traces.json, on the v2.2.0 rule (4 write-then-read deliveries between named tok
+docs/collect-next-time.md	8%	ul 03:06 to 12 Jul 10:04; harm still to come 8% to 87%; messages 0 to 4; pairs 0 to 4 | Chea
+docs/collect-next-time.md	87%	06 to 12 Jul 10:04; harm still to come 8% to 87%; messages 0 to 4; pairs 0 to 4 | Cheap. The 
+docs/collect-next-time.md	87%	ul 13:29 to 11 Jul 03:06; harm still to come 87% to 100%; messages 4 to 501 (parametric) | Ne
+docs/collect-next-time.md	100%	9 to 11 Jul 03:06; harm still to come 87% to 100%; messages 4 to 501 (parametric) | Needs the 
+docs/collect-next-time.md	50%	ent); messages 2 to 4 (parametric: 0, 25 and 50% of reads failed) | Storage and privacy. Resp
+docs/collect-next-time.md	60%	:35 to 05:11; messages 4 to 6; pairs 4 to 6. 60% of records have no time, so the early-flag r
+docs/collect-next-time.md	91%	h as the first new host after 12 h fire with 91% of harm still to come. ## Reading the number
 docs/packs.md	1	els | [{name, pattern, write}] places: group 1 is the place's name; write is the code that 

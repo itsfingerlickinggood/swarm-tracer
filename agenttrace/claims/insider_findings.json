@@ -1,7 +1,7 @@
 {
  "about": "What the incident's insiders (METR, OpenAI, Hugging Face) and the Swarm Traces authors found, taken only from agenttrace/claims/incident_context.json, incident_milestones.json and swarm_traces_report.json, each with the source the claim files cite. Each finding is checked against the loaded records by agenttrace.sensitivity: recovered (the tool shows it, within its dating error), partly (some of it shows) or invisible (the records cannot show it). Statuses, evidence and numbers are computed live; 'why_static' is text for findings whose status cannot be computed, with {placeholders} filled from the loaded data.",
  "status_rule": {
-  "recovered": "for a time: within the dating error (90th-percentile fit error of the timed blocks, at least 1 h); for a count: within a quarter either way, or all cited records found and matching",
+  "recovered": "for a time: within the fixed tolerance in grading.tolerance_h (1 h), whatever the tool's own dating error; for a count: within a quarter either way, or all cited records found and matching",
   "partly": "for a time: within 24 h, or the thing is found at a different size; for a count or claim: some records show it",
   "invisible": "not found, outside the dated range of the release, or needs data the records do not hold"
  },
@@ -627,5 +627,24 @@
     "q": true
    }
   }
- ]
+ ],
+ "grading": {
+  "fixed_on": "2026-11-16",
+  "tolerance_h": 1.0,
+  "why": "Chosen before the grading was re-run, and not from the tool's own error. One hour is the margin the validation suite already uses for 'a sign is on time' and the floor the old rule had; the published times are given to the minute. Disclosure: the author who set it had seen the differences from the earlier runs (about 0.2 to 2.2 hours for the seven milestones), so this is fixed in advance of this run, not blind to the earlier ones. A fully blind grading needs findings and a tolerance written by someone who has not seen the output.",
+  "previous_rule": "v2.1.0 used the 90th-percentile fit error of the tool's own worst timed block (5.05 h on the release), so the worse the dating, the more findings counted as recovered.",
+  "independent_checks": [
+   "milestone",
+   "per_day",
+   "span_start",
+   "span_end"
+  ],
+  "circular_checks": [
+   "claim",
+   "text_count",
+   "board_share",
+   "static"
+  ],
+  "circular_why": "A 'claim' or 'text_count' check asks whether text the Swarm Traces authors cite is in their own release, and the pack's handle list was written from the same report, so 'recovered' there means 'the pattern is present', not that the tool found something unknown. 'static' findings are invisible by definition. Quote the time-based and per-day checks as the test; report the rest separately."
+ }
 }

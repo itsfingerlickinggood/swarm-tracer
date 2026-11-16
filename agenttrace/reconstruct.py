@@ -200,7 +200,11 @@ def info_of(e, pack):
 
 
 def places_of(e, pack):
-    return {m.group(0) for _, rx in pack.shared_names for m in rx.finditer(e.text)}
+    """Shared places a record uses. A place named only inside a code comment is a mention, not a use (v2.2.0:
+    the audit found that comment notes alone fired the shared-place sign hours before any message), so it does
+    not count here, as it already did not count for reads and writes."""
+    return {m.group(0) for _, rx in pack.shared_names for m in rx.finditer(e.text)
+            if not in_comment(e.text, m.start())}
 
 
 # a comment marker starts a line or follows whitespace; this keeps "https://", "'//host'" and the

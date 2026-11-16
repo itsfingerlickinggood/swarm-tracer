@@ -1,0 +1,53 @@
+{
+ "written_utc": "2026-11-16T09:07:50Z",
+ "frozen_signs_sha256": "5d35ed309f7270508fbcbf8a18a46ac65fd4038d82f53170a183d930862dcc19",
+ "git_head": "922955b471c70e504014a192ca1676326f44936d",
+ "code_sha256": {
+  "agenttrace/insight.py": "947fc9579231bf43fa74640cf58216ca1c3a78327b98e231fc0fa875a4ca0fe2",
+  "agenttrace/live.py": "b42e4d18058888b87e7d78d4186d939734a03523ef876259eec2b848fe062347",
+  "agenttrace/evaluate.py": "5db68be33600f8148af983672f2acb4764d2fc37dc0f693abaa7133dc572cfee",
+  "agenttrace/reconstruct.py": "2486f4501c0be7c8b8695a4cb15df42920aa0d058deb2612929cd6f6f94fd493",
+  "agenttrace/messages.py": "7ca521d71e4780a9700acf8370e1281664b16319db16c51d88494ed28fb54afc",
+  "agenttrace/packs/code_traces.json": "b05f197e4f10f03aafd3bfd4cab47374a91faa09e284ba8ad10e4e8f2a67743c",
+  "agenttrace/packs/wiki_swarm.json": "ae9e7dfb9318d3c9169230b35826bbe1ccd14804c4f03c5419959fec17bf84d1",
+  "agenttrace/baselines.py": "7067bd99ce3245317c5c42e331e62ef00d90f90e456a7646235092c2d780aa9e",
+  "agenttrace/groundtruth.py": "8220ae0323f7670965dc3a2f039094d9a67173c16ae234703c5e394412c5628b",
+  "agenttrace/indepgen.py": "18a411b15ecedf3d8de53fb957b35e141b3f153e689c764b25ea0840b80d280a",
+  "agenttrace/earlywarn.py": "ddb70ac0ea08373fa296b5951068d6a4a0d4374460cd8d28b7c90a38bc8327a9"
+ },
+ "forward_seeds_original_generator": [
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+  40
+ ],
+ "forward_seeds_independent_generator": [
+  501,
+  502,
+  503,
+  504,
+  505,
+  506,
+  507,
+  508,
+  509,
+  510
+ ],
+ "independent_cell": "chrono_epoch60",
+ "scenarios": [
+  "coord",
+  "coord_notes",
+  "benign_leaderboard",
+  "benign_ci",
+  "benign_coordinator",
+  "benign_cloud",
+  "benign_plain"
+ ],
+ "rule": "no forward swarm exists when this file is written; run `forward` and `independent` afterwards"
+}

@@ -540,9 +540,21 @@ def sensitivity_gap(s, key):
 
 # ------------------------------------------------------------------ the insiders' findings
 
-def _tolerance_h(s):
+def _grading():
+    with open(INSIDERS, encoding="utf-8") as f:
+        return json.load(f).get("grading") or {}
+
+
+def _fit_error_h(s):
+    """The tool's own worst timed-block fit error (90th percentile), kept for information: v2.1.0 used it as the tolerance."""
     b = [x.get("fit_error_hours_p90") or 0 for x in s.rec["time_test"].get("blocks", []) if x.get("timed")]
     return max(1.0, max(b) if b else 1.0)
+
+
+def _tolerance_h(s):
+    """The tolerance for 'recovered' is fixed in claims/insider_findings.json (grading.tolerance_h), written before the
+    grading was re-run, and does not depend on how well the tool dated this dataset."""
+    return float(_grading().get("tolerance_h", 1.0))
 
 
 def _span(s):
@@ -642,8 +654,8 @@ def insiders(s):
             else:
                 status = "recovered" if abs(diff) <= tol else "partly"
                 why = (f"The tool puts it at {m['ours']} UTC, {_fmt_h(diff)} {'later' if diff > 0 else 'earlier'} than the report ({m['source_time']} UTC). "
-                       f"Within the dating error of {tol:.1f} h." if abs(diff) <= tol else
-                       f"The tool puts it at {m['ours']} UTC, {_fmt_h(diff)} {'later' if diff > 0 else 'earlier'} than the report, more than the dating error of {tol:.1f} h.")
+                       f"Within the fixed tolerance of {tol:.1f} h." if abs(diff) <= tol else
+                       f"The tool puts it at {m['ours']} UTC, {_fmt_h(diff)} {'later' if diff > 0 else 'earlier'} than the report, more than the fixed tolerance of {tol:.1f} h.")
                 why += " Rule used: " + m["match"] + "."
             ev = {"records": [fr[1]] if fr else [], "n": None, "numbers": {"ours": m["ours"] if m else None, "report": m["source_time"] if m else None, "difference_h": diff}}
         elif k == "per_day":
@@ -668,7 +680,7 @@ def insiders(s):
                     why = f"The earliest dated record is at {_iso(lo)} UTC, {_fmt_h(d_h)} after this moment ({ck['time']} UTC). Whatever happened before it is outside what the release dates."
                 else:
                     status = "recovered"
-                    why = f"The release's dated records reach back to {_iso(lo)} UTC, to this moment ({ck['time']} UTC) within the dating error of {tol:.1f} h."
+                    why = f"The release's dated records reach back to {_iso(lo)} UTC, to this moment ({ck['time']} UTC) within the fixed tolerance of {tol:.1f} h."
                 ev = {"records": [], "n": None, "numbers": {"ours": _iso(lo), "report": ck["time"], "difference_h": round(d_h, 2)}}
             else:
                 d_h = (hi - src) / HOUR
@@ -677,7 +689,7 @@ def insiders(s):
                     why = f"The latest dated record is at {_iso(hi)} UTC, {_fmt_h(d_h)} before this moment ({ck['time']} UTC): the release does not reach it."
                 elif d_h <= tol:
                     status = "recovered"
-                    why = f"The latest dated record is at {_iso(hi)} UTC, within the dating error of {tol:.1f} h of this moment ({ck['time']} UTC)."
+                    why = f"The latest dated record is at {_iso(hi)} UTC, within the fixed tolerance of {tol:.1f} h of this moment ({ck['time']} UTC)."
                 else:
                     status = "recovered" if d_h <= 24 else "partly"
                     why = f"The latest dated record is at {_iso(hi)} UTC, {_fmt_h(d_h)} after this moment ({ck['time']} UTC): activity continues after the moment the report names."
@@ -726,7 +738,19 @@ def insiders(s):
         out.append({"id": f_["id"], "group": f_["group"], "source": f_["source"], "finding": f_["finding"], "status": status,
                     "evidence": ev, "why": why, "view": link})
     cnt = Counter(x["status"] for x in out)
+    grading = spec.get("grading") or {}
+    indep = set(grading.get("independent_checks") or ())
+    kind_of = {f_["id"]: f_["check"]["kind"] for f_ in spec["findings"]}
+    by_check = {}
+    for x in out:
+        by_check.setdefault(kind_of[x["id"]], Counter())[x["status"]] += 1
+    split = {}
+    for name, keep in (("independent_time_checks", lambda k: k in indep), ("circular_checks", lambda k: k not in indep)):
+        c = Counter(x["status"] for x in out if keep(kind_of[x["id"]]))
+        split[name] = {"total": sum(c.values()), **{k: c.get(k, 0) for k in ("recovered", "partly", "invisible")}}
     res = {"available": True, "dataset": s.name, "findings": out, "tolerance_h": round(tol, 1),
+           "tolerance_fixed_in_advance": True, "tool_fit_error_p90_h": round(_fit_error_h(s), 2),
+           "grading": grading, "by_check": {k: {st: n for st, n in c.items()} for k, c in by_check.items()}, "split": split,
            "counts": {k: cnt.get(k, 0) for k in ("recovered", "partly", "invisible")}, "total": len(out),
            "by_group": {g: {k: sum(1 for x in out if x["group"] == g and x["status"] == k) for k in ("recovered", "partly", "invisible")}
                         for g in dict.fromkeys(x["group"] for x in out)},

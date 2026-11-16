@@ -381,42 +381,40 @@ def registry():
     A(C("release.harm_timed", "Timed harmful actions", f"{S4}['harm_events_timed']",
         ("R", r"registry mailbox use \(<v> timed actions\)"), ("R", r"share of the <v> timed harmful actions"), ("IX", r"of the <v> dated harmful actions")))
     # ---- the release: messages
-    msgs = [("R", r"It finds <v> messages, \d+ of them between"), ("R", r"Of the <v> messages, \d+ passed through"), ("R", r"They report <v> links, \d+ judged true"),
-            ("R", r"reconstructed <v> messages \(\d+ between named tokens\)"), ("R", r"\d+ of <v> messages rest on one"),
-            ("RM", r"the release shows <v> messages, \d+ of them between named tokens"), ("RM", r"the Swarm Traces release has <v> messages \("),
-            ("S", r"in \d+ pairs \(<v> in all\)"), ("S", r"\d+ links → <v>; \d+ audited"), ("IX", r"messages between named tokens \(<v> in all\)"),
-            ("SUB", r"It finds <v> messages, \d+ of them between"), ("DS", r"That leaves <v> messages in all"),
-            ("V", r"the release shows <v> messages, \d+ between named tokens, precision"), ("V", r"the final rules report <v> messages, \d+ between named tokens"),
-            ("V", r"What the release now shows \(final rules, phase 1\): <v> messages"), ("V", r"The release now shows <v> deliveries, \d+ of them between named tokens"),
+    msgs = [("R", r"It finds <v> write-then-read deliveries \(a write to a shared place"), ("R", r"All <v> write-then-read deliveries passed through dataset repositories"), ("R", r"and report <v> write-then-read deliveries, \d+ labelled true"),
+            ("R", r"reconstructed <v> write-then-read deliveries \(\d+ between named tokens"), ("R", r"\d+ of <v> deliveries rest on one, none between named tokens"),
+            ("RM", r"The Swarm Traces release has <v> write-then-read deliveries \(\d+ between named tokens\)"),
+            ("S", r"published <v> write-then-read deliveries, \d+ between \d+ named tokens in \d+ pairs"), ("S", r"\) \d+ → \d+ → \d+ → <v>; a reviewer defends"), ("IX", r"published <v> write-then-read deliveries \(\d+ between named tokens"),
+            ("SUB", r"It finds <v> write-then-read deliveries \(not messages"), ("DS", r"That leaves <v> deliveries in all"),
+            ("V", r"On the audit the <v> score \d+ of \d+ decidable"), ("V", r"The v2\.2\.0 rule reports <v> write-then-read deliveries, \d+ between named tokens"),
             ("V", r"\| all deliveries \| <v> \("),
-            ("S", r"through Hugging Face datasets: \d+ of <v> messages"), ("S", r"<v> messages sit on places the redaction may have merged")]
+            ("S", r"through Hugging Face datasets: all <v> deliveries\."), ("S", r"\d+ of <v> deliveries sit on places the redaction may have merged")]
     A(C("release.deliveries", "Messages (deliveries) the final rule reports on the release", "session.flow['deliveries']", *msgs))
-    named = [("R", r"It finds \d+ messages, <v> of them between"), ("R", r"Between named tokens the tool finds <v> messages among"),
-             ("R", r"reconstructed \d+ messages \(<v> between named tokens\)"), ("R", r"puts \d+ of the <v> messages inside one agent"),
-             ("R", r"Between estimated agents, \d+ of the <v> messages fall inside"),
-             ("RM", r"the release shows \d+ messages, <v> of them between named tokens"), ("RM", r"release has \d+ messages \(<v> between named tokens\)"),
-             ("S", r"<v> messages between \d+ named tokens in"), ("S", r"\d+ of the <v> messages fall inside one agent"), ("S", r"with dating error, the <v> named messages range"),
-             ("IX", r"<v> messages between named tokens \("), ("SUB", r"It finds \d+ messages, <v> of them between"), ("SUB", r"\d+ of the <v> messages fall inside one agent"),
+    named = [("R", r"so we do not call them messages\), <v> of them between \d+ named tokens in \d+ sender.receiver pairs"), ("R", r"Between named tokens the tool finds <v> deliveries among"),
+             ("R", r"reconstructed \d+ write-then-read deliveries \(<v> between named tokens"), ("R", r"puts \d+ of the <v> named deliveries inside one agent"),
+             ("R", r"Between estimated agents, \d+ of the <v> named deliveries fall inside"),
+             ("RM", r"The Swarm Traces release has \d+ write-then-read deliveries \(<v> between named tokens\)"),
+             ("S", r"published \d+ write-then-read deliveries, <v> between \d+ named tokens in"), ("S", r"likely one agent: \d+ of the <v> named deliveries fall inside one agent"), ("S", r"with dating error, the <v> named deliveries range"),
+             ("IX", r"published \d+ write-then-read deliveries \(<v> between named tokens"), ("SUB", r"using what was written\), <v> of them between \d+ named tokens in \d+ sender-receiver pairs"), ("SUB", r"merged into estimated agents, \d+ of the <v> named deliveries fall inside one agent"),
              ("DS", r"<v> of them between (?:\w+ )?named tokens, in", "word"),
-             ("V", r"the release shows \d+ messages, <v> between named tokens, precision"), ("V", r"the final rules report \d+ messages, <v> between named tokens"),
-             ("V", r"phase 1\): \d+ messages, <v> of them between named tokens"), ("V", r"shows \d+ deliveries, <v> of them between named tokens"),
-             ("V", r"\| between two named tokens \| <v> \|"), ("V", r"Of the <v> between named tokens all were read as real")]
+             ("V", r"\| between two named tokens \| <v> \| \d+ of \d+ \|"), ("V", r"The v2\.2\.0 rule reports \d+ write-then-read deliveries, <v> between named tokens"),
+             ("V", r"\| between two named tokens \| <v> \|"), ("V", r"Of the <v> between named tokens all \d+ were read as a write")]
     A(C("release.named_deliveries", "Messages between two named tokens", "session.flow['deliveries_between_named_actors']", *named))
     A(C("release.named_pairs", "Sender-receiver pairs between named tokens", "session.flow['named_actor_pairs']",
-        ("R", r"between \d+ named tokens in <v> sender.receiver pairs, mostly through"), ("R", r"among \d+ tokens in <v> sender.receiver pairs \(Figure 2\)"),
-        ("R", r"Who talked to whom: the <v> sender.receiver pairs"), ("R", r"Who talked to whom: all <v> pairs between"),
-        ("RM", r"Every message between named tokens in the Swarm Traces release \(<v> sender-receiver pairs\)"),
-        ("S", r"messages between \d+ named tokens in <v> pairs"), ("SUB", r"named tokens in <v> sender-receiver pairs"),
-        ("DS", r"named tokens, in <v> sender-receiver pairs", "word"), ("V", r"of them between named tokens \(<v> pairs\)")))
+        ("R", r"of them between \d+ named tokens in <v> sender.receiver pairs, all through"), ("R", r"among \d+ tokens in <v> sender.receiver pairs \(Figure 2\)"),
+        ("R", r"Who talked to whom: the <v> sender.receiver pairs"), ("R", r"\(v2\.2\.0 has <v> pairs between \d+ tokens\)"),
+        ("RM", r"Every write-then-read delivery between named tokens in the Swarm Traces release \(<v> sender-receiver pairs\)"),
+        ("S", r"named tokens in <v> pairs, all through"), ("SUB", r"named tokens in <v> sender-receiver pairs"),
+        ("DS", r"named tokens, in <v> sender-receiver pairs", "word")))
     A(C("release.named_message_tokens", "Named tokens that take part in a message", "distinct senders and receivers of the named deliveries",
-        ("R", r"\d+ of them between <v> named tokens in"), ("R", r"finds \d+ messages among <v> tokens in"), ("R", r"all \d+ pairs between <v> named tokens"),
-        ("S", r"messages between <v> named tokens"), ("SUB", r"\d+ of them between <v> named tokens"),
+        ("R", r"\d+ of them between <v> named tokens in"), ("R", r"Between named tokens the tool finds \d+ deliveries among <v> tokens in"), ("R", r"\(v2\.2\.0 has \d+ pairs between <v> tokens\)"),
+        ("S", r"deliveries, \d+ between <v> named tokens in \d+ pairs"), ("SUB", r"\d+ of them between <v> named tokens"),
         ("DS", r"of them between <v> named tokens, in", "word")))
     A(C("release.deliveries_hf_dataset", "Messages that passed through Hugging Face datasets", "session.flow['channel_types']['hf_dataset']['deliveries']",
-        ("R", r"Of the \d+ messages, <v> passed through dataset repositories"), ("S", r"through Hugging Face datasets: <v> of \d+ messages")))
+        ("R", r"All <v> write-then-read deliveries passed through dataset repositories"), ("S", r"through Hugging Face datasets: all <v> deliveries\.")))
     A(C("release.deliveries_board", "Messages that passed through board folders", "session.flow['channel_types']['board']['deliveries']"))
     A(C("release.deliveries_on_merged_places", "Messages that rest on an owner-only (merged) place", "session.flow['coarse_channel_deliveries']",
-        ("R", r"<v> of \d+ messages rest on one, none between named tokens"), ("S", r"<v> of \d+ messages sit on places the redaction may have merged")))
+        ("R", r"<v> of \d+ deliveries rest on one, none between named tokens"), ("S", r"<v> of \d+ deliveries sit on places the redaction may have merged")))
     A(C("release.places", "Places (channels) found in the release", "session.flow['channels']",
         ("R", r"\d+ of the <v> places were written three or more times"), ("DD", r"of <v> channels, \d+ have ≥3 writes")))
     A(C("release.places_written_never_read", "Places written three or more times with no message out of them",
@@ -430,21 +428,21 @@ def registry():
     A(C("release.latency_p90_h", "90th-percentile gap from write to read (h)", "session.flow['latency_hours']['p90']",
         ("R", r"the 90th percentile <v> h\. Most activity", "f0")))
     A(C("release.place_actors_anonymous", "Actors on places that are single anonymous runs", "session.flow['actors_on_channels']['run']",
-        ("R", r"<v> actors on places are single anonymous runs"), ("R", r"Agent field redacted; <v> anonymous runs against")))
+        ("R", r"and <v> such runs appear on places, against \d+ tokens"), ("R", r"Agent field redacted; <v> anonymous runs against")))
     A(C("release.place_actors_tokens", "Actors on places that are tokens", "session.flow['actors_on_channels']['token']",
-        ("R", r"single anonymous runs, against <v> tokens"), ("R", r"anonymous runs against <v> tokens; ")))
+        ("R", r"such runs appear on places, against <v> tokens"), ("R", r"anonymous runs against <v> tokens on places")))
     A(C("release.grade_direct", "Messages graded direct", "session.flow['deliveries_by_grade']", ("V", r"On the release: <v> direct")))
     A(C("release.grade_inferred", "Messages graded inferred", "session.flow['deliveries_by_grade']", ("V", r"On the release: \d+ direct, <v> inferred")))
     A(C("release.grade_weak", "Messages graded weak", "session.flow['deliveries_by_grade']", ("V", r"On the release: \d+ direct, \d+ inferred, <v> weak")))
     A(C("release.first_message_time", "Read time of the first message between named tokens", "session.flow['first_named_delivery']['read_time']",
-        ("R", r"The first message between two named tokens came at <v> \(", "hm_on_md"), ("R", r"different agents moves from <v> to", "hm_on_md"),
+        ("R", r"The first delivery between two named tokens came at <v> \(", "hm_on_md"), ("R", r"different agents moves from <v> to", "hm_on_md"),
         ("CN", r"Tokens are not agents: [^|]*\| First message <v> to", "d_mon_hm")))
     A(C("release.first_message_write_time", "Write time of the first message", "…['first_named_delivery']['write_time']",
-        ("R", r"token 170 uploaded to a dataset through Git LFS at <v>, and token 169", "hm_on_md")))
-    A(C("release.first_message_write_id", "Write record of the first message", "…['first_named_delivery']['write_id']", ("R", r"The first message is <v> to R\d+")))
-    A(C("release.first_message_read_id", "Read record of the first message", "…['first_named_delivery']['read_id']", ("R", r"The first message is R\d+ to <v>")))
+        ("R", r"token 170 posted to a dataset at <v>, and token 169", "hm_on_md")))
+    A(C("release.first_message_write_id", "Write record of the first message", "…['first_named_delivery']['write_id']", ("R", r"The first delivery between named tokens is <v> to R\d+")))
+    A(C("release.first_message_read_id", "Read record of the first message", "…['first_named_delivery']['read_id']", ("R", r"The first delivery between named tokens is R\d+ to <v>:")))
     A(C("release.first_message_harm_share", "Share of timed harm still to come at the first message", "session.flow['harm_share_after_first_named_delivery']",
-        ("R", r"between two named tokens came at [^(]+\(<v>% to come\)", "pct"), ("S", r"First message between tokens <v>%", "pct")))
+        ("R", r"between two named tokens came at [^(]+\(<v>% to come\)", "pct"), ("S", r"First delivery between tokens <v>%", "pct")))
     # ---- spread
     A(C("release.programs_shared", "Programs run under more than one named token", "session.flow['content_families_moving']",
         ("R", r"<v> programs were run under more than one named token"), ("V", r"\d+ of the <v> shared programs remain signs")))
@@ -465,9 +463,9 @@ def registry():
     A(C("release.volume_alarm_hour", "Hour whose count set off the volume alarm", f"{ev}['baselines']['rate_alarm_all_actions']['hour']",
         ("R", r"The volume alarm fired at the end of the <v> hour", "hm")))
     A(C("release.volume_alarm_share", "Harm still to come when the volume alarm fired", f"{ev}['baselines']['rate_alarm_all_actions']['harm_share_after']",
-        ("R", r"a volume alarm fired with <v>%", "pct"), ("R", r"later than a simple volume alarm \(<v>%\)", "pct"), ("R", r"hour, with <v>% to come, on both", "pct"),
-        ("S", r"Volume alarm \(baseline\) <v>%", "pct"), ("IX", r"a plain volume alarm fired with <v>% to come", "pct"),
-        ("SUB", r"after a plain volume alarm \(<v>%\)", "pct"), ("DS", r"A simple volume alarm only fires with <v> percent ahead", "pct_word")))
+        ("R", r"a volume alarm that fires with <v>% of the harm still to come", "pct"), ("R", r"later than a simple volume alarm \(<v>%\)", "pct"), ("R", r"hour, with <v>% to come, on both", "pct"),
+        ("S", r"Volume alarm \(12 h history\) <v>%", "pct"), ("IX", r"a plain volume alarm fired with <v>% to come", "pct"),
+        ("SUB", r"after a plain volume alarm \(<v>%\)", "pct"), ("DS", r"a volume alarm at <v> percent", "pct_word")))
     A(C("release.carried_sign_time", "First time one token holds another's token", f"{ev}['replay_signs']", ("R", r"one token holding another's token at <v> \(", "hm")))
     A(C("release.carried_sign_share", "Harm still to come at the carried-token sign", f"{ev}['replay_signs']",
         ("R", r"holding another's token at [\d:]+ \(<v>% to come\)", "pct"), ("R", r"signs of shared control fired with \d+.<v>% of the timed harmful", "pct"),
@@ -482,15 +480,15 @@ def registry():
         ("DS", r"fire when <v> to [\w-]+ percent of the harm", "pct_word")))
     A(C("release.program2_time", "First program run by a second token", f"{ev}['replay_signs']", ("R", r"a program run by a second token, fired at <v> \(", "hm_on_md")))
     A(C("release.program2_share", "Harm still to come at the first reused program", f"{ev}['replay_signs']", ("R", r"a program run by a second token, fired at [^(]+\(<v>% to come\)", "pct")))
-    A(C("release.group3_time", "First group of three tokens linked by messages", f"{ev}['replay_signs']", ("R", r"a group of three tokens linked by messages at <v> \(", "hm")))
-    A(C("release.group3_share", "Harm still to come at the first group of three", f"{ev}['replay_signs']", ("R", r"linked by messages at [\d:]+ \(<v>% to come\)", "pct")))
+    A(C("release.group3_time", "First group of three tokens linked by messages", f"{ev}['replay_signs']", ("R", r"a group of three tokens linked by deliveries at <v> on [A-Z][a-z]+ \d+ \(", "hm")))
+    A(C("release.group3_share", "Harm still to come at the first group of three", f"{ev}['replay_signs']", ("R", r"linked by deliveries at [\d:]+ on [A-Z][a-z]+ \d+ \(<v>% to come\)", "pct")))
     A(C("release.robust_sigma_h", "Sigma of the time-error test (h)", f"{ev}['robustness']['sigma_hours']", ("R", r"with σ = <v> h \(the largest", "f1")))
     A(C("release.robust_p90_h", "Largest 90th-percentile fit error of any dated block (h)", f"{ev}['robustness']['from_p90_error_hours']",
         ("R", r"fit error of any dated block, <v> h, divided", "f2")))
     A(C("release.robust_dataset_write_low", "First dataset write under time error: low end", f"{ev}['robustness']", ("R", r"first dataset write stays between <v>% and", "pct")))
     A(C("release.robust_dataset_write_high", "First dataset write under time error: high end", f"{ev}['robustness']", ("R", r"first dataset write stays between \d+% and <v>% to come", "pct")))
-    A(C("release.robust_first_message_low", "First message under time error: low end", f"{ev}['robustness']", ("R", r"and the first message between <v>% and", "pct")))
-    A(C("release.robust_first_message_high", "First message under time error: high end", f"{ev}['robustness']", ("R", r"and the first message between \d+% and <v>%", "pct")))
+    A(C("release.robust_first_message_low", "First message under time error: low end", f"{ev}['robustness']", ("R", r"and the first delivery between <v>% and", "pct")))
+    A(C("release.robust_first_message_high", "First message under time error: high end", f"{ev}['robustness']", ("R", r"and the first delivery between \d+% and <v>%", "pct")))
     A(C("release.robust_shared_control_high", "Shared-control signs under time error: highest upper end", f"{ev}['robustness']",
         ("R", r"shared-control signs stay at or below <v>%", "pct")))
     A(C("release.robust_max_shift_points", "Largest move of any signal's share when shifted one hour (points)", f"{ev}['robustness']",
@@ -507,7 +505,7 @@ def registry():
         ("R", r"Spearman ρ = <v> over 5 days", "f1"), ("S", r"ρ = <v> our actions per day", "f1")))
     A(C("release.per_day_first_share", "Our share of actions on July 9", f"{ev}['external']['per_day']['our_share'][0]", ("R", r"Our July 9 share is lower \(<v>% against", "pct")))
     A(C("release.first_message_hours_before_surge", "Hours from the first named message to the surge METR dates", "METR's surge time (incident_milestones.json) minus the first message's read time",
-        ("R", r"11:51 on July 10 \(\d+% to come\), <v> hours before the surge", "word"), ("R", r"through a shared place fired <v> hours before the surge", "word"),
+        ("R", r"on July 11 \(\d+% to come\), <v> hours before the surge", "word"), ("R", r"A write-then-read link between two tokens fired <v> hours before the surge", "word"),
         ("IX", r"through a shared place fired <v> hours before the surge", "word"), fmt="f0"))
     A(C("release.counting_naive", "Named messages under naive counting", f"{ev}['counting_rules'][0]"))
     A(C("release.counting_naive_pairs", "Named pairs under naive counting", f"{ev}['counting_rules'][0]"))
@@ -522,52 +520,52 @@ def registry():
     A(C("release.largest_agent_records", "Records under the largest estimated agent", "records of the largest group", ("R", r"1623, 1069; <v> records\)")))
     A(C("release.agent_messages", "Messages between different estimated agents", f"{un}['messages']"))
     A(C("release.agent_messages_inside", "Named messages that fall inside one estimated agent", f"{un}['inside_one_agent']",
-        ("R", r"puts <v> of the \d+ messages inside one agent"), ("R", r"Between estimated agents, <v> of the \d+ messages fall inside one agent"),
-        ("S", r"<v> of the \d+ messages fall inside one agent"), ("SUB", r"<v> of the \d+ messages fall inside one agent"),
+        ("R", r"puts <v> of the \d+ named deliveries inside one agent"), ("R", r"Between estimated agents, <v> of the \d+ named deliveries fall inside one agent"),
+        ("S", r"likely one agent: <v> of the \d+ named deliveries fall inside one agent"), ("SUB", r"merged into estimated agents, <v> of the \d+ named deliveries fall inside one agent"),
         ("V", r"counted by estimated agent, \d+ between agents and <v> inside one"),
         ("DS", r"<v> of those \w+ are between tokens that Swarm Tracer estimates belong to one agent", "word")))
     A(C("release.agent_first_message_time", "First message between different estimated agents", f"{un}['first_message']['time']",
         ("R", r"moves from [^.]+ to <v>, with", "hm_on_md")))
     A(C("release.agent_first_message_share", "Harm still to come at the first message between agents", f"{un}['first_message']['harm_share_after']",
         ("R", r"on July \d+, with <v>% of the harm still to come", "pct")))
-    A(C("release.agent_carried_sign_time", "Carried-token sign, counted by agent", f"{un}['signs']", ("R", r"one token holding another.s fires at <v> \(", "hm_on_md")))
+    A(C("release.agent_carried_sign_time", "Carried-token sign, counted by agent", f"{un}['signs']", ("R", r"one token holding another.s at <v> \(", "hm_on_md")))
     A(C("release.agent_carried_sign_share", "Harm still to come at the carried-token sign, by agent", f"{un}['signs']",
-        ("R", r"holding another.s fires at [^(]+\(<v>% to come\)", "pct"), ("S", r"the earliest with <v>% of harm to come", "pct")))
+        ("R", r"holding another.s at [^(]+\(<v>% to come\)", "pct"), ("S", r"the earliest with <v>% of harm to come", "pct")))
     A(C("release.agent_shared_name_sign_time", "Shared-name sign, counted by agent", f"{un}['signs']", ("R", r"two tokens sharing a name on <v> \(", "md_at_hm")))
     A(C("release.agent_shared_name_sign_share", "Harm still to come at the shared-name sign, by agent", f"{un}['signs']",
         ("R", r"sharing a name on [^(]+\(<v>%\)", "pct")))
     # ---- audit score of the current code
     bm = "agenttrace.benchmark.score(benchmark.all_links(session), audit)"
     A(C("release.audit_reported_true", "Reported links the audit read as true", f"{bm}['groups']['all']['true']",
-        ("R", r"They report \d+ links, <v> judged true"), ("V", r"precision <v> of \d+ on the audit"), ("V", r"<v> of the \d+ decidable ones judged true"),
+        ("R", r"and report \d+ write-then-read deliveries, <v> labelled true"), ("V", r"On the audit the \d+ score <v> of \d+ decidable"), ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| <v> of \d+ \|"),
         ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| <v> of")))
     A(C("release.audit_reported_false", "Reported links the audit read as false", f"{bm}['groups']['all']['false']"))
     A(C("release.audit_reported_unclear", "Reported links the audit could not decide", f"{bm}['groups']['all']['unclear']",
-        ("R", r"judged true and <v> undecidable"), ("V", r"\| all deliveries \| \d+ \(<v> unclear\)")))
+        ("R", r"labelled true and <v> undecidable"), ("V", r"\| all deliveries \| \d+ \(<v> unclear\)")))
     A(C("release.audit_decidable", "Reported links the audit could decide", f"{bm}['precision']['n']",
-        ("V", r"precision \d+ of <v> on the audit"), ("V", r"\d+ of the <v> decidable ones judged true"), ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| \d+ of <v> \|")))
+        ("V", r"On the audit the \d+ score \d+ of <v> decidable"), ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| \d+ of <v> \|"), ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| \d+ of <v> \|")))
     A(C("release.audit_precision", "Precision of the reported links on the audit", f"{bm}['precision']['value']",
-        ("V", r"judged true \(precision <v>%", "pct"), ("V", r"\| all deliveries \| [^|]+\| [^|]+\| <v>% \(", "pct")))
+        ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| \d+ of \d+ \| <v>% \(", "pct"), ("V", r"\| all deliveries \| [^|]+\| [^|]+\| <v>% \(", "pct")))
     A(C("release.audit_precision_low", "Precision, low end of the 95% range", f"{bm}['precision']['ci'][0]",
-        ("V", r"on the audit \(95% range <v>%", "pct"), ("V", r"\(precision \d+%, 95% range <v>.\d+%", "pct"), ("V", r"\| all deliveries \| [^|]+\| [^|]+\| \d+% \(<v>%", "pct")))
+        ("V", r"\(\d+ are unclear; 95% range <v>%", "pct"), ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| \d+ of \d+ \| \d+% \(<v>%", "pct"), ("V", r"\| all deliveries \| [^|]+\| [^|]+\| \d+% \(<v>%", "pct")))
     A(C("release.audit_precision_high", "Precision, high end of the 95% range", f"{bm}['precision']['ci'][1]",
-        ("V", r"on the audit \(95% range \d+%.<v>%", "pct"), ("V", r"\| all deliveries \| [^|]+\| [^|]+\| \d+% \(\d+%.<v>%\)", "pct")))
-    A(C("release.audit_named_true", "Named links read as true", f"{bm}['groups']['named_named']", ("V", r"\| between two named tokens \| \d+ \| <v> of"), ("V", r"all <v> named ones true")))
+        ("V", r"\(\d+ are unclear; 95% range \d+%.<v>%", "pct"), ("V", r"\| all deliveries \| [^|]+\| [^|]+\| \d+% \(\d+%.<v>%\)", "pct")))
+    A(C("release.audit_named_true", "Named links read as true", f"{bm}['groups']['named_named']", ("V", r"\| between two named tokens \| \d+ \| <v> of"), ("V", r"\| between two named tokens \| \d+ \| <v> of \d+ \|")))
     A(C("release.audit_run_reported", "Reported links with an anonymous run on one side", f"{bm}['groups']['involves_run']['reported']",
         ("V", r"\| an anonymous run on one side \| <v> \(")))
     A(C("release.audit_run_true", "Of those, read as true", f"{bm}['groups']['involves_run']['true']",
         ("V", r"\| an anonymous run on one side \| [^|]+\| <v> of"), ("V", r"of those with an anonymous endpoint <v> of \d+")))
     A(C("release.audit_run_decidable", "Of those, decidable", f"{bm}['groups']['involves_run']['precision']['n']",
         ("V", r"\| an anonymous run on one side \| [^|]+\| \d+ of <v> \|"), ("V", r"of those with an anonymous endpoint \d+ of <v>")))
-    A(C("release.audit_inferred_true", "Inferred-grade links read as true", f"{bm}['by_grade']['inferred']", ("V", r"On the audit: inferred <v> of")))
-    A(C("release.audit_weak_true", "Weak-grade links read as true", f"{bm}['by_grade']['weak']", ("V", r", weak <v> of \d+ \(")))
-    A(C("release.audit_weak_decidable", "Weak-grade links decidable", f"{bm}['by_grade']['weak']", ("V", r", weak \d+ of <v> \(")))
+    A(C("release.audit_inferred_true", "Inferred-grade links read as true", f"{bm}['by_grade']['inferred']"))
+    A(C("release.audit_weak_true", "Weak-grade links read as true", f"{bm}['by_grade']['weak']", ("V", r"On the audit: weak <v> of \d+ \(")))
+    A(C("release.audit_weak_decidable", "Weak-grade links decidable", f"{bm}['by_grade']['weak']", ("V", r"On the audit: weak \d+ of <v> \(")))
     ia = "agenttrace.benchmark.independent_agreement(session, audit)['decided']"
     A(C("release.second_method_agree", "Links where the second method agrees with the labels", f"{ia}['agreement']['k']", ("V", r"raw agreement \d+% \(<v> of")))
     A(C("release.second_method_decided", "Decided links the second method was compared on", f"{ia}['n']",
         ("V", r"raw agreement \d+% \(\d+ of <v>;"), ("V", r"\(unclear left out, <v> links\)")))
     A(C("release.second_method_agreement", "Raw agreement of the second method", f"{ia}['agreement']['value']", ("V", r"raw agreement <v>% \(", "pct")))
-    A(C("release.second_method_kappa", "Cohen's kappa of the second method against the labels", f"{ia}['kappa']", ("V", r"Cohen's kappa <v>\. It never", "f2")))
+    A(C("release.second_method_kappa", "Cohen's kappa of the second method against the labels", f"{ia}['kappa']", ("V", r"Cohen.s kappa <v> \(the labels now hold", "f2")))
     # ---- board, attribution, insider findings
     bd = "agenttrace.board.board(session)['funnel']"
     A(C("release.board_folders", "Board folders named in the release", f"{bd}['folders']",
@@ -615,20 +613,19 @@ def registry():
     # ---- the audit file itself (no dataset needed)
     af = "agenttrace/claims/audited_links.json"
     A(C("audit.links", "Links in the hand audit", f"len({af}['links'])",
-        ("R", r"after an audit of <v> links cut"), ("R", r"on the release \(<v> in all, both records read\)"), ("R", r"the audit of <v> links \(Section 3.2\)"),
-        ("S", r"fell after auditing <v> links"), ("S", r"→ \d+; <v> audited, one reader"), ("IX", r"after auditing <v> links"), ("SUB", r"after an audit of <v> links"),
-        ("V", r"all <v> deliveries and links are now audited"), ("V", r"Score on the <v> audited links")))
+        ("R", r"Audits of <v> links cut a first count"), ("R", r"on the release \(<v> in all, both records read\)"), ("R", r"the audit of <v> links \(Section 3.2\)"),
+        ("S", r"Audit of the release.s links \(<v> read by one reader"), ("SUB", r"after audits of <v> links cut a first count"),
+        ("V", r"Score on the <v> audited links \(labels as corrected"), ("V", r"Score on the <v> audited links")))
     A(C("audit.true_links", "Links the audit read as true messages", "label == true_message",
-        ("V", r"audited links \(<v> true messages"), ("R", r"and \d+ of the <v> true ones were made after"),
-        ("V", r"\d+ of the <v> true labels were made after")))
-    A(C("audit.read_then_post", "Links where the write only GETs the place, then POSTs elsewhere", "label == false_write", ("V", r"true messages, <v> read-then-post")))
+        ("V", r"labels as corrected in v2\.2\.0: <v> true, \d+ read-then-post")))
+    A(C("audit.read_then_post", "Links where the write only GETs the place, then POSTs elsewhere", "label == false_write", ("V", r"\d+ true, <v> read-then-post")))
     A(C("audit.read_is_write", "Links where the read is itself a write", "label == read_not_a_read", ("V", r"read-then-post, <v> \"read is a write\"")))
-    A(C("audit.downloads", "Links where the write only fetches (LFS download, urlopen)", "label == false_write_lfs_or_urlopen", ("V", r"<v> downloads or urlopen")))
-    A(C("audit.different_repo", "Links on different repositories under one owner", "label == different_repo", ("V", r"urlopen, <v> different repositories")))
-    A(C("audit.unclear", "Links the audit could not decide", "label == unclear", ("V", r"different repositories, <v> unclear\)"), ("V", r"<v> links are unclear, and it calls")))
+    A(C("audit.downloads", "Links where the write only fetches (LFS download, urlopen)", "label == false_write_lfs_or_urlopen", ("V", r", <v> downloads, urlopen or upload probes")))
+    A(C("audit.different_repo", "Links on different repositories under one owner", "label == different_repo", ("V", r"upload probes, <v> different repositories")))
+    A(C("audit.unclear", "Links the audit could not decide", "label == unclear", ("V", r"different repositories, <v> unclear, \d+ reader holding")))
     A(C("audit.first_count", "Named links the first version (v1.1.0) reported", "reported_v110 true",
-        ("R", r"cut a first count of <v>\."), ("R", r"Of the <v> an early version reported between named tokens"), ("S", r"a first count of <v> fell"),
-        ("S", r"<v> links → \d+"), ("SUB", r"cut a first count of <v>\."), ("DS", r"A first count said <v>;"),
+        ("R", r"cut a first count of <v> to 19, then 23, then 9"), ("R", r"Of the <v> an early version reported between named tokens"), ("S", r"Counts fell <v> → \d+ → \d+ → \d+ over three audits"),
+        ("S", r"\) <v> → \d+ → \d+ → \d+; a reviewer defends"), ("SUB", r"cut a first count of <v> to 19, then 23, then 9"), ("DS", r"A first count said <v>, then 19"),
         ("V", r"every link between named tokens that v1.1.0 reported on the Swarm Traces release \(<v>\)")))
     # ---- saved runs
     vs = "reports/validation/summary.json"
@@ -636,25 +633,25 @@ def registry():
         ("R", r"Scores on <v> simulated coordinated swarms"), ("V", r"across the <v> coordinated swarms the tool finds"), ("V", r"so <v> coordinated swarms of")))
     A(C("validation.benign_runs", "Simulated benign swarms scored", f"{vs}['benign_runs']",
         ("R", r"over settings and seeds\) and <v> benign ones"), ("V", r"### Benign baseline \(<v> swarms with no coordination\)"),
-        ("S", r"Benign swarms: messages between different agents \d+ in <v> runs")))
+        ("S", r"no delivery between different agents in <v> original runs")))
     A(C("validation.total_runs", "Simulated swarms scored in all", "coordinated_runs + benign_runs",
-        ("RM", r"scored on <v> simulated swarms"), ("S", r"Scored on <v> simulated swarms"), ("IX", r"Scored on <v> simulated swarms"),
+        ("RM", r"scored on <v> simulated swarms"), ("IX", r"Scored on <v> simulated swarms"),
         ("SUB", r"Scored on <v> simulated swarms"), ("DS", r"We scored the tool on <v> simulated swarms", "word"), ("V", r"pooled over all <v> swarms")))
     for key, label, anchors in [
         ("msg_precision", "Message links: precision",
-         {"median": [("R", r"Message links: precision / recall \d+%.<v>%"), ("S", r"Message links: precision / recall \d+.<v>.\d+%"),
-                     ("SUB", r"message links reach <v>% precision"), ("DS", r"Median message precision is <v> percent", "pct_word"),
+         {"median": [("R", r"\(original simulator\) \d+%.<v>%.\d+% / \d+%.\d+%.\d+% Message links: precision / recall \(independent"), ("S", r"original simulator \d+.<v>.\d+% / \d+.\d+.\d+%"),
+                     ("SUB", r"message links reach <v>% precision"), ("DS", r"Median precision of the write-then-read links is <v> percent", "pct_word"),
                      ("V", r"and \d+%.<v>%.\d+% of the messages it reports are true")],
-          "min": [("R", r"Message links: precision / recall <v>%"), ("V", r"and <v>%.\d+%.\d+% of the messages it reports are true")],
-          "max": [("R", r"Message links: precision / recall \d+%.\d+%.<v>% /"), ("V", r"and \d+%.\d+%.<v>% of the messages it reports are true")]}),
+          "min": [("R", r"\(original simulator\) <v>%.\d+%.\d+% /"), ("V", r"and <v>%.\d+%.\d+% of the messages it reports are true")],
+          "max": [("R", r"\(original simulator\) \d+%.\d+%.<v>% /"), ("V", r"and \d+%.\d+%.<v>% of the messages it reports are true")]}),
         ("msg_recall", "Message links: recall",
-         {"median": [("R", r"Message links: precision / recall [^/]+/ \d+%.<v>%"), ("S", r"Message links: precision / recall [^/]+/ \d+.<v>.\d+%"),
+         {"median": [("R", r"Message links: precision / recall [^/]+/ \d+%.<v>%"), ("S", r"original simulator \d+.\d+.\d+% / \d+.<v>.\d+%"),
                      ("SUB", r"precision and <v>% recall"), ("DS", r"and recall <v> percent", "pct_word"), ("V", r"the tool finds \d+%.<v>%.\d+% of the true messages")],
           "min": [("R", r"Message links: precision / recall [^/]+/ <v>%"), ("V", r"the tool finds <v>%.\d+%.\d+% of the true messages")],
-          "max": [("R", r"Message links: precision / recall [^/]+/ \d+%.\d+%.<v>%"), ("S", r"Message links: precision / recall [^/]+/ \d+.\d+.<v>%"),
+          "max": [("R", r"Message links: precision / recall [^/]+/ \d+%.\d+%.<v>%"), ("S", r"original simulator \d+.\d+.\d+% / \d+.\d+.<v>%"),
                   ("V", r"the tool finds \d+%.\d+%.<v>% of the true messages")]}),
         ("pair_precision", "Agent pairs: precision",
-         {"median": [("R", r"Agent pairs that talked: precision / recall \d+%.<v>%"), ("V", r"recall, \d+%.<v>%.\d+% precision\. On the new")],
+         {"median": [("R", r"Agent pairs that talked: precision / recall \d+%.<v>%"), ("V", r"recall, \d+%.<v>%.\d+% precision\. On the independent generator")],
           "min": [("R", r"Agent pairs that talked: precision / recall <v>%")], "max": [("R", r"Agent pairs that talked: precision / recall \d+%.\d+%.<v>% /")]}),
         ("pair_recall", "Agent pairs: recall",
          {"median": [("R", r"Agent pairs that talked: precision / recall [^/]+/ \d+%.<v>%"), ("V", r"Pairs of agents: \d+%.<v>%.\d+% recall")],
@@ -676,21 +673,21 @@ def registry():
         ("R", r"they were right in <v> of \d+ and"), ("R", r"\(after the rule change\) <v> of \d+ /"), ("V", r"pooled over all \d+ swarms: high <v> of"),
         ("V", r"\| high \| \d+ \| <v> \|"), ("S", r"10 of 240 right / <v> of \d+ right")))
     A(C("validation.identity_medium_proposed", "Identity merges proposed as medium, pooled", f"{idp}['medium']['proposed']",
-        ("R", r"and \d+ of <v> pairs\. Message links"), ("V", r"medium \d+ of <v>, and the rest"), ("V", r"\| medium \| <v> \|")))
-    A(C("validation.identity_medium_correct", "Of those, right", f"{idp}['medium']['correct']", ("V", r"medium <v> of \d+, and the rest"), ("V", r"\| medium \| \d+ \| <v> \|")))
+        ("R", r"and \d+ of <v> pairs\. Message links"), ("V", r"medium \d+ of <v>, but the \d+ high ones"), ("V", r"\| medium \| <v> \|")))
+    A(C("validation.identity_medium_correct", "Of those, right", f"{idp}['medium']['correct']", ("V", r"medium <v> of \d+, but the \d+ high ones"), ("V", r"\| medium \| \d+ \| <v> \|")))
     A(C("validation.identity_low_proposed", "Identity merges proposed as low, pooled", f"{idp}['low']['proposed']",
-        ("R", r"/ \d+ of \d+ / \d+ of <v> Benign"), ("V", r"\| low \| <v> \|")))
-    A(C("validation.identity_low_correct", "Of those, right", f"{idp}['low']['correct']", ("R", r"/ \d+ of \d+ / <v> of [\d,]+ Benign"), ("V", r"\| low \| \d+ \| <v> \|")))
+        ("R", r"/ \d+ of \d+ / \d+ of <v> Original benign"), ("V", r"\| low \| <v> \|")))
+    A(C("validation.identity_low_correct", "Of those, right", f"{idp}['low']['correct']", ("R", r"/ \d+ of \d+ / <v> of [\d,]+ Original benign"), ("V", r"\| low \| \d+ \| <v> \|")))
     A(C("validation.benign_messages_between_agents_max", "Most messages between different agents on any benign swarm", f"{vs}['benign']['messages_between_agents']['max']",
-        ("R", r"default alert rule <v> in \d+;"), ("V", r"Messages between different agents reported: <v>;"), ("S", r"Benign swarms: messages between different agents <v> in")))
+        ("R", r"default alert rule <v> in \d+;"), ("V", r"Messages between different agents reported: <v>;")))
     A(C("validation.benign_alert_fired", "Benign swarms where the default alert rule fired", f"{vs}['benign']['fires'] (alert-coord2)",
         ("R", r"before the fix\); fired in <v> of \d+"), ("V", r"\"Alert: 2 kinds of coordination\" in <v> of \d+"), ("V", r"On benign swarms it now fires in <v> of")))
     A(C("validation.benign_watch_fired", "Benign swarms where the watch rule fired", f"{vs}['benign']['fires'] (watch-harm)",
         ("V", r"\"Watch: first harmful sign\" in <v> of \d+")))
     A(C("variance.sigma_low_messages_low", "Named messages under 0.12 h time noise: low end of the 95% range", "reports/evaluation/count_variance.json runs['0.12']['messages'][1]",
-        ("R", r"σ = 0.12 h gives <v>.\d+ messages"), ("S", r"the \d+ named messages range <v>.\d+ \(95%\)")))
+        ("R", r"σ = 0.12 h gives <v>.\d+ deliveries"), ("S", r"the \d+ named deliveries range <v>.\d+ \(95%\)")))
     A(C("variance.sigma_low_messages_high", "Named messages under 0.12 h time noise: high end of the 95% range", "…runs['0.12']['messages'][3]",
-        ("R", r"σ = 0.12 h gives \d+.<v> messages"), ("S", r"the \d+ named messages range \d+.<v> \(95%\)")))
+        ("R", r"σ = 0.12 h gives \d+.<v> deliveries"), ("S", r"the \d+ named deliveries range \d+.<v> \(95%\)")))
     A(C("variance.sigma_2h_messages_low", "Named messages under 2 h time noise: low end of the 95% range", "…runs['2.0']['messages'][1]", ("R", r"σ = 2 h gives <v>.\d+,")))
     A(C("variance.sigma_2h_messages_high", "Named messages under 2 h time noise: high end of the 95% range", "…runs['2.0']['messages'][3]", ("R", r"σ = 2 h gives \d+.<v>,")))
     A(C("variance.draws", "Draws per noise level", "…runs['0.12']['draws']", ("R", r"perturbed by Gaussian noise <v> times")))
@@ -699,8 +696,7 @@ def registry():
     A(C("samples.demo_records", "Records in the bundled demo swarm", "lines of agenttrace/samples/demo_swarm/demo_swarm.jsonl"))
     A(C("repo.unit_tests", "Unit tests in the test suite", "unittest discovery over agenttrace/tests"))
     A(C("repo.version", "Package version", "pyproject.toml [project] version",
-        ("RM", r"swarm-tracer@v<v>", "str"), ("IX", r"swarm-tracer@v<v>", "str"), ("S", r"swarm-tracer@v<v>", "str"),
-        ("SUB", r"release v<v>:", "str")))
+        ("RM", r"swarm-tracer@v<v>", "str"), ("IX", r"swarm-tracer@v<v>", "str"), ("S", r"swarm-tracer@v<v>", "str")))
     # ---- a text block that must be the saved output, verbatim
     blk = Claim("validation.tables", "The tables under 'Results' in docs/validation.md are the saved run's summary.md, line for line",
                 "reports/validation/summary.md, written by agenttrace.validation run")
@@ -942,6 +938,7 @@ def part_audit():
     return {"audit.links": len(links), "audit.true_links": n("true_message"), "audit.read_then_post": n("false_write"),
             "audit.read_is_write": n("read_not_a_read"), "audit.downloads": n("false_write_lfs_or_urlopen"),
             "audit.different_repo": n("different_repo"), "audit.unclear": n("unclear"),
+            "audit.reader_holds_token": n("reader_holds_writer_token"),
             "audit.first_count": sum(1 for x in links if x.get("reported_v110"))}
 
 

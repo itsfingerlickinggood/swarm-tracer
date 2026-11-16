@@ -74,11 +74,11 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
 
 <section class="s">
   <div class="k">Method</div>
-  <h2>From raw records to messages, honestly counted</h2>
+  <h2>From raw records to deliveries, honestly counted</h2>
   <ul>
     <li><b>Date</b> records from unix timestamps the agents wrote into their own code, fitted per block and kept only if the fit passes a rank-correlation and error check.</li>
     <li><b>Identify</b> actors by the token a record authenticates with; a key every agent shares is never an actor.</li>
-    <li><b>Link messages:</b> a read of a place (a dataset, a board folder) after a different actor wrote to it.</li>
+    <li><b>Link deliveries:</b> a read of a place (a dataset, a board folder) after a different actor wrote to it. A write then a later read, not proof the reader used it.</li>
     <li><b>Count honestly:</b> reruns of one program are one sender; each write counts once per reader; a wiki edit that keeps none of the earlier lines is an overwrite, not a message.</li>
     <li><b>Replay</b> the incident hour by hour: when each warning sign first fires, and how much harm was still to come.</li>
   </ul>
@@ -91,10 +91,10 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
   <div class="big">
     <div><b>59%</b><span>of 91,037 payloads given an estimated time (the release could date 3%)</span></div>
     <div><b>2.2 h</b><span>largest gap between 7 moments we date and times METR and Hugging Face published</span></div>
-    <div><b>6</b><span>messages between 8 named tokens in 5 pairs (23 in all), nearly all through Hugging Face datasets; a first count of 166 fell after auditing 258 links</span></div>
+    <div><b>9</b><span>write-then-read deliveries, 4 between 7 named tokens in 4 pairs, all through Hugging Face datasets; none shows the reader using what was written. Counts fell 166 → 19 → 23 → 9 over three audits; labels are one reader's (the authors' AI assistant)</span></div>
     <div><b>ρ = 1.0</b><span>our actions per day rank the five days as Hugging Face's own logs do</span></div>
   </div>
-  <p class="small muted" style="margin-top:28px">Every number recomputed with <code>python3 -m agenttrace evaluate</code>; published times from METR pp. 34–38 and Hugging Face's technical timeline.</p>
+  <p class="small muted" style="margin-top:28px">Numbers recomputed with <code>python3 -m agenttrace evaluate</code>; published times from METR pp. 34–38 and Hugging Face's technical timeline. The matching rules were written knowing those times.</p>
   <div class="foot"><span>Report Section 4</span><span>5</span></div>
 </section>
 
@@ -104,9 +104,9 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
     <div>
       <h2>Two clusters, joined by a few brokers</h2>
       <ul>
-        <li>Agents talked almost entirely through Hugging Face datasets: 22 of 23 messages.</li>
-        <li>Tokens 169 and 170 talked evenly both ways, shared programs and a name prefix: probably one agent with two keys. The tool proposes this merge with direct evidence.</li>
-        <li>Naive counting overstates contact: on the wiki swarm, the rules cut 20,535 apparent messages to 9,866.</li>
+        <li>Agents talked almost entirely through Hugging Face datasets: all 9 deliveries. A delivery is a write then a later read; a reviewer would defend about 5 of the 23 counted before.</li>
+        <li>The first delivery, token 170 to 169, is probably one agent with two keys (shared programs, a name prefix); the tool proposes this merge with direct evidence. 2 of the 4 named deliveries fall inside one agent.</li>
+        <li>Naive counting overstates contact: on the wiki logs, the rules cut 20,535 apparent messages to 9,866.</li>
       </ul>
     </div>
     <img src="../reports/submission/figures/app_network.jpg" alt="">
@@ -120,11 +120,12 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
     <div>
       <h2>Not from coordination itself</h2>
       <p>Share of dated harm still to come when each sign first fired:</p>
-      <div class="rowb"><span>Single-agent signs (first dataset write)</span><span class="track"><span class="bar" style="width:90%;background:#4b5157"></span></span><b>90–100%</b></div>
-      <div class="rowb"><span>First message between tokens</span><span class="track"><span class="bar" style="width:90%;background:#2f6fb3"></span></span><b>90%</b></div>
-      <div class="rowb"><span>Volume alarm (baseline)</span><span class="track"><span class="bar" style="width:83%;background:#8a94a0"></span></span><b>83%</b></div>
+      <div class="rowb"><span>First dataset write; registry signs</span><span class="track"><span class="bar" style="width:90%;background:#4b5157"></span></span><b>90–100%</b></div>
+      <div class="rowb"><span>Simple baselines (new host, distinct actors, secrets search, 6 h volume)</span><span class="track"><span class="bar" style="width:90%;background:#8a94a0"></span></span><b>87–93%</b></div>
+      <div class="rowb"><span>First delivery between tokens</span><span class="track"><span class="bar" style="width:87%;background:#2f6fb3"></span></span><b>87%</b></div>
+      <div class="rowb"><span>Volume alarm (12 h history)</span><span class="track"><span class="bar" style="width:83%;background:#8a94a0"></span></span><b>83%</b></div>
       <div class="rowb"><span>Signs of shared control</span><span class="track"><span class="bar" style="width:54%;background:#2f6fb3"></span></span><b>50–57%</b></div>
-      <p class="small muted">Robust to time errors as large as the dating fit's own (95% ranges in the report).</p>
+      <p class="small muted">The shared-place sign fires about 1.4 h after the first harm on the original simulator and never on an independent one: the earlier +5.8 h lead is withdrawn.</p>
     </div>
     <img src="../reports/submission/figures/app_early.jpg" alt="">
   </div>
@@ -133,17 +134,17 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
 
 <section class="s">
   <div class="k">How accurate is it?</div>
-  <h2>Scored on 60 simulated swarms with known answers</h2>
+  <h2>Scored on simulated swarms: optimistic, and lower on an independent generator</h2>
   <table>
     <tr><th>Measure</th><th>Result (min–median–max)</th></tr>
-    <tr><td>Message links: precision / recall</td><td>66–<b>79</b>–88% / 57–<b>73</b>–81%</td></tr>
-    <tr><td>Agent pairs that talked: precision / recall</td><td>81–<b>89</b>–96% / 71–<b>83</b>–91%</td></tr>
+    <tr><td>Message links: precision / recall, original simulator</td><td>82–<b>90</b>–96% / 66–<b>84</b>–93%</td></tr>
+    <tr><td>Message links: precision / recall, independent generator</td><td><b>70% / 58%</b> (19% / 10% with times on 30% of records; undated when grouped by agent)</td></tr>
+    <tr><td>Agent pairs that talked: precision / recall</td><td>89–<b>95</b>–99% / 73–<b>90</b>–96%</td></tr>
     <tr><td>Dating error, median</td><td>about one minute</td></tr>
     <tr><td>Identity merges labelled high: before / after a rule change</td><td>10 of 240 right / 12 of 12 right</td></tr>
-    <tr><td>Benign swarms: messages between different agents</td><td>0 in 15 runs</td></tr>
+    <tr><td>Benign swarms: Alert rule fired (original / independent look-alikes)</td><td>5 of 30 / 40 of 50 (the Alert detects information flow, not malice); no delivery between different agents in 15 original runs</td></tr>
     <tr><td>Benign swarms: program-reuse sign, before / after counting only reuse that touches a shared place or does harm</td><td>10 of 10 / 0 of 10</td></tr>
-    <tr><td>Places named only in code comments, before / after they stop counting as reads</td><td>message precision 66% / 79%</td></tr>
-    <tr><td>Hand audit of the release's links: a GET of a dataset plus a POST elsewhere was counted as a write</td><td>166 links → 23; 258 audited, one reader; the simulator never wrote this pattern until we added it</td></tr>
+    <tr><td>Audit of the release's links (258 read by one reader, the authors' AI assistant)</td><td>166 → 19 → 23 → 9; a reviewer defends ~5 of the 23; the second implementation found 191 until its quote-pairing fault was fixed, and now agrees, not independently</td></tr>
   </table>
   <div class="foot"><span>docs/validation.md · report Appendix C</span><span>8</span></div>
 </section>
@@ -152,9 +153,9 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
   <div class="k">What an investigator would still miss</div>
   <h2>The biggest blind spot is identity</h2>
   <ul>
-    <li><b>A token is not an agent.</b> 241 named tokens and names against about 1,200 agents in the reports; 85% of actions carry no named actor. Merged into estimated agents, tokens 169 and 170 are likely one agent: 3 of the 6 messages fall inside one agent, and every sign of shared control fires later (the earliest with 38% of harm to come, not 57%).</li>
-    <li><b>Time:</b> 60% of records cannot be placed at all; with dating error, the 6 named messages range 6&ndash;7 (95%).</li>
-    <li><b>Reading is inferred:</b> code shows attempts, not results; 3 of 23 messages sit on places the redaction may have merged.</li>
+    <li><b>A token is not an agent.</b> 241 named tokens and names against about 1,200 agents in the reports; 85% of actions carry no named actor. Merged into estimated agents, tokens 169 and 170 are likely one agent: 2 of the 4 named deliveries fall inside one agent, and every sign of shared control fires later (the earliest with 38% of harm to come, not 57%).</li>
+    <li><b>Time:</b> 60% of records cannot be placed at all; with dating error, the 4 named deliveries range 4&ndash;5 (95%).</li>
+    <li><b>Reading is inferred:</b> code shows attempts, not results; 3 of 9 deliveries sit on places the redaction may have merged.</li>
     <li><b>Hindsight:</b> the signals and the harm list were written knowing how the incident unfolded.</li>
     <li><b>Dual use:</b> these gaps are also what a careful swarm could exploit; we describe them only at the level of the public reports and test no evasion.</li>
   </ul>
@@ -175,13 +176,13 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
       <li><b>Forensics tab:</b> trace any string; credential lifecycles; command and control; dead drops; program evolution with diffs; attack stage ladder; lead–lag; anomalies; a story from the data; what-if; chain of custody; STIX and Timesketch exports.</li>
     </ul>
   </div>
-  <div class="foot"><span>Tested on two very different swarms: code payloads and wiki edits</span><span>10</span></div>
+  <div class="foot"><span>Tested on two very differently shaped datasets: code payloads and wiki edits</span><span>10</span></div>
 </section>
 
 <section class="s dark">
   <div style="margin-top:1.1in">
     <div class="k">Try it</div>
-    <h1 style="font-size:44px">pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.1.0</h1>
+    <h1 style="font-size:44px">pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.2.0</h1>
     <p class="sub">then <code>swarm-tracer demo</code>, or <code>swarm-tracer serve --input your-swarm.jsonl</code></p>
     <p class="sub" style="font-size:22px;margin-top:30px">Code: github.com/itsfingerlickinggood/swarm-tracer<br>Website, docs and video: itsfingerlickinggood.github.io/swarm-tracer</p>
   </div>

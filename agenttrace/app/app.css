@@ -46,7 +46,9 @@ button:focus-visible,summary:focus-visible,a:focus-visible,[tabindex]:focus-visi
 .omniout{position:absolute;top:34px;left:0;right:0;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 14px 34px rgba(10,20,35,.22);max-height:70vh;overflow:auto;padding:4px 0}
 .omniout .oh{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);padding:6px 12px 2px}
 .omniout .oi{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 12px;cursor:pointer;font-size:12.5px}
-.omniout .oi:hover{background:#f2f6fb}
+.omniout .oi:hover,.omniout .oi.on{background:#f2f6fb}
+.ent:focus-visible,tr.click:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.tr.click:focus-visible{outline-offset:-2px}
 .status{font-size:12px;color:#ffd88a;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .status.bad{color:#ff9b8f}
 .loadbtn{background:#21364d;border-color:#36506d;color:#fff;white-space:nowrap}

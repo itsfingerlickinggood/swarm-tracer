@@ -37,6 +37,7 @@ import os
 import random
 import re
 import time
+import zlib
 from collections import Counter, defaultdict
 
 from . import messages, reconstruct
@@ -343,7 +344,8 @@ def _attribute(s, hide=frozenset(), agent=None):
 
 TIME_W = 600                 # seconds: a named record this close in time to a run can be evidence
 PLACE_MAX = 100              # a place touched by more runs than this is not specific
-TRAIN_SEEDS = (3, 4)         # halves hidden to learn the weights; holdout() scores on other halves
+TRAIN_SEEDS = (3, 4)         # halves of the training pool hidden to learn the weights
+TRAIN_POOL, TEST_POOL = 0, 1  # disjoint thread pools: train on one, score on the other (_pool_of)
 EXTRA_TARGET = {"high": 0.99, "medium": 0.96, "low": 0.86}   # floors: the bands the first pass shipped with
 MIN_BAND_ROWS = 25
 EXTRA_KEYS = ("pre", "combo", "fam")
@@ -534,7 +536,7 @@ def _train(s, agent=None):
         return c
     rows, n_hidden, first = [], 0, Counter()
     for seed in TRAIN_SEEDS:
-        hide = _hide_half(s, seed)
+        hide = _hide_half(s, seed, pool=TRAIN_POOL)
         res = _attribute(s, hide, agent)
         for u, ln in res["links"].items():
             if u in hide:
@@ -605,16 +607,25 @@ def _band_rows(counts):
     return out
 
 
-def _hide_half(s, seed, share=0.5):
-    """Thread roots of named threads to hide: a random half, by thread. Threads named only by a handle
-    in their text are left alone (the handle would give them away)."""
+def _pool_of(root):
+    """The split of v2.2.0: every thread belongs to the training pool (0) or the test pool (1), fixed by a hash of
+    its root id. The weights and cut-offs are learned only on threads of pool 0 and scored only on threads of pool 1,
+    so no scored thread was ever a training row (v2.1.0 hid random halves with different seeds for each, and about
+    three quarters of the scored threads had been training rows)."""
+    return zlib.crc32(str(root).encode("utf-8")) % 2
+
+
+def _hide_half(s, seed, share=0.5, pool=None):
+    """Thread roots of named threads to hide: a random half, by thread, optionally only from one pool (see _pool_of).
+    Threads named only by a handle in their text are left alone (the handle would give them away)."""
     b = _base(s)
-    roots = sorted({b["root"][r] for r in b["acts"] if s.actor[r][1] in ("named", "token", "token_via_thread")})
+    roots = sorted({b["root"][r] for r in b["acts"] if s.actor[r][1] in ("named", "token", "token_via_thread")
+                    and (pool is None or _pool_of(b["root"][r]) == pool)})
     rng = random.Random(seed)
     return frozenset(r for r in roots if rng.random() < share)
 
 
-def holdout(s, seeds=(1, 2), agent_of=None, big=3, merged_of=None, agent=None, model=None):
+def holdout(s, seeds=(1, 2), agent_of=None, big=3, merged_of=None, agent=None, model=None, pool=TEST_POOL):
     """Hide the token of half of the named threads, attribute them like anonymous runs, and score.
     agent_of: actor token -> true agent (simulated swarms); without it the hidden token is the truth,
     which undercounts when one agent holds several tokens. agent: the estimated-agent layer used by
@@ -634,7 +645,7 @@ def holdout(s, seeds=(1, 2), agent_of=None, big=3, merged_of=None, agent=None, m
     bigs = {a for a, _ in size.most_common(big)}
     truth = lambda a: (agent_of or {}).get(a, a)
     for seed in seeds:
-        hide = _hide_half(s, seed)
+        hide = _hide_half(s, seed, pool=pool)
         res = _attribute(s, hide, agent)
         first_links = set(res["links"])
         new = _extra_links(s, res, hide, agent, model) if model else {}
@@ -688,7 +699,11 @@ def holdout(s, seeds=(1, 2), agent_of=None, big=3, merged_of=None, agent=None, m
             "tokens_in_merged_agents": len(multi),
             "cluster_pair_precision_merged": round(cl_ok_m / cl_n, 4) if cl_n and merged_of else None,
             "merged_tokens": len(merged_of or {}),
-            "truth": "simulated agent" if agent_of else "hidden token"}
+            "truth": "simulated agent" if agent_of else "hidden token",
+            "split": {"pool": pool, "rule": "threads are split by a hash of the root id into a training pool and a test pool; "
+                                            "the model is trained on one and scored on the other",
+                      "coverage_is": "share of HIDDEN NAMED threads that got a link: named threads are easier to link than "
+                                     "anonymous runs, so this is not the coverage of real anonymous runs (see real_runs)"}}
 
 
 _SWARM_CACHE = {}
@@ -824,7 +839,7 @@ def template_families(s, res, agent=None):
                      "clusters": len(multi), "clustered_runs": sum(1 for c in multi for r in c if s.actor[r][1] == "run"),
                      "unattributed_runs": sum(1 for r in anon if root[r] not in links),
                      "sub": [{"records": len(c), "first_record": c[0],
-                              "shared": [_label(x)[:60] for x, _n in Counter(x for r in c for x in feats[r] if x[0] in ("ph", "str", "id", "name") and df[x] <= TF_RARE).most_common(3)]}
+                              "shared": [_label(x)[:60] for x, _n in sorted(Counter(x for r in c for x in feats[r] if x[0] in ("ph", "str", "id", "name") and df[x] <= TF_RARE).items(), key=lambda kv: (-kv[1], repr(kv[0])))[:3]]}
                              for c in sorted(multi, key=lambda c: (-len(c), c[0]))[:5]]})
     rows.sort(key=lambda r: (-r["records"], r["example"]))
     return {"families": len(big), "min_size": TF_MIN, "runs_in_families": anon_in,
@@ -970,6 +985,12 @@ def attribution(s):
             ex[ln["band"]].append({"id": "run:" + u, "actor": ln["actor"], "direct": ln["direct"], "support": ln["support"]})
     out["examples"] = ex
     s._attr_res = res
+    linked_real = sum(bands[bnd]["runs"] for bnd in BANDS)
+    out["real_runs"] = {"runs": len(units), "linked": linked_real, "share": round(linked_real / len(units), 4) if units else None,
+                        "by_band": {bnd: bands[bnd]["runs"] for bnd in BANDS},
+                        "first_pass_linked": sum(before.get(bnd, 0) for bnd in BANDS),
+                        "note": "the coverage to quote: how many real anonymous runs got a link at all. The holdout's 'coverage' is "
+                                "measured on hidden named threads, which are easier, and its precision is not a measured precision for anonymous runs."}
     out["seconds_attribute"] = round(t1 - t0, 2)
     out["template_families"] = template_families(s, res, agent)
     out["credential_carriers"] = sum(1 for f in res["unit_feats"].values() if any(k[0] == "credential" and k[1] in per_actor_all for k in f))

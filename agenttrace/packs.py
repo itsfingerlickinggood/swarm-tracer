@@ -24,9 +24,12 @@ Reconstruction (all optional; the tool skips what a pack does not define):
 Patterns are Python regular expressions. Nothing is hard-coded to one dataset.
 """
 import json
+import os
 import re
 from dataclasses import dataclass, field
 from typing import List
+
+from . import safe_regex
 
 
 @dataclass
@@ -55,9 +58,19 @@ class Pack:
     raw: dict = field(default_factory=dict)
 
 
+def _all_patterns(raw):
+    out = [(d.get("pattern"), d.get("flags", "")) for k in ("behaviors", "identity_patterns", "info_patterns", "intents",
+                                                              "shared_names") for d in raw.get(k, []) if isinstance(d, dict)]
+    vi = raw.get("variable_identity")
+    if isinstance(vi, dict):
+        out.append((vi.get("assign"), ""))
+    return [(p, f) for p, f in out if isinstance(p, str)]
+
+
 def load_pack(path):
     with open(path, encoding="utf-8") as f:
         raw = json.load(f)
+    safe_regex.check(_all_patterns(raw), what=f"pack {os.path.basename(str(path))}")
     behaviors = []
     seen = set()
     for b in raw.get("behaviors", []):

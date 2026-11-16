@@ -38,20 +38,20 @@
    "label": "of them where the sign fired"
   },
   "lead_harm": {
-   "value": 5.76,
-   "text": "5.8",
+   "value": -1.4,
+   "text": "1.4",
    "as": "h1",
    "from": "/api/x/earlywarn_summary",
    "path": "forward.signs[id=coordination: two identities use one place].coordinated.harm.median_lead_h",
-   "label": "hours: median lead before the first true harmful action (simulated)"
+   "label": "hours: median time the sign fired after the first true harmful action (simulated; shown without its sign, which is negative: late)"
   },
   "lead_msg": {
-   "value": 8.03,
-   "text": "8.0",
+   "value": 0.38,
+   "text": "0.4",
    "as": "h1",
    "from": "/api/x/earlywarn_summary",
    "path": "forward.signs[id=coordination: two identities use one place].coordinated.message.median_lead_h",
-   "label": "hours: median lead before the first true message (simulated)"
+   "label": "hours: median lead before the first true delivery (simulated)"
   },
   "benign_n": {
    "value": 30,

@@ -38,6 +38,7 @@ from collections import Counter, defaultdict
 from functools import reduce
 
 from . import reconstruct
+from . import saved
 
 iso = reconstruct.iso
 HOUR = 3600.0
@@ -408,7 +409,7 @@ def build(s):
     except Exception:
         pass
     pairs = {}
-    for k in set(sync) | set(adopt) | set(compl):
+    for k in sorted(set(sync) | set(adopt) | set(compl)):
         a, b = k
         sy, ad, co = sync.get(k), adopt.get(k), [x for x in compl.get(k, [])]
         kinds = []
@@ -430,17 +431,13 @@ def build(s):
     return c
 
 
-# Measured with simulate_check() on simulated swarms (groundtruth.make, 40 agents, seeds 1-3). Neither
+# Measured and saved (claims/simulated_checks.json) by simulate_check() on simulated swarms (groundtruth.make, 40 agents, seeds 1-3). Neither
 # swarm plans any timing, adoption order or split of work, so a link between two different agents is a
 # false positive in both; a link between two tokens of one agent is the same controller, counted apart.
-SIMULATED = {"agents": 40, "seeds": [1, 2, 3], "measured": "2026-11-13",
-             "benign": {"links": 0, "one_true_agent": 0, "false": 0, "false_synchrony": 0, "false_adoption": 0,
-                        "false_complementary": 0, "possible_pairs": 2983, "cascades": 0},
-             "coordinated": {"links": 0, "one_true_agent": 0, "false": 0, "false_synchrony": 0, "false_adoption": 0,
-                             "false_complementary": 0, "false_with_true_message": 0, "possible_pairs": 2983, "cascades": 0},
-             # before the family-wise correction and the "already active for an hour" rule (z and the
-             # permutation p only), the same swarms gave 7 false links on benign and 10 on coordinated
-             "before_correction": {"benign_false": 7, "coordinated_false": 10}}
+SIMULATED = {**saved.load("fx_coord"),
+             # historical, from the first version of the rule (before the family-wise correction and the "already
+             # active for an hour" rule, z and the permutation p only); not re-measured
+             "before_correction": {"benign_false": 7, "coordinated_false": 10, "measured": "2026-11-13"}}
 
 
 def _slim(p):
@@ -479,7 +476,7 @@ def r_silent(state, q):
     links = sorted((p for p in c["pairs"].values() if p["link"]),
                    key=lambda p: (p["same_agent"], p["has_message"], -len(p["kinds"]), -p["z"], p["a"], p["b"]))
     near = sorted((p for p in c["pairs"].values() if not p["link"]),
-                  key=lambda p: -max(p["synchrony"]["z"] if p["synchrony"] else 0, p["adoption"]["z"] if p["adoption"] else 0))
+                  key=lambda p: (-max(p["synchrony"]["z"] if p["synchrony"] else 0, p["adoption"]["z"] if p["adoption"] else 0), p["a"], p["b"]))
     counts = {a: len(rows) for a, rows in c["acts"].items()}
     nodes = sorted({x for p in links for x in (p["a"], p["b"])})
     # message pairs between the linked actors, so the graph can show both kinds of edge

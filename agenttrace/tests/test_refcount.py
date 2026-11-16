@@ -113,6 +113,48 @@ class JudgeTests(unittest.TestCase):
         text = f"fetch('https://[SERVICE HOST 1]/{P}',{{method:'POST',headers:{{}}}})"
         self.assertEqual(self.one(text), ("write", "call"))
 
+    def test_R6a_paths_info_is_a_read(self):
+        self.assertEqual(self.one(f"fetch('{P}/paths-info/main',{{method:'POST',body:b}})"), ("read", "inferred"))
+
+    def test_R6b_an_upload_batch_counts_only_if_the_object_goes_up(self):
+        batch = f"fetch('{P}/info/lfs/objects/batch',{{method:'POST',body:JSON.stringify({{operation:'upload',objects:[{{oid:'[SRC 7]'}}]}})}})"
+
+        class Facts:
+            def __init__(self, ok):
+                self.ok = ok
+
+            def goes_up(self, oids, pos):
+                self.seen = oids
+                return self.ok
+        for ok, want in ((True, "write"), (False, None)):
+            for _name, rx, wrx, rrx in refcount._channels(T.pack()):
+                j = refcount.Judge(batch, wrx, rrx)
+                j.ctx, j.pos = Facts(ok), 3
+                m = next(m for m in rx.finditer(batch) if m.group(1))
+                self.assertEqual(j.judge(m.start(), m.end())[0], want)
+                break
+
+    def test_R6b_facts_from_a_trace(self):
+        ev = [type("E", (), {"id": f"R{i}", "text": t})() for i, t in enumerate([
+            "operation:'download',objects:[{oid:'[SRC 1]'}]",          # 0: object asked for
+            "operation:'upload',objects:[{oid:'[SRC 1]'}]",            # 1: a probe of a file that existed
+            "operation:'upload',objects:[{oid:'[SRC 2]'}]",            # 2: new object
+            "operation:'upload',objects:[{oid:'[SRC 3]'}]",            # 3: never sent
+            "commit lfsFile [SRC 1] and [SRC 2]"])]                    # 4: sends 1 and 2
+        f = refcount.LfsFacts(ev)
+        self.assertEqual([f.goes_up(("[SRC %d]" % n,), n) for n in (1, 2, 3)], [False, True, False])
+        self.assertFalse(f.goes_up((), 2))
+
+    def test_R13_a_record_that_ends_inside_the_verb(self):
+        self.assertEqual(self.one(f"fetch('{P}/commit/main',{{method:'POS")[0], None)
+        self.assertEqual(self.one(f"{P}/commit/main',{{method:'POS")[0], None)
+
+    def test_a_quote_lost_to_redaction_does_not_hide_the_call(self):
+        text = f"x={{summary:'sealed [ENCODED BLOB] r=await fetch('https://[SERVICE HOST 1]/{P}/commit/main',{{method:'POST',body:b}})"
+        self.assertEqual(self.one(text)[0], "write")
+        text = f"let u='{P}',r=await fetch(u,{{headers:h}}),q=await fetch('https://c.example/x',{{method:'POST',body:JSON.stringify({{u:r.url}})}})"
+        self.assertEqual(self.one(text)[0], "read")
+
     def test_R3_comments(self):
         for text, pos_of, want in [
             ("// see repo X", "X", True), ("x = 1 // see X", "X", True), ("# note X", "X", True),
@@ -139,6 +181,24 @@ class LinkTests(unittest.TestCase):
         out = refcount.link(self.ops([("p", "write", "A", 10, "W"), ("p", "read", "B", None, "R"), ("p", "write", "A", None, "W2"),
                                       ("p", "read", "B", 1, "R0")]))
         self.assertEqual((self.keys(out), out["order_unknown"]), ([], 1))
+
+    def test_R23a_a_read_that_lists_the_writers_token(self):
+        ops = [refcount.Op("p", "write", "[CREDENTIAL 5]", 10, "W", 0, kind="token"), refcount.Op("p", "read", "B", 20, "R", 1)]
+        self.assertEqual(self.keys(refcount.link(ops, texts={"W": "w", "R": "for t in ['[CREDENTIAL 5]','[CREDENTIAL 6]']"})), [])
+        self.assertEqual(self.keys(refcount.link(ops, texts={"W": "w", "R": "for t in ['[CREDENTIAL 55]']"})), [("W", "R")])
+        named = [refcount.Op("p", "write", "[CREDENTIAL 5]", 10, "W", 0, kind="named"), ops[1]]
+        self.assertEqual(self.keys(refcount.link(named, texts={"W": "w", "R": "[CREDENTIAL 5]"})), [("W", "R")])
+
+    def test_R38_the_written_content_test(self):
+        ev = [type("E", (), {"id": i, "text": t})() for i, t in [
+            ("W", "put report_final_v2.json to place"), ("R", "got report_final_v2.json from it"),
+            ("W2", "put other_rarely.json"), ("R2", "read something_else_entirely.txt")]]
+        ev += [type("E", (), {"id": f"X{i}", "text": "common_name.json " * 2})() for i in range(8)]
+        ds = [{"place": "p", "write_id": "W", "read_id": "R", "grade": "weak"}, {"place": "p", "write_id": "W2", "read_id": "R2", "grade": "weak"},
+              {"place": "inbox:b", "write_id": "W", "read_id": "R", "grade": "direct"}]
+        self.assertEqual(refcount.content_test(ds, ev), 2)
+        self.assertEqual([d["uses_content"] for d in ds], [True, False, True])
+        self.assertEqual(ds[0]["shared_terms"], ["report_final_v2.json"])
 
     def test_R27_same_program(self):
         ops = self.ops([("p", "write", "A", 10, "W"), ("p", "read", "B", 20, "R")])

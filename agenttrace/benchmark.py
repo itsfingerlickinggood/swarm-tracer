@@ -1,10 +1,10 @@
-"""Benchmark: the hand-audited message links of the Swarm Traces release.
+"""Benchmark: the message links labelled by one reader (the authors' AI assistant) of the Swarm Traces release.
 
     python3 -m agenttrace.benchmark run redacted_columns.csv [--out DIR] [--pack code_traces.json]
 
 agenttrace/claims/audited_links.json holds every link between two named tokens that v1.1.0 reported on
 the release (166), every link the code reported at audit time that v1.1.0 did not, and every other delivery
-the code reported then (most of them between anonymous run: endpoints), each read by hand and labelled: a true message, or one of the ways a link can be false (the "write" only read the place
+the code reported then (most of them between anonymous run: endpoints), each read and labelled by that one reader: a true message, or one of the ways a link can be false (the "write" only read the place
 and posted elsewhere; it was an LFS download or a Python urlopen; write and read are on different
 repositories; the "read" is itself a write), or unclear.
 

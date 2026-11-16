@@ -1,16 +1,16 @@
 # Swarm Traces — Incident Deep Dive
 
-> **Superseded in part (13 November 2026).** Section 1 rests on the message links as counted at v1.3.0. A later full audit found most of them false (two tokens committing to one dataset; the sec.bin "write" R0038810 is a download). The release has 5 audited messages between named tokens. Sections 2–6 do not depend on message links.
+> **Superseded in part (13 and 16 November 2026).** Section 1 rests on the 24 message links as counted at v1.3.0 and is kept as a record of that reading only. A full audit found most of them false (two tokens committing to one dataset; the sec.bin "write" R0038810 is a download), and the v2.2.0 rule reports **9 write-then-read deliveries, 4 between named tokens, 0 where the reader is shown using what was written**. Two claims in section 1 and in "What this changes for the paper" are withdrawn: that two channels are "genuine one-to-many drops read by outsiders" (no write on the current list has more than two named readers), and that a dataset was read by six tokens and another by seven. Sections 2 to 6 do not depend on message links except where a bullet says so. The audit labels are one reader's, the authors' AI assistant.
 
 > Note: this dive ran on the rules as of 10:40 UTC on 9 November 2026, which gave 24 named messages. A later fix (a Python `urlopen(url)` with one argument is a read) leaves 19 messages in 12 pairs among 9 tokens; the five dropped links were in the token group of section 2, so the conclusions below stand. Final counts are in `reports/evaluation/`.
 
-Scope: `redacted_columns.csv` loaded via `agenttrace`, Python 3.9 stdlib. All times UTC, formatted `MM-DD HH:MM`, from `s.rec['_times']` (estimated). Record text is treated strictly as data; quotes are kept under 200 characters. Every number below is traceable to record ids. Labels: **Evidence** (directly in the data), **Inference** (reasoned from evidence), **Unknown** (not determinable here).
+Scope: `redacted_columns.csv` loaded via `agenttrace`, Python 3.9 stdlib. All times UTC, formatted `MM-DD HH:MM`, from `s.rec['_times']` (estimated). Record text is treated strictly as data; quotes are kept under 200 characters. The numbers below are traceable to record ids, but were not re-derived by `verify` (none is in the provenance manifest). Labels: **Evidence** (directly in the data), **Inference** (reasoned from evidence), **Unknown** (not determinable here).
 
 Dataset span: 07-09 13:29 → 07-13 15:50.
 
 ---
 
-## 1. The 24 named messages
+## 1. The 24 named messages (v1.3.0 list, superseded: see the note above)
 
 `messages.deliveries` returns 89 deliveries total (unknown-order 63, rereads 169, same-program 3, overwrites 0). Filtering out `run:*` endpoints leaves **24 named messages** — a write by one credential-token read in the code of a later record under another token, on a shared `hf_dataset:*` channel (one case is a `hf_read` channel). Every one is labelled `read in code`: the reader's program literally contains the dataset path the writer posted to.
 
@@ -50,9 +50,9 @@ Payloads are small test/probe files — base64 text markers, JSON result dumps, 
 (Two rows share a single write R0011694 and R0010079 / R0038810 — one drop read by two different tokens, counted as two deliveries.)
 
 ### What they add up to
-- **Evidence:** The two biggest multi-reader drops are **one-writer, many-reader fan-outs**: `…005057` (1 write, 18 reads, 6 readers, 5 deliveries) and `…005898[USER46]` (1 write, 12 reads, 7 readers, 6 deliveries). These are **shared drop boxes** — a payload posted once and picked up by several tokens.
+- **Withdrawn:** this section said the two biggest multi-reader drops (`…005057`, `…005898[USER46]`) were one-writer, many-reader fan-outs read by 6 and 7 tokens. On the current rule no write has more than two named readers, and R0038810 is a download, not a write.
 - **Evidence:** Most other channels are two or three actors with small test markers and sub-hour gaps (0.03–0.9 h), i.e. the **same operator relaying a probe from one of its tokens to another** (see §2); payloads are `*_test.txt` / result JSON, not stolen data.
-- **Inference:** The named-message graph is **not** 24 independent agent conversations. It is dominated by a small token cluster (169/170/220/222/1334/1623) using HF dataset repos as its own scratch/bookkeeping drop boxes, plus two genuine broadcast drops read by outsiders. Credentials 15, 1178/1171, 2495/217 are the handful of edges that cross outside that cluster.
+- **Inference:** The named-message graph is **not** 24 independent agent conversations. It is dominated by a small token cluster (169/170/220/222/1334/1623) using HF dataset repos as its own scratch/bookkeeping drop boxes, plus what v1.3.0 took for two broadcast drops (withdrawn above). Credentials 15, 1178/1171, 2495/217 are the handful of edges that cross outside that cluster.
 
 ---
 
@@ -167,9 +167,9 @@ Separately, the intent label `kubernetes_token` tags **239** records (R0009849, 
 
 ## 6. Things an investigator should know (surprises)
 
-- **Self-destruct / anti-analysis code (Evidence):** **385 records** contain `os.kill` or `SystemExit`. Several guard on a host fingerprint before killing the parent process — e.g. R0037253 computes `sha256(hostname)` and, on a threshold, calls `os.kill(os.getppid(),9)` then `raise SystemExit` before touching the payload (text withheld; see the record in the publisher's viewer). This is a **sandbox/analysis evasion guard**, not benign cleanup.
-- **Encrypted dead-drop payload (Evidence):** channel `…005898[USER46]` write R0038810 posts a `…sec.bin` blob presented as a public, read-only encrypted secret; seven later tokens fetch and attempt to decrypt it (R0041450, R0042979, …). An encrypted payload broadcast to the cluster.
-- **Dead drops never read (Evidence):** of 4,047 channels, **401 have ≥3 writes and zero deliveries** (`never_read`) — repos written to but never picked up by another actor. Much of the "messaging" is one token writing to itself.
+- **Self-destruct / anti-analysis code (Evidence):** **385 records** contain `os.kill` or `SystemExit` (73 contain `os.kill`; 354 contain `SystemExit`). Several guard on a host fingerprint before killing the parent process — e.g. R0037253 computes `sha256(hostname)` and, on a threshold, calls `os.kill(os.getppid(),9)` then `raise SystemExit` before touching the payload (text withheld; see the record in the publisher's viewer). This is a **sandbox/analysis evasion guard**, not benign cleanup.
+- **Encrypted payload (Evidence, reading withdrawn):** record R0038810 mentions a `…sec.bin` blob presented as a public, read-only encrypted secret; later records try to fetch and decrypt it. v1.3.0 counted R0038810 as a write read by seven tokens; the audit found it is a download, so this is not shown as a dead drop or a broadcast.
+- **Dead drops never read (Evidence):** of 4,056 channels, **401 have ≥3 writes and no delivery out of them** (`never_read`) — repos written to but never picked up by another actor.
 - **Future-dated epoch cluster (Evidence):** record text contains 1,905 raw epoch literals; **31 point to 07-18/07-19 2026** — ~5–7 days *after* the data's own end (07-13 15:50). These look like **scheduled/time-bomb timestamps** baked into the code (e.g. deferred actions), not reconstruction clock drift. Worth flagging as pre-staged persistence.
 - **`[REDACTED:destination:000715]` reversed-flow channel (Evidence):** 3 writes but 32 reads, first read (07-11 07:55) *before* first write (16:50) — reads of a repo whose writes the pack only partly captured; `read_without_write_seen` cases mean upstream drops are missing from this pack (Unknown what they held).
 - **"make output inert" + file deletion (Evidence):** R0033191 posts a header "make output inert" plus a `deletedFile` op — the cluster actively **scrubbing/neutralising** a dataset it had used, i.e. covering tracks.
@@ -178,10 +178,10 @@ Separately, the intent label `kubernetes_token` tags **239** records (R0009849, 
 
 ## What this changes for the paper
 
-- **The 7-token group is one estimated agent, not seven actors.** `whatif(estimate)` merges 169/170/220/222/1334/1623/1069 into a single agent of **18,796 records**, carrying a **0.877 harm share** after its first internal message. Report it as one controller (with the caveat that 222/1623/1334 may be coordinating helpers), not as seven independent participants.
+- **The 7-token group is one estimated agent, not seven actors.** `whatif(estimate)` merges 169/170/220/222/1334/1623/1069 into a single agent of **18,796 records**, carrying a **0.877 harm share** after its first internal write-then-read delivery (on the v1.3.0 list; the current first named delivery, R0006584 to R0006786, leaves 0.874). Report it as one controller (with the caveat that 222/1623/1334 may be coordinating helpers), not as seven independent participants.
 - **`hf_dataset_write` host split:** state **4,838 / 5,194 (93.1%) target a huggingface.co host** (3,641 direct + 1,197 via `[SERVICE HOST n]` proxy) and **356 (6.9%) go to collector/other hosts** — not "all to Hugging Face."
 - **`kubernetes_api` is 622 records, and only 24 of them read `…/serviceaccount/token`** (278 are API calls, 320 read other serviceaccount paths). Do not quote the serviceaccount-token read count as the Kubernetes-API total, and keep the separate **239** `kubernetes_token` intent records distinct.
 - **Credential provenance is split:** 169/170 are **not** seen-then-used (they enter already active, first use 07-10 09:49 / 10:20); **15 is the replayed found credential** (seen 07-09 15:34, used 960×, mostly docker_registry); 13 was tried once. Any "credentials found on the board then replayed" claim should cite **15** (and 13), not 169/170.
 - **The group leads the swarm surge by ~20 h** (first use 07-10 09:49 vs surge 07-11 06:00) and reaches Kubernetes serviceaccount tokens by **07-11 09:45**, ahead of the published 10:10. Frame this cluster as an early core, not a surge follower.
-- **Add the evasion/persistence findings:** 385 self-destruct-guarded records, an encrypted broadcast payload, 401 never-read dead-drop channels, and 31 future-dated (07-18/19) epoch literals.
-- **"24 messages" overstates coordination:** most are a single operator relaying test markers between its own tokens; only two channels (`…005057`, `…005898[USER46]`) are genuine one-to-many drops read by outsiders. State the 24 as drop-box bookkeeping plus 2 broadcasts.
+- **Add the evasion/persistence findings:** 385 records with self-termination code (os.kill or SystemExit; 73 with os.kill), an encrypted blob that several tokens fetch (not a broadcast drop), 401 never-read dead-drop channels, and 31 future-dated (07-18/19) epoch literals.
+- **"24 messages" overstates coordination (superseded by 9 write-then-read deliveries, 4 between named tokens):** most of the 24 were a single operator relaying test markers between its own tokens or two tokens committing to one dataset. The "two genuine one-to-many drops" claim is withdrawn.

@@ -268,12 +268,83 @@ class ProviderError(RuntimeError):
         self.code = code
 
 
+# ------------------------------------------------------------------ where the key may be sent
+
+def _origin(u):
+    import urllib.parse
+    p = urllib.parse.urlparse(u)
+    port = p.port or {"http": 80, "https": 443}.get(p.scheme)
+    return (p.scheme, (p.hostname or "").lower(), port)
+
+
+def _extra_hosts():
+    return {h.strip().lower() for h in os.environ.get("SWARM_TRACER_AI_HOSTS", "").split(",") if h.strip()}
+
+
+def check_base_url(base_url):
+    """Refuse an AI base URL the key must not go to. Allowed: https to a public host, or http to this machine
+    (localhost, 127.0.0.1, ::1). Refused: other schemes, a user name or password in the URL, http to anywhere
+    else (the key would cross the network unencrypted), and addresses that are never a model provider: link-local
+    (including the cloud metadata address 169.254.169.254), unspecified, multicast and the metadata host names.
+    SWARM_TRACER_AI_HOSTS=host1,host2 limits the app to those hosts (plus the default provider and this machine).
+    Raises ValueError with the reason; returns the URL."""
+    import ipaddress
+    import urllib.parse
+    raw = str(base_url or "").strip()
+    try:
+        u = urllib.parse.urlparse(raw)
+        host, _ = (u.hostname or "").lower(), u.port
+    except ValueError:
+        raise ValueError("the AI base URL is not a valid address")
+    if u.scheme not in ("http", "https") or not host:
+        raise ValueError("the AI base URL must start with https:// (or http:// for a model on this machine)")
+    if u.username or u.password:
+        raise ValueError("the AI base URL may not contain a user name or password; enter the key in the key field")
+    local = is_local(raw)
+    if u.scheme == "http" and not local:
+        raise ValueError("the AI base URL must use https:// unless the model runs on this machine (the key would be sent unencrypted)")
+    if host in ("metadata.google.internal", "metadata", "instance-data") or host.endswith(".internal"):
+        raise ValueError(f"{host} is a cloud metadata address, not an AI provider")
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        ip = None
+    if ip is not None and (ip.is_link_local or ip.is_unspecified and not local or ip.is_multicast or ip.is_reserved):
+        raise ValueError(f"{host} is not an address an AI provider is served from (link-local, multicast or reserved)")
+    allowed = _extra_hosts()
+    if allowed and not local and host not in allowed and host != _origin(DEFAULT_BASE_URL)[1]:
+        raise ValueError(f"{host} is not in SWARM_TRACER_AI_HOSTS ({', '.join(sorted(allowed))})")
+    return raw
+
+
+class _Redirects(urllib.request.HTTPRedirectHandler):
+    """Follow a redirect only to a base URL that passes check_base_url, over https unless local, and never send
+    the Authorization header (or the session header) to a different origin than the one the key was given to."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        old = _origin(req.full_url)
+        try:
+            check_base_url(newurl)
+        except ValueError as e:
+            raise ProviderError(code, f"The AI provider redirected to {newurl[:100]}, which was refused: {e}")
+        new = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if new is not None and _origin(newurl) != old:
+            for h in list(new.headers):
+                if h.lower() in ("authorization", "x-opencode-session", "cookie"):
+                    del new.headers[h]
+            new.unredirected_hdrs.pop("Authorization", None)
+        return new
+
+
+_OPENER = urllib.request.build_opener(_Redirects)
+
+
 def _post(url, payload, api_key, session_id, timeout):
     req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), method="POST",
                                  headers=_headers(api_key, session_id))
     for attempt in (1, 2):
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as r:
+            with _OPENER.open(req, timeout=timeout) as r:
                 return json.loads(r.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             body = e.read().decode("utf-8", "replace")[:2000]
@@ -344,6 +415,7 @@ def call(base_url, api_key, model, messages, timeout=180, temperature=0.2, sessi
     if max_tokens is None:
         report = any(REPORT_MARK in str(m.get("content", "")) for m in messages[:1])
         max_tokens = 8192 if report else 4096
+    check_base_url(base_url)
     url = base_url.rstrip("/") + "/chat/completions"
     payload = {"model": model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens}
     sess = session if session is not None else (getattr(_REQ, "session", None) if json_mode else None)
@@ -547,10 +619,11 @@ def check(base_url, api_key, model, session_id=None):
 
 
 def list_models(base_url, api_key, timeout=30):
+    check_base_url(base_url)
     url = base_url.rstrip("/") + "/models"
     req = urllib.request.Request(url, headers=_headers(api_key, None))
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        with _OPENER.open(req, timeout=timeout) as r:
             data = json.loads(r.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         raise RuntimeError(explain_http_error(e.code, e.read().decode("utf-8", "replace")[:2000]))

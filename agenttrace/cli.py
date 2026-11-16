@@ -266,7 +266,8 @@ def main(argv=None):
     sv.add_argument("--map", action="append")
     sv.add_argument("--allow-path", action="append", metavar="DIR",
                     help="a folder whose files live mode and Compare may read (repeatable); also allowed: "
-                         "SWARM_TRACER_DATA, the package and project folders, the current folder, and the --input folder")
+                         "SWARM_TRACER_DATA, the --input folder and the bundled samples (not the current folder); only "
+                         ".csv .tsv .json .jsonl .txt .log files are read")
     sv.set_defaults(fn=cmd_serve)
 
     fl = sub.add_parser("flow", help="message flow: who wrote to which channel, who read it, how content spread")

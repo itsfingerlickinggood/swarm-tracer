@@ -4,9 +4,9 @@
  "skipped": [],
  "checked": {
   "values": 179,
-  "places": 375,
+  "places": 359,
   "dataset_files": 13,
-  "claim_files": 8,
+  "claim_files": 9,
   "blocks": 1,
   "saved_fields": 0
  },
@@ -23,8 +23,38 @@
   },
   {
    "file": "paper/report.html",
-   "number": "100%",
-   "context": "uch as the first dataset write fired with 90–100%. Counting rules remove false contact: on wik"
+   "number": "9",
+   "context": "ut a first count of 166 to 19, then 23, then 9, and the labels are one reader’s, the authors"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "93%",
+   "context": "to come; four simple baselines fired with 83–93%; the first dataset write fired with 90%. Cou"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "90%",
+   "context": "h 83–93%; the first dataset write fired with 90%. Counting rules remove false contact: on wik"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "70%",
+   "context": "ic: an independently written generator gives 70% message precision and 58% recall, against 90"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "58%",
+   "context": "en generator gives 70% message precision and 58% recall, against 90% and 84% on the original "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "90%",
+   "context": "0% message precision and 58% recall, against 90% and 84% on the original simulator, and a sha"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "84%",
+   "context": "ge precision and 58% recall, against 90% and 84% on the original simulator, and a shared-plac"
   },
   {
    "file": "paper/report.html",
@@ -43,8 +73,23 @@
   },
   {
    "file": "paper/report.html",
+   "number": "93%",
+   "context": "m (83%) and three other simple baselines (87–93%), and much later than the first dataset writ"
+  },
+  {
+   "file": "paper/report.html",
    "number": "100%",
-   "context": ") and much later than single-agent signs (90–100%). Three counting rules that remove false con"
+   "context": "e first dataset write and registry signs (90–100%); the Kubernetes and metadata signs fire at "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "82%",
+   "context": "the Kubernetes and metadata signs fire at 79–82%, after the volume alarm. Three counting rule"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "15",
+   "context": "online is untested: on the release only 3 of 15 signs match the replay within 15 minutes, an"
   },
   {
    "file": "paper/report.html",
@@ -88,6 +133,51 @@
   },
   {
    "file": "paper/report.html",
+   "number": "23",
+   "context": "ons cut off before their verb. They reported 23 links, 18 judged true by our reading. Four i"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "191",
+   "context": "ond, separately written implementation finds 191 deliveries; in a sample of 40 of its extras "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "91%",
+   "context": "so run with a 6-hour history. They fire with 91%, 87%, 91% and 93% of the harm still to come "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "87%",
+   "context": "n with a 6-hour history. They fire with 91%, 87%, 91% and 93% of the harm still to come (the "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "91%",
+   "context": "h a 6-hour history. They fire with 91%, 87%, 91% and 93% of the harm still to come (the 12-ho"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "93%",
+   "context": "ur history. They fire with 91%, 87%, 91% and 93% of the harm still to come (the 12-hour volum"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "83%",
+   "context": "arm still to come (the 12-hour volume alarm: 83%), earlier than both shared-control signs (57"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "57%",
+   "context": "3%), earlier than both shared-control signs (57% and 50%). Robustness. We recompute every sig"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "50%",
+   "context": "lier than both shared-control signs (57% and 50%). Robustness. We recompute every signal's sh"
+  },
+  {
+   "file": "paper/report.html",
    "number": "58",
    "context": "port sections show up in the traces, and all 58 cited records are present. The behavior patt"
   },
@@ -104,7 +194,7 @@
   {
    "file": "paper/report.html",
    "number": "95%",
-   "context": "se 100 times, σ = 0.12 h gives 6–7 messages (95% range) and σ = 2 h gives 5–9, so dating erro"
+   "context": " 100 times, σ = 0.12 h gives 4–5 deliveries (95% range) and σ = 2 h gives 2–7, so dating erro"
   },
   {
    "file": "paper/report.html",
@@ -123,8 +213,118 @@
   },
   {
    "file": "paper/report.html",
+   "number": "91%",
+   "context": "han both: the first new host after 12 hours (91% to come), the first search_for_secrets actio"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "91%",
+   "context": " come), the first search_for_secrets action (91%) and a distinct-actor alarm (87%), and a vol"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "87%",
+   "context": "ets action (91%) and a distinct-actor alarm (87%), and a volume alarm with a 6-hour history f"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "93%",
+   "context": "olume alarm with a 6-hour history fires with 93% to come. The Kubernetes token, Kubernetes AP"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "82%",
+   "context": "ernetes API and cloud-metadata signs fire at 82%, 80% and 79%, after the volume alarm. The ap"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "80%",
+   "context": "es API and cloud-metadata signs fire at 82%, 80% and 79%, after the volume alarm. The app's r"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "79%",
+   "context": "nd cloud-metadata signs fire at 82%, 80% and 79%, after the volume alarm. The app's replay tr"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "64%",
+   "context": "harm list also builds in part of the answer: 64% of the 8,124 harm records are dataset writes"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "8,124",
+   "context": "lso builds in part of the answer: 64% of the 8,124 harm records are dataset writes, so the firs"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "38%",
+   "context": "definition moves the shared-place share from 38% to 57% and the first-delivery share from 62%"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "57%",
+   "context": "ion moves the shared-place share from 38% to 57% and the first-delivery share from 62% to 96%"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "62%",
+   "context": "38% to 57% and the first-delivery share from 62% to 96%, and 37,605 undated payloads are outs"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "96%",
+   "context": "57% and the first-delivery share from 62% to 96%, and 37,605 undated payloads are outside the"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "37,605",
+   "context": "he first-delivery share from 62% to 96%, and 37,605 undated payloads are outside the denominator"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "3%",
+   "context": " were 12 of 12 right, but those 12 are about 3% of the 380 true pairs, and the rule was rewr"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "380",
+   "context": "f 12 right, but those 12 are about 3% of the 380 true pairs, and the rule was rewritten after"
+  },
+  {
+   "file": "paper/report.html",
    "number": "169",
-   "context": "thers, which makes the first message, 170 to 169, likely one agent talking to itself. Between "
+   "context": "hers, which makes the first delivery, 170 to 169, likely one agent talking to itself. Between "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "93%",
+   "context": "me alarm with a short history) fired with 87–93% of the harm still to come. A write-then-read"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "70%",
+   "context": "se; an independently written generator gives 70% message precision and 58% recall (19% and 10"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "58%",
+   "context": "en generator gives 70% message precision and 58% recall (19% and 10% with times on 30% of rec"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "19%",
+   "context": " gives 70% message precision and 58% recall (19% and 10% with times on 30% of records, and no"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "10%",
+   "context": "0% message precision and 58% recall (19% and 10% with times on 30% of records, and no dating "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "30%",
+   "context": "on and 58% recall (19% and 10% with times on 30% of records, and no dating at all when the fi"
   },
   {
    "file": "paper/report.html",
@@ -133,8 +333,18 @@
   },
   {
    "file": "paper/report.html",
+   "number": "23",
+   "context": "aces. A reviewer would defend about 5 of the 23 deliveries counted at v2.1.0. That tokens ar"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "258",
+   "context": "lse-positive rates. The audit labels for the 258 links and the behavior patterns on 192 recor"
+  },
+  {
+   "file": "paper/report.html",
    "number": "192",
-   "context": "rates. The behavior patterns were checked on 192 records labeled by the AI assistant that hel"
+   "context": "r the 258 links and the behavior patterns on 192 records were made by the AI assistant that h"
   },
   {
    "file": "paper/report.html",
@@ -144,7 +354,7 @@
   {
    "file": "paper/report.html",
    "number": "385",
-   "context": "re times and never read by another identity. 385 records carry self-termination code (os.kill"
+   "context": "re times and never read by another identity. 385 records carry self-termination code (73 call"
   },
   {
    "file": "paper/report.html",
@@ -188,6 +398,16 @@
   },
   {
    "file": "paper/report.html",
+   "number": "2",
+   "context": "NAL_ROWS}} Figure 6. Who talked to whom: the 2 pairs between 4 agents in the v2.2.0 list (v"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "4",
+   "context": "e 6. Who talked to whom: the 2 pairs between 4 agents in the v2.2.0 list (v2.2.0 has 4 pair"
+  },
+  {
+   "file": "paper/report.html",
    "number": "80",
    "context": "lidation run): 9 coordinated settings (20 to 80 agents, some holding two tokens, hidden read"
   },
@@ -199,42 +419,147 @@
   {
    "file": "paper/report.html",
    "number": "66%",
-   "context": "of 12 and 60 of 60 pairs. Message links were 66% precise (median, first run) because places n"
+   "context": "of 12 and 60 of 60 pairs. Message links were 66% precise (median, first run; no saved run of "
   },
   {
    "file": "paper/report.html",
    "number": "79%",
-   "context": "ted as reads; ignoring comments raised it to 79%. Program-reuse signs fired in 10 of 10 benig"
+   "context": "ted as reads; ignoring comments raised it to 79%, and the current code gives 90%. Program-reu"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "90%",
+   "context": "raised it to 79%, and the current code gives 90%. Program-reuse signs fired in 10 of 10 benig"
   },
   {
    "file": "paper/report.html",
    "number": "10",
-   "context": "t to 79%. Program-reuse signs fired in 10 of 10 benign runs on shared boilerplate; counting "
+   "context": "ives 90%. Program-reuse signs fired in 10 of 10 benign runs on shared boilerplate; counting "
   },
   {
    "file": "paper/report.html",
    "number": "66%",
-   "context": " there the first version’s rules reach about 66% precision and 57% recall, the final rules 79"
+   "context": " there the first version’s rules reach about 66% precision and 57% recall, the v2.1.0 rules 7"
   },
   {
    "file": "paper/report.html",
    "number": "57%",
-   "context": "ersion’s rules reach about 66% precision and 57% recall, the final rules 79% and 79%, and on "
+   "context": "ersion’s rules reach about 66% precision and 57% recall, the v2.1.0 rules 79% and 79%, and on"
   },
   {
    "file": "paper/report.html",
    "number": "79%",
-   "context": "6% precision and 57% recall, the final rules 79% and 79%, and on the benign version of that s"
+   "context": "% precision and 57% recall, the v2.1.0 rules 79% and 79%, and on the benign version of that s"
   },
   {
    "file": "paper/report.html",
    "number": "79%",
-   "context": "sion and 57% recall, the final rules 79% and 79%, and on the benign version of that setting t"
+   "context": "ion and 57% recall, the v2.1.0 rules 79% and 79%, and on the benign version of that setting t"
   },
   {
    "file": "paper/report.html",
    "number": "282",
-   "context": "rsion of that setting the first rules report 282 links between different agents and the final"
+   "context": "rsion of that setting the first rules report 282 links between different agents and the later"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "79%",
+   "context": "ents and the later rules none. v1.1.0 scored 79% on the original simulator while 165 of its 1"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "166",
+   "context": "% on the original simulator while 165 of its 166 links on the real release were false, so the"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "20",
+   "context": " five classes of benign look-alike swarm. On 20 coordinated swarms per layout, with the file"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "60%",
+   "context": "h the file in time order and epoch stamps on 60% of records, message links reach 70% precisio"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "70%",
+   "context": "tamps on 60% of records, message links reach 70% precision and 58% recall (the original simul"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "58%",
+   "context": "cords, message links reach 70% precision and 58% recall (the original simulator: 90% and 84%)"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "90%",
+   "context": "sion and 58% recall (the original simulator: 90% and 84%); with a time on only 30% of records"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "84%",
+   "context": " 58% recall (the original simulator: 90% and 84%); with a time on only 30% of records, 19% an"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "30%",
+   "context": "simulator: 90% and 84%); with a time on only 30% of records, 19% and 10%; with the file group"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "19%",
+   "context": "nd 84%); with a time on only 30% of records, 19% and 10%; with the file grouped by agent the "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "10%",
+   "context": " with a time on only 30% of records, 19% and 10%; with the file grouped by agent the trace co"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "20",
+   "context": ". The shared-place sign fired in none of the 20 swarms. On 50 benign look-alike swarms (a sh"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "50",
+   "context": "lace sign fired in none of the 20 swarms. On 50 benign look-alike swarms (a shared leaderboa"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "30",
+   "context": "he Watch rule in 40, against 5 and 20 of the 30 original benign swarms. The independent swar"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "60%",
+   "context": "on / recall (independent generator, times on 60% of records) 70% / 58% pooled (19% / 10% with"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "70%",
+   "context": "ependent generator, times on 60% of records) 70% / 58% pooled (19% / 10% with times on 30%; u"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "58%",
+   "context": "nt generator, times on 60% of records) 70% / 58% pooled (19% / 10% with times on 30%; undated"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "19%",
+   "context": ", times on 60% of records) 70% / 58% pooled (19% / 10% with times on 30%; undated when groupe"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "10%",
+   "context": "s on 60% of records) 70% / 58% pooled (19% / 10% with times on 30%; undated when grouped by a"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "30%",
+   "context": "s) 70% / 58% pooled (19% / 10% with times on 30%; undated when grouped by agent) Agent pairs "
   },
   {
    "file": "paper/slides.html",
@@ -253,38 +578,53 @@
   },
   {
    "file": "paper/slides.html",
+   "number": "4",
+   "context": "es this merge with direct evidence. 2 of the 4 named deliveries fall inside one agent. Naiv"
+  },
+  {
+   "file": "paper/slides.html",
    "number": "100%",
-   "context": " Single-agent signs (first dataset write) 90–100% First message between tokens 90% Volume alar"
+   "context": "ired: First dataset write; registry signs 90–100% Simple baselines (new host, distinct actors,"
   },
   {
    "file": "paper/slides.html",
-   "number": "95%",
-   "context": "ime errors as large as the dating fit's own (95% ranges in the report). Report Section 4.4 an"
-  },
-  {
-   "file": "paper/slides.html",
-   "number": "88%",
-   "context": "max) Message links: precision / recall 66–79–88% / 57–73–81% Agent pairs that talked: precisi"
+   "number": "93%",
+   "context": "tinct actors, secrets search, 6 h volume) 87–93% First delivery between tokens 87% Volume ala"
   },
   {
    "file": "paper/slides.html",
    "number": "96%",
-   "context": " pairs that talked: precision / recall 81–89–96% / 71–83–91% Dating error, median about one m"
+   "context": "precision / recall, original simulator 82–90–96% / 66–84–93% Message links: precision / recal"
   },
   {
    "file": "paper/slides.html",
-   "number": "10",
-   "context": " a shared place or does harm 10 of 10 / 0 of 10 Places named only in code comments, before /"
+   "number": "70%",
+   "context": "s: precision / recall, independent generator 70% / 58% (19% / 10% with times on 30% of record"
   },
   {
    "file": "paper/slides.html",
-   "number": "66%",
-   "context": "hey stop counting as reads message precision 66% / 79% Hand audit of the release's links: a G"
+   "number": "58%",
+   "context": "cision / recall, independent generator 70% / 58% (19% / 10% with times on 30% of records; und"
   },
   {
    "file": "paper/slides.html",
-   "number": "79%",
-   "context": "op counting as reads message precision 66% / 79% Hand audit of the release's links: a GET of "
+   "number": "19%",
+   "context": "n / recall, independent generator 70% / 58% (19% / 10% with times on 30% of records; undated "
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "10%",
+   "context": "call, independent generator 70% / 58% (19% / 10% with times on 30% of records; undated when g"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "30%",
+   "context": "generator 70% / 58% (19% / 10% with times on 30% of records; undated when grouped by agent) A"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "99%",
+   "context": " pairs that talked: precision / recall 89–95–99% / 73–90–96% Dating error, median about one m"
   },
   {
    "file": "paper/slides.html",
@@ -294,22 +634,152 @@
   {
    "file": "paper/slides.html",
    "number": "95%",
-   "context": "ating error, the 6 named messages range 6–7 (95%). Reading is inferred: code shows attempts, "
+   "context": "ing error, the 4 named deliveries range 4–5 (95%). Reading is inferred: code shows attempts, "
   },
   {
    "file": "README.md",
    "number": "19",
-   "context": "ubmitted to the hackathon say the tool finds 19 messages between named tokens in the Swarm T"
+   "context": "rt and slides submitted to the hackathon say 19 messages between named tokens; an audit afte"
   },
   {
    "file": "README.md",
-   "number": "19",
-   "context": "records) found that count wrong: most of the 19 were two tokens committing to the same datas"
+   "number": "6",
+   "context": "ere false. The v2.1.0 rule then reported 23 (6 between named tokens), and four independent "
   },
   {
    "file": "README.md",
-   "number": "23",
-   "context": "sagrees heavily on the Swarm Traces release (23 deliveries against 192). The disagreements w"
+   "number": "9",
+   "context": "ng what was written. The v2.2.0 rule reports 9 write-then-read deliveries (one actor wrote "
+  },
+  {
+   "file": "README.md",
+   "number": "4",
+   "context": "o a place, a different actor read it later), 4 between named tokens (2 between agents, 2 in"
+  },
+  {
+   "file": "README.md",
+   "number": "2",
+   "context": "ctor read it later), 4 between named tokens (2 between agents, 2 inside one agent), and 0 w"
+  },
+  {
+   "file": "README.md",
+   "number": "2",
+   "context": "), 4 between named tokens (2 between agents, 2 inside one agent), and 0 where the reader is"
+  },
+  {
+   "file": "README.md",
+   "number": "258",
+   "context": "rds with a helper script; no person read the 258 links by hand and nobody labelled them a sec"
+  },
+  {
+   "file": "README.md",
+   "number": "20",
+   "context": "after) on the original simulator and in 0 of 20 swarms on an independent one. On the real re"
+  },
+  {
+   "file": "README.md",
+   "number": "50%",
+   "context": "l release it is one of the last signs (about 50% of harm still to come), behind simple baseli"
+  },
+  {
+   "file": "README.md",
+   "number": "90%",
+   "context": "lines. > - Simulated accuracy is optimistic. 90% precision and 84% recall on the original sim"
+  },
+  {
+   "file": "README.md",
+   "number": "84%",
+   "context": "ed accuracy is optimistic. 90% precision and 84% recall on the original simulator (current co"
+  },
+  {
+   "file": "README.md",
+   "number": "70%",
+   "context": "code; it was 79%/73% before the fix) fall to 70% and 58% on an independently written generato"
+  },
+  {
+   "file": "README.md",
+   "number": "58%",
+   "context": " was 79%/73% before the fix) fall to 70% and 58% on an independently written generator, to 19"
+  },
+  {
+   "file": "README.md",
+   "number": "19%",
+   "context": "8% on an independently written generator, to 19% and 10% when only 30% of records carry a tim"
+  },
+  {
+   "file": "README.md",
+   "number": "10%",
+   "context": " independently written generator, to 19% and 10% when only 30% of records carry a time, and t"
+  },
+  {
+   "file": "README.md",
+   "number": "30%",
+   "context": " written generator, to 19% and 10% when only 30% of records carry a time, and to nothing when"
+  },
+  {
+   "file": "README.md",
+   "number": "7.7%",
+   "context": "ctors on rare shared strings: on the release 7.7% of the 77,626 anonymous runs get a link. Pre"
+  },
+  {
+   "file": "README.md",
+   "number": "77,626",
+   "context": "e shared strings: on the release 7.7% of the 77,626 anonymous runs get a link. Precision per ban"
+  },
+  {
+   "file": "README.md",
+   "number": "99.4%",
+   "context": "ured on simulated swarms held out by thread (99.4% / 96.4% / 87.9%) and does not transfer to re"
+  },
+  {
+   "file": "README.md",
+   "number": "96.4%",
+   "context": "simulated swarms held out by thread (99.4% / 96.4% / 87.9%) and does not transfer to real runs."
+  },
+  {
+   "file": "README.md",
+   "number": "87.9%",
+   "context": "d swarms held out by thread (99.4% / 96.4% / 87.9%) and does not transfer to real runs. - Was i"
+  },
+  {
+   "file": "README.md",
+   "number": "130",
+   "context": "known answers, including benign ones, and on 130 swarms from an independently written generat"
+  },
+  {
+   "file": "README.md",
+   "number": "9,867",
+   "context": " Traces release 9 and 9, collusion.wiki logs 9,867, demo swarm 164, the format samples). It did "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "70%",
+   "context": "nside Results) gives message precision about 70% and recall about 58% where this page's origi"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "58%",
+   "context": "message precision about 70% and recall about 58% where this page's original swarms give 90% a"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "90%",
+   "context": "t 58% where this page's original swarms give 90% and 84%, and v1.1.0 scored 79% on the origin"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "84%",
+   "context": "ere this page's original swarms give 90% and 84%, and v1.1.0 scored 79% on the original simul"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79%",
+   "context": "l swarms give 90% and 84%, and v1.1.0 scored 79% on the original simulator while 165 of its 1"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "166",
+   "context": "% on the original simulator while 165 of its 166 links on the real release were false. Not ev"
   },
   {
    "file": "docs/validation.md",
@@ -383,88 +853,88 @@
   },
   {
    "file": "docs/validation.md",
-   "number": "95%",
-   "context": "med tokens, precision 18 of 18 on the audit (95% range 82%–100%, optimistic: see below). We r"
-  },
-  {
-   "file": "docs/validation.md",
    "number": "178",
    "context": " every one the code at v1.3.0 reported (19): 178 links, of which one was a message by our rea"
   },
   {
    "file": "docs/validation.md",
+   "number": "6",
+   "context": "-scored against those labels, which gave 23 (6 between named tokens) at v2.1.0. Four indepe"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "2",
+   "context": "hen-read deliveries, 4 between named tokens (2 between agents, 2 inside one agent), 0 where"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "2",
+   "context": "s, 4 between named tokens (2 between agents, 2 inside one agent), 0 where the reader is sho"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "258",
+   "context": "double-labelled them, and no person read the 258 links by hand (earlier versions of this page"
+  },
+  {
+   "file": "docs/validation.md",
    "number": "95%",
-   "context": " decidable ones judged true (precision 100%, 95% range 82–100%; all 6 named ones true). One l"
+   "context": "the 9 score 5 of 5 decidable (4 are unclear; 95% range 57%–100%), but the labels for 13 links"
   },
   {
    "file": "docs/validation.md",
-   "number": "100%",
-   "context": "es judged true (precision 100%, 95% range 82–100%; all 6 named ones true). One labeller, and 7"
+   "number": "13",
+   "context": "ear; 95% range 57%–100%), but the labels for 13 links were changed in the same commit as the"
   },
   {
    "file": "docs/validation.md",
-   "number": "81%",
-   "context": "e true. Pairs of agents: 71%–83%–91% recall, 81%–89%–96% precision. On the new real-world set"
+   "number": "89%",
+   "context": "e true. Pairs of agents: 73%–90%–96% recall, 89%–95%–99% precision. On the independent genera"
   },
   {
    "file": "docs/validation.md",
-   "number": "96%",
-   "context": "Pairs of agents: 71%–83%–91% recall, 81%–89%–96% precision. On the new real-world setting the"
+   "number": "99%",
+   "context": "Pairs of agents: 73%–90%–96% recall, 89%–95%–99% precision. On the independent generator (fil"
   },
   {
    "file": "docs/validation.md",
-   "number": "75%",
-   "context": "d setting the current rule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rul"
+   "number": "60%",
+   "context": "dent generator (file in time order, times on 60% of records) message precision is 70% and rec"
   },
   {
    "file": "docs/validation.md",
-   "number": "79%",
-   "context": "tting the current rule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules r"
+   "number": "70%",
+   "context": "imes on 60% of records) message precision is 70% and recall 58%; with a time on only 30% of r"
   },
   {
    "file": "docs/validation.md",
-   "number": "83%",
-   "context": "g the current rule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach"
+   "number": "58%",
+   "context": "records) message precision is 70% and recall 58%; with a time on only 30% of records 19% and "
   },
   {
    "file": "docs/validation.md",
-   "number": "73%",
-   "context": "ule reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach about 66% and "
+   "number": "30%",
+   "context": "n is 70% and recall 58%; with a time on only 30% of records 19% and 10%; with the file groupe"
   },
   {
    "file": "docs/validation.md",
-   "number": "79%",
-   "context": "reaches precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach about 66% and 57% "
+   "number": "19%",
+   "context": "call 58%; with a time on only 30% of records 19% and 10%; with the file grouped by agent noth"
   },
   {
    "file": "docs/validation.md",
-   "number": "81%",
-   "context": "hes precision 75%–79%–83% and recall 73%–79%–81%; v1.1.0's rules reach about 66% and 57% ther"
-  },
-  {
-   "file": "docs/validation.md",
-   "number": "66%",
-   "context": "call 73%–79%–81%; v1.1.0's rules reach about 66% and 57% there, and on the benign version of "
-  },
-  {
-   "file": "docs/validation.md",
-   "number": "57%",
-   "context": "–79%–81%; v1.1.0's rules reach about 66% and 57% there, and on the benign version of that set"
-  },
-  {
-   "file": "docs/validation.md",
-   "number": "282",
-   "context": "e benign version of that setting they report 282 links between different agents where the cur"
+   "number": "10%",
+   "context": "; with a time on only 30% of records 19% and 10%; with the file grouped by agent nothing can "
   },
   {
    "file": "docs/validation.md",
    "number": "45",
-   "context": " and first registry board are found in 45 of 45 swarms within an hour. Coordination signs ar"
+   "context": " and first registry board are found in 45 of 45 swarms within an hour; the first delivery be"
   },
   {
    "file": "docs/validation.md",
-   "number": "45",
-   "context": "ents is within an hour of the truth in 45 of 45 swarms, groups of 3/5/10 in 37–40 of 45, the"
+   "number": "20",
+   "context": ", and the shared-place sign fires in none of 20 coordinated swarms. - Dating is good on the "
   },
   {
    "file": "docs/validation.md",
@@ -484,17 +954,27 @@
   {
    "file": "docs/validation.md",
    "number": "90%",
-   "context": "ide the stated 90% range (slightly under the 90% it promises). - Identity merging, before and"
+   "context": "ide the stated 90% range (slightly under the 90% it promises). That is a property of the simu"
   },
   {
    "file": "docs/validation.md",
    "number": "4%",
-   "context": "ooled over the first swarms those were right 4% of the time (10 of 240). Pairs with direct e"
+   "context": "ooled over the first swarms those were right 4% of the time (10 of 240). The rule was then r"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "3%",
+   "context": "ium 60 of 60, but the 12 high ones are about 3% of the 380 true pairs (recall), and the rest"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "380",
+   "context": "60, but the 12 high ones are about 3% of the 380 true pairs (recall), and the rest stay low ("
   },
   {
    "file": "docs/validation.md",
    "number": "1%",
-   "context": "edium 60 of 60, and the rest stay low (about 1% right), so the low band should be read as \"w"
+   "context": "pairs (recall), and the rest stay low (about 1% right), so the low band should be read as \"w"
   },
   {
    "file": "docs/validation.md",
@@ -503,18 +983,68 @@
   },
   {
    "file": "docs/validation.md",
+   "number": "30",
+   "context": ", and the volume baseline in 6 of 15. On the 30 benign swarms of the earlier forward test th"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "78%",
+   "context": "ike swarms the Alert rule fired in 39 to 40 (78% to 80%): in all 30 where agents share a lead"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "80%",
+   "context": "rms the Alert rule fired in 39 to 40 (78% to 80%): in all 30 where agents share a leaderboard"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "30",
+   "context": " rule fired in 39 to 40 (78% to 80%): in all 30 where agents share a leaderboard, poll a CI "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "10",
+   "context": "and tasks through a coordinator, and in 9 of 10 honest cloud-agent swarms. It detects inform"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "15",
+   "context": "ion flow, not malice. The slide figure \"0 in 15 runs\" meant no delivery between different ag"
+  },
+  {
+   "file": "docs/validation.md",
    "number": "66%",
-   "context": "ites or actions. Message precision rose from 66% to 79% (median) and the registry-board sign "
+   "context": "recision on the original simulator rose from 66% to 79% (median, before the later rule change"
   },
   {
    "file": "docs/validation.md",
    "number": "79%",
-   "context": " actions. Message precision rose from 66% to 79% (median) and the registry-board sign moved t"
+   "context": "n on the original simulator rose from 66% to 79% (median, before the later rule changes; it i"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "90%",
+   "context": "median, before the later rule changes; it is 90% now) and the registry-board sign moved to wi"
   },
   {
    "file": "docs/validation.md",
    "number": "40",
-   "context": "oved to within an hour of the truth in 40 of 40 swarms. 2. The verb nearest the mention deci"
+   "context": "oved to within an hour of the truth in 40 of 40 swarms then (45 of 45 now). The \"66% to 79%\""
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "66%",
+   "context": "in 40 of 40 swarms then (45 of 45 now). The \"66% to 79%\" comparison has no saved run behind i"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "79%",
+   "context": "f 40 swarms then (45 of 45 now). The \"66% to 79%\" comparison has no saved run behind it: the "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "66%",
+   "context": "\" comparison has no saved run behind it: the 66% run was not kept, so treat it as a recollect"
   },
   {
    "file": "docs/validation.md",
@@ -535,6 +1065,16 @@
    "file": "docs/validation.md",
    "number": "178",
    "context": "re each checked by hand. A full audit of all 178 links, with the two records of each read sid"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "23",
+   "context": "ong. A reviewer who read both records of the 23 deliveries counted at v2.1.0 disagreed with "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "18",
+   "context": "ted at v2.1.0 disagreed with 11 to 13 of the 18 labels that said \"true\" and would defend abo"
   },
   {
    "file": "docs/validation.md",
@@ -624,27 +1164,37 @@
   {
    "file": "docs/validation.md",
    "number": "79%",
-   "context": "ts, defaults (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% (ide"
+   "context": "ts, defaults (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% on t"
   },
   {
    "file": "docs/validation.md",
    "number": "73%",
-   "context": " (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% (identical links"
+   "context": " (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% on the 13 Novemb"
   },
   {
    "file": "docs/validation.md",
    "number": "79%",
-   "context": "tor) | precision 79%, recall 73% | precision 79%, recall 73% (identical links) | | 40 agents,"
+   "context": "tor) | precision 79%, recall 73% | precision 79%, recall 73% on the 13 November code (identic"
   },
   {
    "file": "docs/validation.md",
    "number": "73%",
-   "context": "sion 79%, recall 73% | precision 79%, recall 73% (identical links) | | 40 agents, real-world "
+   "context": "sion 79%, recall 73% | precision 79%, recall 73% on the 13 November code (identical links); 9"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "90%",
+   "context": "% on the 13 November code (identical links); 90% / 85% now | | 40 agents, real-world payload "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "85%",
+   "context": "he 13 November code (identical links); 90% / 85% now | | 40 agents, real-world payload patter"
   },
   {
    "file": "docs/validation.md",
    "number": "40",
-   "context": "cision 79%, recall 73% (identical links) | | 40 agents, real-world payload patterns | precis"
+   "context": "er code (identical links); 90% / 85% now | | 40 agents, real-world payload patterns | precis"
   },
   {
    "file": "docs/validation.md",
@@ -654,57 +1204,67 @@
   {
    "file": "docs/validation.md",
    "number": "63%",
-   "context": "real-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% ("
+   "context": "real-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 80% ("
   },
   {
    "file": "docs/validation.md",
    "number": "69%",
-   "context": "-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–"
+   "context": "-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 80% (77%–"
   },
   {
    "file": "docs/validation.md",
    "number": "57%",
-   "context": "d patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall "
+   "context": "d patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 80% (77%–82%), recall "
   },
   {
    "file": "docs/validation.md",
    "number": "54%",
-   "context": "terns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% ("
+   "context": "terns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 80% (77%–82%), recall 78% ("
   },
   {
    "file": "docs/validation.md",
    "number": "60%",
-   "context": "s | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–"
+   "context": "s | precision 66% (63%–69%), recall 57% (54%–60%) | precision 80% (77%–82%), recall 78% (75%–"
   },
   {
    "file": "docs/validation.md",
-   "number": "72%",
-   "context": " (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, "
+   "number": "80%",
+   "context": " (63%–69%), recall 57% (54%–60%) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 No"
   },
   {
    "file": "docs/validation.md",
-   "number": "68%",
-   "context": "–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-"
+   "number": "77%",
+   "context": "–69%), recall 57% (54%–60%) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 Novembe"
   },
   {
    "file": "docs/validation.md",
-   "number": "74%",
-   "context": "), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-worl"
+   "number": "82%",
+   "context": "), recall 57% (54%–60%) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 November co"
   },
   {
    "file": "docs/validation.md",
-   "number": "62%",
-   "context": " (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-world payload pat"
+   "number": "78%",
+   "context": " (54%–60%) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 November code; 86% / 88%"
   },
   {
    "file": "docs/validation.md",
-   "number": "59%",
-   "context": "–60%) | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-world payload patterns"
+   "number": "75%",
+   "context": "–60%) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 November code; 86% / 88% medi"
   },
   {
    "file": "docs/validation.md",
-   "number": "65%",
-   "context": ") | precision 72% (68%–74%), recall 62% (59%–65%) | | benign, real-world payload patterns (no"
+   "number": "81%",
+   "context": ") | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 November code; 86% / 88% median n"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "86%",
+   "context": "ecall 78% (75%–81%) on the 13 November code; 86% / 88% median now (summary above) | | benign,"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "88%",
+   "context": "78% (75%–81%) on the 13 November code; 86% / 88% median now (summary above) | | benign, real-"
   },
   {
    "file": "docs/validation.md",
@@ -719,12 +1279,12 @@
   {
    "file": "docs/validation.md",
    "number": "9",
-   "context": " | 292 links, 282 between different agents | 9 links, 0 between different agents | The old "
+   "context": " | 292 links, 282 between different agents | 9 links, 0 between different agents (13 Novemb"
   },
   {
    "file": "docs/validation.md",
    "number": "0",
-   "context": "nks, 282 between different agents | 9 links, 0 between different agents | The old simulator"
+   "context": "nks, 282 between different agents | 9 links, 0 between different agents (13 November code) "
   },
   {
    "file": "docs/validation.md",
@@ -748,28 +1308,33 @@
   },
   {
    "file": "docs/validation.md",
+   "number": "13",
+   "context": "g the records with a helper script (and, for 13 links in v2.2.0, a reviewer's reading); nobo"
+  },
+  {
+   "file": "docs/validation.md",
    "number": "177",
    "context": "e.benchmark run redacted_columns.csv: of the 177 audited false links it reports none; it keep"
   },
   {
    "file": "docs/validation.md",
    "number": "79%",
-   "context": "t truth, is the independent check: precision 79%, recall 79% (median), against 66% and 57% fo"
+   "context": "truth, was the check at that time: precision 79%, recall 79% (median), against 66% and 57% fo"
   },
   {
    "file": "docs/validation.md",
    "number": "79%",
-   "context": "the independent check: precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0"
+   "context": "he check at that time: precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0"
   },
   {
    "file": "docs/validation.md",
    "number": "66%",
-   "context": " precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; an intermediat"
+   "context": " precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; the simulator "
   },
   {
    "file": "docs/validation.md",
    "number": "57%",
-   "context": "on 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; an intermediate versio"
+   "context": "on 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; the simulator is optim"
   },
   {
    "file": "docs/validation.md",
@@ -778,8 +1343,73 @@
   },
   {
    "file": "docs/validation.md",
+   "number": "23",
+   "context": "ase showed at v2.1.0 (final rules, phase 1): 23 messages, 6 of them between named tokens (5 "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "5",
+   "context": "23 messages, 6 of them between named tokens (5 pairs); counted by estimated agent, 3 betwee"
+  },
+  {
+   "file": "docs/validation.md",
    "number": "3",
    "context": "okens (5 pairs); counted by estimated agent, 3 between agents and 3 inside one. The report "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "23",
+   "context": "what was wrong. One read both records of all 23 deliveries. Its findings and the rule change"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "9",
+   "context": " [USER n] places are coarse (R31). - Result: 9 write-then-read deliveries, 4 between named "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "4",
+   "context": "31). - Result: 9 write-then-read deliveries, 4 between named tokens in 4 pairs among 7 toke"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "4",
+   "context": "n-read deliveries, 4 between named tokens in 4 pairs among 7 tokens; counted by estimated a"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "7",
+   "context": "ies, 4 between named tokens in 4 pairs among 7 tokens; counted by estimated agent, 2 betwee"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "2",
+   "context": " among 7 tokens; counted by estimated agent, 2 between agents and 2 inside one. All 9 are o"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "192",
+   "context": "states it. - The second implementation found 192 deliveries at v2.1.0 (it took commits for re"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "0%",
+   "context": "or reads; 40 sampled extras held no message, 0% to 8.8%). The cause was its handling of reda"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "8.8%",
+   "context": "ds; 40 sampled extras held no message, 0% to 8.8%). The cause was its handling of redaction, a"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "90",
+   "context": "- Recall is unknown. The reviewer read about 90 places the rule ignores and found no missed "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "95%",
+   "context": "eiling for unseen misses is about 23 more at 95% confidence). ### Phase 1: every delivery aud"
   },
   {
    "file": "docs/validation.md",
@@ -793,8 +1423,13 @@
   },
   {
    "file": "docs/validation.md",
+   "number": "23",
+   "context": "=…) is a write. At v2.1.0 the release showed 23 deliveries, 6 of them between named tokens ("
+  },
+  {
+   "file": "docs/validation.md",
    "number": "79.4%",
-   "context": "mber). The simulator did not move: precision 79.4% and recall 73.0% on the default setting, 80."
+   "context": "elow). The simulator did not move: precision 79.4% and recall 73.0% on the default setting, 80."
   },
   {
    "file": "docs/validation.md",
@@ -818,68 +1453,73 @@
   },
   {
    "file": "docs/validation.md",
+   "number": "13",
+   "context": " holding the writer's own token). In-sample: 13 labels were changed in the same commit as th"
+  },
+  {
+   "file": "docs/validation.md",
    "number": "95%",
    "context": "group | reported | read as true | precision (95% range) | |---|---|---|---| | all deliveries "
   },
   {
    "file": "docs/validation.md",
    "number": "100%",
-   "context": " | | between two named tokens | 6 | 6 of 6 | 100% (61%–100%) | | an anonymous run on one side "
+   "context": " | | between two named tokens | 4 | 4 of 4 | 100% (51%–100%) | | an anonymous run on one side "
   },
   {
    "file": "docs/validation.md",
-   "number": "61%",
-   "context": "etween two named tokens | 6 | 6 of 6 | 100% (61%–100%) | | an anonymous run on one side | 17 "
-  },
-  {
-   "file": "docs/validation.md",
-   "number": "100%",
-   "context": "en two named tokens | 6 | 6 of 6 | 100% (61%–100%) | | an anonymous run on one side | 17 (5 un"
+   "number": "51%",
+   "context": "etween two named tokens | 4 | 4 of 4 | 100% (51%–100%) | | an anonymous run on one side | 5 ("
   },
   {
    "file": "docs/validation.md",
    "number": "100%",
-   "context": "un on one side | 17 (5 unclear) | 12 of 12 | 100% (76%–100%) | Until 15 November one false lin"
-  },
-  {
-   "file": "docs/validation.md",
-   "number": "76%",
-   "context": "one side | 17 (5 unclear) | 12 of 12 | 100% (76%–100%) | Until 15 November one false link was"
+   "context": "en two named tokens | 4 | 4 of 4 | 100% (51%–100%) | | an anonymous run on one side | 5 (4 unc"
   },
   {
    "file": "docs/validation.md",
    "number": "100%",
-   "context": "side | 17 (5 unclear) | 12 of 12 | 100% (76%–100%) | Until 15 November one false link was repo"
+   "context": "s run on one side | 5 (4 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the l"
   },
   {
    "file": "docs/validation.md",
-   "number": "18",
-   "context": "that POSTs); a rule fix removed it, with all 18 true links kept. Read these as optimistic. T"
-  },
-  {
-   "file": "docs/validation.md",
-   "number": "18",
-   "context": " while looking at these same links, 7 of the 18 true links were added after the change, and "
-  },
-  {
-   "file": "docs/validation.md",
-   "number": "44%",
-   "context": "not separate. On the audit: inferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simu"
+   "number": "21%",
+   "context": "on one side | 5 (4 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the labels"
   },
   {
    "file": "docs/validation.md",
    "number": "100%",
-   "context": "separate. On the audit: inferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simulated"
+   "context": "ne side | 5 (4 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the labels of 1"
   },
   {
    "file": "docs/validation.md",
-   "number": "80%",
-   "context": ": inferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simulated swarms, pooled over "
+   "number": "13",
+   "context": "%) | Read these as optimistic: the labels of 13 links were changed in the same commit as the"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "5",
+   "context": "changed in the same commit as the rule, only 5 links are decidable, and the interval reflec"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "82%",
+   "context": "hat. At v2.1.0 the same table read 18 of 18 (82%–100%), which a reviewer's reading cut to abo"
   },
   {
    "file": "docs/validation.md",
    "number": "100%",
-   "context": "ferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simulated swarms, pooled over 5 see"
+   "context": " At v2.1.0 the same table read 18 of 18 (82%–100%), which a reviewer's reading cut to about 5."
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "57%",
+   "context": "inferred, 9 weak. On the audit: weak 5 of 5 (57%–100%). Precision by grade does not separate "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": "rred, 9 weak. On the audit: weak 5 of 5 (57%–100%). Precision by grade does not separate and, "
   },
   {
    "file": "docs/validation.md",
@@ -894,57 +1534,57 @@
   {
    "file": "docs/validation.md",
    "number": "70%",
-   "context": " 45 coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 78"
+   "context": " 45 coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 94"
   },
   {
    "file": "docs/validation.md",
    "number": "90%",
-   "context": "coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 78% (4"
+   "context": "coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 94% (5"
   },
   {
    "file": "docs/validation.md",
    "number": "78%",
-   "context": "s): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 78% (4,745 of 6,057);"
+   "context": "s): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 94% (5,809 of 6,154);"
   },
   {
    "file": "docs/validation.md",
-   "number": "78%",
-   "context": "0%–90%), inferred 78% (2,088 of 2,670), weak 78% (4,745 of 6,057); on the real-world setting "
+   "number": "94%",
+   "context": "0%–90%), inferred 78% (2,088 of 2,670), weak 94% (5,809 of 6,154); on the real-world setting "
   },
   {
    "file": "docs/validation.md",
    "number": "82%",
-   "context": " of 6,057); on the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80"
+   "context": " of 6,154); on the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 89"
   },
   {
    "file": "docs/validation.md",
    "number": "81%",
-   "context": " the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712;"
+   "context": " the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 89% (647 of 724;"
   },
   {
    "file": "docs/validation.md",
    "number": "75%",
-   "context": "etting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ra"
+   "context": "etting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 89% (647 of 724; 87%–91%). The ra"
   },
   {
    "file": "docs/validation.md",
    "number": "85%",
-   "context": "ng direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges"
+   "context": "ng direct 82%, inferred 81% (175 of 217; 75%–85%), weak 89% (647 of 724; 87%–91%). The ranges"
   },
   {
    "file": "docs/validation.md",
-   "number": "80%",
-   "context": "2%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges overlap, s"
+   "number": "89%",
+   "context": "2%, inferred 81% (175 of 217; 75%–85%), weak 89% (647 of 724; 87%–91%). The ranges overlap, s"
   },
   {
    "file": "docs/validation.md",
-   "number": "77%",
-   "context": "(175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges overlap, so a reader should"
+   "number": "87%",
+   "context": "(175 of 217; 75%–85%), weak 89% (647 of 724; 87%–91%). The ranges overlap, so a reader should"
   },
   {
    "file": "docs/validation.md",
-   "number": "82%",
-   "context": " of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges overlap, so a reader should not"
+   "number": "91%",
+   "context": " of 217; 75%–85%), weak 89% (647 of 724; 87%–91%). The ranges overlap, so a reader should not"
   },
   {
    "file": "docs/validation.md",
@@ -963,18 +1603,48 @@
   },
   {
    "file": "docs/validation.md",
-   "number": "95%",
-   "context": ", 231 links): raw agreement 98% (226 of 231; 95%–99%), Cohen's kappa 0.83. It never calls a f"
+   "number": "90%",
+   "context": ", 229 links): raw agreement 94% (215 of 229; 90%–96%), Cohen's kappa 0.20 (the labels now hol"
   },
   {
    "file": "docs/validation.md",
-   "number": "99%",
-   "context": "1 links): raw agreement 98% (226 of 231; 95%–99%), Cohen's kappa 0.83. It never calls a false"
+   "number": "96%",
+   "context": "9 links): raw agreement 94% (215 of 229; 90%–96%), Cohen's kappa 0.20 (the labels now hold on"
   },
   {
    "file": "docs/validation.md",
-   "number": "4",
-   "context": "wrapper). 27 links are unclear, and it calls 4 of them messages. We fixed the method twice "
+   "number": "5",
+   "context": "Cohen's kappa 0.20 (the labels now hold only 5 true links, so kappa is dominated by them; a"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "98%",
+   "context": "kappa is dominated by them; at v2.1.0 it was 98% and 0.83 against 18). Its 14 disagreements a"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "5",
+   "context": "holding the writer's own token, and 3 of the 5 true links it cannot see (a call it finds no"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "70%",
+   "context": "in the first tables: message precision about 70% and recall about 58%, falling to 19% and 10%"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "58%",
+   "context": "message precision about 70% and recall about 58%, falling to 19% and 10% with sparse timestam"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "19%",
+   "context": "n about 70% and recall about 58%, falling to 19% and 10% with sparse timestamps and to nothin"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "10%",
+   "context": "70% and recall about 58%, falling to 19% and 10% with sparse timestamps and to nothing when t"
   },
   {
    "file": "docs/validation.md",
@@ -989,12 +1659,22 @@
   {
    "file": "docs/validation.md",
    "number": "79%",
-   "context": "ns were too easy once already. v1.1.0 scored 79% message precision on them while 165 of its 1"
+   "context": "y once already, and still are. v1.1.0 scored 79% message precision on them while 165 of its 1"
   },
   {
    "file": "docs/validation.md",
    "number": "166",
    "context": "% message precision on them while 165 of its 166 links on the real release were false. The re"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "70%",
+   "context": "e will be others. The independent generator (70% precision, 58% recall) shows the size of the"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "58%",
+   "context": "s. The independent generator (70% precision, 58% recall) shows the size of the optimism, and "
   },
   {
    "file": "docs/validation.md",
@@ -1014,7 +1694,7 @@
   {
    "file": "docs/validation.md",
    "number": "95%",
-   "context": "intervals; the pooled identity figures carry 95% Wilson ranges."
+   "context": "intervals; the pooled identity figures carry 95% Wilson ranges. The pooled-medians table resa"
   },
   {
    "file": "docs/index.html",
@@ -1027,6 +1707,36 @@
    "context": " into their own code (the release could date 3% of payloads) 2.2 h largest gap between seven"
   },
   {
+   "file": "docs/index.html",
+   "number": "87%",
+   "context": "83% to come, and three simple baselines with 87% to 91% Investigations: every claim opens its"
+  },
+  {
+   "file": "docs/index.html",
+   "number": "91%",
+   "context": "come, and three simple baselines with 87% to 91% Investigations: every claim opens its eviden"
+  },
+  {
+   "file": "docs/index.html",
+   "number": "130",
+   "context": "known answers, including benign ones, and on 130 swarms from an independently written generat"
+  },
+  {
+   "file": "docs/index.html",
+   "number": "70%",
+   "context": "rator, which scores lower (message precision 70% against 90%). Simulated scores are upper bou"
+  },
+  {
+   "file": "docs/index.html",
+   "number": "90%",
+   "context": " scores lower (message precision 70% against 90%). Simulated scores are upper bounds, and not"
+  },
+  {
+   "file": "docs/index.html",
+   "number": "50",
+   "context": "the Alert rule in 5 of 30 original and 40 of 50 independent look-alike swarms, because it de"
+  },
+  {
    "file": "reports/submission/SUBMISSION.md",
    "number": "1,200",
    "context": "ent Swarm Project summary In July 2026 about 1,200 AI agents in an OpenAI security evaluation c"
@@ -1037,9 +1747,44 @@
    "context": "9% of payloads, where the release could date 3%, and seven moments it dates fall within abou"
   },
   {
+   "file": "reports/submission/SUBMISSION.md",
+   "number": "93%",
+   "context": "m (83%) and three other simple baselines (87–93%). Scored on 60 simulated swarms with known a"
+  },
+  {
+   "file": "reports/submission/SUBMISSION.md",
+   "number": "70%",
+   "context": "but an independently written generator gives 70% and 58%, so treat simulated scores as optimi"
+  },
+  {
+   "file": "reports/submission/SUBMISSION.md",
+   "number": "58%",
+   "context": "ndependently written generator gives 70% and 58%, so treat simulated scores as optimistic. Th"
+  },
+  {
+   "file": "reports/submission/SUBMISSION.md",
+   "number": "19",
+   "context": " v2.2.0; the version submitted to Apart said 19 messages. Before you press submit: - The rep"
+  },
+  {
+   "file": "docs/assets/demo-script.md",
+   "number": "9",
+   "context": "orrected script on 16 November 2026. It says 9 write-then-read deliveries, not 23, and one "
+  },
+  {
    "file": "docs/deep-dive.md",
-   "number": "5",
-   "context": "te\" R0038810 is a download). The release has 5 audited messages between named tokens. Secti"
+   "number": "24",
+   "context": "nd 16 November 2026). Section 1 rests on the 24 message links as counted at v1.3.0 and is ke"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "9",
+   "context": " is a download), and the v2.2.0 rule reports 9 write-then-read deliveries, 4 between named "
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "4",
+   "context": "0 rule reports 9 write-then-read deliveries, 4 between named tokens, 0 where the reader is "
   },
   {
    "file": "docs/deep-dive.md",
@@ -1064,12 +1809,12 @@
   {
    "file": "docs/deep-dive.md",
    "number": "24",
-   "context": "an: 07-09 13:29 → 07-13 15:50. --- ## 1. The 24 named messages messages.deliveries returns 8"
+   "context": "an: 07-09 13:29 → 07-13 15:50. --- ## 1. The 24 named messages (v1.3.0 list, superseded: see"
   },
   {
    "file": "docs/deep-dive.md",
    "number": "89",
-   "context": "4 named messages messages.deliveries returns 89 deliveries total (unknown-order 63, rereads "
+   "context": " the note above) messages.deliveries returns 89 deliveries total (unknown-order 63, rereads "
   },
   {
    "file": "docs/deep-dive.md",
@@ -1078,13 +1823,8 @@
   },
   {
    "file": "docs/deep-dive.md",
-   "number": "5",
-   "context": "outs: …005057 (1 write, 18 reads, 6 readers, 5 deliveries) and …005898[USER46] (1 write, 12"
-  },
-  {
-   "file": "docs/deep-dive.md",
-   "number": "6",
-   "context": "05898[USER46] (1 write, 12 reads, 7 readers, 6 deliveries). These are shared drop boxes — a"
+   "number": "7",
+   "context": "e-writer, many-reader fan-outs read by 6 and 7 tokens. On the current rule no write has mor"
   },
   {
    "file": "docs/deep-dive.md",
@@ -1169,7 +1909,7 @@
   {
    "file": "docs/deep-dive.md",
    "number": "385",
-   "context": "lf-destruct / anti-analysis code (Evidence): 385 records contain os.kill or SystemExit. Sever"
+   "context": "lf-destruct / anti-analysis code (Evidence): 385 records contain os.kill or SystemExit (73 co"
   },
   {
    "file": "docs/deep-dive.md",
@@ -1199,22 +1939,47 @@
   {
    "file": "docs/deep-dive.md",
    "number": "385",
-   "context": "wer. - Add the evasion/persistence findings: 385 self-destruct-guarded records, an encrypted "
+   "context": "wer. - Add the evasion/persistence findings: 385 records with self-termination code (os.kill "
   },
   {
    "file": "docs/deep-dive.md",
    "number": "24",
-   "context": "1 future-dated (07-18/19) epoch literals. - \"24 messages\" overstates coordination: most are "
+   "context": "1 future-dated (07-18/19) epoch literals. - \"24 messages\" overstates coordination (supersede"
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "9",
+   "context": "ages\" overstates coordination (superseded by 9 write-then-read deliveries, 4 between named "
+  },
+  {
+   "file": "docs/deep-dive.md",
+   "number": "4",
+   "context": "(superseded by 9 write-then-read deliveries, 4 between named tokens): most of the 24 were a"
   },
   {
    "file": "docs/early-warning.md",
    "number": "30",
-   "context": "igns were not written on: 90 coordinated and 30 benign simulated swarms (seeds 21 to 30 in e"
+   "context": ". The original simulator (90 coordinated and 30 benign swarms, seeds 31 to 40, 12 settings) "
   },
   {
    "file": "docs/early-warning.md",
-   "number": "90",
-   "context": "ntities both use (about 5.8 h before, in all 90 swarms, never on a benign swarm). The defaul"
+   "number": "20",
+   "context": "### 2b. The independently written generator (20 coordinated swarms with file in time order a"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "60%",
+   "context": " with file in time order and epoch stamps on 60% of records, 50 benign look-alike swarms, see"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50",
+   "context": "me order and epoch stamps on 60% of records, 50 benign look-alike swarms, seeds 501 to 510) "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "20",
+   "context": "n the independent generator it fired in 0 of 20 coordinated swarms, because those swarms coo"
   },
   {
    "file": "docs/early-warning.md",
@@ -1223,28 +1988,283 @@
   },
   {
    "file": "docs/early-warning.md",
+   "number": "95%",
+   "context": "f trace time on benign swarms, exact Poisson 95% interval. A sign or rule is counted once per"
+  },
+  {
+   "file": "docs/early-warning.md",
    "number": "30",
-   "context": "m rates Alarms per 24 h of trace time on the 30 benign swarms: 1,049 trace hours, 41,960 age"
+   "context": "on real systems. ### 3a. Original simulator: 30 benign swarms, 1052 trace hours, 42,080 agen"
   },
   {
    "file": "docs/early-warning.md",
-   "number": "41,960",
-   "context": " on the 30 benign swarms: 1,049 trace hours, 41,960 agent-hours observed (agents in the swarm ti"
-  },
-  {
-   "file": "docs/early-warning.md",
-   "number": "95%",
-   "context": "times the hours of the trace), exact Poisson 95% interval. A sign or rule is counted once per"
+   "number": "42,080",
+   "context": "mulator: 30 benign swarms, 1052 trace hours, 42,080 agent-hours | Rule, baseline or sign | alarm"
   },
   {
    "file": "docs/early-warning.md",
    "number": "95%",
-   "context": "for it. | Rule or sign | alarms | per 24 h | 95% interval | |---|---|---|---| | Watch: first "
+   "context": "eline or sign | alarms | swarms | per 24 h | 95% interval | |---|---|---|---|---| | Watch: fi"
   },
   {
    "file": "docs/early-warning.md",
    "number": "95%",
-   "context": "ns that never fired on a benign swarm have a 95% upper bound of about 0.084 per 24 h (43.7 da"
+   "context": "006 to 0.165 | Signs that never fired have a 95% upper bound of about 0.084 per 24 h (43.83 d"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50",
+   "context": "s experiment. ### 3b. Independent generator: 50 benign look-alike swarms, 2405 trace hours, "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "72,535",
+   "context": " benign look-alike swarms, 2405 trace hours, 72,535 agent-hours | Rule, baseline or sign | alarm"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "95%",
+   "context": "eline or sign | alarms | swarms | per 24 h | 95% interval | |---|---|---|---|---| | Alert: 2 "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50",
+   "context": "hem by class). The Alert rule fired in 40 of 50 swarms (80%; 95% range 67% to 89%), in all 3"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "80%",
+   "context": "s). The Alert rule fired in 40 of 50 swarms (80%; 95% range 67% to 89%), in all 30 of the thr"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "95%",
+   "context": "he Alert rule fired in 40 of 50 swarms (80%; 95% range 67% to 89%), in all 30 of the three cl"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "67%",
+   "context": "ule fired in 40 of 50 swarms (80%; 95% range 67% to 89%), in all 30 of the three classes with"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "89%",
+   "context": "ed in 40 of 50 swarms (80%; 95% range 67% to 89%), in all 30 of the three classes with real i"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "10",
+   "context": "asses with real information flow and in 9 of 10 honest cloud-agent swarms in the validation "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "10",
+   "context": "e Watch rule fires in 40 of 50, and in 10 of 10 honest cloud-agent swarms, because metadata "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "30",
+   "context": ".1.0 text said the Alert rule fired in 12 of 30 benign swarms; after the fixes the original "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "40",
+   "context": "nal generator gives 5 of 30, and the audit's 40 look-alike swarms gave 29 (95% range 57% to "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "95%",
+   "context": "nd the audit's 40 look-alike swarms gave 29 (95% range 57% to 84%). The slide's \"0 in 15 runs"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "57%",
+   "context": "it's 40 look-alike swarms gave 29 (95% range 57% to 84%). The slide's \"0 in 15 runs\" counted "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "84%",
+   "context": " look-alike swarms gave 29 (95% range 57% to 84%). The slide's \"0 in 15 runs\" counted deliver"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "15",
+   "context": "29 (95% range 57% to 84%). The slide's \"0 in 15 runs\" counted deliveries between different a"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "57%",
+   "context": "ome, the shared-control signs (carried token 57%, shared name 50%) lose to the volume alarm ("
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50%",
+   "context": "ontrol signs (carried token 57%, shared name 50%) lose to the volume alarm (83%, or 93% with "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "83%",
+   "context": ", shared name 50%) lose to the volume alarm (83%, or 93% with a 6 h history), the distinct-ac"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "93%",
+   "context": " name 50%) lose to the volume alarm (83%, or 93% with a 6 h history), the distinct-actor alar"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "87%",
+   "context": "th a 6 h history), the distinct-actor alarm (87%), the first new host after 12 h (91%) and th"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "91%",
+   "context": " alarm (87%), the first new host after 12 h (91%) and the first search_for_secrets action (91"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "91%",
+   "context": "1%) and the first search_for_secrets action (91%); see section 5. ## 5. Real release: the sig"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "100%",
+   "context": "ox, first token seen as data and then used | 100% | | Volume alarm (3 sd, 6 h history) | 93.4%"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "93.4%",
+   "context": " 100% | | Volume alarm (3 sd, 6 h history) | 93.4% | | First new host after 12 h | 91.3% | | Fi"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "91.3%",
+   "context": "ory) | 93.4% | | First new host after 12 h | 91.3% | | First search_for_secrets action | 91.2% "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "91.2%",
+   "context": " 91.3% | | First search_for_secrets action | 91.2% | | First Hugging Face dataset write | 90.0%"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "90.0%",
+   "context": "91.2% | | First Hugging Face dataset write | 90.0% | | First program reused by another actor | "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "87.7%",
+   "context": " | | First program reused by another actor | 87.7% | | First delivery between named actors | 87"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "87.4%",
+   "context": "7% | | First delivery between named actors | 87.4% | | Distinct-actor alarm (3 sd, 12 h history"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "86.9%",
+   "context": " Distinct-actor alarm (3 sd, 12 h history) | 86.9% | | Volume alarm (3 sd, 12 h; the published "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "83.2%",
+   "context": "alarm (3 sd, 12 h; the published baseline) | 83.2% | | Kubernetes service-account token, Kubern"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "82.0%",
+   "context": "ernetes API, cloud metadata (single-agent) | 82.0%, 79.6%, 79.0% | | Shared-control signs: one "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "79.6%",
+   "context": " API, cloud metadata (single-agent) | 82.0%, 79.6%, 79.0% | | Shared-control signs: one identit"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "79.0%",
+   "context": "loud metadata (single-agent) | 82.0%, 79.6%, 79.0% | | Shared-control signs: one identity carri"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "57.0%",
+   "context": "her's token / two identities share a place | 57.0% / 50.2% | | A group of 3 actors linked by de"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50.2%",
+   "context": "ken / two identities share a place | 57.0% / 50.2% | | A group of 3 actors linked by deliveries"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "3",
+   "context": "share a place | 57.0% / 50.2% | | A group of 3 actors linked by deliveries | 7.2% | The sha"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "7.2%",
+   "context": "| A group of 3 actors linked by deliveries | 7.2% | The shared-control signs are the latest of"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "82%",
+   "context": " metadata signs fire after the volume alarm (82%, 80%, 79%). The harm list builds in part of "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "80%",
+   "context": "data signs fire after the volume alarm (82%, 80%, 79%). The harm list builds in part of the a"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "79%",
+   "context": "signs fire after the volume alarm (82%, 80%, 79%). The harm list builds in part of the answer"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "64%",
+   "context": " The harm list builds in part of the answer: 64% of the 8,124 harm records are dataset writes"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "8,124",
+   "context": "ist builds in part of the answer: 64% of the 8,124 harm records are dataset writes, so the firs"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "37.7%",
+   "context": "definition moves the shared-place share from 37.7% to 56.6% and the first-delivery share from 6"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "56.6%",
+   "context": "n moves the shared-place share from 37.7% to 56.6% and the first-delivery share from 62.3% to 9"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "62.3%",
+   "context": "% to 56.6% and the first-delivery share from 62.3% to 96.1%; 37,605 undated payloads are outsid"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "96.1%",
+   "context": "% and the first-delivery share from 62.3% to 96.1%; 37,605 undated payloads are outside the den"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "37,605",
+   "context": "he first-delivery share from 62.3% to 96.1%; 37,605 undated payloads are outside the denominator"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "100%",
+   "context": "d payloads are outside the denominator, and \"100% to come\" at 13:29 on 9 July is left-censorin"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "95%",
+   "context": "g, since that is the first dated record. The 95% ranges that resample the 9 settings (not swa"
   },
   {
    "file": "docs/early-warning.md",
@@ -1282,9 +2302,44 @@
    "context": "ds, redacted_columns.csv, code_traces.json): 13,400 records per second (14.2 s), peak memory 97 "
   },
   {
+   "file": "docs/early-warning.md",
+   "number": "15",
+   "context": "e and warn earlier: on the release only 3 of 15 signs match the replay within 15 minutes, an"
+  },
+  {
+   "file": "docs/how-it-works.md",
+   "number": "9",
+   "context": "dentifiers with the writer's), which is 0 of 9 on the Swarm Traces release. Three rules kee"
+  },
+  {
    "file": "docs/how-it-works.md",
    "number": "20",
    "context": "e first program reused, a group of 3, 5, 10, 20 actors linked by messages, the first two-way"
+  },
+  {
+   "file": "docs/limitations.md",
+   "number": "9",
+   "context": " show the reader used what was written (0 of 9 on the Swarm Traces release do), and one tha"
+  },
+  {
+   "file": "docs/limitations.md",
+   "number": "70%",
+   "context": "ly written generator gives message precision 70% and recall 58%, against 90% and 84% on the o"
+  },
+  {
+   "file": "docs/limitations.md",
+   "number": "58%",
+   "context": "rator gives message precision 70% and recall 58%, against 90% and 84% on the original simulat"
+  },
+  {
+   "file": "docs/limitations.md",
+   "number": "90%",
+   "context": "essage precision 70% and recall 58%, against 90% and 84% on the original simulator; see [vali"
+  },
+  {
+   "file": "docs/limitations.md",
+   "number": "84%",
+   "context": "recision 70% and recall 58%, against 90% and 84% on the original simulator; see [validation]."
   },
   {
    "file": "docs/limitations.md",
@@ -1293,23 +2348,223 @@
   },
   {
    "file": "docs/known-issues.md",
-   "number": "6",
-   "context": "hose links false; the final rule reports 24, 6 between named tokens. The deep dive (docs/de"
+   "number": "23",
+   "context": "ember 2026). What changed: - Message count. \"23 messages, 6 between named tokens\" is replace"
   },
   {
    "file": "docs/known-issues.md",
-   "number": "66%",
-   "context": "ounts as a read (simulated message precision 66% → 79%). A place named in a printed string or"
+   "number": "6",
+   "context": "What changed: - Message count. \"23 messages, 6 between named tokens\" is replaced by 9 write"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "9",
+   "context": "ages, 6 between named tokens\" is replaced by 9 write-then-read deliveries, 4 between named "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "4",
+   "context": "is replaced by 9 write-then-read deliveries, 4 between named tokens (2 between agents, 2 in"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "2",
+   "context": "hen-read deliveries, 4 between named tokens (2 between agents, 2 inside one agent), 0 where"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "2",
+   "context": "s, 4 between named tokens (2 between agents, 2 inside one agent), 0 where the reader is sho"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "258",
+   "context": "rds with a helper script. No person read the 258 links by hand; texts that said so were corre"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "20",
+   "context": "t harm on the original generator and in 0 of 20 swarms on the independent one. On the real r"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "50%",
+   "context": "l release the shared-control signs fire with 50% to 57% of harm still to come, behind a volum"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "57%",
+   "context": "se the shared-control signs fire with 50% to 57% of harm still to come, behind a volume alarm"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "83%",
+   "context": "f harm still to come, behind a volume alarm (83%, or 93% with a 6 h history), the first new h"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "93%",
+   "context": "till to come, behind a volume alarm (83%, or 93% with a 6 h history), the first new host afte"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "91%",
+   "context": "6 h history), the first new host after 12 h (91%), the distinct-actor alarm (87%) and the fir"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "87%",
+   "context": " after 12 h (91%), the distinct-actor alarm (87%) and the first search_for_secrets action (91"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "91%",
+   "context": "7%) and the first search_for_secrets action (91%). - Simulated accuracy. Current code on the "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "90%",
+   "context": "nt code on the original simulator: precision 90%, recall 84% (the old 79% and 73% were for th"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "84%",
+   "context": "he original simulator: precision 90%, recall 84% (the old 79% and 73% were for the old rule)."
   },
   {
    "file": "docs/known-issues.md",
    "number": "79%",
-   "context": "as a read (simulated message precision 66% → 79%). A place named in a printed string or a var"
+   "context": "imulator: precision 90%, recall 84% (the old 79% and 73% were for the old rule). Independent "
   },
   {
    "file": "docs/known-issues.md",
-   "number": "40",
-   "context": " is now within an hour of the truth in 40 of 40 swarms; groups of 20+ still fire early in so"
+   "number": "73%",
+   "context": ": precision 90%, recall 84% (the old 79% and 73% were for the old rule). Independent generato"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "70%",
+   "context": "re for the old rule). Independent generator: 70% and 58%; 19% and 10% with a time on only 30%"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "58%",
+   "context": "he old rule). Independent generator: 70% and 58%; 19% and 10% with a time on only 30% of reco"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "19%",
+   "context": "d rule). Independent generator: 70% and 58%; 19% and 10% with a time on only 30% of records; "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "10%",
+   "context": " Independent generator: 70% and 58%; 19% and 10% with a time on only 30% of records; no datin"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "30%",
+   "context": "70% and 58%; 19% and 10% with a time on only 30% of records; no dating at all when the file i"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "79%",
+   "context": "simulators are optimistic, and v1.1.0 scored 79% on one while 165 of its 166 real links were "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "166",
+   "context": "nd v1.1.0 scored 79% on one while 165 of its 166 real links were false. - False alarms. On 50"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "80%",
+   "context": "ook-alike swarms the Alert rule fired in 40 (80%) and the Watch rule in 40; on the 30 origina"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "30",
+   "context": "in 40 (80%) and the Watch rule in 40; on the 30 original benign swarms the Alert rule fired "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "15",
+   "context": " the Watch rule in 20. The slide claim \"0 in 15 runs\" meant no delivery between different ag"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "385",
+   "context": "ore ahead\" are replaced by the actual gaps. \"385 self-termination records\" is kept, with the "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "3,765",
+   "context": "us runs\" is 77,626 actions with no token, or 3,765 actors on places; the two are no longer mixe"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "9",
+   "context": " and so is v2.1.0's 23. The rule now reports 9 write-then-read deliveries, 4 between named "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "4",
+   "context": "le now reports 9 write-then-read deliveries, 4 between named tokens, none where the reader "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "70%",
+   "context": "endently written one gives message precision 70% and recall 58% (not 90% and 84%). It also ne"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "58%",
+   "context": "n one gives message precision 70% and recall 58% (not 90% and 84%). It also never writes the "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "90%",
+   "context": "es message precision 70% and recall 58% (not 90% and 84%). It also never writes the read-then"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "84%",
+   "context": "ge precision 70% and recall 58% (not 90% and 84%). It also never writes the read-then-exfiltr"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "66%",
+   "context": "ounts as a read (simulated message precision 66% → 79% on the original simulator, before the "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "79%",
+   "context": "as a read (simulated message precision 66% → 79% on the original simulator, before the later "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "45",
+   "context": " (the first delivery between agents in 45 of 45 original swarms), but that is a property of "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "64%",
+   "context": " Hugging Face dataset commit counts as harm (64% of the 8,124 harm records are dataset writes"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "8,124",
+   "context": "ce dataset commit counts as harm (64% of the 8,124 harm records are dataset writes), so the fir"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "37.7%",
+   "context": " the shared-place share of harm to come from 37.7% to 56.6%. - Identity merges at low confidenc"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "56.6%",
+   "context": "ed-place share of harm to come from 37.7% to 56.6%. - Identity merges at low confidence are rar"
   },
   {
    "file": "docs/known-issues.md",
@@ -1318,38 +2573,103 @@
   },
   {
    "file": "docs/known-issues.md",
-   "number": "23",
-   "context": "tion disagrees with the rule on the release (23 deliveries against 192); see [integrity]. Mo"
+   "number": "30%",
+   "context": "rder and embedded times. With a time on only 30% of records message precision falls to 19%; w"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "19%",
+   "context": "ly 30% of records message precision falls to 19%; with the file grouped by agent the trace co"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "380",
+   "context": "of 12 high-confidence merges right\" is 12 of 380 true pairs (about 3% recall), and the merge "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "3%",
+   "context": "merges right\" is 12 of 380 true pairs (about 3% recall), and the merge rule was rewritten af"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "7.7%",
+   "context": "rms. - Attribution of anonymous runs reaches 7.7% of the 77,626 anonymous runs on the release."
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "77,626",
+   "context": "bution of anonymous runs reaches 7.7% of the 77,626 anonymous runs on the release. The held-out "
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "99.4%",
+   "context": "runs on the release. The held-out precision (99.4% / 96.4% / 87.9% by band) is measured on simu"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "96.4%",
+   "context": "the release. The held-out precision (99.4% / 96.4% / 87.9% by band) is measured on simulated sw"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "87.9%",
+   "context": "ase. The held-out precision (99.4% / 96.4% / 87.9% by band) is measured on simulated swarms spl"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "41",
+   "context": "ur tolerance fixed before the run; 15 of the 41 are the Swarm Traces authors' own claims sea"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "15",
+   "context": "varied. - The online monitor reproduces 3 of 15 replay signs within 15 minutes; on the onlin"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "9",
+   "context": " rule on the release, but not independently (9 deliveries each; it found 191 until v2.2.0 b"
   },
   {
    "file": "docs/collect-next-time.md",
-   "number": "6%",
-   "context": "ul 11:51 to 12 Jul 17:22; harm still to come 6% to 90%; messages 1 to 7; pairs 1 to 6 | Chea"
+   "number": "4",
+   "context": "e pack code_traces.json, on the v2.2.0 rule (4 write-then-read deliveries between named tok"
   },
   {
    "file": "docs/collect-next-time.md",
-   "number": "90%",
-   "context": "51 to 12 Jul 17:22; harm still to come 6% to 90%; messages 1 to 7; pairs 1 to 6 | Cheap. The "
+   "number": "8%",
+   "context": "ul 03:06 to 12 Jul 10:04; harm still to come 8% to 87%; messages 0 to 4; pairs 0 to 4 | Chea"
   },
   {
    "file": "docs/collect-next-time.md",
-   "number": "90%",
-   "context": "ul 13:29 to 10 Jul 11:51; harm still to come 90% to 100%; messages 7 to 895 (parametric) | Ne"
+   "number": "87%",
+   "context": "06 to 12 Jul 10:04; harm still to come 8% to 87%; messages 0 to 4; pairs 0 to 4 | Cheap. The "
+  },
+  {
+   "file": "docs/collect-next-time.md",
+   "number": "87%",
+   "context": "ul 13:29 to 11 Jul 03:06; harm still to come 87% to 100%; messages 4 to 501 (parametric) | Ne"
   },
   {
    "file": "docs/collect-next-time.md",
    "number": "100%",
-   "context": "9 to 10 Jul 11:51; harm still to come 90% to 100%; messages 7 to 895 (parametric) | Needs the "
+   "context": "9 to 11 Jul 03:06; harm still to come 87% to 100%; messages 4 to 501 (parametric) | Needs the "
   },
   {
    "file": "docs/collect-next-time.md",
    "number": "50%",
-   "context": "3:06; messages 3 to 7 (parametric: 0, 25 and 50% of reads failed) | Storage and privacy. Resp"
+   "context": "ent); messages 2 to 4 (parametric: 0, 25 and 50% of reads failed) | Storage and privacy. Resp"
   },
   {
    "file": "docs/collect-next-time.md",
    "number": "60%",
-   "context": "50 to 13:12; messages 7 to 10; pairs 6 to 8. 60% of records have no time, so the early-flag r"
+   "context": ":35 to 05:11; messages 4 to 6; pairs 4 to 6. 60% of records have no time, so the early-flag r"
+  },
+  {
+   "file": "docs/collect-next-time.md",
+   "number": "91%",
+   "context": "h as the first new host after 12 h fire with 91% of harm still to come. ## Reading the number"
   },
   {
    "file": "docs/packs.md",

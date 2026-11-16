@@ -90,12 +90,12 @@ footer a{color:#cfdbe8}
 <section>
   <div class="wrap">
     <h2>Built on a real incident</h2>
-    <p class="lead">In July 2026 about 1,200 AI agents in a security evaluation turned a shared package cache into a message board, and roughly 700 of them broke into Hugging Face. We built Swarm Tracer on the public <a href="https://swarmtraces.org/">Swarm Traces</a> release and checked it against what the incident's investigators published. Every number below is recomputed from the release by <code>python3 -m agenttrace evaluate</code>; the published times are from <a href="https://metr.org/hugging-face-incident-report-aug-2026.pdf">METR</a> (pp. 34–38) and <a href="https://huggingface.co/blog/agent-intrusion-technical-timeline">Hugging Face's timeline</a>.</p>
+    <p class="lead">In July 2026 about 1,200 AI agents in a security evaluation turned a shared package cache into a message board, and roughly 700 of them broke into Hugging Face. We built Swarm Tracer on the public <a href="https://swarmtraces.org/">Swarm Traces</a> release and checked it against what the incident's investigators published. The numbers below are recomputed from the release by <code>python3 -m agenttrace evaluate</code>; the published times are from <a href="https://metr.org/hugging-face-incident-report-aug-2026.pdf">METR</a> (pp. 34–38) and <a href="https://huggingface.co/blog/agent-intrusion-technical-timeline">Hugging Face's timeline</a>.</p>
     <div class="stats">
       <div class="stat"><b>59%</b><span>of 91,037 payloads given an estimated time, fitted from 1,395 timestamps the agents wrote into their own code (the release could date 3% of payloads)</span></div>
       <div class="stat"><b>2.2 h</b><span>largest gap between seven moments the tool dates from the records (matched by rules set out in the report) and the times METR and Hugging Face published</span></div>
-      <div class="stat"><b>6</b><span>messages between named tokens (23 in all), after auditing 258 links. The submitted report said 19; most of those were false (<a href="validation.html">details</a>)</span></div>
-      <div class="stat"><b>50–57%</b><span>of the 8,124 dated harmful actions were still to come when signs of shared control fired; a plain volume alarm fired with 83% to come</span></div>
+      <div class="stat"><b>9</b><span>write-then-read deliveries (4 between named tokens, 2 of them inside one agent), none where the reader is shown using what was written. The submitted report said 19 and v2.1.0 said 23; the audit labels are one reader's, the authors' AI assistant (<a href="known-issues.html#corrections-in-v211--v220">corrections</a>)</span></div>
+      <div class="stat"><b>50–57%</b><span>of the 8,124 dated harmful actions were still to come when signs of shared control fired; a plain volume alarm fired with 83% to come, and three simple baselines with 87% to 91%</span></div>
     </div>
   </div>
 </section>
@@ -105,7 +105,7 @@ footer a{color:#cfdbe8}
     <h2>Investigations: every claim opens its evidence</h2>
     <p class="lead">Three short written investigations of the incident. Each claim is a link that opens the records behind it: the record id, the time and whether it is estimated, the token and agent, and what the tool judged. Record text is not reproduced; each record links to the publisher's own viewer.</p>
     <ul class="docs">
-      <li><a href="investigations/first-message/"><b>The first message between agents</b><span>Why the first message moves by almost two days once tokens are counted as agents</span></a></li>
+      <li><a href="investigations/first-message/"><b>The first delivery between agents</b><span>Why the first delivery moves by more than a day once tokens are counted as agents</span></a></li>
       <li><a href="investigations/shared-place-sign/"><b>The one sign that warned early</b><span>Early in our simulator, late on the real incident: what each result rests on</span></a></li>
       <li><a href="investigations/what-is-missed/"><b>What an investigator would still miss</b><span>The insider findings the public release cannot show, and what would close the gaps</span></a></li>
     </ul>
@@ -126,7 +126,7 @@ footer a{color:#cfdbe8}
       <div class="card"><div class="k">AI investigator</div><h3>Answers as charts, checked</h3><p>Any OpenAI-compatible model, including local ones. Answers come back as timelines, flow diagrams and evidence cards, and every record id is checked against the data.</p></div>
       <div class="card"><div class="k">Case file</div><h3>Evidence you can hand over</h3><p>Pin records, agents and conversations, add notes, and export a self-contained dossier.</p></div>
       <div class="card"><div class="k">Forensics</div><h3>Follow any thread</h3><p>Trace any token, URL or line of code through the swarm; credential lifecycles; command-and-control pickups; dead drops; how code evolved; each agent's climb through the attack stages; a story written from the data; and SOC exports with a chain of custody.</p></div>
-      <div class="card"><div class="k">Accuracy</div><h3>Measured, not assumed</h3><p>Scored on 60 simulated swarms with known answers, including benign ones, so every claim about messages, timing and identity comes with a measured range.</p></div>
+      <div class="card"><div class="k">Accuracy</div><h3>Measured, not assumed</h3><p>Scored on 60 simulated swarms with known answers, including benign ones, and on 130 swarms from an independently written generator, which scores lower (message precision 70% against 90%). Simulated scores are upper bounds, and not every number in these pages has a range.</p></div>
       <div class="card"><div class="k">Compare</div><h3>Swarm against swarm</h3><p>Load two swarms and compare group sizes, message speed and which signs fired first, from a library of past incidents.</p></div>
       <div class="card"><div class="k">What's missing</div><h3>Blind spots, measured</h3><p>How much of the data has no time, no named actor or only weak evidence, which question each gap limits, and how to close it.</p></div>
     </div>
@@ -137,7 +137,7 @@ footer a{color:#cfdbe8}
   <div class="wrap two">
     <div>
       <h2>Any swarm, not one dataset</h2>
-      <p>Swarm Tracer reads JSONL, JSON, CSV and plain-text logs, folders of linked files, and the trace formats of common agent frameworks: OpenTelemetry GenAI spans, LangSmith, Langfuse, AutoGen, CrewAI, the OpenAI Agents SDK and MCP tool calls. Messages agents logged to each other count directly; messages left in shared places are inferred and labelled with what they rest on.</p>
+      <p>Swarm Tracer reads JSONL, JSON, CSV and plain-text logs, folders of linked files, and the trace formats of common agent frameworks: OpenTelemetry GenAI spans, LangSmith, Langfuse, AutoGen, CrewAI, the OpenAI Agents SDK and MCP tool calls. Messages agents logged to each other count directly; contact through shared places is inferred as a write then a later read, labelled with what it rests on. That shows the content was there to read, not that the reader used it.</p>
       <p>A small JSON <a href="packs.html">pack</a> adapts it to a new kind of swarm, and the pack builder proposes one from a sample. It was tested on two very different swarms: code payloads from the Hugging Face incident, and agents using public wikis as a back channel.</p>
     </div>
     <img src="assets/app_network.jpg" alt="Who talked to whom: the graph of every message between named tokens">
@@ -149,8 +149,8 @@ footer a{color:#cfdbe8}
     <img src="assets/app_early.jpg" alt="The early-flag replay stopped at 06:00 on July 11">
     <div>
       <h2>Could it have been flagged early?</h2>
-      <p>The replay steps through the incident hour by hour. In this swarm, single-agent signs such as the first write to a dataset fired a day or more ahead, a link between two tokens through a shared place fired eighteen hours before the surge, and signs that tokens shared control came only when half the harm was still to come.</p>
-      <p class="note">The signals were chosen with hindsight. On simulated benign swarms some still fire, mostly because the pack counts every dataset commit as harm, as the <a href="deep-dive.html">Deep dive</a> · <a href="validation.html">validation page</a> measures. The <a href="how-it-works.html">method</a> and the <a href="limitations.html">limits</a> say exactly what the numbers rest on.</p>
+      <p>The replay steps through the incident hour by hour. In this swarm, single-agent signs such as the first write to a dataset fired about 20 hours before the surge METR dates, a write-then-read link between two tokens through a shared place fired three hours before the surge (both tokens probably one agent), and signs that tokens shared control came only when about half the harm was still to come. The shared-place sign is not an early warning: on simulated swarms it fires about 1.4 hours after the first harm (the +5.8 h lead published earlier is withdrawn), and on the real release simple baselines beat all the shared-control signs.</p>
+      <p class="note">The signals were chosen with hindsight. On simulated benign swarms many still fire: the Alert rule in 5 of 30 original and 40 of 50 independent look-alike swarms, because it detects information flow, not malice, and the pack counts every dataset commit as harm, as the <a href="deep-dive.html">Deep dive</a> · <a href="validation.html">validation page</a> measures. The <a href="how-it-works.html">method</a> and the <a href="limitations.html">limits</a> say exactly what the numbers rest on.</p>
     </div>
   </div>
 </section>
@@ -159,7 +159,7 @@ footer a{color:#cfdbe8}
   <div class="wrap">
     <h2>Start in a minute</h2>
     <p class="lead">Python 3.9 or newer, standard library only. Nothing leaves your machine unless you turn on the AI investigator.</p>
-<pre><code>pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.1.0
+<pre><code>pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.2.0
 swarm-tracer demo                 # a small simulated swarm with known answers
 swarm-tracer serve --input my-swarm.jsonl
 # then open http://127.0.0.1:8010</code></pre>

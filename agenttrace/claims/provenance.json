@@ -1,15 +1,15 @@
 {
  "about": "Every published number: what it states, its value, the dataset and code it is computed from, and each place that prints it. Written by `python3 -m agenttrace.tools.provenance build`; checked by `python3 -m agenttrace.tools.provenance verify`. Do not edit by hand.",
  "manifest_version": 1,
- "package_version": "2.1.0",
+ "package_version": "2.2.0",
  "git": {
-  "commit": "f5dc64fdf52b812ece1adab6f0c5e36604b5279e",
+  "commit": "922955b471c70e504014a192ca1676326f44936d",
   "dirty": true
  },
- "package_fingerprint": "fe37ff600b72fca20add6a240f75d05fbb9d8cb94e8646a905afbb5bf562e357",
+ "package_fingerprint": "7becdd911ac27a8ef57a7548f29feba8da84d649d44f5fe6a303096430da1a19",
  "rule_files": {
-  "agenttrace/messages.py": "7ca521d71e4780a9700acf8370e1281664b16319db16c51d88494ed28fb54afc",
-  "agenttrace/units.py": "bd18533a68465afcbfef5dc02ab89a1dfa464964da8efd0c2d25c501ec12695c"
+  "agenttrace/messages.py": "fd802fa54ffed1123a654c89d67de1320bc403b5bc014a0426f05ba543852370",
+  "agenttrace/units.py": "14fdc0db4497286ef2a8164a3f5f4606caa72d3b5ab826a9e945fef1d987505d"
  },
  "user_decisions_at_build": {
   "merges_accepted": 0,
@@ -39,11 +39,11 @@
     }
    },
    "rule_version": {
-    "hash": "fc11dc74ae141e16",
+    "hash": "c1476d731f291a9c",
     "files": {
-     "agenttrace/messages.py": "7ca521d71e4780a9700acf8370e1281664b16319db16c51d88494ed28fb54afc",
-     "agenttrace/units.py": "bd18533a68465afcbfef5dc02ab89a1dfa464964da8efd0c2d25c501ec12695c",
-     "agenttrace/packs/code_traces.json": "b05f197e4f10f03aafd3bfd4cab47374a91faa09e284ba8ad10e4e8f2a67743c"
+     "agenttrace/messages.py": "fd802fa54ffed1123a654c89d67de1320bc403b5bc014a0426f05ba543852370",
+     "agenttrace/units.py": "14fdc0db4497286ef2a8164a3f5f4606caa72d3b5ab826a9e945fef1d987505d",
+     "agenttrace/packs/code_traces.json": "84914de1d21ab6f7502c4b358108a85dbf68015daa56b6a114ae3b7189b76044"
     }
    }
   },
@@ -83,10 +83,10 @@
    },
    "related": {},
    "rule_version": {
-    "hash": "6608fca7046b9600",
+    "hash": "a9f49b6b75474f57",
     "files": {
-     "agenttrace/messages.py": "7ca521d71e4780a9700acf8370e1281664b16319db16c51d88494ed28fb54afc",
-     "agenttrace/units.py": "bd18533a68465afcbfef5dc02ab89a1dfa464964da8efd0c2d25c501ec12695c",
+     "agenttrace/messages.py": "fd802fa54ffed1123a654c89d67de1320bc403b5bc014a0426f05ba543852370",
+     "agenttrace/units.py": "14fdc0db4497286ef2a8164a3f5f4606caa72d3b5ab826a9e945fef1d987505d",
      "agenttrace/packs/wiki_swarm.json": "ae9e7dfb9318d3c9169230b35826bbe1ccd14804c4f03c5419959fec17bf84d1"
     }
    }
@@ -101,8 +101,8 @@
    "records": null,
    "inputs": {
     "agenttrace/claims/audited_links.json": {
-     "sha256": "60ae240b8c0fe090dbcd87e00a57ab5a54897ff3b5c3be555e6e4658d14a3432",
-     "bytes": 232613
+     "sha256": "60712e2f4c3d56cefc571e9c937b960e22d1e66d90d494622c98edaf7972be6c",
+     "bytes": 233625
     }
    },
    "related": {},
@@ -118,8 +118,8 @@
    "records": null,
    "inputs": {
     "reports/validation/summary.json": {
-     "sha256": "d2dc7ed9fad7a0fbb38b5f3f9d1adcfc6e5639d5d6e3123d6f99a8f0a3f1410a",
-     "bytes": 433860
+     "sha256": "edf3de51e5a846028a20464c441e525f9ca5e339c27d21492b77ab0499a2fd34",
+     "bytes": 433300
     }
    },
    "related": {},
@@ -135,8 +135,8 @@
    "records": null,
    "inputs": {
     "reports/evaluation/count_variance.json": {
-     "sha256": "2dd4cd1b6eddf4a73e23e1bcf549d0bc3ceb7f5dc81c58d3a7180f79f9035aa5",
-     "bytes": 648
+     "sha256": "557f74a057f5c953c89be3fab65f0ae617386ee410042d287ddf3c2b65c1b0bc",
+     "bytes": 644
     }
    },
    "related": {},
@@ -177,13 +177,14 @@
   }
  },
  "claim_files": {
-  "audited_links.json": "60ae240b8c0fe090dbcd87e00a57ab5a54897ff3b5c3be555e6e4658d14a3432",
-  "datasets.json": "aa207df9fc14ee5b38c11c974ad4fd1870880f82bdb0161dbdf2bab20d607481",
-  "frozen_signs.json": "9f0cafd0ea51c5d723400508516de695734854dc825c1842f618ae42f8f93f7d",
+  "audited_links.json": "60712e2f4c3d56cefc571e9c937b960e22d1e66d90d494622c98edaf7972be6c",
+  "datasets.json": "478e9276f84b30674de390277180573bf224a0197396f0224daa42272f76cdce",
+  "frozen_signs.json": "60e9b8b6019e2cc39f5e9f4502dde3e6de29f0abb900118fe2339fecbb10d02c",
   "incident_context.json": "db1d0c3d055e36195f439dac516e4b9dc625f24829ee22e7c94821cde0b239e5",
   "incident_milestones.json": "67fc1af771e9a923734526557d81e2ac234f0711994bb8e464979e22914e857e",
-  "insider_findings.json": "a53ba1cc674b475406eaa520d0a903b967e36028c374c022605e741dd693d62e",
+  "insider_findings.json": "123163631951fb000e0bea9e0af1a227181287f61359cd6073ea80d319e48948",
   "library.json": "6e4524f25d5bdb95b2076edc5713507333b6ae44dc20f84c5e6ae169c647f1a7",
+  "simulated_checks.json": "d8dea7e0e2a9a10346176e1418b5f83b87f5e63bee9c452773aba711f75e6e7f",
   "swarm_traces_report.json": "e6fd7e1f0b0a129e0edeb2acbbc05d7a32d46a8527869e06316be0c889b4adf4"
  },
  "published_files": [
@@ -808,161 +809,137 @@
    "dataset": "release",
    "computed_by": "session.flow['deliveries']",
    "kind": "number",
-   "value": 23,
+   "value": 9,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "It finds <v> messages, \\d+ of them between",
+     "anchor": "It finds <v> write-then-read deliveries \\(a write to a shared place",
      "format": "int",
      "status": "ok",
-     "must_match": "It finds (?P<v>23) messages, \\d+ of them between",
-     "printed": "23"
+     "must_match": "It finds (?P<v>9) write-then-read deliveries \\(a write to a shared place",
+     "printed": "9"
     },
     {
      "file": "paper/report.html",
-     "anchor": "Of the <v> messages, \\d+ passed through",
+     "anchor": "All <v> write-then-read deliveries passed through dataset repositories",
      "format": "int",
      "status": "ok",
-     "must_match": "Of the (?P<v>23) messages, \\d+ passed through",
-     "printed": "23"
+     "must_match": "All (?P<v>9) write-then-read deliveries passed through dataset repositories",
+     "printed": "9"
     },
     {
      "file": "paper/report.html",
-     "anchor": "They report <v> links, \\d+ judged true",
+     "anchor": "and report <v> write-then-read deliveries, \\d+ labelled true",
      "format": "int",
      "status": "ok",
-     "must_match": "They report (?P<v>23) links, \\d+ judged true",
-     "printed": "23"
+     "must_match": "and report (?P<v>9) write-then-read deliveries, \\d+ labelled true",
+     "printed": "9"
     },
     {
      "file": "paper/report.html",
-     "anchor": "reconstructed <v> messages \\(\\d+ between named tokens\\)",
+     "anchor": "reconstructed <v> write-then-read deliveries \\(\\d+ between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "reconstructed (?P<v>23) messages \\(\\d+ between named tokens\\)",
-     "printed": "23"
+     "must_match": "reconstructed (?P<v>9) write-then-read deliveries \\(\\d+ between named tokens",
+     "printed": "9"
     },
     {
      "file": "paper/report.html",
-     "anchor": "\\d+ of <v> messages rest on one",
+     "anchor": "\\d+ of <v> deliveries rest on one, none between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "\\d+ of (?P<v>23) messages rest on one",
-     "printed": "23"
+     "must_match": "\\d+ of (?P<v>9) deliveries rest on one, none between named tokens",
+     "printed": "9"
     },
     {
      "file": "README.md",
-     "anchor": "the release shows <v> messages, \\d+ of them between named tokens",
+     "anchor": "The Swarm Traces release has <v> write-then-read deliveries \\(\\d+ between named tokens\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "the release shows (?P<v>23) messages, \\d+ of them between named tokens",
-     "printed": "23"
-    },
-    {
-     "file": "README.md",
-     "anchor": "the Swarm Traces release has <v> messages \\(",
-     "format": "int",
-     "status": "ok",
-     "must_match": "the Swarm Traces release has (?P<v>23) messages \\(",
-     "printed": "23"
+     "must_match": "The Swarm Traces release has (?P<v>9) write-then-read deliveries \\(\\d+ between named tokens\\)",
+     "printed": "9"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "in \\d+ pairs \\(<v> in all\\)",
+     "anchor": "published <v> write-then-read deliveries, \\d+ between \\d+ named tokens in \\d+ pairs",
      "format": "int",
      "status": "ok",
-     "must_match": "in \\d+ pairs \\((?P<v>23) in all\\)",
-     "printed": "23"
+     "must_match": "published (?P<v>9) write-then-read deliveries, \\d+ between \\d+ named tokens in \\d+ pairs",
+     "printed": "9"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "\\d+ links → <v>; \\d+ audited",
+     "anchor": "\\) \\d+ → \\d+ → \\d+ → <v>; a reviewer defends",
      "format": "int",
      "status": "ok",
-     "must_match": "\\d+ links → (?P<v>23); \\d+ audited",
-     "printed": "23"
+     "must_match": "\\) \\d+ → \\d+ → \\d+ → (?P<v>9); a reviewer defends",
+     "printed": "9"
     },
     {
      "file": "docs/index.html",
-     "anchor": "messages between named tokens \\(<v> in all\\)",
+     "anchor": "published <v> write-then-read deliveries \\(\\d+ between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "messages between named tokens \\((?P<v>23) in all\\)",
-     "printed": "23"
+     "must_match": "published (?P<v>9) write-then-read deliveries \\(\\d+ between named tokens",
+     "printed": "9"
     },
     {
      "file": "reports/submission/SUBMISSION.md",
-     "anchor": "It finds <v> messages, \\d+ of them between",
+     "anchor": "It finds <v> write-then-read deliveries \\(not messages",
      "format": "int",
      "status": "ok",
-     "must_match": "It finds (?P<v>23) messages, \\d+ of them between",
-     "printed": "23"
+     "must_match": "It finds (?P<v>9) write-then-read deliveries \\(not messages",
+     "printed": "9"
     },
     {
      "file": "docs/assets/demo-script.md",
-     "anchor": "That leaves <v> messages in all",
+     "anchor": "That leaves <v> deliveries in all",
      "format": "int",
      "status": "ok",
-     "must_match": "That leaves (?P<v>23) messages in all",
-     "printed": "23"
+     "must_match": "That leaves (?P<v>9) deliveries in all",
+     "printed": "9"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "the release shows <v> messages, \\d+ between named tokens, precision",
+     "anchor": "On the audit the <v> score \\d+ of \\d+ decidable",
      "format": "int",
      "status": "ok",
-     "must_match": "the release shows (?P<v>23) messages, \\d+ between named tokens, precision",
-     "printed": "23"
+     "must_match": "On the audit the (?P<v>9) score \\d+ of \\d+ decidable",
+     "printed": "9"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "the final rules report <v> messages, \\d+ between named tokens",
+     "anchor": "The v2\\.2\\.0 rule reports <v> write-then-read deliveries, \\d+ between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "the final rules report (?P<v>23) messages, \\d+ between named tokens",
-     "printed": "23"
-    },
-    {
-     "file": "docs/validation.md",
-     "anchor": "What the release now shows \\(final rules, phase 1\\): <v> messages",
-     "format": "int",
-     "status": "ok",
-     "must_match": "What the release now shows \\(final rules, phase 1\\): (?P<v>23) messages",
-     "printed": "23"
-    },
-    {
-     "file": "docs/validation.md",
-     "anchor": "The release now shows <v> deliveries, \\d+ of them between named tokens",
-     "format": "int",
-     "status": "ok",
-     "must_match": "The release now shows (?P<v>23) deliveries, \\d+ of them between named tokens",
-     "printed": "23"
+     "must_match": "The v2\\.2\\.0 rule reports (?P<v>9) write-then-read deliveries, \\d+ between named tokens",
+     "printed": "9"
     },
     {
      "file": "docs/validation.md",
      "anchor": "\\| all deliveries \\| <v> \\(",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| all deliveries \\| (?P<v>23) \\(",
-     "printed": "23"
+     "must_match": "\\| all deliveries \\| (?P<v>9) \\(",
+     "printed": "9"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "through Hugging Face datasets: \\d+ of <v> messages",
+     "anchor": "through Hugging Face datasets: all <v> deliveries\\.",
      "format": "int",
      "status": "ok",
-     "must_match": "through Hugging Face datasets: \\d+ of (?P<v>23) messages",
-     "printed": "23"
+     "must_match": "through Hugging Face datasets: all (?P<v>9) deliveries\\.",
+     "printed": "9"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "<v> messages sit on places the redaction may have merged",
+     "anchor": "\\d+ of <v> deliveries sit on places the redaction may have merged",
      "format": "int",
      "status": "ok",
-     "must_match": "(?P<v>23) messages sit on places the redaction may have merged",
-     "printed": "23"
+     "must_match": "\\d+ of (?P<v>9) deliveries sit on places the redaction may have merged",
+     "printed": "9"
     }
    ]
   },
@@ -972,169 +949,145 @@
    "dataset": "release",
    "computed_by": "session.flow['deliveries_between_named_actors']",
    "kind": "number",
-   "value": 6,
+   "value": 4,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "It finds \\d+ messages, <v> of them between",
+     "anchor": "so we do not call them messages\\), <v> of them between \\d+ named tokens in \\d+ sender.receiver pairs",
      "format": "int",
      "status": "ok",
-     "must_match": "It finds \\d+ messages, (?P<v>6) of them between",
-     "printed": "6"
+     "must_match": "so we do not call them messages\\), (?P<v>4) of them between \\d+ named tokens in \\d+ sender.receiver pairs",
+     "printed": "4"
     },
     {
      "file": "paper/report.html",
-     "anchor": "Between named tokens the tool finds <v> messages among",
+     "anchor": "Between named tokens the tool finds <v> deliveries among",
      "format": "int",
      "status": "ok",
-     "must_match": "Between named tokens the tool finds (?P<v>6) messages among",
-     "printed": "6"
+     "must_match": "Between named tokens the tool finds (?P<v>4) deliveries among",
+     "printed": "4"
     },
     {
      "file": "paper/report.html",
-     "anchor": "reconstructed \\d+ messages \\(<v> between named tokens\\)",
+     "anchor": "reconstructed \\d+ write-then-read deliveries \\(<v> between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "reconstructed \\d+ messages \\((?P<v>6) between named tokens\\)",
-     "printed": "6"
+     "must_match": "reconstructed \\d+ write-then-read deliveries \\((?P<v>4) between named tokens",
+     "printed": "4"
     },
     {
      "file": "paper/report.html",
-     "anchor": "puts \\d+ of the <v> messages inside one agent",
+     "anchor": "puts \\d+ of the <v> named deliveries inside one agent",
      "format": "int",
      "status": "ok",
-     "must_match": "puts \\d+ of the (?P<v>6) messages inside one agent",
-     "printed": "6"
+     "must_match": "puts \\d+ of the (?P<v>4) named deliveries inside one agent",
+     "printed": "4"
     },
     {
      "file": "paper/report.html",
-     "anchor": "Between estimated agents, \\d+ of the <v> messages fall inside",
+     "anchor": "Between estimated agents, \\d+ of the <v> named deliveries fall inside",
      "format": "int",
      "status": "ok",
-     "must_match": "Between estimated agents, \\d+ of the (?P<v>6) messages fall inside",
-     "printed": "6"
+     "must_match": "Between estimated agents, \\d+ of the (?P<v>4) named deliveries fall inside",
+     "printed": "4"
     },
     {
      "file": "README.md",
-     "anchor": "the release shows \\d+ messages, <v> of them between named tokens",
+     "anchor": "The Swarm Traces release has \\d+ write-then-read deliveries \\(<v> between named tokens\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "the release shows \\d+ messages, (?P<v>6) of them between named tokens",
-     "printed": "6"
-    },
-    {
-     "file": "README.md",
-     "anchor": "release has \\d+ messages \\(<v> between named tokens\\)",
-     "format": "int",
-     "status": "ok",
-     "must_match": "release has \\d+ messages \\((?P<v>6) between named tokens\\)",
-     "printed": "6"
+     "must_match": "The Swarm Traces release has \\d+ write-then-read deliveries \\((?P<v>4) between named tokens\\)",
+     "printed": "4"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "<v> messages between \\d+ named tokens in",
+     "anchor": "published \\d+ write-then-read deliveries, <v> between \\d+ named tokens in",
      "format": "int",
      "status": "ok",
-     "must_match": "(?P<v>6) messages between \\d+ named tokens in",
-     "printed": "6"
+     "must_match": "published \\d+ write-then-read deliveries, (?P<v>4) between \\d+ named tokens in",
+     "printed": "4"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "\\d+ of the <v> messages fall inside one agent",
+     "anchor": "likely one agent: \\d+ of the <v> named deliveries fall inside one agent",
      "format": "int",
      "status": "ok",
-     "must_match": "\\d+ of the (?P<v>6) messages fall inside one agent",
-     "printed": "6"
+     "must_match": "likely one agent: \\d+ of the (?P<v>4) named deliveries fall inside one agent",
+     "printed": "4"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "with dating error, the <v> named messages range",
+     "anchor": "with dating error, the <v> named deliveries range",
      "format": "int",
      "status": "ok",
-     "must_match": "with dating error, the (?P<v>6) named messages range",
-     "printed": "6"
+     "must_match": "with dating error, the (?P<v>4) named deliveries range",
+     "printed": "4"
     },
     {
      "file": "docs/index.html",
-     "anchor": "<v> messages between named tokens \\(",
+     "anchor": "published \\d+ write-then-read deliveries \\(<v> between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "(?P<v>6) messages between named tokens \\(",
-     "printed": "6"
+     "must_match": "published \\d+ write-then-read deliveries \\((?P<v>4) between named tokens",
+     "printed": "4"
     },
     {
      "file": "reports/submission/SUBMISSION.md",
-     "anchor": "It finds \\d+ messages, <v> of them between",
+     "anchor": "using what was written\\), <v> of them between \\d+ named tokens in \\d+ sender-receiver pairs",
      "format": "int",
      "status": "ok",
-     "must_match": "It finds \\d+ messages, (?P<v>6) of them between",
-     "printed": "6"
+     "must_match": "using what was written\\), (?P<v>4) of them between \\d+ named tokens in \\d+ sender-receiver pairs",
+     "printed": "4"
     },
     {
      "file": "reports/submission/SUBMISSION.md",
-     "anchor": "\\d+ of the <v> messages fall inside one agent",
+     "anchor": "merged into estimated agents, \\d+ of the <v> named deliveries fall inside one agent",
      "format": "int",
      "status": "ok",
-     "must_match": "\\d+ of the (?P<v>6) messages fall inside one agent",
-     "printed": "6"
+     "must_match": "merged into estimated agents, \\d+ of the (?P<v>4) named deliveries fall inside one agent",
+     "printed": "4"
     },
     {
      "file": "docs/assets/demo-script.md",
      "anchor": "<v> of them between (?:\\w+ )?named tokens, in",
      "format": "word",
      "status": "ok",
-     "must_match": "(?P<v>(?i:six)) of them between (?:\\w+ )?named tokens, in",
-     "printed": "six"
+     "must_match": "(?P<v>(?i:four)) of them between (?:\\w+ )?named tokens, in",
+     "printed": "four"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "the release shows \\d+ messages, <v> between named tokens, precision",
+     "anchor": "\\| between two named tokens \\| <v> \\| \\d+ of \\d+ \\|",
      "format": "int",
      "status": "ok",
-     "must_match": "the release shows \\d+ messages, (?P<v>6) between named tokens, precision",
-     "printed": "6"
+     "must_match": "\\| between two named tokens \\| (?P<v>4) \\| \\d+ of \\d+ \\|",
+     "printed": "4"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "the final rules report \\d+ messages, <v> between named tokens",
+     "anchor": "The v2\\.2\\.0 rule reports \\d+ write-then-read deliveries, <v> between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "the final rules report \\d+ messages, (?P<v>6) between named tokens",
-     "printed": "6"
-    },
-    {
-     "file": "docs/validation.md",
-     "anchor": "phase 1\\): \\d+ messages, <v> of them between named tokens",
-     "format": "int",
-     "status": "ok",
-     "must_match": "phase 1\\): \\d+ messages, (?P<v>6) of them between named tokens",
-     "printed": "6"
-    },
-    {
-     "file": "docs/validation.md",
-     "anchor": "shows \\d+ deliveries, <v> of them between named tokens",
-     "format": "int",
-     "status": "ok",
-     "must_match": "shows \\d+ deliveries, (?P<v>6) of them between named tokens",
-     "printed": "6"
+     "must_match": "The v2\\.2\\.0 rule reports \\d+ write-then-read deliveries, (?P<v>4) between named tokens",
+     "printed": "4"
     },
     {
      "file": "docs/validation.md",
      "anchor": "\\| between two named tokens \\| <v> \\|",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| between two named tokens \\| (?P<v>6) \\|",
-     "printed": "6"
+     "must_match": "\\| between two named tokens \\| (?P<v>4) \\|",
+     "printed": "4"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "Of the <v> between named tokens all were read as real",
+     "anchor": "Of the <v> between named tokens all \\d+ were read as a write",
      "format": "int",
      "status": "ok",
-     "must_match": "Of the (?P<v>6) between named tokens all were read as real",
-     "printed": "6"
+     "must_match": "Of the (?P<v>4) between named tokens all \\d+ were read as a write",
+     "printed": "4"
     }
    ]
   },
@@ -1144,81 +1097,73 @@
    "dataset": "release",
    "computed_by": "session.flow['named_actor_pairs']",
    "kind": "number",
-   "value": 5,
+   "value": 4,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "between \\d+ named tokens in <v> sender.receiver pairs, mostly through",
+     "anchor": "of them between \\d+ named tokens in <v> sender.receiver pairs, all through",
      "format": "int",
      "status": "ok",
-     "must_match": "between \\d+ named tokens in (?P<v>5) sender.receiver pairs, mostly through",
-     "printed": "5"
+     "must_match": "of them between \\d+ named tokens in (?P<v>4) sender.receiver pairs, all through",
+     "printed": "4"
     },
     {
      "file": "paper/report.html",
      "anchor": "among \\d+ tokens in <v> sender.receiver pairs \\(Figure 2\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "among \\d+ tokens in (?P<v>5) sender.receiver pairs \\(Figure 2\\)",
-     "printed": "5"
+     "must_match": "among \\d+ tokens in (?P<v>4) sender.receiver pairs \\(Figure 2\\)",
+     "printed": "4"
     },
     {
      "file": "paper/report.html",
      "anchor": "Who talked to whom: the <v> sender.receiver pairs",
      "format": "int",
      "status": "ok",
-     "must_match": "Who talked to whom: the (?P<v>5) sender.receiver pairs",
-     "printed": "5"
+     "must_match": "Who talked to whom: the (?P<v>4) sender.receiver pairs",
+     "printed": "4"
     },
     {
      "file": "paper/report.html",
-     "anchor": "Who talked to whom: all <v> pairs between",
+     "anchor": "\\(v2\\.2\\.0 has <v> pairs between \\d+ tokens\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "Who talked to whom: all (?P<v>5) pairs between",
-     "printed": "5"
+     "must_match": "\\(v2\\.2\\.0 has (?P<v>4) pairs between \\d+ tokens\\)",
+     "printed": "4"
     },
     {
      "file": "README.md",
-     "anchor": "Every message between named tokens in the Swarm Traces release \\(<v> sender-receiver pairs\\)",
+     "anchor": "Every write-then-read delivery between named tokens in the Swarm Traces release \\(<v> sender-receiver pairs\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "Every message between named tokens in the Swarm Traces release \\((?P<v>5) sender-receiver pairs\\)",
-     "printed": "5"
+     "must_match": "Every write-then-read delivery between named tokens in the Swarm Traces release \\((?P<v>4) sender-receiver pairs\\)",
+     "printed": "4"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "messages between \\d+ named tokens in <v> pairs",
+     "anchor": "named tokens in <v> pairs, all through",
      "format": "int",
      "status": "ok",
-     "must_match": "messages between \\d+ named tokens in (?P<v>5) pairs",
-     "printed": "5"
+     "must_match": "named tokens in (?P<v>4) pairs, all through",
+     "printed": "4"
     },
     {
      "file": "reports/submission/SUBMISSION.md",
      "anchor": "named tokens in <v> sender-receiver pairs",
      "format": "int",
      "status": "ok",
-     "must_match": "named tokens in (?P<v>5) sender-receiver pairs",
-     "printed": "5"
+     "must_match": "named tokens in (?P<v>4) sender-receiver pairs",
+     "printed": "4"
     },
     {
      "file": "docs/assets/demo-script.md",
      "anchor": "named tokens, in <v> sender-receiver pairs",
      "format": "word",
      "status": "ok",
-     "must_match": "named tokens, in (?P<v>(?i:five)) sender-receiver pairs",
-     "printed": "five"
-    },
-    {
-     "file": "docs/validation.md",
-     "anchor": "of them between named tokens \\(<v> pairs\\)",
-     "format": "int",
-     "status": "ok",
-     "must_match": "of them between named tokens \\((?P<v>5) pairs\\)",
-     "printed": "5"
+     "must_match": "named tokens, in (?P<v>(?i:four)) sender-receiver pairs",
+     "printed": "four"
     }
    ]
   },
@@ -1228,7 +1173,7 @@
    "dataset": "release",
    "computed_by": "distinct senders and receivers of the named deliveries",
    "kind": "number",
-   "value": 8,
+   "value": 7,
    "computed": true,
    "format": "int",
    "places": [
@@ -1237,48 +1182,48 @@
      "anchor": "\\d+ of them between <v> named tokens in",
      "format": "int",
      "status": "ok",
-     "must_match": "\\d+ of them between (?P<v>8) named tokens in",
-     "printed": "8"
+     "must_match": "\\d+ of them between (?P<v>7) named tokens in",
+     "printed": "7"
     },
     {
      "file": "paper/report.html",
-     "anchor": "finds \\d+ messages among <v> tokens in",
+     "anchor": "Between named tokens the tool finds \\d+ deliveries among <v> tokens in",
      "format": "int",
      "status": "ok",
-     "must_match": "finds \\d+ messages among (?P<v>8) tokens in",
-     "printed": "8"
+     "must_match": "Between named tokens the tool finds \\d+ deliveries among (?P<v>7) tokens in",
+     "printed": "7"
     },
     {
      "file": "paper/report.html",
-     "anchor": "all \\d+ pairs between <v> named tokens",
+     "anchor": "\\(v2\\.2\\.0 has \\d+ pairs between <v> tokens\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "all \\d+ pairs between (?P<v>8) named tokens",
-     "printed": "8"
+     "must_match": "\\(v2\\.2\\.0 has \\d+ pairs between (?P<v>7) tokens\\)",
+     "printed": "7"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "messages between <v> named tokens",
+     "anchor": "deliveries, \\d+ between <v> named tokens in \\d+ pairs",
      "format": "int",
      "status": "ok",
-     "must_match": "messages between (?P<v>8) named tokens",
-     "printed": "8"
+     "must_match": "deliveries, \\d+ between (?P<v>7) named tokens in \\d+ pairs",
+     "printed": "7"
     },
     {
      "file": "reports/submission/SUBMISSION.md",
      "anchor": "\\d+ of them between <v> named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "\\d+ of them between (?P<v>8) named tokens",
-     "printed": "8"
+     "must_match": "\\d+ of them between (?P<v>7) named tokens",
+     "printed": "7"
     },
     {
      "file": "docs/assets/demo-script.md",
      "anchor": "of them between <v> named tokens, in",
      "format": "word",
      "status": "ok",
-     "must_match": "of them between (?P<v>(?i:eight)) named tokens, in",
-     "printed": "eight"
+     "must_match": "of them between (?P<v>(?i:seven)) named tokens, in",
+     "printed": "seven"
     }
    ]
   },
@@ -1288,25 +1233,25 @@
    "dataset": "release",
    "computed_by": "session.flow['channel_types']['hf_dataset']['deliveries']",
    "kind": "number",
-   "value": 22,
+   "value": 9,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "Of the \\d+ messages, <v> passed through dataset repositories",
+     "anchor": "All <v> write-then-read deliveries passed through dataset repositories",
      "format": "int",
      "status": "ok",
-     "must_match": "Of the \\d+ messages, (?P<v>22) passed through dataset repositories",
-     "printed": "22"
+     "must_match": "All (?P<v>9) write-then-read deliveries passed through dataset repositories",
+     "printed": "9"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "through Hugging Face datasets: <v> of \\d+ messages",
+     "anchor": "through Hugging Face datasets: all <v> deliveries\\.",
      "format": "int",
      "status": "ok",
-     "must_match": "through Hugging Face datasets: (?P<v>22) of \\d+ messages",
-     "printed": "22"
+     "must_match": "through Hugging Face datasets: all (?P<v>9) deliveries\\.",
+     "printed": "9"
     }
    ]
   },
@@ -1316,7 +1261,7 @@
    "dataset": "release",
    "computed_by": "session.flow['channel_types']['board']['deliveries']",
    "kind": "number",
-   "value": 1,
+   "value": 0,
    "computed": true,
    "format": "int",
    "places": []
@@ -1333,18 +1278,18 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "<v> of \\d+ messages rest on one, none between named tokens",
+     "anchor": "<v> of \\d+ deliveries rest on one, none between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "(?P<v>3) of \\d+ messages rest on one, none between named tokens",
+     "must_match": "(?P<v>3) of \\d+ deliveries rest on one, none between named tokens",
      "printed": "3"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "<v> of \\d+ messages sit on places the redaction may have merged",
+     "anchor": "<v> of \\d+ deliveries sit on places the redaction may have merged",
      "format": "int",
      "status": "ok",
-     "must_match": "(?P<v>3) of \\d+ messages sit on places the redaction may have merged",
+     "must_match": "(?P<v>3) of \\d+ deliveries sit on places the redaction may have merged",
      "printed": "3"
     }
    ]
@@ -1355,7 +1300,7 @@
    "dataset": "release",
    "computed_by": "session.flow['channels']",
    "kind": "number",
-   "value": 4047,
+   "value": 4056,
    "computed": true,
    "format": "int",
    "places": [
@@ -1364,16 +1309,16 @@
      "anchor": "\\d+ of the <v> places were written three or more times",
      "format": "int",
      "status": "ok",
-     "must_match": "\\d+ of the (?P<v>4,?047) places were written three or more times",
-     "printed": "4,047"
+     "must_match": "\\d+ of the (?P<v>4,?056) places were written three or more times",
+     "printed": "4,056"
     },
     {
      "file": "docs/deep-dive.md",
      "anchor": "of <v> channels, \\d+ have ≥3 writes",
      "format": "int",
      "status": "ok",
-     "must_match": "of (?P<v>4,?047) channels, \\d+ have ≥3 writes",
-     "printed": "4,047"
+     "must_match": "of (?P<v>4,?056) channels, \\d+ have ≥3 writes",
+     "printed": "4,056"
     }
    ]
   },
@@ -1439,7 +1384,7 @@
    "dataset": "release",
    "computed_by": "session.flow['latency_hours']['median']",
    "kind": "number",
-   "value": 5.18,
+   "value": 3.06,
    "computed": true,
    "format": "f2",
    "places": [
@@ -1448,8 +1393,8 @@
      "anchor": "The median gap from write to read was <v> h",
      "format": "f1",
      "status": "ok",
-     "must_match": "The median gap from write to read was (?P<v>5\\.2) h",
-     "printed": "5.2"
+     "must_match": "The median gap from write to read was (?P<v>3\\.1) h",
+     "printed": "3.1"
     }
    ]
   },
@@ -1459,7 +1404,7 @@
    "dataset": "release",
    "computed_by": "session.flow['latency_hours']['p90']",
    "kind": "number",
-   "value": 20.48,
+   "value": 35.38,
    "computed": true,
    "format": "f2",
    "places": [
@@ -1468,8 +1413,8 @@
      "anchor": "the 90th percentile <v> h\\. Most activity",
      "format": "f0",
      "status": "ok",
-     "must_match": "the 90th percentile (?P<v>20) h\\. Most activity",
-     "printed": "20"
+     "must_match": "the 90th percentile (?P<v>35) h\\. Most activity",
+     "printed": "35"
     }
    ]
   },
@@ -1479,25 +1424,25 @@
    "dataset": "release",
    "computed_by": "session.flow['actors_on_channels']['run']",
    "kind": "number",
-   "value": 3767,
+   "value": 3765,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "<v> actors on places are single anonymous runs",
+     "anchor": "and <v> such runs appear on places, against \\d+ tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "(?P<v>3,?767) actors on places are single anonymous runs",
-     "printed": "3,767"
+     "must_match": "and (?P<v>3,?765) such runs appear on places, against \\d+ tokens",
+     "printed": "3,765"
     },
     {
      "file": "paper/report.html",
      "anchor": "Agent field redacted; <v> anonymous runs against",
      "format": "int",
      "status": "ok",
-     "must_match": "Agent field redacted; (?P<v>3,?767) anonymous runs against",
-     "printed": "3,767"
+     "must_match": "Agent field redacted; (?P<v>3,?765) anonymous runs against",
+     "printed": "3,765"
     }
    ]
   },
@@ -1513,18 +1458,18 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "single anonymous runs, against <v> tokens",
+     "anchor": "such runs appear on places, against <v> tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "single anonymous runs, against (?P<v>102) tokens",
+     "must_match": "such runs appear on places, against (?P<v>102) tokens",
      "printed": "102"
     },
     {
      "file": "paper/report.html",
-     "anchor": "anonymous runs against <v> tokens; ",
+     "anchor": "anonymous runs against <v> tokens on places",
      "format": "int",
      "status": "ok",
-     "must_match": "anonymous runs against (?P<v>102) tokens; ",
+     "must_match": "anonymous runs against (?P<v>102) tokens on places",
      "printed": "102"
     }
    ]
@@ -1555,7 +1500,7 @@
    "dataset": "release",
    "computed_by": "session.flow['deliveries_by_grade']",
    "kind": "number",
-   "value": 4,
+   "value": 0,
    "computed": true,
    "format": "int",
    "places": [
@@ -1564,8 +1509,8 @@
      "anchor": "On the release: \\d+ direct, <v> inferred",
      "format": "int",
      "status": "ok",
-     "must_match": "On the release: \\d+ direct, (?P<v>4) inferred",
-     "printed": "4"
+     "must_match": "On the release: \\d+ direct, (?P<v>0) inferred",
+     "printed": "0"
     }
    ]
   },
@@ -1575,7 +1520,7 @@
    "dataset": "release",
    "computed_by": "session.flow['deliveries_by_grade']",
    "kind": "number",
-   "value": 19,
+   "value": 9,
    "computed": true,
    "format": "int",
    "places": [
@@ -1584,8 +1529,8 @@
      "anchor": "On the release: \\d+ direct, \\d+ inferred, <v> weak",
      "format": "int",
      "status": "ok",
-     "must_match": "On the release: \\d+ direct, \\d+ inferred, (?P<v>19) weak",
-     "printed": "19"
+     "must_match": "On the release: \\d+ direct, \\d+ inferred, (?P<v>9) weak",
+     "printed": "9"
     }
    ]
   },
@@ -1595,33 +1540,33 @@
    "dataset": "release",
    "computed_by": "session.flow['first_named_delivery']['read_time']",
    "kind": "number",
-   "value": "2026-07-10 11:51",
+   "value": "2026-07-11 03:06",
    "computed": true,
    "format": "str",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "The first message between two named tokens came at <v> \\(",
+     "anchor": "The first delivery between two named tokens came at <v> \\(",
      "format": "hm_on_md",
      "status": "ok",
-     "must_match": "The first message between two named tokens came at (?P<v>11:51 on July 10) \\(",
-     "printed": "11:51 on July 10"
+     "must_match": "The first delivery between two named tokens came at (?P<v>03:06 on July 11) \\(",
+     "printed": "03:06 on July 11"
     },
     {
      "file": "paper/report.html",
      "anchor": "different agents moves from <v> to",
      "format": "hm_on_md",
      "status": "ok",
-     "must_match": "different agents moves from (?P<v>11:51 on July 10) to",
-     "printed": "11:51 on July 10"
+     "must_match": "different agents moves from (?P<v>03:06 on July 11) to",
+     "printed": "03:06 on July 11"
     },
     {
      "file": "docs/collect-next-time.md",
      "anchor": "Tokens are not agents: [^|]*\\| First message <v> to",
      "format": "d_mon_hm",
      "status": "ok",
-     "must_match": "Tokens are not agents: [^|]*\\| First message (?P<v>10 Jul 11:51) to",
-     "printed": "10 Jul 11:51"
+     "must_match": "Tokens are not agents: [^|]*\\| First message (?P<v>11 Jul 03:06) to",
+     "printed": "11 Jul 03:06"
     }
    ]
   },
@@ -1631,17 +1576,17 @@
    "dataset": "release",
    "computed_by": "…['first_named_delivery']['write_time']",
    "kind": "number",
-   "value": "2026-07-10 11:18",
+   "value": "2026-07-11 00:45",
    "computed": true,
    "format": "str",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "token 170 uploaded to a dataset through Git LFS at <v>, and token 169",
+     "anchor": "token 170 posted to a dataset at <v>, and token 169",
      "format": "hm_on_md",
      "status": "ok",
-     "must_match": "token 170 uploaded to a dataset through Git LFS at (?P<v>11:18 on July 10), and token 169",
-     "printed": "11:18 on July 10"
+     "must_match": "token 170 posted to a dataset at (?P<v>00:45 on July 11), and token 169",
+     "printed": "00:45 on July 11"
     }
    ]
   },
@@ -1651,17 +1596,17 @@
    "dataset": "release",
    "computed_by": "…['first_named_delivery']['write_id']",
    "kind": "number",
-   "value": "R0005366",
+   "value": "R0006584",
    "computed": true,
    "format": "str",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "The first message is <v> to R\\d+",
+     "anchor": "The first delivery between named tokens is <v> to R\\d+",
      "format": "str",
      "status": "ok",
-     "must_match": "The first message is (?P<v>R0005366) to R\\d+",
-     "printed": "R0005366"
+     "must_match": "The first delivery between named tokens is (?P<v>R0006584) to R\\d+",
+     "printed": "R0006584"
     }
    ]
   },
@@ -1671,17 +1616,17 @@
    "dataset": "release",
    "computed_by": "…['first_named_delivery']['read_id']",
    "kind": "number",
-   "value": "R0005421",
+   "value": "R0006786",
    "computed": true,
    "format": "str",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "The first message is R\\d+ to <v>",
+     "anchor": "The first delivery between named tokens is R\\d+ to <v>:",
      "format": "str",
      "status": "ok",
-     "must_match": "The first message is R\\d+ to (?P<v>R0005421)",
-     "printed": "R0005421"
+     "must_match": "The first delivery between named tokens is R\\d+ to (?P<v>R0006786):",
+     "printed": "R0006786"
     }
    ]
   },
@@ -1691,7 +1636,7 @@
    "dataset": "release",
    "computed_by": "session.flow['harm_share_after_first_named_delivery']",
    "kind": "number",
-   "value": 0.895,
+   "value": 0.874,
    "computed": true,
    "format": "f2",
    "places": [
@@ -1700,16 +1645,16 @@
      "anchor": "between two named tokens came at [^(]+\\(<v>% to come\\)",
      "format": "pct",
      "status": "ok",
-     "must_match": "between two named tokens came at [^(]+\\((?P<v>90)% to come\\)",
-     "printed": "90"
+     "must_match": "between two named tokens came at [^(]+\\((?P<v>87)% to come\\)",
+     "printed": "87"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "First message between tokens <v>%",
+     "anchor": "First delivery between tokens <v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "First message between tokens (?P<v>90)%",
-     "printed": "90"
+     "must_match": "First delivery between tokens (?P<v>87)%",
+     "printed": "87"
     }
    ]
   },
@@ -1901,10 +1846,10 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "a volume alarm fired with <v>%",
+     "anchor": "a volume alarm that fires with <v>% of the harm still to come",
      "format": "pct",
      "status": "ok",
-     "must_match": "a volume alarm fired with (?P<v>83)%",
+     "must_match": "a volume alarm that fires with (?P<v>83)% of the harm still to come",
      "printed": "83"
     },
     {
@@ -1925,10 +1870,10 @@
     },
     {
      "file": "paper/slides.html",
-     "anchor": "Volume alarm \\(baseline\\) <v>%",
+     "anchor": "Volume alarm \\(12 h history\\) <v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Volume alarm \\(baseline\\) (?P<v>83)%",
+     "must_match": "Volume alarm \\(12 h history\\) (?P<v>83)%",
      "printed": "83"
     },
     {
@@ -1949,10 +1894,10 @@
     },
     {
      "file": "docs/assets/demo-script.md",
-     "anchor": "A simple volume alarm only fires with <v> percent ahead",
+     "anchor": "a volume alarm at <v> percent",
      "format": "pct_word",
      "status": "ok",
-     "must_match": "A simple volume alarm only fires with (?P<v>(?i:eighty\\-three)) percent ahead",
+     "must_match": "a volume alarm at (?P<v>(?i:eighty\\-three)) percent",
      "printed": "eighty-three"
     }
    ]
@@ -2187,17 +2132,17 @@
    "dataset": "release",
    "computed_by": "agenttrace.evaluate.evaluate(session)['replay_signs']",
    "kind": "number",
-   "value": "2026-07-11 07:46",
+   "value": "2026-07-12 13:06",
    "computed": true,
    "format": "str",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "a group of three tokens linked by messages at <v> \\(",
+     "anchor": "a group of three tokens linked by deliveries at <v> on [A-Z][a-z]+ \\d+ \\(",
      "format": "hm",
      "status": "ok",
-     "must_match": "a group of three tokens linked by messages at (?P<v>07:46) \\(",
-     "printed": "07:46"
+     "must_match": "a group of three tokens linked by deliveries at (?P<v>13:06) on [A-Z][a-z]+ \\d+ \\(",
+     "printed": "13:06"
     }
    ]
   },
@@ -2207,17 +2152,17 @@
    "dataset": "release",
    "computed_by": "agenttrace.evaluate.evaluate(session)['replay_signs']",
    "kind": "number",
-   "value": 0.855,
+   "value": 0.072,
    "computed": true,
    "format": "f2",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "linked by messages at [\\d:]+ \\(<v>% to come\\)",
+     "anchor": "linked by deliveries at [\\d:]+ on [A-Z][a-z]+ \\d+ \\(<v>% to come\\)",
      "format": "pct",
      "status": "ok",
-     "must_match": "linked by messages at [\\d:]+ \\((?P<v>86)% to come\\)",
-     "printed": "86"
+     "must_match": "linked by deliveries at [\\d:]+ on [A-Z][a-z]+ \\d+ \\((?P<v>7)% to come\\)",
+     "printed": "7"
     }
    ]
   },
@@ -2307,17 +2252,17 @@
    "dataset": "release",
    "computed_by": "agenttrace.evaluate.evaluate(session)['robustness']",
    "kind": "number",
-   "value": 0.887,
+   "value": 0.818,
    "computed": true,
    "format": "f2",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "and the first message between <v>% and",
+     "anchor": "and the first delivery between <v>% and",
      "format": "pct",
      "status": "ok",
-     "must_match": "and the first message between (?P<v>89)% and",
-     "printed": "89"
+     "must_match": "and the first delivery between (?P<v>82)% and",
+     "printed": "82"
     }
    ]
   },
@@ -2327,17 +2272,17 @@
    "dataset": "release",
    "computed_by": "agenttrace.evaluate.evaluate(session)['robustness']",
    "kind": "number",
-   "value": 0.909,
+   "value": 0.883,
    "computed": true,
    "format": "f2",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "and the first message between \\d+% and <v>%",
+     "anchor": "and the first delivery between \\d+% and <v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "and the first message between \\d+% and (?P<v>91)%",
-     "printed": "91"
+     "must_match": "and the first delivery between \\d+% and (?P<v>88)%",
+     "printed": "88"
     }
    ]
   },
@@ -2579,33 +2524,33 @@
    "dataset": "release",
    "computed_by": "METR's surge time (incident_milestones.json) minus the first message's read time",
    "kind": "number",
-   "value": 18,
+   "value": 3,
    "computed": true,
    "format": "f0",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "11:51 on July 10 \\(\\d+% to come\\), <v> hours before the surge",
+     "anchor": "on July 11 \\(\\d+% to come\\), <v> hours before the surge",
      "format": "word",
      "status": "ok",
-     "must_match": "11:51 on July 10 \\(\\d+% to come\\), (?P<v>(?i:eighteen)) hours before the surge",
-     "printed": "eighteen"
+     "must_match": "on July 11 \\(\\d+% to come\\), (?P<v>(?i:three)) hours before the surge",
+     "printed": "three"
     },
     {
      "file": "paper/report.html",
-     "anchor": "through a shared place fired <v> hours before the surge",
+     "anchor": "A write-then-read link between two tokens fired <v> hours before the surge",
      "format": "word",
      "status": "ok",
-     "must_match": "through a shared place fired (?P<v>(?i:eighteen)) hours before the surge",
-     "printed": "eighteen"
+     "must_match": "A write-then-read link between two tokens fired (?P<v>(?i:three)) hours before the surge",
+     "printed": "three"
     },
     {
      "file": "docs/index.html",
      "anchor": "through a shared place fired <v> hours before the surge",
      "format": "word",
      "status": "ok",
-     "must_match": "through a shared place fired (?P<v>(?i:eighteen)) hours before the surge",
-     "printed": "eighteen"
+     "must_match": "through a shared place fired (?P<v>(?i:three)) hours before the surge",
+     "printed": "three"
     }
    ]
   },
@@ -2615,7 +2560,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.evaluate.evaluate(session)['counting_rules'][0]",
    "kind": "number",
-   "value": 10,
+   "value": 4,
    "computed": true,
    "format": "int",
    "places": []
@@ -2626,7 +2571,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.evaluate.evaluate(session)['counting_rules'][0]",
    "kind": "number",
-   "value": 5,
+   "value": 4,
    "computed": true,
    "format": "int",
    "places": []
@@ -2637,7 +2582,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.units.units_summary(session, 'agent')['agents']",
    "kind": "number",
-   "value": 234,
+   "value": 233,
    "computed": true,
    "format": "int",
    "places": [
@@ -2646,8 +2591,8 @@
      "anchor": "so \\d+ tokens become <v> agents",
      "format": "int",
      "status": "ok",
-     "must_match": "so \\d+ tokens become (?P<v>234) agents",
-     "printed": "234"
+     "must_match": "so \\d+ tokens become (?P<v>233) agents",
+     "printed": "233"
     }
    ]
   },
@@ -2657,7 +2602,7 @@
    "dataset": "release",
    "computed_by": "sum of sizes of fx_whatif.whatif(session,'estimate')['groups']",
    "kind": "number",
-   "value": 9,
+   "value": 11,
    "computed": true,
    "format": "int",
    "places": [
@@ -2666,8 +2611,8 @@
      "anchor": "Here it merges <v> tokens into",
      "format": "int",
      "status": "ok",
-     "must_match": "Here it merges (?P<v>9) tokens into",
-     "printed": "9"
+     "must_match": "Here it merges (?P<v>11) tokens into",
+     "printed": "11"
     }
    ]
   },
@@ -2677,7 +2622,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.units.units_summary(session, 'agent')['merged_agents']",
    "kind": "number",
-   "value": 2,
+   "value": 3,
    "computed": true,
    "format": "int",
    "places": [
@@ -2686,8 +2631,8 @@
      "anchor": "Here it merges \\d+ tokens into <v> estimated agents",
      "format": "word",
      "status": "ok",
-     "must_match": "Here it merges \\d+ tokens into (?P<v>(?i:two)) estimated agents",
-     "printed": "two"
+     "must_match": "Here it merges \\d+ tokens into (?P<v>(?i:three)) estimated agents",
+     "printed": "three"
     }
    ]
   },
@@ -2737,7 +2682,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.units.units_summary(session, 'agent')['messages']",
    "kind": "number",
-   "value": 3,
+   "value": 2,
    "computed": true,
    "format": "int",
    "places": []
@@ -2748,57 +2693,57 @@
    "dataset": "release",
    "computed_by": "agenttrace.units.units_summary(session, 'agent')['inside_one_agent']",
    "kind": "number",
-   "value": 3,
+   "value": 2,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "puts <v> of the \\d+ messages inside one agent",
+     "anchor": "puts <v> of the \\d+ named deliveries inside one agent",
      "format": "int",
      "status": "ok",
-     "must_match": "puts (?P<v>3) of the \\d+ messages inside one agent",
-     "printed": "3"
+     "must_match": "puts (?P<v>2) of the \\d+ named deliveries inside one agent",
+     "printed": "2"
     },
     {
      "file": "paper/report.html",
-     "anchor": "Between estimated agents, <v> of the \\d+ messages fall inside one agent",
+     "anchor": "Between estimated agents, <v> of the \\d+ named deliveries fall inside one agent",
      "format": "int",
      "status": "ok",
-     "must_match": "Between estimated agents, (?P<v>3) of the \\d+ messages fall inside one agent",
-     "printed": "3"
+     "must_match": "Between estimated agents, (?P<v>2) of the \\d+ named deliveries fall inside one agent",
+     "printed": "2"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "<v> of the \\d+ messages fall inside one agent",
+     "anchor": "likely one agent: <v> of the \\d+ named deliveries fall inside one agent",
      "format": "int",
      "status": "ok",
-     "must_match": "(?P<v>3) of the \\d+ messages fall inside one agent",
-     "printed": "3"
+     "must_match": "likely one agent: (?P<v>2) of the \\d+ named deliveries fall inside one agent",
+     "printed": "2"
     },
     {
      "file": "reports/submission/SUBMISSION.md",
-     "anchor": "<v> of the \\d+ messages fall inside one agent",
+     "anchor": "merged into estimated agents, <v> of the \\d+ named deliveries fall inside one agent",
      "format": "int",
      "status": "ok",
-     "must_match": "(?P<v>3) of the \\d+ messages fall inside one agent",
-     "printed": "3"
+     "must_match": "merged into estimated agents, (?P<v>2) of the \\d+ named deliveries fall inside one agent",
+     "printed": "2"
     },
     {
      "file": "docs/validation.md",
      "anchor": "counted by estimated agent, \\d+ between agents and <v> inside one",
      "format": "int",
      "status": "ok",
-     "must_match": "counted by estimated agent, \\d+ between agents and (?P<v>3) inside one",
-     "printed": "3"
+     "must_match": "counted by estimated agent, \\d+ between agents and (?P<v>2) inside one",
+     "printed": "2"
     },
     {
      "file": "docs/assets/demo-script.md",
      "anchor": "<v> of those \\w+ are between tokens that Swarm Tracer estimates belong to one agent",
      "format": "word",
      "status": "ok",
-     "must_match": "(?P<v>(?i:three)) of those \\w+ are between tokens that Swarm Tracer estimates belong to one agent",
-     "printed": "Three"
+     "must_match": "(?P<v>(?i:two)) of those \\w+ are between tokens that Swarm Tracer estimates belong to one agent",
+     "printed": "Two"
     }
    ]
   },
@@ -2854,10 +2799,10 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "one token holding another.s fires at <v> \\(",
+     "anchor": "one token holding another.s at <v> \\(",
      "format": "hm_on_md",
      "status": "ok",
-     "must_match": "one token holding another.s fires at (?P<v>22:00 on July 11) \\(",
+     "must_match": "one token holding another.s at (?P<v>22:00 on July 11) \\(",
      "printed": "22:00 on July 11"
     }
    ]
@@ -2874,10 +2819,10 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "holding another.s fires at [^(]+\\(<v>% to come\\)",
+     "anchor": "holding another.s at [^(]+\\(<v>% to come\\)",
      "format": "pct",
      "status": "ok",
-     "must_match": "holding another.s fires at [^(]+\\((?P<v>38)% to come\\)",
+     "must_match": "holding another.s at [^(]+\\((?P<v>38)% to come\\)",
      "printed": "38"
     },
     {
@@ -2936,41 +2881,41 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['groups']['all']['true']",
    "kind": "number",
-   "value": 18,
+   "value": 5,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "They report \\d+ links, <v> judged true",
+     "anchor": "and report \\d+ write-then-read deliveries, <v> labelled true",
      "format": "int",
      "status": "ok",
-     "must_match": "They report \\d+ links, (?P<v>18) judged true",
-     "printed": "18"
+     "must_match": "and report \\d+ write-then-read deliveries, (?P<v>5) labelled true",
+     "printed": "5"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "precision <v> of \\d+ on the audit",
+     "anchor": "On the audit the \\d+ score <v> of \\d+ decidable",
      "format": "int",
      "status": "ok",
-     "must_match": "precision (?P<v>18) of \\d+ on the audit",
-     "printed": "18"
+     "must_match": "On the audit the \\d+ score (?P<v>5) of \\d+ decidable",
+     "printed": "5"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "<v> of the \\d+ decidable ones judged true",
+     "anchor": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| <v> of \\d+ \\|",
      "format": "int",
      "status": "ok",
-     "must_match": "(?P<v>18) of the \\d+ decidable ones judged true",
-     "printed": "18"
+     "must_match": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| (?P<v>5) of \\d+ \\|",
+     "printed": "5"
     },
     {
      "file": "docs/validation.md",
      "anchor": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| <v> of",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| (?P<v>18) of",
-     "printed": "18"
+     "must_match": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| (?P<v>5) of",
+     "printed": "5"
     }
    ]
   },
@@ -2991,25 +2936,25 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['groups']['all']['unclear']",
    "kind": "number",
-   "value": 5,
+   "value": 4,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "judged true and <v> undecidable",
+     "anchor": "labelled true and <v> undecidable",
      "format": "int",
      "status": "ok",
-     "must_match": "judged true and (?P<v>5) undecidable",
-     "printed": "5"
+     "must_match": "labelled true and (?P<v>4) undecidable",
+     "printed": "4"
     },
     {
      "file": "docs/validation.md",
      "anchor": "\\| all deliveries \\| \\d+ \\(<v> unclear\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| all deliveries \\| \\d+ \\((?P<v>5) unclear\\)",
-     "printed": "5"
+     "must_match": "\\| all deliveries \\| \\d+ \\((?P<v>4) unclear\\)",
+     "printed": "4"
     }
    ]
   },
@@ -3019,33 +2964,33 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['precision']['n']",
    "kind": "number",
-   "value": 18,
+   "value": 5,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": "precision \\d+ of <v> on the audit",
+     "anchor": "On the audit the \\d+ score \\d+ of <v> decidable",
      "format": "int",
      "status": "ok",
-     "must_match": "precision \\d+ of (?P<v>18) on the audit",
-     "printed": "18"
-    },
-    {
-     "file": "docs/validation.md",
-     "anchor": "\\d+ of the <v> decidable ones judged true",
-     "format": "int",
-     "status": "ok",
-     "must_match": "\\d+ of the (?P<v>18) decidable ones judged true",
-     "printed": "18"
+     "must_match": "On the audit the \\d+ score \\d+ of (?P<v>5) decidable",
+     "printed": "5"
     },
     {
      "file": "docs/validation.md",
      "anchor": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| \\d+ of <v> \\|",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| \\d+ of (?P<v>18) \\|",
-     "printed": "18"
+     "must_match": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| \\d+ of (?P<v>5) \\|",
+     "printed": "5"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| \\d+ of <v> \\|",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| \\d+ of (?P<v>5) \\|",
+     "printed": "5"
     }
    ]
   },
@@ -3061,10 +3006,10 @@
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": "judged true \\(precision <v>%",
+     "anchor": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| \\d+ of \\d+ \\| <v>% \\(",
      "format": "pct",
      "status": "ok",
-     "must_match": "judged true \\(precision (?P<v>100)%",
+     "must_match": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| \\d+ of \\d+ \\| (?P<v>100)% \\(",
      "printed": "100"
     },
     {
@@ -3083,33 +3028,33 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['precision']['ci'][0]",
    "kind": "number",
-   "value": 0.8241,
+   "value": 0.5655,
    "computed": true,
    "format": "f2",
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": "on the audit \\(95% range <v>%",
+     "anchor": "\\(\\d+ are unclear; 95% range <v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "on the audit \\(95% range (?P<v>82)%",
-     "printed": "82"
+     "must_match": "\\(\\d+ are unclear; 95% range (?P<v>57)%",
+     "printed": "57"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "\\(precision \\d+%, 95% range <v>.\\d+%",
+     "anchor": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| \\d+ of \\d+ \\| \\d+% \\(<v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "\\(precision \\d+%, 95% range (?P<v>82).\\d+%",
-     "printed": "82"
+     "must_match": "\\| all deliveries \\| \\d+ \\(\\d+ unclear\\) \\| \\d+ of \\d+ \\| \\d+% \\((?P<v>57)%",
+     "printed": "57"
     },
     {
      "file": "docs/validation.md",
      "anchor": "\\| all deliveries \\| [^|]+\\| [^|]+\\| \\d+% \\(<v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "\\| all deliveries \\| [^|]+\\| [^|]+\\| \\d+% \\((?P<v>82)%",
-     "printed": "82"
+     "must_match": "\\| all deliveries \\| [^|]+\\| [^|]+\\| \\d+% \\((?P<v>57)%",
+     "printed": "57"
     }
    ]
   },
@@ -3125,10 +3070,10 @@
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": "on the audit \\(95% range \\d+%.<v>%",
+     "anchor": "\\(\\d+ are unclear; 95% range \\d+%.<v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "on the audit \\(95% range \\d+%.(?P<v>100)%",
+     "must_match": "\\(\\d+ are unclear; 95% range \\d+%.(?P<v>100)%",
      "printed": "100"
     },
     {
@@ -3147,7 +3092,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['groups']['named_named']",
    "kind": "number",
-   "value": 6,
+   "value": 4,
    "computed": true,
    "format": "int",
    "places": [
@@ -3156,16 +3101,16 @@
      "anchor": "\\| between two named tokens \\| \\d+ \\| <v> of",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| between two named tokens \\| \\d+ \\| (?P<v>6) of",
-     "printed": "6"
+     "must_match": "\\| between two named tokens \\| \\d+ \\| (?P<v>4) of",
+     "printed": "4"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "all <v> named ones true",
+     "anchor": "\\| between two named tokens \\| \\d+ \\| <v> of \\d+ \\|",
      "format": "int",
      "status": "ok",
-     "must_match": "all (?P<v>6) named ones true",
-     "printed": "6"
+     "must_match": "\\| between two named tokens \\| \\d+ \\| (?P<v>4) of \\d+ \\|",
+     "printed": "4"
     }
    ]
   },
@@ -3175,7 +3120,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['groups']['involves_run']['reported']",
    "kind": "number",
-   "value": 17,
+   "value": 5,
    "computed": true,
    "format": "int",
    "places": [
@@ -3184,8 +3129,8 @@
      "anchor": "\\| an anonymous run on one side \\| <v> \\(",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| an anonymous run on one side \\| (?P<v>17) \\(",
-     "printed": "17"
+     "must_match": "\\| an anonymous run on one side \\| (?P<v>5) \\(",
+     "printed": "5"
     }
    ]
   },
@@ -3195,7 +3140,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['groups']['involves_run']['true']",
    "kind": "number",
-   "value": 12,
+   "value": 1,
    "computed": true,
    "format": "int",
    "places": [
@@ -3204,16 +3149,16 @@
      "anchor": "\\| an anonymous run on one side \\| [^|]+\\| <v> of",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| an anonymous run on one side \\| [^|]+\\| (?P<v>12) of",
-     "printed": "12"
+     "must_match": "\\| an anonymous run on one side \\| [^|]+\\| (?P<v>1) of",
+     "printed": "1"
     },
     {
      "file": "docs/validation.md",
      "anchor": "of those with an anonymous endpoint <v> of \\d+",
      "format": "int",
      "status": "ok",
-     "must_match": "of those with an anonymous endpoint (?P<v>12) of \\d+",
-     "printed": "12"
+     "must_match": "of those with an anonymous endpoint (?P<v>1) of \\d+",
+     "printed": "1"
     }
    ]
   },
@@ -3223,7 +3168,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['groups']['involves_run']['precision']['n']",
    "kind": "number",
-   "value": 12,
+   "value": 1,
    "computed": true,
    "format": "int",
    "places": [
@@ -3232,16 +3177,16 @@
      "anchor": "\\| an anonymous run on one side \\| [^|]+\\| \\d+ of <v> \\|",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| an anonymous run on one side \\| [^|]+\\| \\d+ of (?P<v>12) \\|",
-     "printed": "12"
+     "must_match": "\\| an anonymous run on one side \\| [^|]+\\| \\d+ of (?P<v>1) \\|",
+     "printed": "1"
     },
     {
      "file": "docs/validation.md",
      "anchor": "of those with an anonymous endpoint \\d+ of <v>",
      "format": "int",
      "status": "ok",
-     "must_match": "of those with an anonymous endpoint \\d+ of (?P<v>12)",
-     "printed": "12"
+     "must_match": "of those with an anonymous endpoint \\d+ of (?P<v>1)",
+     "printed": "1"
     }
    ]
   },
@@ -3251,19 +3196,10 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['by_grade']['inferred']",
    "kind": "number",
-   "value": 3,
+   "value": 0,
    "computed": true,
    "format": "int",
-   "places": [
-    {
-     "file": "docs/validation.md",
-     "anchor": "On the audit: inferred <v> of",
-     "format": "int",
-     "status": "ok",
-     "must_match": "On the audit: inferred (?P<v>3) of",
-     "printed": "3"
-    }
-   ]
+   "places": []
   },
   {
    "id": "release.audit_weak_true",
@@ -3271,17 +3207,17 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['by_grade']['weak']",
    "kind": "number",
-   "value": 15,
+   "value": 5,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": ", weak <v> of \\d+ \\(",
+     "anchor": "On the audit: weak <v> of \\d+ \\(",
      "format": "int",
      "status": "ok",
-     "must_match": ", weak (?P<v>15) of \\d+ \\(",
-     "printed": "15"
+     "must_match": "On the audit: weak (?P<v>5) of \\d+ \\(",
+     "printed": "5"
     }
    ]
   },
@@ -3291,17 +3227,17 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['by_grade']['weak']",
    "kind": "number",
-   "value": 15,
+   "value": 5,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": ", weak \\d+ of <v> \\(",
+     "anchor": "On the audit: weak \\d+ of <v> \\(",
      "format": "int",
      "status": "ok",
-     "must_match": ", weak \\d+ of (?P<v>15) \\(",
-     "printed": "15"
+     "must_match": "On the audit: weak \\d+ of (?P<v>5) \\(",
+     "printed": "5"
     }
    ]
   },
@@ -3311,7 +3247,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.independent_agreement(session, audit)['decided']['agreement']['k']",
    "kind": "number",
-   "value": 226,
+   "value": 215,
    "computed": true,
    "format": "int",
    "places": [
@@ -3320,8 +3256,8 @@
      "anchor": "raw agreement \\d+% \\(<v> of",
      "format": "int",
      "status": "ok",
-     "must_match": "raw agreement \\d+% \\((?P<v>226) of",
-     "printed": "226"
+     "must_match": "raw agreement \\d+% \\((?P<v>215) of",
+     "printed": "215"
     }
    ]
   },
@@ -3331,7 +3267,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.independent_agreement(session, audit)['decided']['n']",
    "kind": "number",
-   "value": 231,
+   "value": 229,
    "computed": true,
    "format": "int",
    "places": [
@@ -3340,16 +3276,16 @@
      "anchor": "raw agreement \\d+% \\(\\d+ of <v>;",
      "format": "int",
      "status": "ok",
-     "must_match": "raw agreement \\d+% \\(\\d+ of (?P<v>231);",
-     "printed": "231"
+     "must_match": "raw agreement \\d+% \\(\\d+ of (?P<v>229);",
+     "printed": "229"
     },
     {
      "file": "docs/validation.md",
      "anchor": "\\(unclear left out, <v> links\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "\\(unclear left out, (?P<v>231) links\\)",
-     "printed": "231"
+     "must_match": "\\(unclear left out, (?P<v>229) links\\)",
+     "printed": "229"
     }
    ]
   },
@@ -3359,7 +3295,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.independent_agreement(session, audit)['decided']['agreement']['value']",
    "kind": "number",
-   "value": 0.9784,
+   "value": 0.9389,
    "computed": true,
    "format": "f2",
    "places": [
@@ -3368,8 +3304,8 @@
      "anchor": "raw agreement <v>% \\(",
      "format": "pct",
      "status": "ok",
-     "must_match": "raw agreement (?P<v>98)% \\(",
-     "printed": "98"
+     "must_match": "raw agreement (?P<v>94)% \\(",
+     "printed": "94"
     }
    ]
   },
@@ -3379,17 +3315,17 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.independent_agreement(session, audit)['decided']['kappa']",
    "kind": "number",
-   "value": 0.8274,
+   "value": 0.1969,
    "computed": true,
    "format": "f2",
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": "Cohen's kappa <v>\\. It never",
+     "anchor": "Cohen.s kappa <v> \\(the labels now hold",
      "format": "f2",
      "status": "ok",
-     "must_match": "Cohen's kappa (?P<v>0\\.83)\\. It never",
-     "printed": "0.83"
+     "must_match": "Cohen.s kappa (?P<v>0\\.20) \\(the labels now hold",
+     "printed": "0.20"
     }
    ]
   },
@@ -3399,7 +3335,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.board.board(session)['funnel']['folders']",
    "kind": "number",
-   "value": 494,
+   "value": 503,
    "computed": true,
    "format": "int",
    "places": [
@@ -3408,16 +3344,16 @@
      "anchor": "of <v> board folders the release shows",
      "format": "int",
      "status": "ok",
-     "must_match": "of (?P<v>494) board folders the release shows",
-     "printed": "494"
+     "must_match": "of (?P<v>503) board folders the release shows",
+     "printed": "503"
     },
     {
      "file": "paper/report.html",
      "anchor": "Unread places Of <v> board folders",
      "format": "int",
      "status": "ok",
-     "must_match": "Unread places Of (?P<v>494) board folders",
-     "printed": "494"
+     "must_match": "Unread places Of (?P<v>503) board folders",
+     "printed": "503"
     }
    ]
   },
@@ -3455,7 +3391,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.board.board(session)['funnel']['read']",
    "kind": "number",
-   "value": 329,
+   "value": 337,
    "computed": true,
    "format": "int",
    "places": [
@@ -3464,16 +3400,16 @@
      "anchor": "a writer for \\d+, a reader for <v> and both",
      "format": "int",
      "status": "ok",
-     "must_match": "a writer for \\d+, a reader for (?P<v>329) and both",
-     "printed": "329"
+     "must_match": "a writer for \\d+, a reader for (?P<v>337) and both",
+     "printed": "337"
     },
     {
      "file": "paper/report.html",
      "anchor": "show a writer, <v> a reader",
      "format": "int",
      "status": "ok",
-     "must_match": "show a writer, (?P<v>329) a reader",
-     "printed": "329"
+     "must_match": "show a writer, (?P<v>337) a reader",
+     "printed": "337"
     }
    ]
   },
@@ -3483,7 +3419,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.board.board(session)['funnel']['both']",
    "kind": "number",
-   "value": 2,
+   "value": 1,
    "computed": true,
    "format": "int",
    "places": [
@@ -3492,16 +3428,16 @@
      "anchor": "a reader for \\d+ and both for <v>\\.",
      "format": "int",
      "status": "ok",
-     "must_match": "a reader for \\d+ and both for (?P<v>2)\\.",
-     "printed": "2"
+     "must_match": "a reader for \\d+ and both for (?P<v>1)\\.",
+     "printed": "1"
     },
     {
      "file": "paper/report.html",
      "anchor": "a reader, <v> both",
      "format": "int",
      "status": "ok",
-     "must_match": "a reader, (?P<v>2) both",
-     "printed": "2"
+     "must_match": "a reader, (?P<v>1) both",
+     "printed": "1"
     }
    ]
   },
@@ -3511,7 +3447,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.board.board(session)['funnel']['read_only']",
    "kind": "number",
-   "value": 327,
+   "value": 336,
    "computed": true,
    "format": "int",
    "places": []
@@ -3522,7 +3458,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.board.board(session)['funnel']['written_only']",
    "kind": "number",
-   "value": 165,
+   "value": 166,
    "computed": true,
    "format": "int",
    "places": []
@@ -3544,7 +3480,7 @@
    "dataset": "release",
    "computed_by": "sum of agenttrace.attribution.attribution(session)['bands'] high+medium+low",
    "kind": "number",
-   "value": 5902,
+   "value": 5967,
    "computed": true,
    "format": "int",
    "places": []
@@ -3555,7 +3491,7 @@
    "dataset": "release",
    "computed_by": "attributed_runs / anonymous_runs",
    "kind": "number",
-   "value": 0.076,
+   "value": 0.0769,
    "computed": true,
    "format": "pct1",
    "places": []
@@ -3566,7 +3502,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.attribution.attribution(session)['bands']['high']['runs']",
    "kind": "number",
-   "value": 444,
+   "value": 435,
    "computed": true,
    "format": "int",
    "places": []
@@ -3577,7 +3513,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.attribution.attribution(session)['bands']['medium']['runs']",
    "kind": "number",
-   "value": 742,
+   "value": 717,
    "computed": true,
    "format": "int",
    "places": []
@@ -3588,7 +3524,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.attribution.attribution(session)['bands']['low']['runs']",
    "kind": "number",
-   "value": 4716,
+   "value": 4815,
    "computed": true,
    "format": "int",
    "places": []
@@ -3599,7 +3535,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.attribution.attribution(session)['holdout']['bands']['high']['precision']",
    "kind": "number",
-   "value": 0.9923,
+   "value": 0.9938,
    "computed": true,
    "format": "pct1",
    "places": []
@@ -3610,7 +3546,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.attribution.attribution(session)['holdout']['bands']['medium']['precision']",
    "kind": "number",
-   "value": 0.957,
+   "value": 0.9642,
    "computed": true,
    "format": "pct1",
    "places": []
@@ -3641,7 +3577,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.sensitivity.insiders(session)['counts']['recovered']",
    "kind": "number",
-   "value": 16,
+   "value": 11,
    "computed": true,
    "format": "int",
    "places": []
@@ -3652,7 +3588,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.sensitivity.insiders(session)['counts']['partly']",
    "kind": "number",
-   "value": 10,
+   "value": 15,
    "computed": true,
    "format": "int",
    "places": []
@@ -3944,10 +3880,10 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "after an audit of <v> links cut",
+     "anchor": "Audits of <v> links cut a first count",
      "format": "int",
      "status": "ok",
-     "must_match": "after an audit of (?P<v>258) links cut",
+     "must_match": "Audits of (?P<v>258) links cut a first count",
      "printed": "258"
     },
     {
@@ -3968,42 +3904,26 @@
     },
     {
      "file": "paper/slides.html",
-     "anchor": "fell after auditing <v> links",
+     "anchor": "Audit of the release.s links \\(<v> read by one reader",
      "format": "int",
      "status": "ok",
-     "must_match": "fell after auditing (?P<v>258) links",
-     "printed": "258"
-    },
-    {
-     "file": "paper/slides.html",
-     "anchor": "→ \\d+; <v> audited, one reader",
-     "format": "int",
-     "status": "ok",
-     "must_match": "→ \\d+; (?P<v>258) audited, one reader",
-     "printed": "258"
-    },
-    {
-     "file": "docs/index.html",
-     "anchor": "after auditing <v> links",
-     "format": "int",
-     "status": "ok",
-     "must_match": "after auditing (?P<v>258) links",
+     "must_match": "Audit of the release.s links \\((?P<v>258) read by one reader",
      "printed": "258"
     },
     {
      "file": "reports/submission/SUBMISSION.md",
-     "anchor": "after an audit of <v> links",
+     "anchor": "after audits of <v> links cut a first count",
      "format": "int",
      "status": "ok",
-     "must_match": "after an audit of (?P<v>258) links",
+     "must_match": "after audits of (?P<v>258) links cut a first count",
      "printed": "258"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "all <v> deliveries and links are now audited",
+     "anchor": "Score on the <v> audited links \\(labels as corrected",
      "format": "int",
      "status": "ok",
-     "must_match": "all (?P<v>258) deliveries and links are now audited",
+     "must_match": "Score on the (?P<v>258) audited links \\(labels as corrected",
      "printed": "258"
     },
     {
@@ -4022,33 +3942,17 @@
    "dataset": "audit",
    "computed_by": "label == true_message",
    "kind": "number",
-   "value": 18,
+   "value": 5,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": "audited links \\(<v> true messages",
+     "anchor": "labels as corrected in v2\\.2\\.0: <v> true, \\d+ read-then-post",
      "format": "int",
      "status": "ok",
-     "must_match": "audited links \\((?P<v>18) true messages",
-     "printed": "18"
-    },
-    {
-     "file": "paper/report.html",
-     "anchor": "and \\d+ of the <v> true ones were made after",
-     "format": "int",
-     "status": "ok",
-     "must_match": "and \\d+ of the (?P<v>18) true ones were made after",
-     "printed": "18"
-    },
-    {
-     "file": "docs/validation.md",
-     "anchor": "\\d+ of the <v> true labels were made after",
-     "format": "int",
-     "status": "ok",
-     "must_match": "\\d+ of the (?P<v>18) true labels were made after",
-     "printed": "18"
+     "must_match": "labels as corrected in v2\\.2\\.0: (?P<v>5) true, \\d+ read-then-post",
+     "printed": "5"
     }
    ]
   },
@@ -4064,10 +3968,10 @@
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": "true messages, <v> read-then-post",
+     "anchor": "\\d+ true, <v> read-then-post",
      "format": "int",
      "status": "ok",
-     "must_match": "true messages, (?P<v>177) read-then-post",
+     "must_match": "\\d+ true, (?P<v>177) read-then-post",
      "printed": "177"
     }
    ]
@@ -4098,17 +4002,17 @@
    "dataset": "audit",
    "computed_by": "label == false_write_lfs_or_urlopen",
    "kind": "number",
-   "value": 9,
+   "value": 19,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": "<v> downloads or urlopen",
+     "anchor": ", <v> downloads, urlopen or upload probes",
      "format": "int",
      "status": "ok",
-     "must_match": "(?P<v>9) downloads or urlopen",
-     "printed": "9"
+     "must_match": ", (?P<v>19) downloads, urlopen or upload probes",
+     "printed": "19"
     }
    ]
   },
@@ -4124,10 +4028,10 @@
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": "urlopen, <v> different repositories",
+     "anchor": "upload probes, <v> different repositories",
      "format": "int",
      "status": "ok",
-     "must_match": "urlopen, (?P<v>4) different repositories",
+     "must_match": "upload probes, (?P<v>4) different repositories",
      "printed": "4"
     }
    ]
@@ -4138,25 +4042,17 @@
    "dataset": "audit",
    "computed_by": "label == unclear",
    "kind": "number",
-   "value": 27,
+   "value": 29,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": "different repositories, <v> unclear\\)",
+     "anchor": "different repositories, <v> unclear, \\d+ reader holding",
      "format": "int",
      "status": "ok",
-     "must_match": "different repositories, (?P<v>27) unclear\\)",
-     "printed": "27"
-    },
-    {
-     "file": "docs/validation.md",
-     "anchor": "<v> links are unclear, and it calls",
-     "format": "int",
-     "status": "ok",
-     "must_match": "(?P<v>27) links are unclear, and it calls",
-     "printed": "27"
+     "must_match": "different repositories, (?P<v>29) unclear, \\d+ reader holding",
+     "printed": "29"
     }
    ]
   },
@@ -4172,10 +4068,10 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "cut a first count of <v>\\.",
+     "anchor": "cut a first count of <v> to 19, then 23, then 9",
      "format": "int",
      "status": "ok",
-     "must_match": "cut a first count of (?P<v>166)\\.",
+     "must_match": "cut a first count of (?P<v>166) to 19, then 23, then 9",
      "printed": "166"
     },
     {
@@ -4188,34 +4084,34 @@
     },
     {
      "file": "paper/slides.html",
-     "anchor": "a first count of <v> fell",
+     "anchor": "Counts fell <v> → \\d+ → \\d+ → \\d+ over three audits",
      "format": "int",
      "status": "ok",
-     "must_match": "a first count of (?P<v>166) fell",
+     "must_match": "Counts fell (?P<v>166) → \\d+ → \\d+ → \\d+ over three audits",
      "printed": "166"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "<v> links → \\d+",
+     "anchor": "\\) <v> → \\d+ → \\d+ → \\d+; a reviewer defends",
      "format": "int",
      "status": "ok",
-     "must_match": "(?P<v>166) links → \\d+",
+     "must_match": "\\) (?P<v>166) → \\d+ → \\d+ → \\d+; a reviewer defends",
      "printed": "166"
     },
     {
      "file": "reports/submission/SUBMISSION.md",
-     "anchor": "cut a first count of <v>\\.",
+     "anchor": "cut a first count of <v> to 19, then 23, then 9",
      "format": "int",
      "status": "ok",
-     "must_match": "cut a first count of (?P<v>166)\\.",
+     "must_match": "cut a first count of (?P<v>166) to 19, then 23, then 9",
      "printed": "166"
     },
     {
      "file": "docs/assets/demo-script.md",
-     "anchor": "A first count said <v>;",
+     "anchor": "A first count said <v>, then 19",
      "format": "int",
      "status": "ok",
-     "must_match": "A first count said (?P<v>166);",
+     "must_match": "A first count said (?P<v>166), then 19",
      "printed": "166"
     },
     {
@@ -4292,10 +4188,10 @@
     },
     {
      "file": "paper/slides.html",
-     "anchor": "Benign swarms: messages between different agents \\d+ in <v> runs",
+     "anchor": "no delivery between different agents in <v> original runs",
      "format": "int",
      "status": "ok",
-     "must_match": "Benign swarms: messages between different agents \\d+ in (?P<v>15) runs",
+     "must_match": "no delivery between different agents in (?P<v>15) original runs",
      "printed": "15"
     }
    ]
@@ -4316,14 +4212,6 @@
      "format": "int",
      "status": "ok",
      "must_match": "scored on (?P<v>60) simulated swarms",
-     "printed": "60"
-    },
-    {
-     "file": "paper/slides.html",
-     "anchor": "Scored on <v> simulated swarms",
-     "format": "int",
-     "status": "ok",
-     "must_match": "Scored on (?P<v>60) simulated swarms",
      "printed": "60"
     },
     {
@@ -4366,49 +4254,49 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['msg_precision']['median']",
    "kind": "number",
-   "value": 0.79,
+   "value": 0.902,
    "computed": true,
    "format": "pct",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "Message links: precision / recall \\d+%.<v>%",
+     "anchor": "\\(original simulator\\) \\d+%.<v>%.\\d+% / \\d+%.\\d+%.\\d+% Message links: precision / recall \\(independent",
      "format": "pct",
      "status": "ok",
-     "must_match": "Message links: precision / recall \\d+%.(?P<v>79)%",
-     "printed": "79"
+     "must_match": "\\(original simulator\\) \\d+%.(?P<v>90)%.\\d+% / \\d+%.\\d+%.\\d+% Message links: precision / recall \\(independent",
+     "printed": "90"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "Message links: precision / recall \\d+.<v>.\\d+%",
+     "anchor": "original simulator \\d+.<v>.\\d+% / \\d+.\\d+.\\d+%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Message links: precision / recall \\d+.(?P<v>79).\\d+%",
-     "printed": "79"
+     "must_match": "original simulator \\d+.(?P<v>90).\\d+% / \\d+.\\d+.\\d+%",
+     "printed": "90"
     },
     {
      "file": "reports/submission/SUBMISSION.md",
      "anchor": "message links reach <v>% precision",
      "format": "pct",
      "status": "ok",
-     "must_match": "message links reach (?P<v>79)% precision",
-     "printed": "79"
+     "must_match": "message links reach (?P<v>90)% precision",
+     "printed": "90"
     },
     {
      "file": "docs/assets/demo-script.md",
-     "anchor": "Median message precision is <v> percent",
+     "anchor": "Median precision of the write-then-read links is <v> percent",
      "format": "pct_word",
      "status": "ok",
-     "must_match": "Median message precision is (?P<v>(?i:seventy\\-nine)) percent",
-     "printed": "seventy-nine"
+     "must_match": "Median precision of the write-then-read links is (?P<v>(?i:ninety)) percent",
+     "printed": "ninety"
     },
     {
      "file": "docs/validation.md",
      "anchor": "and \\d+%.<v>%.\\d+% of the messages it reports are true",
      "format": "pct",
      "status": "ok",
-     "must_match": "and \\d+%.(?P<v>79)%.\\d+% of the messages it reports are true",
-     "printed": "79"
+     "must_match": "and \\d+%.(?P<v>90)%.\\d+% of the messages it reports are true",
+     "printed": "90"
     }
    ]
   },
@@ -4418,25 +4306,25 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['msg_precision']['min']",
    "kind": "number",
-   "value": 0.6561,
+   "value": 0.8191,
    "computed": true,
    "format": "pct",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "Message links: precision / recall <v>%",
+     "anchor": "\\(original simulator\\) <v>%.\\d+%.\\d+% /",
      "format": "pct",
      "status": "ok",
-     "must_match": "Message links: precision / recall (?P<v>66)%",
-     "printed": "66"
+     "must_match": "\\(original simulator\\) (?P<v>82)%.\\d+%.\\d+% /",
+     "printed": "82"
     },
     {
      "file": "docs/validation.md",
      "anchor": "and <v>%.\\d+%.\\d+% of the messages it reports are true",
      "format": "pct",
      "status": "ok",
-     "must_match": "and (?P<v>66)%.\\d+%.\\d+% of the messages it reports are true",
-     "printed": "66"
+     "must_match": "and (?P<v>82)%.\\d+%.\\d+% of the messages it reports are true",
+     "printed": "82"
     }
    ]
   },
@@ -4446,25 +4334,25 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['msg_precision']['max']",
    "kind": "number",
-   "value": 0.8824,
+   "value": 0.9635,
    "computed": true,
    "format": "pct",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "Message links: precision / recall \\d+%.\\d+%.<v>% /",
+     "anchor": "\\(original simulator\\) \\d+%.\\d+%.<v>% /",
      "format": "pct",
      "status": "ok",
-     "must_match": "Message links: precision / recall \\d+%.\\d+%.(?P<v>88)% /",
-     "printed": "88"
+     "must_match": "\\(original simulator\\) \\d+%.\\d+%.(?P<v>96)% /",
+     "printed": "96"
     },
     {
      "file": "docs/validation.md",
      "anchor": "and \\d+%.\\d+%.<v>% of the messages it reports are true",
      "format": "pct",
      "status": "ok",
-     "must_match": "and \\d+%.\\d+%.(?P<v>88)% of the messages it reports are true",
-     "printed": "88"
+     "must_match": "and \\d+%.\\d+%.(?P<v>96)% of the messages it reports are true",
+     "printed": "96"
     }
    ]
   },
@@ -4474,7 +4362,7 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['msg_recall']['median']",
    "kind": "number",
-   "value": 0.7349,
+   "value": 0.8444,
    "computed": true,
    "format": "pct",
    "places": [
@@ -4483,40 +4371,40 @@
      "anchor": "Message links: precision / recall [^/]+/ \\d+%.<v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Message links: precision / recall [^/]+/ \\d+%.(?P<v>73)%",
-     "printed": "73"
+     "must_match": "Message links: precision / recall [^/]+/ \\d+%.(?P<v>84)%",
+     "printed": "84"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "Message links: precision / recall [^/]+/ \\d+.<v>.\\d+%",
+     "anchor": "original simulator \\d+.\\d+.\\d+% / \\d+.<v>.\\d+%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Message links: precision / recall [^/]+/ \\d+.(?P<v>73).\\d+%",
-     "printed": "73"
+     "must_match": "original simulator \\d+.\\d+.\\d+% / \\d+.(?P<v>84).\\d+%",
+     "printed": "84"
     },
     {
      "file": "reports/submission/SUBMISSION.md",
      "anchor": "precision and <v>% recall",
      "format": "pct",
      "status": "ok",
-     "must_match": "precision and (?P<v>73)% recall",
-     "printed": "73"
+     "must_match": "precision and (?P<v>84)% recall",
+     "printed": "84"
     },
     {
      "file": "docs/assets/demo-script.md",
      "anchor": "and recall <v> percent",
      "format": "pct_word",
      "status": "ok",
-     "must_match": "and recall (?P<v>(?i:seventy\\-three)) percent",
-     "printed": "seventy-three"
+     "must_match": "and recall (?P<v>(?i:eighty\\-four)) percent",
+     "printed": "eighty-four"
     },
     {
      "file": "docs/validation.md",
      "anchor": "the tool finds \\d+%.<v>%.\\d+% of the true messages",
      "format": "pct",
      "status": "ok",
-     "must_match": "the tool finds \\d+%.(?P<v>73)%.\\d+% of the true messages",
-     "printed": "73"
+     "must_match": "the tool finds \\d+%.(?P<v>84)%.\\d+% of the true messages",
+     "printed": "84"
     }
    ]
   },
@@ -4526,7 +4414,7 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['msg_recall']['min']",
    "kind": "number",
-   "value": 0.5655,
+   "value": 0.6607,
    "computed": true,
    "format": "pct",
    "places": [
@@ -4535,16 +4423,16 @@
      "anchor": "Message links: precision / recall [^/]+/ <v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Message links: precision / recall [^/]+/ (?P<v>57)%",
-     "printed": "57"
+     "must_match": "Message links: precision / recall [^/]+/ (?P<v>66)%",
+     "printed": "66"
     },
     {
      "file": "docs/validation.md",
      "anchor": "the tool finds <v>%.\\d+%.\\d+% of the true messages",
      "format": "pct",
      "status": "ok",
-     "must_match": "the tool finds (?P<v>57)%.\\d+%.\\d+% of the true messages",
-     "printed": "57"
+     "must_match": "the tool finds (?P<v>66)%.\\d+%.\\d+% of the true messages",
+     "printed": "66"
     }
    ]
   },
@@ -4554,7 +4442,7 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['msg_recall']['max']",
    "kind": "number",
-   "value": 0.8051,
+   "value": 0.9333,
    "computed": true,
    "format": "pct",
    "places": [
@@ -4563,24 +4451,24 @@
      "anchor": "Message links: precision / recall [^/]+/ \\d+%.\\d+%.<v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Message links: precision / recall [^/]+/ \\d+%.\\d+%.(?P<v>81)%",
-     "printed": "81"
+     "must_match": "Message links: precision / recall [^/]+/ \\d+%.\\d+%.(?P<v>93)%",
+     "printed": "93"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "Message links: precision / recall [^/]+/ \\d+.\\d+.<v>%",
+     "anchor": "original simulator \\d+.\\d+.\\d+% / \\d+.\\d+.<v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Message links: precision / recall [^/]+/ \\d+.\\d+.(?P<v>81)%",
-     "printed": "81"
+     "must_match": "original simulator \\d+.\\d+.\\d+% / \\d+.\\d+.(?P<v>93)%",
+     "printed": "93"
     },
     {
      "file": "docs/validation.md",
      "anchor": "the tool finds \\d+%.\\d+%.<v>% of the true messages",
      "format": "pct",
      "status": "ok",
-     "must_match": "the tool finds \\d+%.\\d+%.(?P<v>81)% of the true messages",
-     "printed": "81"
+     "must_match": "the tool finds \\d+%.\\d+%.(?P<v>93)% of the true messages",
+     "printed": "93"
     }
    ]
   },
@@ -4590,7 +4478,7 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['pair_precision']['median']",
    "kind": "number",
-   "value": 0.8907,
+   "value": 0.9481,
    "computed": true,
    "format": "pct",
    "places": [
@@ -4599,16 +4487,16 @@
      "anchor": "Agent pairs that talked: precision / recall \\d+%.<v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Agent pairs that talked: precision / recall \\d+%.(?P<v>89)%",
-     "printed": "89"
+     "must_match": "Agent pairs that talked: precision / recall \\d+%.(?P<v>95)%",
+     "printed": "95"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "recall, \\d+%.<v>%.\\d+% precision\\. On the new",
+     "anchor": "recall, \\d+%.<v>%.\\d+% precision\\. On the independent generator",
      "format": "pct",
      "status": "ok",
-     "must_match": "recall, \\d+%.(?P<v>89)%.\\d+% precision\\. On the new",
-     "printed": "89"
+     "must_match": "recall, \\d+%.(?P<v>95)%.\\d+% precision\\. On the independent generator",
+     "printed": "95"
     }
    ]
   },
@@ -4618,7 +4506,7 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['pair_precision']['min']",
    "kind": "number",
-   "value": 0.8051,
+   "value": 0.8947,
    "computed": true,
    "format": "pct",
    "places": [
@@ -4627,8 +4515,8 @@
      "anchor": "Agent pairs that talked: precision / recall <v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Agent pairs that talked: precision / recall (?P<v>81)%",
-     "printed": "81"
+     "must_match": "Agent pairs that talked: precision / recall (?P<v>89)%",
+     "printed": "89"
     }
    ]
   },
@@ -4638,7 +4526,7 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['pair_precision']['max']",
    "kind": "number",
-   "value": 0.9608,
+   "value": 0.988,
    "computed": true,
    "format": "pct",
    "places": [
@@ -4647,8 +4535,8 @@
      "anchor": "Agent pairs that talked: precision / recall \\d+%.\\d+%.<v>% /",
      "format": "pct",
      "status": "ok",
-     "must_match": "Agent pairs that talked: precision / recall \\d+%.\\d+%.(?P<v>96)% /",
-     "printed": "96"
+     "must_match": "Agent pairs that talked: precision / recall \\d+%.\\d+%.(?P<v>99)% /",
+     "printed": "99"
     }
    ]
   },
@@ -4658,7 +4546,7 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['pair_recall']['median']",
    "kind": "number",
-   "value": 0.8313,
+   "value": 0.895,
    "computed": true,
    "format": "pct",
    "places": [
@@ -4667,16 +4555,16 @@
      "anchor": "Agent pairs that talked: precision / recall [^/]+/ \\d+%.<v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Agent pairs that talked: precision / recall [^/]+/ \\d+%.(?P<v>83)%",
-     "printed": "83"
+     "must_match": "Agent pairs that talked: precision / recall [^/]+/ \\d+%.(?P<v>90)%",
+     "printed": "90"
     },
     {
      "file": "docs/validation.md",
      "anchor": "Pairs of agents: \\d+%.<v>%.\\d+% recall",
      "format": "pct",
      "status": "ok",
-     "must_match": "Pairs of agents: \\d+%.(?P<v>83)%.\\d+% recall",
-     "printed": "83"
+     "must_match": "Pairs of agents: \\d+%.(?P<v>90)%.\\d+% recall",
+     "printed": "90"
     }
    ]
   },
@@ -4686,7 +4574,7 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['pair_recall']['min']",
    "kind": "number",
-   "value": 0.7097,
+   "value": 0.7339,
    "computed": true,
    "format": "pct",
    "places": [
@@ -4695,16 +4583,16 @@
      "anchor": "Agent pairs that talked: precision / recall [^/]+/ <v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Agent pairs that talked: precision / recall [^/]+/ (?P<v>71)%",
-     "printed": "71"
+     "must_match": "Agent pairs that talked: precision / recall [^/]+/ (?P<v>73)%",
+     "printed": "73"
     },
     {
      "file": "docs/validation.md",
      "anchor": "Pairs of agents: <v>%.\\d+%.\\d+% recall",
      "format": "pct",
      "status": "ok",
-     "must_match": "Pairs of agents: (?P<v>71)%.\\d+%.\\d+% recall",
-     "printed": "71"
+     "must_match": "Pairs of agents: (?P<v>73)%.\\d+%.\\d+% recall",
+     "printed": "73"
     }
    ]
   },
@@ -4714,7 +4602,7 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['overall']['pair_recall']['max']",
    "kind": "number",
-   "value": 0.9086,
+   "value": 0.9556,
    "computed": true,
    "format": "pct",
    "places": [
@@ -4723,24 +4611,24 @@
      "anchor": "Agent pairs that talked: precision / recall [^/]+/ \\d+%.\\d+%.<v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Agent pairs that talked: precision / recall [^/]+/ \\d+%.\\d+%.(?P<v>91)%",
-     "printed": "91"
+     "must_match": "Agent pairs that talked: precision / recall [^/]+/ \\d+%.\\d+%.(?P<v>96)%",
+     "printed": "96"
     },
     {
      "file": "paper/slides.html",
      "anchor": "Agent pairs that talked: precision / recall [^/]+/ \\d+.\\d+.<v>%",
      "format": "pct",
      "status": "ok",
-     "must_match": "Agent pairs that talked: precision / recall [^/]+/ \\d+.\\d+.(?P<v>91)%",
-     "printed": "91"
+     "must_match": "Agent pairs that talked: precision / recall [^/]+/ \\d+.\\d+.(?P<v>96)%",
+     "printed": "96"
     },
     {
      "file": "docs/validation.md",
      "anchor": "Pairs of agents: \\d+%.\\d+%.<v>% recall",
      "format": "pct",
      "status": "ok",
-     "must_match": "Pairs of agents: \\d+%.\\d+%.(?P<v>91)% recall",
-     "printed": "91"
+     "must_match": "Pairs of agents: \\d+%.\\d+%.(?P<v>96)% recall",
+     "printed": "96"
     }
    ]
   },
@@ -4944,10 +4832,10 @@
     },
     {
      "file": "docs/validation.md",
-     "anchor": "medium \\d+ of <v>, and the rest",
+     "anchor": "medium \\d+ of <v>, but the \\d+ high ones",
      "format": "int",
      "status": "ok",
-     "must_match": "medium \\d+ of (?P<v>60), and the rest",
+     "must_match": "medium \\d+ of (?P<v>60), but the \\d+ high ones",
      "printed": "60"
     },
     {
@@ -4972,10 +4860,10 @@
    "places": [
     {
      "file": "docs/validation.md",
-     "anchor": "medium <v> of \\d+, and the rest",
+     "anchor": "medium <v> of \\d+, but the \\d+ high ones",
      "format": "int",
      "status": "ok",
-     "must_match": "medium (?P<v>60) of \\d+, and the rest",
+     "must_match": "medium (?P<v>60) of \\d+, but the \\d+ high ones",
      "printed": "60"
     },
     {
@@ -4994,25 +4882,25 @@
    "dataset": "validation",
    "computed_by": "reports/validation/summary.json['identity_pooled']['low']['proposed']",
    "kind": "number",
-   "value": 21721,
+   "value": 21722,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "/ \\d+ of \\d+ / \\d+ of <v> Benign",
+     "anchor": "/ \\d+ of \\d+ / \\d+ of <v> Original benign",
      "format": "int",
      "status": "ok",
-     "must_match": "/ \\d+ of \\d+ / \\d+ of (?P<v>21,?721) Benign",
-     "printed": "21,721"
+     "must_match": "/ \\d+ of \\d+ / \\d+ of (?P<v>21,?722) Original benign",
+     "printed": "21,722"
     },
     {
      "file": "docs/validation.md",
      "anchor": "\\| low \\| <v> \\|",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| low \\| (?P<v>21,?721) \\|",
-     "printed": "21721"
+     "must_match": "\\| low \\| (?P<v>21,?722) \\|",
+     "printed": "21722"
     }
    ]
   },
@@ -5028,10 +4916,10 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "/ \\d+ of \\d+ / <v> of [\\d,]+ Benign",
+     "anchor": "/ \\d+ of \\d+ / <v> of [\\d,]+ Original benign",
      "format": "int",
      "status": "ok",
-     "must_match": "/ \\d+ of \\d+ / (?P<v>207) of [\\d,]+ Benign",
+     "must_match": "/ \\d+ of \\d+ / (?P<v>207) of [\\d,]+ Original benign",
      "printed": "207"
     },
     {
@@ -5068,14 +4956,6 @@
      "format": "int",
      "status": "ok",
      "must_match": "Messages between different agents reported: (?P<v>0);",
-     "printed": "0"
-    },
-    {
-     "file": "paper/slides.html",
-     "anchor": "Benign swarms: messages between different agents <v> in",
-     "format": "int",
-     "status": "ok",
-     "must_match": "Benign swarms: messages between different agents (?P<v>0) in",
      "printed": "0"
     }
    ]
@@ -5142,25 +5022,25 @@
    "dataset": "variance",
    "computed_by": "reports/evaluation/count_variance.json runs['0.12']['messages'][1]",
    "kind": "number",
-   "value": 6,
+   "value": 4,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "σ = 0.12 h gives <v>.\\d+ messages",
+     "anchor": "σ = 0.12 h gives <v>.\\d+ deliveries",
      "format": "int",
      "status": "ok",
-     "must_match": "σ = 0.12 h gives (?P<v>6).\\d+ messages",
-     "printed": "6"
+     "must_match": "σ = 0.12 h gives (?P<v>4).\\d+ deliveries",
+     "printed": "4"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "the \\d+ named messages range <v>.\\d+ \\(95%\\)",
+     "anchor": "the \\d+ named deliveries range <v>.\\d+ \\(95%\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "the \\d+ named messages range (?P<v>6).\\d+ \\(95%\\)",
-     "printed": "6"
+     "must_match": "the \\d+ named deliveries range (?P<v>4).\\d+ \\(95%\\)",
+     "printed": "4"
     }
    ]
   },
@@ -5170,25 +5050,25 @@
    "dataset": "variance",
    "computed_by": "…runs['0.12']['messages'][3]",
    "kind": "number",
-   "value": 7,
+   "value": 5,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "σ = 0.12 h gives \\d+.<v> messages",
+     "anchor": "σ = 0.12 h gives \\d+.<v> deliveries",
      "format": "int",
      "status": "ok",
-     "must_match": "σ = 0.12 h gives \\d+.(?P<v>7) messages",
-     "printed": "7"
+     "must_match": "σ = 0.12 h gives \\d+.(?P<v>5) deliveries",
+     "printed": "5"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "the \\d+ named messages range \\d+.<v> \\(95%\\)",
+     "anchor": "the \\d+ named deliveries range \\d+.<v> \\(95%\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "the \\d+ named messages range \\d+.(?P<v>7) \\(95%\\)",
-     "printed": "7"
+     "must_match": "the \\d+ named deliveries range \\d+.(?P<v>5) \\(95%\\)",
+     "printed": "5"
     }
    ]
   },
@@ -5198,7 +5078,7 @@
    "dataset": "variance",
    "computed_by": "…runs['2.0']['messages'][1]",
    "kind": "number",
-   "value": 5,
+   "value": 2,
    "computed": true,
    "format": "int",
    "places": [
@@ -5207,8 +5087,8 @@
      "anchor": "σ = 2 h gives <v>.\\d+,",
      "format": "int",
      "status": "ok",
-     "must_match": "σ = 2 h gives (?P<v>5).\\d+,",
-     "printed": "5"
+     "must_match": "σ = 2 h gives (?P<v>2).\\d+,",
+     "printed": "2"
     }
    ]
   },
@@ -5218,7 +5098,7 @@
    "dataset": "variance",
    "computed_by": "…runs['2.0']['messages'][3]",
    "kind": "number",
-   "value": 9,
+   "value": 7,
    "computed": true,
    "format": "int",
    "places": [
@@ -5227,8 +5107,8 @@
      "anchor": "σ = 2 h gives \\d+.<v>,",
      "format": "int",
      "status": "ok",
-     "must_match": "σ = 2 h gives \\d+.(?P<v>9),",
-     "printed": "9"
+     "must_match": "σ = 2 h gives \\d+.(?P<v>7),",
+     "printed": "7"
     }
    ]
   },
@@ -5289,7 +5169,7 @@
    "dataset": "repo",
    "computed_by": "unittest discovery over agenttrace/tests",
    "kind": "number",
-   "value": 702,
+   "value": 791,
    "computed": true,
    "format": "int",
    "places": []
@@ -5300,7 +5180,7 @@
    "dataset": "repo",
    "computed_by": "pyproject.toml [project] version",
    "kind": "number",
-   "value": "2.1.0",
+   "value": "2.2.0",
    "computed": true,
    "format": "str",
    "places": [
@@ -5309,32 +5189,24 @@
      "anchor": "swarm-tracer@v<v>",
      "format": "str",
      "status": "ok",
-     "must_match": "swarm-tracer@v(?P<v>2\\.1\\.0)",
-     "printed": "2.1.0"
+     "must_match": "swarm-tracer@v(?P<v>2\\.2\\.0)",
+     "printed": "2.2.0"
     },
     {
      "file": "docs/index.html",
      "anchor": "swarm-tracer@v<v>",
      "format": "str",
      "status": "ok",
-     "must_match": "swarm-tracer@v(?P<v>2\\.1\\.0)",
-     "printed": "2.1.0"
+     "must_match": "swarm-tracer@v(?P<v>2\\.2\\.0)",
+     "printed": "2.2.0"
     },
     {
      "file": "paper/slides.html",
      "anchor": "swarm-tracer@v<v>",
      "format": "str",
      "status": "ok",
-     "must_match": "swarm-tracer@v(?P<v>2\\.1\\.0)",
-     "printed": "2.1.0"
-    },
-    {
-     "file": "reports/submission/SUBMISSION.md",
-     "anchor": "release v<v>:",
-     "format": "str",
-     "status": "ok",
-     "must_match": "release v(?P<v>2\\.1\\.0):",
-     "printed": "2.1.0"
+     "must_match": "swarm-tracer@v(?P<v>2\\.2\\.0)",
+     "printed": "2.2.0"
     }
    ]
   },
@@ -5361,23 +5233,24 @@
  "coverage": {
   "claims": 180,
   "claims_computed": 180,
-  "places": 376,
-  "places_ok": 376,
-  "unregistered_numbers": 269,
+  "places": 360,
+  "places_ok": 360,
+  "unregistered_numbers": 533,
   "unregistered_by_file": {
-   "README.md": 3,
-   "docs/collect-next-time.md": 6,
-   "docs/deep-dive.md": 34,
-   "docs/early-warning.md": 15,
-   "docs/how-it-works.md": 1,
-   "docs/index.html": 2,
-   "docs/known-issues.md": 6,
-   "docs/limitations.md": 1,
+   "README.md": 23,
+   "docs/assets/demo-script.md": 1,
+   "docs/collect-next-time.md": 8,
+   "docs/deep-dive.md": 37,
+   "docs/early-warning.md": 70,
+   "docs/how-it-works.md": 2,
+   "docs/index.html": 8,
+   "docs/known-issues.md": 57,
+   "docs/limitations.md": 6,
    "docs/packs.md": 1,
-   "docs/validation.md": 141,
-   "paper/report.html": 45,
-   "paper/slides.html": 12,
-   "reports/submission/SUBMISSION.md": 2
+   "docs/validation.md": 189,
+   "paper/report.html": 110,
+   "paper/slides.html": 15,
+   "reports/submission/SUBMISSION.md": 6
   }
  }
 }

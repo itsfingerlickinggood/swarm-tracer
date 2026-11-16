@@ -261,6 +261,7 @@
     return `
     <p>Pack: <b>${esc(s.pack)}</b>${s.pack_choice ? ` <span class="muted">(picked automatically: ${esc(s.pack_choice.why)})</span>` : ""}.</p>
     ${(s.shared_identities || []).length ? `<p>Shared keys, never counted as actors: ${s.shared_identities.map((t) => ent.actor(t)).join(" ")}${(s.auto_shared || []).length ? ` <span class="muted">(found automatically: ${s.auto_shared.map((a) => `${esc(short(a.identity))} is used in ${pct(a.share_of_runs)} of the runs that carry a token`).join("; ")})</span>` : ""}.</p>` : ""}
+    ${(s.warnings || []).map((w) => `<p class="small warnc">${esc(w)}</p>`).join("")}
     <h4>Files</h4>
     ${table(["file", "rows", "events", "fields found"], (s.read_report?.files || []).map((f) => [esc(f.file), fmt(f.rows), fmt(f.events),
       Object.entries(f.fields).map(([k, v]) => `${esc(k)}: <code>${esc([].concat(v).join(" → "))}</code>`).join("<br>") +

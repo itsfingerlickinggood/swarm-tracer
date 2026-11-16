@@ -1,11 +1,11 @@
 {
- "generated": "2026-11-15 10:27 UTC",
- "failures": 1,
+ "generated": "2026-11-16 13:14 UTC",
+ "failures": 0,
  "skipped_datasets": [],
  "datasets": [
   {
    "dataset": "demo swarm",
-   "base": "http://localhost:8023",
+   "base": "http://127.0.0.1:65223",
    "mode": "quick",
    "pages": [
     {
@@ -13,98 +13,71 @@
      "hash": "tab=trace",
      "found": {
       "input": 1,
-      "button": 9,
-      "term": 2
+      "button": 11
      },
      "exercised": {
       "input": 1,
-      "button": 1,
-      "term": 1
+      "button": 1
      },
      "passed": {
       "input": 1,
-      "button": 1,
-      "term": 1
+      "button": 1
      },
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 3.9
+     "seconds": 3.3
     },
     {
      "page": "overview",
      "hash": "tab=overview",
      "found": {
-      "term": 23,
+      "button": 64,
       "svg-mark": 183,
       "svg-title": 2,
-      "button": 5,
       "title-tip": 26,
-      "actor-chip": 31,
-      "record-chip": 5,
       "pointer": 7,
       "summary": 1
      },
      "exercised": {
-      "term": 1,
+      "button": 1,
       "svg-mark": 1,
       "svg-title": 1,
-      "button": 1,
       "title-tip": 1,
-      "actor-chip": 1,
-      "record-chip": 1,
       "pointer": 1,
       "summary": 1
      },
      "passed": {
-      "term": 1,
+      "button": 1,
       "svg-mark": 1,
       "svg-title": 1,
-      "button": 1,
       "title-tip": 1,
-      "actor-chip": 1,
-      "record-chip": 1,
-      "pointer": 1
+      "pointer": 1,
+      "summary": 1
      },
-     "failed": [
-      {
-       "kind": "summary",
-       "sig": "summary|summary",
-       "n": 0,
-       "note": "dead: no effect",
-       "label": "HOW THE DATA WAS READ"
-      }
-     ],
+     "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 7.0
+     "seconds": 4.4
     },
     {
      "page": "network",
      "hash": "tab=network",
      "found": {
-      "term": 7,
+      "button": 222,
       "title-tip": 9,
-      "actor-chip": 214,
-      "place-chip": 1,
-      "record-chip": 12,
-      "button": 5,
       "select": 2,
       "input": 2,
       "toggle": 2,
-      "svg-title": 200,
-      "svg-mark": 604,
+      "svg-title": 197,
+      "svg-mark": 595,
       "range": 2,
       "pointer": 7,
       "row": 50
      },
      "exercised": {
-      "term": 1,
-      "title-tip": 1,
-      "actor-chip": 1,
-      "place-chip": 1,
-      "record-chip": 1,
       "button": 1,
+      "title-tip": 1,
       "select": 1,
       "input": 1,
       "toggle": 1,
@@ -115,12 +88,8 @@
       "row": 1
      },
      "passed": {
-      "term": 1,
-      "title-tip": 1,
-      "actor-chip": 1,
-      "place-chip": 1,
-      "record-chip": 1,
       "button": 1,
+      "title-tip": 1,
       "select": 1,
       "input": 1,
       "toggle": 1,
@@ -133,86 +102,71 @@
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 10.5
+     "seconds": 7.8
     },
     {
      "page": "timeline",
      "hash": "tab=timeline",
      "found": {
-      "term": 11,
-      "title-tip": 74,
-      "svg-mark": 764,
+      "button": 716,
+      "title-tip": 72,
+      "svg-mark": 765,
       "svg-title": 38,
       "select": 3,
-      "button": 5,
       "input": 1,
-      "record-chip": 285,
-      "actor-chip": 294,
-      "place-chip": 136,
       "row": 36
      },
      "exercised": {
-      "term": 1,
+      "button": 1,
       "title-tip": 1,
       "svg-mark": 1,
       "svg-title": 1,
       "select": 1,
-      "button": 1,
       "input": 1,
-      "record-chip": 1,
-      "actor-chip": 1,
-      "place-chip": 1,
       "row": 1
      },
      "passed": {
-      "term": 1,
+      "button": 1,
       "title-tip": 1,
       "svg-mark": 1,
       "svg-title": 1,
       "select": 1,
-      "button": 1,
       "input": 1,
-      "record-chip": 1,
-      "actor-chip": 1,
-      "place-chip": 1,
       "row": 1
      },
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 9.0
+     "seconds": 6.2
     },
     {
      "page": "channels",
      "hash": "tab=channels",
      "found": {
-      "term": 4,
-      "button": 8,
-      "title-tip": 13,
-      "place-chip": 18,
+      "button": 53,
+      "title-tip": 24,
       "select": 2,
       "svg-title": 5,
-      "svg-mark": 179,
-      "row": 8
+      "svg-mark": 397,
+      "input": 1,
+      "row": 15
      },
      "exercised": {
-      "term": 1,
       "button": 1,
       "title-tip": 1,
-      "place-chip": 1,
       "select": 1,
       "svg-title": 1,
       "svg-mark": 1,
+      "input": 1,
       "row": 1
      },
      "passed": {
-      "term": 1,
       "button": 1,
       "title-tip": 1,
-      "place-chip": 1,
       "select": 1,
       "svg-title": 1,
       "svg-mark": 1,
+      "input": 1,
       "row": 1
      },
      "failed": [],
@@ -225,94 +179,76 @@
      "hash": "tab=spread",
      "found": {
       "title-tip": 498,
-      "actor-chip": 32,
-      "term": 8,
+      "button": 49,
       "input": 1,
       "select": 1,
       "pointer": 156,
-      "button": 1,
       "toggle": 3,
       "svg-mark": 264,
       "svg-title": 47,
-      "record-chip": 8,
       "summary": 1
      },
      "exercised": {
       "title-tip": 1,
-      "actor-chip": 1,
-      "term": 1,
+      "button": 1,
       "input": 1,
       "select": 1,
       "pointer": 1,
-      "button": 1,
       "toggle": 1,
       "svg-mark": 1,
       "svg-title": 1,
-      "record-chip": 1,
       "summary": 1
      },
      "passed": {
       "title-tip": 1,
-      "actor-chip": 1,
-      "term": 1,
+      "button": 1,
       "input": 1,
       "select": 1,
       "pointer": 1,
-      "button": 1,
       "toggle": 1,
       "svg-mark": 1,
       "svg-title": 1,
-      "record-chip": 1,
       "summary": 1
      },
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 8.9
+     "seconds": 7.7
     },
     {
      "page": "early",
      "hash": "tab=early",
      "found": {
-      "term": 5,
+      "button": 107,
       "title-tip": 1,
-      "button": 32,
       "select": 2,
       "range": 1,
-      "svg-title": 177,
+      "svg-title": 174,
       "svg-mark": 63,
-      "pointer": 13,
-      "actor-chip": 44,
-      "record-chip": 26
+      "pointer": 13
      },
      "exercised": {
-      "term": 1,
-      "title-tip": 1,
       "button": 1,
+      "title-tip": 1,
       "select": 1,
       "range": 1,
       "svg-title": 1,
       "svg-mark": 1,
-      "pointer": 1,
-      "actor-chip": 1,
-      "record-chip": 1
+      "pointer": 1
      },
      "passed": {
-      "term": 1,
-      "title-tip": 1,
       "button": 1,
+      "title-tip": 1,
       "select": 1,
       "range": 1,
       "svg-title": 1,
       "svg-mark": 1,
-      "pointer": 1,
-      "actor-chip": 1,
-      "record-chip": 1
+      "pointer": 1
      },
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 7.3
+     "seconds": 4.9
     },
     {
      "page": "events",
@@ -321,13 +257,10 @@
       "input": 2,
       "select": 4,
       "toggle": 1,
-      "button": 13,
-      "term": 6,
+      "button": 227,
       "svg-title": 38,
       "pointer": 114,
       "title-tip": 431,
-      "actor-chip": 108,
-      "record-chip": 100,
       "disabled": 1
      },
      "exercised": {
@@ -335,29 +268,23 @@
       "select": 1,
       "toggle": 1,
       "button": 1,
-      "term": 1,
       "svg-title": 1,
       "pointer": 1,
-      "title-tip": 1,
-      "actor-chip": 1,
-      "record-chip": 1
+      "title-tip": 1
      },
      "passed": {
       "input": 1,
       "select": 1,
       "toggle": 1,
       "button": 1,
-      "term": 1,
       "svg-title": 1,
       "pointer": 1,
-      "title-tip": 1,
-      "actor-chip": 1,
-      "record-chip": 1
+      "title-tip": 1
      },
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 6.9
+     "seconds": 5.4
     },
     {
      "page": "agents",
@@ -365,78 +292,63 @@
      "found": {
       "title-tip": 6,
       "count-by": 1,
-      "term": 14,
-      "button": 34,
+      "button": 174,
       "input": 3,
-      "toggle": 1,
-      "actor-chip": 64,
-      "record-chip": 66
+      "toggle": 1
      },
      "exercised": {
       "title-tip": 1,
       "count-by": 1,
-      "term": 1,
       "button": 1,
       "input": 1,
-      "toggle": 1,
-      "actor-chip": 1,
-      "record-chip": 1
+      "toggle": 1
      },
      "passed": {
       "title-tip": 1,
       "count-by": 1,
-      "term": 1,
       "button": 1,
       "input": 1,
-      "toggle": 1,
-      "actor-chip": 1,
-      "record-chip": 1
+      "toggle": 1
      },
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 13.7
+     "seconds": 9.8
     },
     {
      "page": "forensics",
      "hash": "tab=forensics",
      "found": {
       "input": 1,
-      "button": 4,
-      "term": 1
+      "button": 5
      },
      "exercised": {
       "input": 1,
-      "button": 1,
-      "term": 1
+      "button": 1
      },
      "passed": {
       "input": 1,
-      "button": 1,
-      "term": 1
+      "button": 1
      },
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 3.9
+     "seconds": 3.4
     },
     {
      "page": "compare",
      "hash": "tab=compare",
      "found": {
-      "term": 1,
-      "button": 3,
+      "button": 4,
       "input": 1,
       "select": 1
      },
      "exercised": {
-      "term": 1,
       "button": 1,
       "input": 1,
       "select": 1
      },
      "passed": {
-      "term": 1,
       "button": 1,
       "input": 1,
       "select": 1
@@ -444,94 +356,79 @@
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 5.0
+     "seconds": 4.6
     },
     {
      "page": "gaps",
      "hash": "tab=gaps",
      "found": {
-      "term": 5,
-      "button": 8,
-      "pointer": 4
+      "button": 15,
+      "pointer": 6
      },
      "exercised": {
-      "term": 1,
       "button": 1,
       "pointer": 1
      },
      "passed": {
-      "term": 1,
       "button": 1,
       "pointer": 1
      },
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 3.5
+     "seconds": 2.3
     },
     {
      "page": "top bar",
      "hash": "tab=overview",
      "found": {
       "title-tip": 3,
-      "term": 5,
+      "button": 10,
       "count-by": 2,
-      "input": 1,
-      "button": 5
+      "input": 1
      },
      "exercised": {
       "title-tip": 1,
-      "term": 1,
+      "button": 1,
       "count-by": 1,
-      "input": 1,
-      "button": 1
+      "input": 1
      },
      "passed": {
       "title-tip": 1,
-      "term": 1,
+      "button": 1,
       "count-by": 1,
-      "input": 1,
-      "button": 1
+      "input": 1
      },
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 6.5
+     "seconds": 5.3
     },
     {
      "page": "inspector",
      "hash": "tab=overview",
      "found": {
-      "record-chip": 13,
+      "button": 68,
       "title-tip": 16,
-      "term": 14,
-      "actor-chip": 24,
       "svg-mark": 2,
-      "button": 17,
       "input": 1
      },
      "exercised": {
-      "record-chip": 1,
-      "title-tip": 1,
-      "term": 1,
-      "actor-chip": 1,
-      "svg-mark": 1,
       "button": 1,
+      "title-tip": 1,
+      "svg-mark": 1,
       "input": 1
      },
      "passed": {
-      "record-chip": 1,
-      "title-tip": 1,
-      "term": 1,
-      "actor-chip": 1,
-      "svg-mark": 1,
       "button": 1,
+      "title-tip": 1,
+      "svg-mark": 1,
       "input": 1
      },
      "failed": [],
      "skipped": [],
      "load": [],
-     "seconds": 8.7
+     "seconds": 6.0
     }
    ],
    "checks": [
@@ -673,100 +570,79 @@
     {
      "name": "Count-by: units_summary agrees with units_map",
      "ok": true,
-     "note": "summary 44/44 agents/tokens, 163 messages, 136 pairs; map 44/44, {'token': 163, 'agent': 163, 'inside_one_agent': 0, 'rejected': 0}, {'token': 136, 'agent': 136}"
+     "note": "summary 44/44 agents/tokens, 164 messages, 133 pairs; map 44/44, {'token': 164, 'agent': 164, 'inside_one_agent': 0, 'rejected': 0}, {'token': 133, 'agent': 133}"
     },
     {
      "name": "Count-by on overview",
      "ok": true,
-     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers change and come back"
+     "note": "ribbon 44\u219244 units, 164\u2192164 messages; view numbers change and come back"
     },
     {
      "name": "Count-by on network",
      "ok": true,
-     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers the same and come back"
+     "note": "ribbon 44\u219244 units, 164\u2192164 messages; view numbers the same and come back"
     },
     {
      "name": "Count-by on timeline",
      "ok": true,
-     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers the same and come back"
+     "note": "ribbon 44\u219244 units, 164\u2192164 messages; view numbers the same and come back"
     },
     {
      "name": "Count-by on spread",
      "ok": true,
-     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers change and come back"
+     "note": "ribbon 44\u219244 units, 164\u2192164 messages; view numbers change and come back"
     },
     {
      "name": "Count-by on early",
      "ok": true,
-     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers the same and come back"
+     "note": "ribbon 44\u219244 units, 164\u2192164 messages; view numbers the same and come back"
     },
     {
      "name": "Count-by on agents",
      "ok": true,
-     "note": "ribbon 44\u219244 units, 163\u2192163 messages; view numbers the same and come back"
+     "note": "ribbon 44\u219244 units, 164\u2192164 messages; view numbers the same and come back"
     }
    ],
-   "seconds": 134.3,
+   "seconds": 111.9,
    "console_lines_ignored_from_blocked_writes": 0,
    "kinds": {
     "input": {
-     "found": 14,
-     "exercised": 10,
-     "passed": 10,
+     "found": 15,
+     "exercised": 11,
+     "passed": 11,
      "failed": 0,
      "skipped": 0
     },
     "button": {
-     "found": 149,
-     "exercised": 14,
-     "passed": 14,
-     "failed": 0,
-     "skipped": 0
-    },
-    "term": {
-     "found": 106,
+     "found": 1725,
      "exercised": 14,
      "passed": 14,
      "failed": 0,
      "skipped": 0
     },
     "svg-mark": {
-     "found": 2059,
+     "found": 2269,
      "exercised": 7,
      "passed": 7,
      "failed": 0,
      "skipped": 0
     },
     "svg-title": {
-     "found": 507,
+     "found": 501,
      "exercised": 7,
      "passed": 7,
      "failed": 0,
      "skipped": 0
     },
     "title-tip": {
-     "found": 1077,
+     "found": 1086,
      "exercised": 10,
      "passed": 10,
      "failed": 0,
      "skipped": 0
     },
-    "actor-chip": {
-     "found": 811,
-     "exercised": 8,
-     "passed": 8,
-     "failed": 0,
-     "skipped": 0
-    },
-    "record-chip": {
-     "found": 515,
-     "exercised": 8,
-     "passed": 8,
-     "failed": 0,
-     "skipped": 0
-    },
     "pointer": {
-     "found": 301,
+     "found": 303,
      "exercised": 6,
      "passed": 6,
      "failed": 0,
@@ -775,14 +651,7 @@
     "summary": {
      "found": 2,
      "exercised": 2,
-     "passed": 1,
-     "failed": 1,
-     "skipped": 0
-    },
-    "place-chip": {
-     "found": 155,
-     "exercised": 3,
-     "passed": 3,
+     "passed": 2,
      "failed": 0,
      "skipped": 0
     },
@@ -808,7 +677,7 @@
      "skipped": 0
     },
     "row": {
-     "found": 94,
+     "found": 101,
      "exercised": 3,
      "passed": 3,
      "failed": 0,

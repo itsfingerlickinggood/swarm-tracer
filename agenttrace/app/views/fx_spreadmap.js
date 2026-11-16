@@ -2,6 +2,15 @@
 // moved between estimated agents, which evidence says so, and what an agent already held before each
 // attack stage. Every number comes from /api/x/spreadmap, /evidence and /spread_stages (cached server side).
 "use strict";
+// the estimate of how far the fitted times are off, read from this dataset's own time fit (Overview, Time)
+function timeErrorText() {
+  const blocks = (S.summary?.time_test?.blocks || []).filter((b) => b.timed && b.fit_error_hours_median != null);
+  const src = S.summary?.time_test?.source || {};
+  if (!blocks.length) return Object.keys(src).length ? "the times come from the records' own time field, not from a fit" : "no time fit was made for this dataset";
+  const m = blocks.map((b) => +b.fit_error_hours_median * 60).filter((x) => isFinite(x)).sort((a, b) => a - b);
+  const f = (x) => (x < 90 ? `${Math.round(x)} min` : `${(x / 60).toFixed(1)} h`);
+  return `median fit error ${m[0] === m[m.length - 1] ? f(m[0]) : `${f(m[0])} to ${f(m[m.length - 1])}`} across ${m.length} fitted block${m.length === 1 ? "" : "s"}, from the Overview time table`;
+}
 window.FX_SECTIONS = window.FX_SECTIONS || [];
 (() => {
   const HR = 3600e3;
@@ -117,7 +126,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
       ${card("How to read this, and what it cannot say", `<ul class="fxscav">
         <li><b>Holding is not receiving.</b> A first hold is the first record of the agent that has the string, uses the token, or (techniques, hosts, program families) first does it after its first hour. Two agents can hold the same string because both read it from the same outside source; that shows as “unknown”, not as a spread.</li>
         <li><b>Spread types are a best explanation, not a finding.</b> Message-carried: a delivery from an earlier holder to the later one, after the earlier one held the item and before the later one did. Content-only hand-over: the item moved with no shared place (Content tracing), or the credential was in somebody's data before it was used. Behaviour-only: the two agents are behaviour-linked (Coordination without messages), or a technique, host or program family appears with no visible carrier, which cannot be told from independent adoption. Unknown: none of these. An item's type is the commonest type among its later agents.</li>
-        <li><b>Times are mostly estimated</b> (median error about 15 minutes, 90th percentile about 2 hours), so a lead of under an hour is not an order. Items that start in every agent's first moments (a shared prompt, a common library) look like instant spread.</li>
+        <li><b>Times are mostly estimated</b> (${timeErrorText()}), so a lead of under an hour is not an order. Items that start in every agent's first moments (a shared prompt, a common library) look like instant spread.</li>
         <li><b>Agents are estimates.</b> Tokens merged on direct evidence count once; the reach by token is shown beside the reach by agent where they differ. Anonymous runs cannot be merged into agents, so they are counted apart and left out of the speed figures.</li>
         <li><b>Left out:</b> ${fmt(sm.common_dropped)} item(s) held by over ${Math.round(sm.max_share * 100)}% of the agents; public names with no digit, path or placeholder (library calls), MIME types and plain routes (commit/main); anything in over ${fmt(sm.thresholds.hold_cap)} holders while scanning. Some public API paths and redaction placeholders still get through.</li>
         <li>Scanned ${fmt(sm.scanned.strings)} distinctive-shaped strings, ${fmt(sm.scanned.credentials)} credentials and ${fmt(sm.scanned.techniques)} techniques, hosts and program families in ${sm.seconds} s.</li></ul>`)}`;
@@ -297,7 +306,7 @@ window.FX_SECTIONS = window.FX_SECTIONS || [];
       ${card("One item", `<div id="fxsItem"><p class="muted">Click an item name above.</p></div>`)}
       ${card("How far to trust this", `<ul class="fxscav">
         <li><b>Precedence is not causation.</b> That an agent held an item before it reached a stage does not show the item led it there; most agents hold many items and climb many stages. The table lists what the swarm shared, in the order it was seen.</li>
-        <li><b>Times are estimated</b> (median error about 15 minutes, 90th percentile about 2 hours). Lags under an hour are not reported as an order; long lags are accurate to hours, not minutes.</li>
+        <li><b>Times are estimated</b> (${timeErrorText()}). Lags under an hour are not reported as an order; long lags are accurate to hours, not minutes.</li>
         <li><b>The ladder is a guess for some intents.</b> A stage comes from the pack, a behaviour of the same name or the intent's name (Behaviour tab); an agent's stage time is its first dated action there, and only the first ${fmt(r.actors_listed)} climbers the ladder lists are used.</li>
         <li><b>Origin is the first record we hold, not the first in the world.</b> An item that appears first in a shared prompt or outside source may only seem to cross the swarm; anonymous runs are counted in an item's reach but never as stage users.</li>
         <li>Items counted: those held by at least two agents, in the kinds the map keeps. ${fmt(r.summary.multi_agent)} items reached two or more agents.</li></ul>`)}`;

@@ -143,7 +143,7 @@ class LightPartTests(unittest.TestCase):
     def test_audit_counts_add_up(self):
         m = P.part_audit()
         self.assertEqual(m["audit.links"], m["audit.true_links"] + m["audit.read_then_post"] + m["audit.read_is_write"] +
-                         m["audit.downloads"] + m["audit.different_repo"] + m["audit.unclear"])
+                         m["audit.downloads"] + m["audit.different_repo"] + m["audit.unclear"] + m["audit.reader_holds_token"])
         self.assertGreater(m["audit.first_count"], 0)
 
     def test_samples(self):

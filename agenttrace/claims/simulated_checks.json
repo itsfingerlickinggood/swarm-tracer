@@ -1,0 +1,62 @@
+{
+ "fx_content": {
+  "agents": 40,
+  "seeds": [
+   1,
+   2,
+   3
+  ],
+  "benign": {
+   "messages": 7,
+   "used": 0,
+   "fetched only": 7,
+   "unclear": 0,
+   "handover_pairs": 140,
+   "handover_strong": 0,
+   "possible_pairs": 2983
+  },
+  "coordinated": {
+   "messages": 521,
+   "used": 0,
+   "fetched only": 217,
+   "unclear": 304,
+   "handover_pairs": 136,
+   "handover_strong": 0,
+   "possible_pairs": 2983
+  },
+  "measured": "2026-11-16",
+  "measured_by": "agenttrace.fx_content.simulate_check()"
+ },
+ "fx_coord": {
+  "agents": 40,
+  "seeds": [
+   1,
+   2,
+   3
+  ],
+  "benign": {
+   "links": 0,
+   "one_true_agent": 0,
+   "false": 0,
+   "false_synchrony": 0,
+   "false_adoption": 0,
+   "false_complementary": 0,
+   "false_with_true_message": 0,
+   "possible_pairs": 2983,
+   "cascades": 0
+  },
+  "coordinated": {
+   "links": 0,
+   "one_true_agent": 0,
+   "false": 0,
+   "false_synchrony": 0,
+   "false_adoption": 0,
+   "false_complementary": 0,
+   "false_with_true_message": 0,
+   "possible_pairs": 2983,
+   "cascades": 0
+  },
+  "measured": "2026-11-16",
+  "measured_by": "agenttrace.fx_coord.simulate_check()"
+ }
+}

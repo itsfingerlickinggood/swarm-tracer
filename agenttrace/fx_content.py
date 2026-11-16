@@ -31,6 +31,7 @@ import time as _time
 from collections import defaultdict
 
 from . import messages, reconstruct
+from . import saved
 
 iso = reconstruct.iso
 
@@ -237,7 +238,8 @@ def _grade(s, c, dels, times):
                              "write_snip": _snip(we.text, it), "use_snip": _snip(s.by_id[rid].text, it)})
             elif resp:
                 delivered.append({"item": it, "response_id": resp, "snip": _snip(s.by_id[resp].text, it)})
-        used.sort(key=lambda u: (not u["specific"], u["rarity"]["actors"], u["after_h"]))
+        used.sort(key=lambda u: (not u["specific"], u["rarity"]["actors"], u["after_h"], u["item"]))
+        delivered.sort(key=lambda d: d["item"])
         weak = []
         if not any(u["specific"] for u in used) and len(used) < 2:
             weak, used = used, []     # one dictionary-like name is not enough to say the content was used
@@ -461,11 +463,8 @@ def simulate_check(agents=40, seeds=(1, 2, 3), folder=None):
     return out
 
 
-SIMULATED = {"agents": 40, "seeds": [1, 2, 3], "measured": "2026-11-13",
-             "benign": {"messages": 7, "used": 0, "fetched only": 7, "unclear": 0, "handover_pairs": 140,
-                        "handover_strong": 0, "possible_pairs": 2983},
-             "coordinated": {"messages": 513, "used": 0, "fetched only": 217, "unclear": 296, "handover_pairs": 137,
-                             "handover_strong": 0, "possible_pairs": 2983}}
+# measured and dated: claims/simulated_checks.json, written by `python3 -m agenttrace.saved` (see saved.py)
+SIMULATED = saved.load("fx_content")
 
 
 if __name__ == "__main__":

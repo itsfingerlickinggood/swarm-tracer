@@ -1,0 +1,306 @@
+{
+ "runs": 77626,
+ "bands": {
+  "high": {
+   "runs": 435,
+   "actions": 435
+  },
+  "medium": {
+   "runs": 717,
+   "actions": 717
+  },
+  "low": {
+   "runs": 4815,
+   "actions": 4815
+  },
+  "unattributed": {
+   "runs": 71659,
+   "actions": 71659
+  }
+ },
+ "bands_before": {
+  "high": 424,
+  "medium": 717,
+  "low": 4112,
+  "unattributed": 72373
+ },
+ "second_pass_links": {
+  "high": 11,
+  "medium": 0,
+  "low": 703
+ },
+ "real_runs": {
+  "runs": 77626,
+  "linked": 5967,
+  "share": 0.0769,
+  "by_band": {
+   "high": 435,
+   "medium": 717,
+   "low": 4815
+  },
+  "first_pass_linked": 5253,
+  "note": "the coverage to quote: how many real anonymous runs got a link at all. The holdout's 'coverage' is measured on hidden named threads, which are easier, and its precision is not a measured precision for anonymous runs."
+ },
+ "model": {
+  "weights": {
+   "bias": 0.16,
+   "one place": 1.39,
+   "two or more places": 0.02,
+   "log(1+ same opening)": 0.42,
+   "log(1+ same host+style)": 0.44,
+   "log(1+ same program)": -1.82,
+   "rival evidence share": -1.42,
+   "log(1+ records of the owner)": 0.92
+  },
+  "cutoffs": {
+   "high": 0.99,
+   "medium": null,
+   "low": 0.731
+  },
+  "targets": {
+   "high": 0.995,
+   "medium": 0.97,
+   "low": 0.869
+  },
+  "training_rows": 1673,
+  "training_seeds": [
+   3,
+   4
+  ],
+  "window_s": 600,
+  "place_max_runs": 100
+ },
+ "holdout": {
+  "seeds": [
+   1,
+   2
+  ],
+  "hidden_runs": 6659,
+  "bands": {
+   "high": {
+    "links": 1456,
+    "correct": 1447,
+    "precision": 0.9938,
+    "precision_ci": [
+     0.9883,
+     0.9967
+    ]
+   },
+   "medium": {
+    "links": 893,
+    "correct": 861,
+    "precision": 0.9642,
+    "precision_ci": [
+     0.9499,
+     0.9745
+    ]
+   },
+   "low": {
+    "links": 2430,
+    "correct": 2135,
+    "precision": 0.8786,
+    "precision_ci": [
+     0.865,
+     0.891
+    ]
+   }
+  },
+  "bands_without_largest": {
+   "high": {
+    "links": 392,
+    "correct": 388,
+    "precision": 0.9898,
+    "precision_ci": [
+     0.9741,
+     0.996
+    ]
+   },
+   "medium": {
+    "links": 155,
+    "correct": 142,
+    "precision": 0.9161,
+    "precision_ci": [
+     0.8618,
+     0.9503
+    ]
+   },
+   "low": {
+    "links": 456,
+    "correct": 338,
+    "precision": 0.7412,
+    "precision_ci": [
+     0.6991,
+     0.7793
+    ]
+   }
+  },
+  "largest_left_out": 3,
+  "coverage": 0.7177,
+  "cluster_pairs": 462,
+  "cluster_pairs_same": 449,
+  "cluster_runs": 623,
+  "cluster_pair_precision": 0.9719,
+  "wrong_evidence": {
+   "low:str": 256,
+   "low:ph": 110,
+   "low:id": 93,
+   "medium:str": 38,
+   "medium:ph": 27,
+   "low:pre": 17,
+   "medium:id": 14,
+   "high:str": 10
+  },
+  "bands_merged": {
+   "high": {
+    "links": 1456,
+    "correct": 1454,
+    "precision": 0.9986,
+    "precision_ci": [
+     0.995,
+     0.9996
+    ]
+   },
+   "medium": {
+    "links": 893,
+    "correct": 881,
+    "precision": 0.9866,
+    "precision_ci": [
+     0.9767,
+     0.9923
+    ]
+   },
+   "low": {
+    "links": 2430,
+    "correct": 2324,
+    "precision": 0.9564,
+    "precision_ci": [
+     0.9475,
+     0.9638
+    ]
+   }
+  },
+  "bands_first_pass": {
+   "high": {
+    "links": 1361,
+    "correct": 1353,
+    "precision": 0.9941,
+    "precision_ci": [
+     0.9884,
+     0.997
+    ]
+   },
+   "medium": {
+    "links": 893,
+    "correct": 861,
+    "precision": 0.9642,
+    "precision_ci": [
+     0.9499,
+     0.9745
+    ]
+   },
+   "low": {
+    "links": 1812,
+    "correct": 1589,
+    "precision": 0.8769,
+    "precision_ci": [
+     0.861,
+     0.8913
+    ]
+   }
+  },
+  "bands_second_pass": {
+   "high": {
+    "links": 95,
+    "correct": 94,
+    "precision": 0.9895,
+    "precision_ci": [
+     0.9428,
+     0.9981
+    ]
+   },
+   "medium": {
+    "links": 0,
+    "correct": 0,
+    "precision": null,
+    "precision_ci": null
+   },
+   "low": {
+    "links": 618,
+    "correct": 546,
+    "precision": 0.8835,
+    "precision_ci": [
+     0.8558,
+     0.9065
+    ]
+   }
+  },
+  "bands_single_token_agents": null,
+  "second_pass_kinds": [
+   {
+    "kinds": "combo+own+pre",
+    "links": 138,
+    "precision": 0.9855
+   },
+   {
+    "kinds": "place",
+    "links": 104,
+    "precision": 0.7404
+   },
+   {
+    "kinds": "place+pre",
+    "links": 99,
+    "precision": 1.0
+   },
+   {
+    "kinds": "own",
+    "links": 79,
+    "precision": 0.9114
+   },
+   {
+    "kinds": "combo",
+    "links": 44,
+    "precision": 0.7727
+   },
+   {
+    "kinds": "own+pre",
+    "links": 37,
+    "precision": 0.8919
+   },
+   {
+    "kinds": "combo+place",
+    "links": 37,
+    "precision": 0.9459
+   },
+   {
+    "kinds": "combo+pre",
+    "links": 36,
+    "precision": 0.75
+   }
+  ],
+  "tokens_in_merged_agents": 0,
+  "cluster_pair_precision_merged": 0.9957,
+  "merged_tokens": 241,
+  "truth": "hidden token",
+  "split": {
+   "pool": 1,
+   "rule": "threads are split by a hash of the root id into a training pool and a test pool; the model is trained on one and scored on the other",
+   "coverage_is": "share of HIDDEN NAMED threads that got a link: named threads are easier to link than anonymous runs, so this is not the coverage of real anonymous runs (see real_runs)"
+  }
+ },
+ "agent_layer": {
+  "tokens": 241,
+  "agents": 233,
+  "merged_tokens": 8,
+  "merged_agents": 3
+ },
+ "about": "Attribution on the real release, v2.2.0: weights and cut-offs learned on one pool of threads (hash of the root id), scored on the other. Compare v2.1.0 (random halves, ~75% of scored threads had been training rows): holdout coverage 68.5%, precision 99.2/95.7/85.8% for high/medium/low. The holdout coverage is over hidden NAMED threads; the coverage to quote is real_runs.share.",
+ "v2_1_0": {
+  "holdout_coverage": 0.685,
+  "precision": {
+   "high": 0.992,
+   "medium": 0.957,
+   "low": 0.858
+  },
+  "source": "docs/audit-v2.1.md and reports/audit/method_audit.md"
+ }
+}

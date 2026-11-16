@@ -1,5 +1,5 @@
 // fx_benchmark: "Audited links (real data)" — the tool's message links on the Swarm Traces release scored
-// against links read and labelled by hand (agenttrace/benchmark.py, agenttrace/claims/audited_links.json),
+// against links read and labelled by one reader (the authors' AI assistant) (agenttrace/benchmark.py, agenttrace/claims/audited_links.json),
 // and v1.1.0's rules next to the current code on the harder simulated swarms.
 (() => {
   "use strict";
@@ -28,7 +28,7 @@
     const body = rows.map(([k, name]) => { const x = g[k], r = x.precision;
       return `<div class="bmg"><span class="bmgl">${esc(name)} <span class="muted">· ${fmt(x.reported)} reported${x.unclear ? `, ${fmt(x.unclear)} unclear left out` : ""}${x.not_audited ? `, ${fmt(x.not_audited)} not audited` : ""}</span></span><span class="bmgv">${ciBar(r, k === "all" ? ACCENT : "#0f766e")} <b>${p0(r.value)}</b> <em class="muted">${r.value == null ? "nothing to score" : `${fmt(r.k)} of ${fmt(r.n)} · ${p0(r.ci[0])}–${p0(r.ci[1])}`}</em></span></div>`; }).join("");
     return card("Precision for each kind of message", body,
-      { sub: `Every delivery the code reports on this release was read by hand, not only those between named tokens: ${fmt(g.all.reported)} in all. The audit holds ${fmt(g.pool.named_named.links)} links between named tokens and ${fmt(g.pool.involves_run.links)} with an anonymous run: endpoint.` });
+      { sub: `Every delivery the code reports on this release was read and labelled by one reader, not only those between named tokens: ${fmt(g.all.reported)} in all. The audit holds ${fmt(g.pool.named_named.links)} links between named tokens and ${fmt(g.pool.involves_run.links)} with an anonymous run: endpoint.` });
   }
 
   function gradeCard(d) {
@@ -136,7 +136,7 @@
       `${tile("between two named tokens", g.named_named.precision, "#0f766e")}` +
       `${tile("an anonymous run: on one side", g.involves_run.precision, "#0f766e")}` +
       `${kpi("messages on the release", `${fmt(d.reported_now)}`, `v1.1.0 reported ${fmt(tv.v110.reported)} between named tokens`)}` +
-      `${kpi("links audited by hand", fmt(d.audited_links), `labelled ${esc(d.audit.made || "")}`)}</div>` +
+      `${kpi("links audited by one reader", fmt(d.audited_links), `labelled ${esc(d.audit.made || "")}`)}</div>` +
       `<p class="${bad ? "warn" : "muted"}">${bad ? `Of the ${fmt(pr.n)} links the current code reports here that could be decided, the reading found ${fmt(pr.k)} to be a message. Treat message links on this dataset as leads to open and read, not as findings.` : `The reading agrees with ${fmt(pr.k)} of the ${fmt(pr.n)} links the current code reports that could be decided.`} ` +
       `Recall within the ${term("audit_pool", "audited pool")}: ${rateText(d.recall)} (${fmt(d.recall.k)} of ${fmt(d.true_links_in_pool)} true links). ` +
       `Limits: ${esc((d.audit.limits || []).join("; "))}. Labelled by: ${esc(d.audit.labelled_by || "")}.${d.reported_now_not_audited ? ` <b>${fmt(d.reported_now_not_audited)} link${d.reported_now_not_audited === 1 ? "" : "s"} reported now ${d.reported_now_not_audited === 1 ? "is" : "are"} not in the audit yet</b> and ${d.reported_now_not_audited === 1 ? "is" : "are"} left out of the rates.` : ""}</p>` +
@@ -146,7 +146,7 @@
   window.FX_SECTIONS = window.FX_SECTIONS || [];
   window.FX_SECTIONS.push({
     id: "benchmark", title: "Audited links (real data)", group: "Test and export",
-    blurb: "Every message the tool reports on the Swarm Traces release, scored against links read and labelled by hand: precision with ranges for each kind of endpoint and each confidence grade, a second method's agreement, what each false link was, v1.1.0 against now, and the rows where the code and the reading disagree.",
+    blurb: "Every message the tool reports on the Swarm Traces release, scored against links read and labelled by one reader (the authors' AI assistant): precision with ranges for each kind of endpoint and each confidence grade, a second method's agreement, what each false link was, v1.1.0 against now, and the rows where the code and the reading disagree.",
     render,
   });
 })();

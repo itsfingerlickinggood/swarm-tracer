@@ -252,9 +252,18 @@ def _encoding(path):
     accepts every byte; the read report says so."""
     import codecs
     dec = codecs.getincrementaldecoder("utf-8")()
+    name = os.path.basename(path)
     try:
         with open(path, "rb") as f:          # in chunks, so a large file is not held twice in memory
+            first = True
             for chunk in iter(lambda: f.read(8 << 20), b""):
+                if first and chunk[:2] in (b"\xff\xfe", b"\xfe\xff"):
+                    raise ValueError(f"{name} is encoded as UTF-16 (it starts with a UTF-16 byte-order mark), which this tool "
+                                     "does not read; save it as UTF-8 and load it again")
+                first = False
+                if b"\0" in chunk:
+                    raise ValueError(f"{name} contains NUL (0x00) bytes: it is binary or UTF-16 text, not a UTF-8 "
+                                     "trace file; save it as UTF-8 and load it again")
                 dec.decode(chunk)
         dec.decode(b"", final=True)
         return "utf-8-sig"
@@ -270,12 +279,24 @@ def _read_rows(path):
         notes["encoding"] = f"not valid UTF-8; read as {enc} (Windows Latin-1), so some characters may be wrong"
     if ext in (".csv", ".tsv"):
         with open(path, encoding=enc, errors="replace", newline="") as f:
-            return list(csv.DictReader(f, delimiter="\t" if ext == ".tsv" else ","))
+            try:
+                return list(csv.DictReader(f, delimiter="\t" if ext == ".tsv" else ","))
+            except csv.Error as e:
+                raise ValueError(f"{os.path.basename(path)} could not be read as {ext[1:].upper()}: {e}") from None
     with open(path, encoding=enc, errors="replace") as f:
         head = f.read(2048)
         f.seek(0)
         if ext == ".json" or head.lstrip().startswith("["):
-            data = json.load(f)
+            try:
+                data = json.load(f)
+            except RecursionError:
+                raise ValueError(f"{os.path.basename(path)} is nested too deeply to read as JSON "
+                                 "(hundreds of levels); flatten it or send the records as a list") from None
+            except json.JSONDecodeError as e:
+                raise ValueError(f"{os.path.basename(path)} is not valid JSON: {e}") from None
+            if data is None or not isinstance(data, (dict, list)):
+                raise ValueError(f"{os.path.basename(path)} holds a JSON {'null' if data is None else type(data).__name__}, "
+                                 "not a list of records or an object that holds one")
             if isinstance(data, dict):  # {"data": [...]} or {"events": [...]}
                 lists = [v for v in data.values() if isinstance(v, list) and v and isinstance(v[0], dict)]
                 data = max(lists, key=len) if lists else [data]
@@ -286,7 +307,7 @@ def _read_rows(path):
             if line:
                 try:
                     obj = json.loads(line)
-                except json.JSONDecodeError:
+                except (json.JSONDecodeError, RecursionError):
                     plain.append({"line": n, "text": line})
                     continue
                 if isinstance(obj, dict):
@@ -317,13 +338,41 @@ def load_file(path, mapping=None, rows=None):
     events = []
     for i, r in enumerate(rows, start=1):
         events.extend(_events_from_row(r, cols, stem, i))
-    info = {**READ_NOTES.pop(path, {}), "file": os.path.basename(path), "format": readers.label(fmt), "format_key": fmt,
+    renamed = _rename_repeated_ids(events)
+    info = {**READ_NOTES.pop(path, {}), **({"repeated_ids": renamed} if renamed else {}), "file": os.path.basename(path), "format": readers.label(fmt), "format_key": fmt,
             "rows": len(rows), "events": len(events),
             # for a known format, where its reader took each field from
             "fields": readers.SOURCE_FIELDS.get(fmt, cols) if fmt else cols,
             "text_from_fields": sum(1 for e in events if e.text_from_fields),
             "with_time": sum(1 for e in events if e.time), "with_parent": sum(1 for e in events if e.parent)}
     return events, info
+
+
+def _rename_repeated_ids(events):
+    """Two records in one file with the same id would collapse into one (every lookup is by id). The
+    first keeps its id; later ones become id~2, id~3, ... (a suffix no real id is likely to carry).
+    Returns {"records": how many were renamed, "ids": how many distinct ids repeat, "examples": [...]}."""
+    seen, repeats, examples = {}, 0, []
+    taken = {e.id for e in events}
+    for e in events:
+        n = seen.get(e.id, 0) + 1
+        seen[e.id] = n
+        if n == 1:
+            continue
+        old = e.id
+        new = f"{old}~{n}"
+        while new in taken:
+            n += 1
+            new = f"{old}~{n}"
+        seen[old] = n
+        taken.add(new)
+        e.id = new
+        repeats += 1
+        if len(examples) < 5:
+            examples.append(f"{old} -> {new}")
+    if not repeats:
+        return None
+    return {"records": repeats, "ids": sum(1 for v in seen.values() if v > 1), "examples": examples}
 
 
 def _is_event_table(info):

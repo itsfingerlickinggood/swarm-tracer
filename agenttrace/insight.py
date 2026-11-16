@@ -320,7 +320,7 @@ def message_list(s):
         rows.append([d["from"], d["to"], d["channel"], d["write_id"], d["read_id"], d["write_time"], d["read_time"],
                      d["latency_h"], d.get("how"), 1 if any(r.search(d["channel"]) for r in coarse) else 0,
                      1 if is_estimated(s, d["write_id"], d["read_id"]) else 0, d.get("grade", "weak")])
-    rows.sort(key=lambda r: r[6])
+    rows.sort(key=lambda r: (r[6], r[5], str(r[4]), str(r[3]), str(r[2]), str(r[0]), str(r[1])))
     over = [[d["from"], d["to"], d["channel"], d["write_id"], d["read_id"], d["write_time"], d["read_time"]]
             for d in s.flow.get("_overwrites", [])]
     # merged: the place is one the redaction may have merged with others, so the write and read may differ

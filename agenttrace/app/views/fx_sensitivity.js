@@ -5,7 +5,7 @@
 "use strict";
 window.FX_SECTIONS = window.FX_SECTIONS || [];
 const G = "What is missing";
-const STATUS = { recovered: { c: "#1f7a4d", word: "recovered", tip: "the tool shows it, within its dating error" },
+const STATUS = { recovered: { c: "#1f7a4d", word: "recovered", tip: "the tool shows it, within the fixed tolerance" },
                  partly: { c: "#d9a030", word: "partly", tip: "some of it shows, or it shows at another size" },
                  invisible: { c: "#6b7480", word: "invisible", tip: "the records cannot show it" } };
 const HEADS = ["first_message", "first_message_share", "messages", "pairs", "alarm_lead_h"];
@@ -76,8 +76,7 @@ async function renderSens(host) {
 // ------------------------------------------------------------------ the insiders
 const INS = { status: "", group: "", open: null };
 async function renderInsiders(host) {
-  host.innerHTML = '<p class="muted">Checking each published finding against the records… (the first time takes about ten seconds)</p>';
-  const d = await api("/api/x/insiders");
+  const d = await withProgress(host, "Checking each published finding against the records", api("/api/x/insiders"), { expect: "the first time takes about ten to fifteen seconds" });
   if (!d.available) { host.innerHTML = `<p class="muted">${esc(d.reason || "Not available for this dataset.")}</p>`; return; }
   drawInsiders(host, d);
 }
@@ -89,7 +88,7 @@ function drawInsiders(host, d) {
     <p class="small muted">${esc(d.about)}</p>
     <div class="in-sum" role="img" aria-label="${c.recovered} recovered, ${c.partly} partly, ${c.invisible} invisible">${["recovered", "partly", "invisible"].map((k) => c[k] ? `<span style="flex:${c[k]};background:${STATUS[k].c}" title="${STATUS[k].word}: ${c[k]}">${c[k]}</span>` : "").join("")}</div>
     <div class="in-key">${["recovered", "partly", "invisible"].map((k) => `<button type="button" data-st="${k}" class="${INS.status === k ? "on" : ""}" title="${esc(STATUS[k].tip)}"><i style="background:${STATUS[k].c}"></i>${c[k]} ${STATUS[k].word}</button>`).join("")}
-      <span class="muted small">of ${tot} findings · times count as recovered within the dating error of ${d.tolerance_h} h</span></div>
+      <span class="muted small">of ${tot} findings · times count as recovered within the fixed tolerance of ${d.tolerance_h} h (set in advance)</span></div>
     <div class="in-key">${groups.map((g) => `<button type="button" data-gr="${esc(g)}" class="${INS.group === g ? "on" : ""}">${esc(g)} <span class="muted">${["recovered", "partly", "invisible"].map((k) => d.by_group[g][k]).join(" / ")}</span></button>`).join("")}${INS.status || INS.group ? '<button type="button" class="link" data-clear="1">show all</button>' : ""}</div>
     <div class="in-grid" role="list">${d.findings.map((f) => `<button type="button" role="listitem" class="in-tile${list.includes(f) ? "" : " dim"}${INS.open === f.id ? " on" : ""}" data-f="${esc(f.id)}" style="--c:${STATUS[f.status].c}" title="${esc(STATUS[f.status].word + ": " + f.finding)}"></button>`).join("")}</div>
     <div class="in-list">${list.map((f) => `<div class="in-row${INS.open === f.id ? " open" : ""}" data-row="${esc(f.id)}"><button type="button" class="in-head" data-f="${esc(f.id)}" aria-expanded="${INS.open === f.id}"><i style="background:${STATUS[f.status].c}"></i><span class="in-st" style="color:${STATUS[f.status].c}">${STATUS[f.status].word}</span><span class="in-fi">${esc(f.finding)}</span><span class="muted small in-src">${esc(f.source)}</span></button>${INS.open === f.id ? detail(f) : ""}</div>`).join("") || '<p class="muted">No finding matches.</p>'}</div>`;

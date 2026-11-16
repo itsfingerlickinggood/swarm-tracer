@@ -1,0 +1,54 @@
+{
+ "written_utc": "2026-11-16T09:39:49Z",
+ "frozen_signs_sha256": "60e9b8b6019e2cc39f5e9f4502dde3e6de29f0abb900118fe2339fecbb10d02c",
+ "git_head": "922955b471c70e504014a192ca1676326f44936d",
+ "code_sha256": {
+  "agenttrace/insight.py": "7c89f79c810aff866fb4e4d08aa52f2cb947a80c0731e8a74921381eba49f1ba",
+  "agenttrace/live.py": "b42e4d18058888b87e7d78d4186d939734a03523ef876259eec2b848fe062347",
+  "agenttrace/evaluate.py": "5db68be33600f8148af983672f2acb4764d2fc37dc0f693abaa7133dc572cfee",
+  "agenttrace/reconstruct.py": "2486f4501c0be7c8b8695a4cb15df42920aa0d058deb2612929cd6f6f94fd493",
+  "agenttrace/messages.py": "5a7fe554edd7cb2dcf4c7d911fdbe0f8f9d400bc29840685a6d497a600cfd261",
+  "agenttrace/packs/code_traces.json": "84914de1d21ab6f7502c4b358108a85dbf68015daa56b6a114ae3b7189b76044",
+  "agenttrace/packs/wiki_swarm.json": "ae9e7dfb9318d3c9169230b35826bbe1ccd14804c4f03c5419959fec17bf84d1",
+  "agenttrace/baselines.py": "7067bd99ce3245317c5c42e331e62ef00d90f90e456a7646235092c2d780aa9e",
+  "agenttrace/groundtruth.py": "8220ae0323f7670965dc3a2f039094d9a67173c16ae234703c5e394412c5628b",
+  "agenttrace/indepgen.py": "18a411b15ecedf3d8de53fb957b35e141b3f153e689c764b25ea0840b80d280a",
+  "agenttrace/earlywarn.py": "ddb70ac0ea08373fa296b5951068d6a4a0d4374460cd8d28b7c90a38bc8327a9"
+ },
+ "forward_seeds_original_generator": [
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+  40
+ ],
+ "forward_seeds_independent_generator": [
+  501,
+  502,
+  503,
+  504,
+  505,
+  506,
+  507,
+  508,
+  509,
+  510
+ ],
+ "independent_cell": "chrono_epoch60",
+ "scenarios": [
+  "coord",
+  "coord_notes",
+  "benign_leaderboard",
+  "benign_ci",
+  "benign_coordinator",
+  "benign_cloud",
+  "benign_plain"
+ ],
+ "rule": "no forward swarm exists when this file is written; run `forward` and `independent` afterwards",
+ "supersedes": "prereg_first_freeze.json: the message rule (messages.py, identity.py, units.py, packs) changed after the first freeze, so the signs were re-frozen on the final code before any forward swarm was regenerated. The first forward run (seeds 31-40, 501-510) was on the earlier rule and has been overwritten; the same seeds are reused, so they are no longer unseen."
+}

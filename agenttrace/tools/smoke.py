@@ -357,7 +357,7 @@ def dataset_specs(names, odd_dir):
 
 
 class Server:
-    def __init__(self, port, path=None, pack=None, log_dir=None, allow=()):
+    def __init__(self, port, path=None, pack=None, log_dir=None, allow=(), env=None):
         self.port = port
         cmd = [sys.executable, "-m", "agenttrace", "serve", "--port", str(port)]
         for a in allow:          # folders live mode and Compare may read (the server refuses others)
@@ -367,7 +367,7 @@ class Server:
         if pack:
             cmd += ["--pack", pack]
         self.log = tempfile.NamedTemporaryFile(prefix=f"st-smoke-{port}-", suffix=".log", dir=log_dir, delete=False)
-        self.proc = subprocess.Popen(cmd, cwd=ROOT, stdout=self.log, stderr=subprocess.STDOUT)
+        self.proc = subprocess.Popen(cmd, cwd=ROOT, stdout=self.log, stderr=subprocess.STDOUT, env=env)
         self.base = f"http://127.0.0.1:{port}"
 
     def wait(self, timeout):
@@ -470,8 +470,8 @@ def pick_ids(base, summary):
     return ids
 
 
-def api_cells(res, base, summary, ids, xget):
-    """Every GET endpoint the tabs use, plus each /api/x/* GET route; a 500 or a hang fails."""
+def api_paths(ids, xget):
+    """Every GET path the tabs use, plus each /api/x/* GET route, with usual parameters filled in from ids."""
     q = urllib.parse.quote
     paths = ["/api/packs", "/api/state", "/api/events?limit=50", "/api/events?q=a&limit=20", "/api/events?channels=1&limit=20",
              "/api/pairs?limit=50", "/api/pairs?all=1&limit=50", "/api/places_map", "/api/lanes", "/api/messages", "/api/sim",
@@ -496,7 +496,12 @@ def api_cells(res, base, summary, ids, xget):
         paths.append("/api/x/case_export?format=json")
     if "identity" in xget and ids["actor"]:
         paths.append(f"/api/x/identity?actor={q(ids['actor'])}")
-    for p in paths:
+    return paths
+
+
+def api_cells(res, base, summary, ids, xget):
+    """Every GET endpoint the tabs use, plus each /api/x/* GET route; a 500 or a hang fails."""
+    for p in api_paths(ids, xget):
         code, data, sec = http(base, p)
         err = data.get("error") if isinstance(data, dict) else (data if code != 200 else "")
         # 409 from an extension means "not available for this data / not loaded": fine if it says why in words
@@ -687,7 +692,7 @@ def concurrency(port, big_upload=None, log_dir=None):
     if not os.path.exists(big_upload):
         big_upload = demo_file
     work = os.path.realpath(tempfile.mkdtemp(prefix="st-smoke-conc-"))
-    srv = Server(port, demo, None, log_dir, allow=[work])
+    srv = Server(port, demo, None, log_dir, allow=[work, os.path.dirname(big_upload)])
     try:
         if not srv.wait(300):
             res.add("setup", "server with the demo swarm", False, srv.output(400))

@@ -1,8 +1,8 @@
 {
  "slug": "shared-place-sign",
  "order": 2,
- "title": "The one sign that warned early",
- "dek": "In our simulated swarms one sign fired hours before the first harm: two identities using the same place. On the real incident it did not come early. Here is what each result rests on.",
+ "title": "The sign that looked early",
+ "dek": "In our first simulated swarms one sign seemed to fire hours before the first harm: two identities using the same place. With place names in code comments ignored it fires after the first harm, on an independent generator it never fires, and on the real incident it came late. Here is what each result rests on.",
  "figures": {
   "sim_n": {
    "from": "/api/x/earlywarn_summary",
@@ -20,13 +20,13 @@
    "from": "/api/x/earlywarn_summary",
    "path": "forward.signs[id=coordination: two identities use one place].coordinated.harm.median_lead_h",
    "as": "h1",
-   "label": "hours: median lead before the first true harmful action (simulated)"
+   "label": "hours: median time the sign fired after the first true harmful action (simulated; shown without its sign, which is negative: late)"
   },
   "lead_msg": {
    "from": "/api/x/earlywarn_summary",
    "path": "forward.signs[id=coordination: two identities use one place].coordinated.message.median_lead_h",
    "as": "h1",
-   "label": "hours: median lead before the first true message (simulated)"
+   "label": "hours: median lead before the first true delivery (simulated)"
   },
   "benign_n": {
    "from": "/api/x/earlywarn_summary",
@@ -91,19 +91,19 @@
    "p": "Agents that work together need somewhere to leave things. A dataset. A folder. A page. [[c1|The sign fires the first time two different identities use the same named place.]] It does not need a message. It does not need to know who wrote and who read. Two names on one place is enough."
   },
   {
-   "h": "In the simulator it was early"
+   "h": "In the simulator it looked early, then it did not"
   },
   {
-   "p": "We froze the definitions of every sign. Then we generated swarms the signs had never seen. [[c2|The shared-place sign fired in {sim_fired} of {sim_n} coordinated swarms.]] [[c3|Its median lead was {lead_harm} hours before the first harmful action, and {lead_msg} hours before the first message.]] No other sign fired well before the first harm. [[c4|It fired in {benign_fired} of {benign_n} benign swarms.]]"
+   "p": "We froze the definitions of every sign. Then we generated swarms the signs had never seen. An earlier version of this page said the sign fired almost six hours ahead. An audit found why: the simulator writes notes that name a place at random times, and the sign counted a place named in a code comment. With comment-only mentions ignored, [[c2|the shared-place sign fired in {sim_fired} of {sim_n} coordinated swarms]] but [[c3|it fired a median {lead_harm} hours after the first harmful action, and only {lead_msg} hours before the first delivery.]] [[c4|It fired in {benign_fired} of {benign_n} benign swarms.]]"
   },
   {
-   "note": "Read this with care. [[c5|These swarms come from our own simulator.]] We wrote the generator and we wrote the sign. Real swarms differ. We had no real benign traffic from many agents to test for false alarms. So early here means early in a world we built."
+   "note": "Read this with care. [[c5|These swarms come from our own simulator.]] We wrote the generator and we wrote the sign. On a second generator, written independently, the sign did not fire in any coordinated swarm, because those swarms coordinate through ordinary dataset names. We had no real benign traffic from many agents to test for false alarms. So the sign is not an early warning even in a world we built."
   },
   {
-   "h": "On the real incident it was not"
+   "h": "On the real incident it was late"
   },
   {
-   "p": "The Swarm Traces release is real. It has no truth file, so nobody can say how early a sign should have been. We can only say when it fired. [[c6|The first harmful sign fires on {rec:R0000032.time}: an anonymous run reads a folder on the package registry.]] [[c7|The shared-place sign fires on {rec:R0028572.time}, more than two days later.]] {rec:R0016746.actor} had used a place name. Now {rec:R0028572.actor} used it too. [[c8|At that point {share_tok} of the dated harm was still to come.]] Half of it had already happened."
+   "p": "The Swarm Traces release is real. It has no truth file, so nobody can say how early a sign should have been. We can only say when it fired. [[c6|The first harmful sign fires on {rec:R0000032.time}: an anonymous run reads a folder on the package registry.]] [[c7|The shared-place sign fires on {rec:R0028572.time}, more than two days later.]] {rec:R0016746.actor} had used a place name. Now {rec:R0028572.actor} used it too. [[c8|At that point {share_tok} of the dated harm was still to come.]] Half of it had already happened. Plain baselines (the first new host, the first search for secrets, a distinct-actor alarm, a volume alarm with a short history) all fired earlier than this sign."
   },
   {
    "h": "And the two identities were probably one agent"
@@ -115,7 +115,7 @@
    "h": "What to take from it"
   },
   {
-   "p": "The sign is cheap and it needs little data. In simulation it is the earliest warning we have. On the one real incident we could test, it came late, and its first hit was one agent seen twice. Both things are true. We would not ship it as an alarm on this evidence. We would test it on real traffic first."
+   "p": "The sign is cheap and it needs little data. In simulation it fires after the first harm, on a second generator it does not fire, and on the one real incident we could test it came late, and its first hit was one agent seen twice. We would not ship it as an alarm on this evidence. The lead of almost six hours we published earlier is withdrawn."
   }
  ],
  "claims": {
@@ -139,7 +139,7 @@
    ]
   },
   "c2": {
-   "evidence": "Forward test on simulated coordinated swarms.",
+   "evidence": "Forward test on simulated coordinated swarms (the original generator).",
    "figures": [
     "sim_fired",
     "sim_n"
@@ -148,6 +148,10 @@
     {
      "href": "../../early-warning.html",
      "label": "The forward test: settings, seeds and every sign"
+    },
+    {
+     "href": "../../early-warning.html",
+     "label": "The independent generator, where the sign never fired"
     }
    ]
   },
@@ -157,7 +161,7 @@
     "lead_harm",
     "lead_msg"
    ],
-   "caveat": "Simulated. A lead is hours before the first true harm or message in the truth file our generator writes."
+   "caveat": "Simulated. A lead is hours before the first true harm or delivery in the truth file our generator writes; for the first harmful action it is negative, meaning the sign fired after it."
   },
   "c4": {
    "evidence": "False alarms on simulated benign swarms.",
@@ -165,7 +169,7 @@
     "benign_fired",
     "benign_n"
    ],
-   "caveat": "Zero alarms in this many benign swarms still leaves room for a real false-alarm rate. The benign swarms are simulated too."
+   "caveat": "Zero alarms in this many benign swarms still leaves room for a real false-alarm rate. The benign swarms are simulated too, and on an independent generator many other signs fired in benign look-alike swarms."
   },
   "c5": {
    "evidence": "The forward test states its own limit.",

@@ -13,6 +13,9 @@ Steps, each printed as PASS or FAIL:
   4. import   the package imports from the environment, not from the source tree, and reports its version
   5. check    `python -m agenttrace.tools.check --quick` from the installed package: unit tests, smoke test and the
               consistency oracle on the bundled demo swarm
+  7. routes   every GET route (about 100: the tabs' endpoints and each /api/x/* route) is called on the bundled demo
+              swarm under three hash seeds (0, 1, 12345) with the installed package (tools/routes.py); each route's
+              output must hash the same. --wiki adds the collusion.wiki logs when the folder is present (slow)
   6. compare  the deterministic JSON the installed package computes for the bundled demo swarm hashes to the same
               values as the working tree's, and to the same values under a second hash seed
 
@@ -193,6 +196,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(prog="python3 -m agenttrace.tools.repro", description=__doc__.split("\n")[0])
     ap.add_argument("--worktree", action="store_true", help="copy the working tree (tracked and untracked, not ignored) instead of git HEAD")
     ap.add_argument("--quick", action="store_true", help="skip the unit tests and the check (steps 1-4 and 6 only)")
+    ap.add_argument("--wiki", action="store_true", help="also check every route on the wiki logs (full-wiki-logs/) under three hash seeds")
     ap.add_argument("--keep", action="store_true", help="keep the temporary folder and print its path")
     ap.add_argument("--json", help="also write the result to this file")
     a = ap.parse_args(argv)
@@ -274,6 +278,14 @@ def main(argv=None):
                     return False, f"{', '.join(d1)} differ between the installed copy and the working tree{why}"
                 return True, f"{what} hash the same in the installed copy and the working tree, and under a second hash seed"
             step("compare demo outputs", compare)
+
+            def routes_check():
+                names = ["demo"] + (["wiki"] if a.wiki else [])
+                code, out = run([py, "-m", "agenttrace.tools.routes", "--datasets", *names, "--seeds", "0", "1", "12345"],
+                                cwd=work, env=env, timeout=3600)
+                lines = [ln for ln in out.splitlines() if ln.startswith(("PASS", "FAIL", "SKIP"))]
+                return code == 0, " | ".join(ln[:400] for ln in lines) or out.strip()[-300:]
+            step("every route under three hash seeds", routes_check)
     finally:
         if a.keep:
             print(f"kept {tmp}")
@@ -281,7 +293,7 @@ def main(argv=None):
             shutil.rmtree(tmp, ignore_errors=True)
 
     failed = [s for s in steps if not s["ok"]]
-    planned = 5 if a.quick else 6
+    planned = 6 if a.quick else 7
     print(f"\nREPRO {'PASSED' if not failed and len(steps) == planned else 'FAILED'}: {len(steps) - len(failed)}/{planned} steps "
           f"({'working tree' if a.worktree else 'git HEAD'}) in {time.time() - t_all:.0f} s")
     if a.json:

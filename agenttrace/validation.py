@@ -25,6 +25,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import random
 import shutil
 import sys
 import threading
@@ -224,6 +225,33 @@ def _rng(vals):
     return {"min": round(v[0], 4), "median": round(med, 4), "max": round(v[-1], 4), "n": len(v)}
 
 
+def _median_of(v):
+    v = sorted(v)
+    n = len(v)
+    return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2
+
+
+def resample_ci(by_group, draws=2000, seed=17):
+    """95% percentile intervals of the median of one measure, two ways. by_group: {setting: [values]}.
+    'swarms' resamples swarms as if independent (what v2.1.0 did); 'settings' resamples whole settings with
+    replacement and pools their swarms, because settings built from the same seeds are not independent."""
+    flat = [x for v in by_group.values() for x in v if x is not None]
+    groups = [[x for x in v if x is not None] for v in by_group.values()]
+    groups = [g for g in groups if g]
+    if len(flat) < 2:
+        return None
+    rng = random.Random(seed)
+
+    def q(meds):
+        meds.sort()
+        return [round(meds[int(0.025 * draws)], 4), round(meds[min(draws - 1, int(0.975 * draws))], 4)]
+    sw = q([_median_of([flat[rng.randrange(len(flat))] for _ in flat]) for _ in range(draws)])
+    st = None
+    if len(groups) >= 2:
+        st = q([_median_of([x for _ in groups for x in groups[rng.randrange(len(groups))]]) for _ in range(draws)])
+    return {"median": round(_median_of(flat), 4), "swarms": sw, "settings": st, "n": len(flat), "settings_n": len(groups)}
+
+
 def run_suite(out, seeds=(1, 2, 3), quick=False, settings=None, log=print, keep_swarms=True):
     no_cache = os.environ.get("SWARM_TRACER_NO_CACHE")
     os.environ["SWARM_TRACER_NO_CACHE"] = "1"    # generated swarms are small; keep the user's cache clean
@@ -269,13 +297,27 @@ def run_suite(out, seeds=(1, 2, 3), quick=False, settings=None, log=print, keep_
     os.makedirs(out, exist_ok=True)
     with open(os.path.join(out, "summary.json"), "w", encoding="utf-8") as f:
         json.dump({**summary, "runs": runs}, f, indent=1)
-    with open(os.path.join(out, "summary.md"), "w", encoding="utf-8") as f:
-        f.write(markdown(summary))
+    refresh_markdown(out, summary)
     return {**summary, "runs": runs}
 
 
 def _p(x):
     return "–" if x is None else f"{100 * x:.0f}%"
+
+
+def refresh_markdown(out, summary=None):
+    """(Re)write <out>/summary.md from summary.json, with the independent generator's section (independent.md, written
+    by agenttrace.indepeval) after the original tables when it exists."""
+    if summary is None:
+        with open(os.path.join(out, "summary.json"), encoding="utf-8") as f:
+            summary = json.load(f)
+    text = markdown(summary)
+    ip = os.path.join(out, "independent.md")
+    if os.path.isfile(ip):
+        with open(ip, encoding="utf-8") as f:
+            text += "\n" + f.read()
+    with open(os.path.join(out, "summary.md"), "w", encoding="utf-8") as f:
+        f.write(text)
 
 
 def summarize(runs):
@@ -294,6 +336,12 @@ def summarize(runs):
     coord = [r for r in runs if r["mode"] != "benign"]
     benign = [r for r in runs if r["mode"] == "benign"]
     overall = {k: _rng([r["measures"][k] for r in coord]) for k in MEASURE}
+    overall_ci = {}
+    for k in MEASURE:
+        grp = defaultdict(list)
+        for r in coord:
+            grp[r["setting"]].append(r["measures"][k])
+        overall_ci[k] = resample_ci(grp)
     # pooled identity precision per band (all coordinated and benign runs together)
     pooled = {}
     for b in groundtruth.BANDS:
@@ -341,6 +389,8 @@ def summarize(runs):
     for x in fires.values():
         x["hours_from_start"] = _rng(x.pop("hours"))
         x["of"] = len(benign)
+        x["share"] = round(x["runs"] / len(benign), 3) if benign else None
+        x["share_ci"] = groundtruth._wilson(x["runs"], len(benign)) if benign else None
         bl.append(x)
     bl.sort(key=lambda x: (x["what"] != "rule", -x["runs"], x["key"]))
     benign_sum = {"runs": len(benign), "fires": bl,
@@ -379,7 +429,7 @@ def summarize(runs):
     return {"about": "Swarm Tracer validation on simulated swarms (agenttrace.validation). Ranges are min, median, "
                      "max over seeds; the simulations are ours and real swarms differ.",
             "measures": [MEASURE[k] for k, _, _, _ in MEASURES], "groups": [{"name": g, "keys": ks} for g, ks in GROUPS],
-            "settings": settings, "overall": overall, "identity_pooled": pooled, "message_grades": message_grades, "benign": benign_sum, "signs": signs,
+            "settings": settings, "overall": overall, "overall_ci": overall_ci, "identity_pooled": pooled, "message_grades": message_grades, "benign": benign_sum, "signs": signs,
             "alert_hours_before_first_true_harm": alert_lead,
             "coordinated_runs": len(coord), "benign_runs": len(benign)}
 
@@ -408,6 +458,24 @@ def markdown(sm):
         for x in rows:
             L.append(f"| {x['label']} | " + " | ".join(_cell(x["measures"][k], MEASURE[k]["unit"]) for k in keys) + " |")
         L.append("| **all coordinated** | " + " | ".join(_cell(sm["overall"][k], MEASURE[k]["unit"]) for k in keys) + " |")
+        L.append("")
+    ci = sm.get("overall_ci") or {}
+    if ci:
+        L.append("### Pooled medians, with intervals that resample settings")
+        L.append("")
+        L.append("The settings share seeds (base, hidden reads and two-token swarms use the same five), so they are not independent. "
+                 "'Resampling swarms' treats every swarm as independent (the v2.1.0 way) and is too narrow; 'resampling settings' "
+                 "draws whole settings with replacement and is the one to quote. 95% percentile intervals of the median, 2000 draws.")
+        L.append("")
+        L.append("| measure | pooled median | resampling swarms | resampling settings |")
+        L.append("|---|---|---|---|")
+        for k in ("msg_precision", "msg_recall", "pair_precision", "pair_recall", "sign_on_time", "dating_error_h", "alert_lead_h", "watch_lead_h"):
+            x = ci.get(k)
+            if not x:
+                continue
+            f = (lambda v: f"{100 * v:.0f}%") if MEASURE[k]["unit"] == "share" else (lambda v: f"{v:.2f}")
+            rg = lambda r: "–" if not r else f"{f(r[0])} to {f(r[1])}"
+            L.append(f"| {MEASURE[k]['label']} | {f(x['median'])} | {rg(x['swarms'])} | {rg(x['settings'])} |")
         L.append("")
     if sm.get("signs"):
         L.append("### Each early sign on the coordinated swarms")
@@ -457,11 +525,15 @@ def markdown(sm):
                  f"records flagged harmful by the pack: {_cell(b['harm_records_flagged'], 'count')}; "
                  f"identity pairs proposed as high: {_cell(b['identity_high_proposed'], 'count')}.")
         L.append("")
-        L.append("| fires | what | runs | hours from the start |")
-        L.append("|---|---|---|---|")
+        L.append("Each swarm counts once per sign or rule, so the interval is a per-swarm binomial one (Wilson, 95%), not a rate per day.")
+        L.append("")
+        L.append("| fires | what | swarms | share (95% range) | hours from the start |")
+        L.append("|---|---|---|---|---|")
         for x in b["fires"]:
             what = ("default rule (" + x.get("severity", "") + ")") if x["what"] == "rule" else f"sign ({x['family']}, {x['kind']})"
-            L.append(f"| {x['name']} | {what} | {x['runs']} of {x['of']} | {_cell(x['hours_from_start'], 'hours')} |")
+            sc = x.get("share_ci")
+            L.append(f"| {x['name']} | {what} | {x['runs']} of {x['of']} | {_p(x.get('share'))}"
+                     f"{f' ({_p(sc[0])}–{_p(sc[1])})' if sc else ''} | {_cell(x['hours_from_start'], 'hours')} |")
         L.append("")
     if sm.get("alert_hours_before_first_true_harm"):
         L.append("### Default rules on the coordinated swarms: hours before the first true harmful action")

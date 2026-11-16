@@ -8,7 +8,9 @@ The **What's missing** tab measures these for each dataset. In general:
 
 - **Time.** Records with no time field and no usable embedded timestamps cannot be placed. Estimated times are a fit, so flat stretches in hourly charts can come from the fit rather than from steady activity.
 - **Who is an agent.** Actors are tokens and self-chosen names. One agent can hold several; a shared key stands for many. The Agents tab proposes merges with evidence, but the true mapping needs the operator's logs.
-- **Whether a message was read.** A read in code is an attempt; the data rarely shows whether it worked. Messages that rest only on naming a place show the place was known, not that its content was read.
+- **Whether a message was read, or used.** A read in code is an attempt; the data rarely shows whether it worked. A delivery is a write then a later read of the same place; it does not show the reader used what was written (0 of 9 on the Swarm Traces release do), and one that rests only on naming a place shows the place was known, not that its content was read.
+- **One labeller.** The audit labels behind the delivery count are one reader's, the authors' AI assistant; no second labeller has read them, and none was read by a person by hand.
+- **Simulated accuracy is optimistic.** An independently written generator gives message precision 70% and recall 58%, against 90% and 84% on the original simulator; see [validation](validation.md).
 - **Merged places.** Redaction that keeps only an owner's name can join several repositories.
 - **Unlisted channels.** Messages through places no pack describes, or with no shared place at all, are invisible. Much coordination is never written down.
 - **Identity merges.** On simulated swarms with known agents, merge proposals resting only on coordination evidence (shared places, handoffs, shared programs) were almost always wrong (about 1% right), so the tool now keeps those at low confidence; high and medium need direct evidence and were right in every simulated case. See [validation](validation.md).

@@ -4,6 +4,8 @@
 
 Swarm Tracer's hard claims (who messaged whom, when each warning sign appeared, when an undated record happened, which tokens are one agent) can only be checked against a swarm whose truth is known. No real swarm comes with that, so we simulate swarms, keep the truth, load each one with the tool exactly as the app loads a file, and compare. This page gives the results as **ranges over seeds** (min – **median** – max), not one number, and adds the project's first **benign baseline**: swarms that never coordinate, where everything the tool flags is a false positive.
 
+**Read the simulated numbers as optimistic.** The generator was written by the same team as the tool and writes the exact strings the rules match. An independently written generator (section [Independent generator](#independent-generator-agenttraceindepgenpy), inside Results) gives message precision about 70% and recall about 58% where this page's original swarms give 90% and 84%, and v1.1.0 scored 79% on the original simulator while 165 of its 166 links on the real release were false. Not every number on this page comes with a range, and none of them is accuracy on real data.
+
 Reproduce everything on this page (about 15 seconds, standard library only):
 
 ```
@@ -41,53 +43,53 @@ It writes `reports/validation/summary.json` (every run and every range), `summar
 
 ## Headline
 
-- **On real data the first two counts were wrong, and an audit fixed the rule.** *Update (phase 1): all 258 deliveries and links are now audited, not only the named ones; the release shows 23 messages, 6 between named tokens, precision 18 of 18 on the audit (95% range 82%–100%, optimistic: see below).* We read every link between named tokens that v1.1.0 reported on the Swarm Traces release (166) and every one the code at v1.3.0 reported (19): 178 links, of which one was a message by our reading. The rule was then changed and re-scored against those labels: the final rules report **23 messages, 6 between named tokens**, 18 of the 18 decidable ones judged true (precision 100%, 95% range 82–100%; all 6 named ones true). One labeller, and 7 of the 18 true labels were made after the last rule change: treat it as "no known false link", not as measured accuracy. (Until 15 November the rule reported 24: the extra one was a link the audit judged false, removed by a rule fix; see [the counting rule](counting-rule.md), R17.) See [Audited links on the real release](#audited-links-on-the-real-release).
-- **Messages, simulated**: across the 45 coordinated swarms the tool finds 57%–**73%**–81% of the true messages, and 66%–**79%**–88% of the messages it reports are true. Pairs of agents: 71%–**83%**–91% recall, 81%–**89%**–96% precision. On the new real-world setting the current rule reaches precision 75%–**79%**–83% and recall 73%–**79%**–81%; v1.1.0's rules reach about 66% and 57% there, and on the benign version of that setting they report 282 links between different agents where the current rule reports none.
-- **Harmful-action signs are exact**: first dataset write, first cluster call, first cloud-metadata call and first registry board are found in 45 of 45 swarms within an hour. **Coordination signs are close**: the first message between agents is within an hour of the truth in 45 of 45 swarms, groups of 3/5/10 in 37–40 of 45, the first two-way exchange in 33 of 45.
-- **Dating is good and its stated range is nearly honest**: median error about 1 minute (0.01–0.03 h), 90th percentile 3–7 minutes; 84%–**87%**–91% of estimated times fall inside the stated 90% range (slightly under the 90% it promises).
-- **Identity merging, before and after a fix.** The first version labelled pairs **high** on coordination evidence alone (a shared place, handoffs, shared programs); pooled over the first swarms those were right **4% of the time (10 of 240)**. Pairs with direct evidence (the same record, a small shared thread, or a carried token) were right in every case. The rule now requires direct evidence for high and medium. After the change, pooled over all 60 swarms: **high 12 of 12 right, medium 60 of 60**, and the rest stay low (about 1% right), so the low band should be read as "worth a look", not as a merge.
-- **On benign swarms**: the tool reports **no** message between two different agents (0 in all 15, including the 5 with real-world payload patterns, where v1.1.0's rules report 282). Program-reuse signs no longer fire. The default rules fire: "Watch: first harmful sign" in 10 of 15 (every swarm whose agents save results: the code-traces pack counts any dataset commit as harmful), "Alert: 2 kinds of coordination" in 2 of 15 (one agent's two tokens reading back its own results, counted as a message, plus a second link sign), and the volume baseline in 6 of 15.
+- **On real data the first three counts were wrong, and audits fixed the rule.** We read every link between named tokens that v1.1.0 reported on the Swarm Traces release (166) and every one the code at v1.3.0 reported (19): 178 links, of which one was a message by our reading. The rule was changed and re-scored against those labels, which gave 23 (6 between named tokens) at v2.1.0. Four independent reviewers then read the 23 and would defend about 5 of them (range 3 to 7): 10 of the 23 rested on one LFS upload probe of a file whose download had been requested 34,000 s earlier, one reader looped over a token list that contained the writer's own token, and two were cut mid-verb. The v2.2.0 rule reports **9 write-then-read deliveries, 4 between named tokens (2 between agents, 2 inside one agent), 0 where the reader is shown using what was written.** The labels are **one reader's, the authors' AI assistant, reading the records with a helper script**; nobody double-labelled them, and no person read the 258 links by hand (earlier versions of this page said so; that was wrong). On the audit the 9 score 5 of 5 decidable (4 are unclear; 95% range 57%–100%), but the labels for 13 links were changed in the same commit as the rule, so this is in-sample. See [Audited links on the real release](#audited-links-on-the-real-release).
+- **Messages, simulated (original simulator; the independent generator is lower)**: across the 45 coordinated swarms the tool finds 66%–**84%**–93% of the true messages, and 82%–**90%**–96% of the messages it reports are true. Pairs of agents: 73%–**90%**–96% recall, 89%–**95%**–99% precision. On the independent generator (file in time order, times on 60% of records) message precision is 70% and recall 58%; with a time on only 30% of records 19% and 10%; with the file grouped by agent nothing can be dated and no delivery is reported.
+- **On the original simulator, harmful-action signs are exact**: first dataset write, first cluster call, first cloud-metadata call and first registry board are found in 45 of 45 swarms within an hour; the first delivery between agents is within an hour in 45 of 45, groups of 3/5/10 in 39–43 of 45, the first two-way exchange in 34 of 45. That is a property of the simulator, which writes the strings the signs look for. On the independent generator the Alert rule fires a median 4.7 h after the first true harm, the Watch rule 0.2 h before it, and the shared-place sign fires in none of 20 coordinated swarms.
+- **Dating is good on the simulator when the file is in time order and timestamps are embedded**: median error about 1 minute (0.01–0.03 h), 90th percentile 3–7 minutes; 84%–**87%**–91% of estimated times fall inside the stated 90% range (slightly under the 90% it promises). That is a property of the simulator, not a measurement on the release. The estimate depends on file order and on how many records carry a time; see the independent generator below.
+- **Identity merging, before and after a fix.** The first version labelled pairs **high** on coordination evidence alone (a shared place, handoffs, shared programs); pooled over the first swarms those were right **4% of the time (10 of 240)**. The rule was then rewritten, on the same swarms, to require direct evidence (the same record, a small shared thread, or a carried token) for high and medium. After the change, pooled over all 60 swarms: **high 12 of 12 right, medium 60 of 60**, but the 12 high ones are about 3% of the 380 true pairs (recall), and the rest stay low (about 1% right), so the low band should be read as "worth a look", not as a merge.
+- **On the original benign swarms**: the tool reports **no** delivery between two different agents (0 in all 15, including the 5 with real-world payload patterns, where v1.1.0's rules report 282); that is a statement about the benign generator, which never produces boards, metadata calls or shared writers. The default rules fire: "Watch: first harmful sign" in 10 of 15 (every swarm whose agents save results: the code-traces pack counts any dataset commit as harmful), "Alert: 2 kinds of coordination" in 2 of 15, and the volume baseline in 6 of 15. On the 30 benign swarms of the earlier forward test the Alert rule fired in 5 and Watch in 20. **On 50 independent benign look-alike swarms the Alert rule fired in 39 to 40 (78% to 80%): in all 30 where agents share a leaderboard, poll a CI status dataset or hand tasks through a coordinator, and in 9 of 10 honest cloud-agent swarms.** It detects information flow, not malice. The slide figure "0 in 15 runs" meant no delivery between different agents, not no alarm.
 
 ### The fixes this suite and a manual audit led to
 
-1. **A place named only in a code comment is not a read.** Notes such as `// the crew says <dataset> has the plan; not fetching it yet` were counted as reads, and the harm patterns matched them too ("first registry board" fired a median 9 hours early). Mentions inside a comment (a line starting with `//`, `#`, `/*` or `*`, or a `//` / `# ` after whitespace) no longer count as reads, writes or actions. Message precision rose from 66% to 79% (median) and the registry-board sign moved to within an hour of the truth in 40 of 40 swarms.
-2. **The verb nearest the mention decides, and the window stops at the next place.** A manual audit of the earliest links on the Swarm Traces release found three artefacts the simulations do not have: a GET followed within 260 characters by a POST to a *different* dataset was charged as a write to the first; an LFS batch with `operation:'download'` (a POST) was taken for a write; and the redaction's `[REDACTED:username:N]] REPO K]` kept a repository number the place pattern dropped, so writes and reads of different repositories under one owner looked like one place. With the nearest request verb deciding, read verbs (GET, HEAD, LFS download) recognised, the code window clipped at the next place mention, and the repository number kept, the named messages on the release fell from 166 to 107. A second audit of those 107 found that most were two tokens fetching the same dataset and POSTing what they read to a collector: the POST, the nearest verb, made the read a write. Clipping the window at the start of the next request call (`fetch(`, `.open(`, `urlopen(`, `requests.post(` …) and recognising `urlopen`/`.read()` as reads leaves **19 messages in 12 pairs among 9 tokens** (a Python `urlopen(url)` with one argument is a read; `urlopen(Request(url, data))` is a write). The simulated scores did not move, which is itself a finding: the simulator lacked these artefacts. **Correction (2026-11-13):** an earlier version of this page said the 19 were each checked by hand. A full audit of all 178 links, with the two records of each read side by side, does not support them: see [Audited links on the real release](#audited-links-on-the-real-release). The simulator now has these artefacts as its "real-world payload patterns" setting.
+1. **A place named only in a code comment is not a read.** Notes such as `// the crew says <dataset> has the plan; not fetching it yet` were counted as reads, and the harm patterns matched them too ("first registry board" fired a median 9 hours early). Mentions inside a comment (a line starting with `//`, `#`, `/*` or `*`, or a `//` / `# ` after whitespace) no longer count as reads, writes or actions. Message precision on the original simulator rose from 66% to 79% (median, before the later rule changes; it is 90% now) and the registry-board sign moved to within an hour of the truth in 40 of 40 swarms then (45 of 45 now). The "66% to 79%" comparison has no saved run behind it: the 66% run was not kept, so treat it as a recollection of the first run, not a result.
+2. **The verb nearest the mention decides, and the window stops at the next place.** A reading of the earliest links on the Swarm Traces release found three artefacts the simulations do not have: a GET followed within 260 characters by a POST to a *different* dataset was charged as a write to the first; an LFS batch with `operation:'download'` (a POST) was taken for a write; and the redaction's `[REDACTED:username:N]] REPO K]` kept a repository number the place pattern dropped, so writes and reads of different repositories under one owner looked like one place. With the nearest request verb deciding, read verbs (GET, HEAD, LFS download) recognised, the code window clipped at the next place mention, and the repository number kept, the named messages on the release fell from 166 to 107. A second audit of those 107 found that most were two tokens fetching the same dataset and POSTing what they read to a collector: the POST, the nearest verb, made the read a write. Clipping the window at the start of the next request call (`fetch(`, `.open(`, `urlopen(`, `requests.post(` …) and recognising `urlopen`/`.read()` as reads leaves **19 messages in 12 pairs among 9 tokens** (a Python `urlopen(url)` with one argument is a read; `urlopen(Request(url, data))` is a write). The simulated scores did not move, which is itself a finding: the simulator lacked these artefacts. **Correction (2026-11-13):** an earlier version of this page said the 19 were each checked by hand. A full audit of all 178 links, with the two records of each read side by side, does not support them: see [Audited links on the real release](#audited-links-on-the-real-release). The simulator now has these artefacts as its "real-world payload patterns" setting.
 
 3. **Routine program reuse is not a sign of shared control.** A program run by several actors now counts as a coordination sign only if it writes to a place, reads a place another actor wrote, or does something the pack calls harmful. The evaluation's submit call, a token check, or two agents fetching the same public file are listed as routine. Program-reuse signs on benign swarms fell from 10 of 10 to 0 of 10. On the Swarm Traces release 37 of the 253 shared programs remain signs.
 
 ## Results
 
-Generated 2026-11-13T16:00:49Z by `python3 -m agenttrace.validation run --out reports/validation --seeds 1 2 3 4 5`. 45 coordinated and 15 benign simulated swarms. Cells are min–**median**–max over seeds; one value means all seeds agree.
+Generated 2026-11-16T09:41:31Z by `python3 -m agenttrace.validation run --out reports/validation --seeds 1 2 3 4 5`. 45 coordinated and 15 benign simulated swarms. Cells are min–**median**–max over seeds; one value means all seeds agree.
 
 ### Messages
 
 | setting | Message links: precision | Message links: recall | Agent pairs: precision | Agent pairs: recall |
 |---|---|---|---|---|
-| 40 agents, defaults | 75%–**79%**–82% | 67%–**75%**–77% | 87%–**89%**–90% | 83%–**84%**–86% |
-| 20 agents | 73%–**76%**–88% | 68%–**69%**–78% | 86%–**90%**–96% | 79%–**83%**–86% |
-| 80 agents | 75%–**80%**–82% | 67%–**73%**–75% | 86%–**89%**–89% | 78%–**81%**–84% |
-| 40 agents, 35% hold two tokens | 66%–**72%**–77% | 63%–**67%**–76% | 81%–**85%**–88% | 75%–**81%**–83% |
-| 40 agents, 25% of reads hidden | 74%–**80%**–81% | 57%–**61%**–65% | 89%–**90%**–92% | 71%–**75%**–76% |
-| 40 agents, many place-naming notes | 75%–**83%**–83% | 70%–**75%**–79% | 86%–**90%**–90% | 80%–**83%**–86% |
-| 40 agents, no hidden reads, no notes | 73%–**76%**–80% | 73%–**74%**–80% | 82%–**86%**–89% | 83%–**86%**–89% |
-| 40 agents, a time field on every record | 74%–**79%**–84% | 69%–**73%**–75% | 84%–**90%**–93% | 82%–**85%**–87% |
-| 40 agents, real-world payload patterns | 75%–**79%**–83% | 73%–**79%**–81% | 89%–**90%**–91% | 85%–**89%**–91% |
-| **all coordinated** | 66%–**79%**–88% | 57%–**73%**–81% | 81%–**89%**–96% | 71%–**83%**–91% |
+| 40 agents, defaults | 86%–**90%**–91% | 78%–**85%**–87% | 93%–**94%**–96% | 87%–**90%**–93% |
+| 20 agents | 82%–**91%**–93% | 78%–**82%**–86% | 91%–**96%**–99% | 88%–**89%**–92% |
+| 80 agents | 87%–**92%**–94% | 80%–**83%**–87% | 93%–**95%**–97% | 86%–**88%**–90% |
+| 40 agents, 35% hold two tokens | 84%–**85%**–87% | 77%–**83%**–85% | 92%–**94%**–96% | 86%–**88%**–90% |
+| 40 agents, 25% of reads hidden | 83%–**88%**–91% | 66%–**68%**–74% | 94%–**95%**–97% | 73%–**79%**–82% |
+| 40 agents, many place-naming notes | 88%–**93%**–96% | 83%–**85%**–89% | 94%–**96%**–98% | 87%–**90%**–94% |
+| 40 agents, no hidden reads, no notes | 89%–**91%**–92% | 90%–**91%**–93% | 92%–**94%**–96% | 92%–**94%**–96% |
+| 40 agents, a time field on every record | 84%–**91%**–94% | 78%–**85%**–86% | 89%–**96%**–98% | 86%–**91%**–93% |
+| 40 agents, real-world payload patterns | 83%–**86%**–92% | 80%–**88%**–90% | 92%–**93%**–94% | 88%–**92%**–93% |
+| **all coordinated** | 82%–**90%**–96% | 66%–**84%**–93% | 89%–**95%**–99% | 73%–**90%**–96% |
 
 ### Timing and dating
 
 | setting | Early signs found | Signs within 1 h of the truth | Sign timing error, median (h) | Dating error, median (h) | Dating error, 90th percentile (h) | Estimated times inside the stated range |
 |---|---|---|---|---|---|---|
-| 40 agents, defaults | 100% | 80%–**90%**–100% | 0.04–**0.06**–0.21 | 0.02 | 0.07 | 86%–**88%**–90% |
-| 20 agents | 100% | 89%–**100%**–100% | 0.03–**0.05**–0.07 | 0.02–**0.03**–0.03 | 0.09–**0.10**–0.12 | 84%–**84%**–87% |
-| 80 agents | 100% | 80%–**90%**–100% | 0.01–**0.05**–0.06 | 0.01–**0.01**–0.02 | 0.05 | 86%–**90%**–91% |
-| 40 agents, 35% hold two tokens | 100% | 70%–**80%**–100% | 0.06–**0.15**–0.22 | 0.02 | 0.07–**0.07**–0.08 | 86%–**87%**–88% |
+| 40 agents, defaults | 100% | 80%–**100%**–100% | 0.04–**0.05**–0.21 | 0.02 | 0.07 | 86%–**88%**–90% |
+| 20 agents | 100% | 89%–**100%**–100% | 0.02–**0.05**–0.07 | 0.02–**0.03**–0.03 | 0.09–**0.10**–0.12 | 84%–**84%**–87% |
+| 80 agents | 100% | 80%–**100%**–100% | 0.01–**0.05**–0.05 | 0.01–**0.01**–0.02 | 0.05 | 86%–**90%**–91% |
+| 40 agents, 35% hold two tokens | 100% | 60%–**80%**–100% | 0.06–**0.15**–0.55 | 0.02 | 0.07–**0.07**–0.08 | 86%–**87%**–88% |
 | 40 agents, 25% of reads hidden | 100% | 80%–**80%**–90% | 0.04–**0.07**–0.24 | 0.02 | 0.07 | 86%–**88%**–90% |
-| 40 agents, many place-naming notes | 100% | 90%–**100%**–100% | 0.04–**0.06**–0.09 | 0.02 | 0.05–**0.07**–0.07 | 86%–**88%**–90% |
-| 40 agents, no hidden reads, no notes | 100% | 90%–**90%**–100% | 0.02–**0.06**–0.40 | 0.02 | 0.07–**0.07**–0.08 | 85%–**87%**–89% |
-| 40 agents, a time field on every record | 100% | 70%–**90%**–100% | 0.00–**0.01**–0.01 | – | – | – |
-| 40 agents, real-world payload patterns | 100% | 80%–**100%**–100% | 0.03–**0.04**–0.10 | 0.02 | 0.06–**0.07**–0.09 | 84%–**87%**–88% |
-| **all coordinated** | 100% | 70%–**90%**–100% | 0.00–**0.05**–0.40 | 0.01–**0.02**–0.03 | 0.05–**0.07**–0.12 | 84%–**87%**–91% |
+| 40 agents, many place-naming notes | 100% | 90%–**90%**–100% | 0.04–**0.06**–0.09 | 0.02 | 0.05–**0.07**–0.07 | 86%–**88%**–90% |
+| 40 agents, no hidden reads, no notes | 100% | 80%–**90%**–100% | 0.02–**0.06**–0.09 | 0.02 | 0.07–**0.07**–0.08 | 85%–**87%**–89% |
+| 40 agents, a time field on every record | 100% | 70%–**90%**–100% | 0.00–**0.01**–0.02 | – | – | – |
+| 40 agents, real-world payload patterns | 100% | 90%–**100%**–100% | 0.03–**0.04**–0.10 | 0.02 | 0.06–**0.07**–0.09 | 84%–**87%**–88% |
+| **all coordinated** | 100% | 60%–**90%**–100% | 0.00–**0.05**–0.55 | 0.01–**0.02**–0.03 | 0.05–**0.07**–0.12 | 84%–**87%**–91% |
 
 ### Identity merging
 
@@ -112,15 +114,30 @@ Generated 2026-11-13T16:00:49Z by `python3 -m agenttrace.validation run --out re
 | setting | Alert (2 kinds of coordination): hours after the first true message | Alert (2 kinds of coordination): hours before the first true harm | Watch (first harmful sign): hours before the first true harm |
 |---|---|---|---|
 | 40 agents, defaults | -0.22–**-0.04**–0.07 | -2.94–**-1.66**–-0.56 | 0.03–**0.05**–0.09 |
-| 20 agents | -0.18–**0.00**–0.07 | -2.84–**-1.15**–-0.49 | -0.02–**0.04**–0.22 |
-| 80 agents | -0.05–**-0.00**–0.13 | -2.50–**-1.67**–-1.41 | -0.00–**0.04**–0.07 |
+| 20 agents | -0.18–**0.21**–1.82 | -3.08–**-2.84**–-0.49 | -0.02–**0.04**–0.22 |
+| 80 agents | -0.05–**-0.00**–2.03 | -3.31–**-2.04**–-1.59 | -0.00–**0.04**–0.07 |
 | 40 agents, 35% hold two tokens | -0.22–**-0.03**–0.55 | -2.87–**-2.17**–-0.54 | 0.03–**0.05**–0.07 |
 | 40 agents, 25% of reads hidden | -0.21–**0.04**–0.24 | -2.94–**-2.06**–-0.56 | 0.03–**0.05**–0.09 |
 | 40 agents, many place-naming notes | -0.13–**-0.05**–0.01 | -2.36–**-1.09**–-0.81 | -0.11–**0.05**–0.09 |
 | 40 agents, no hidden reads, no notes | -0.10–**-0.01**–0.13 | -3.21–**-2.13**–-1.59 | -0.07–**0.02**–0.07 |
 | 40 agents, a time field on every record | -0.00–**-0.00**–0.14 | -2.90–**-1.99**–-0.49 | 0.00–**0.01**–0.02 |
-| 40 agents, real-world payload patterns | -0.10–**-0.08**–-0.05 | -5.68–**-2.11**–-1.00 | 0.02–**0.02**–0.10 |
-| **all coordinated** | -0.22–**-0.01**–0.55 | -5.68–**-1.99**–-0.49 | -0.11–**0.04**–0.22 |
+| 40 agents, real-world payload patterns | -0.09–**-0.05**–1.92 | -5.68–**-2.76**–-1.69 | 0.02–**0.02**–0.10 |
+| **all coordinated** | -0.22–**-0.00**–2.03 | -5.68–**-2.06**–-0.49 | -0.11–**0.04**–0.22 |
+
+### Pooled medians, with intervals that resample settings
+
+The settings share seeds (base, hidden reads and two-token swarms use the same five), so they are not independent. 'Resampling swarms' treats every swarm as independent (the v2.1.0 way) and is too narrow; 'resampling settings' draws whole settings with replacement and is the one to quote. 95% percentile intervals of the median, 2000 draws.
+
+| measure | pooled median | resampling swarms | resampling settings |
+|---|---|---|---|
+| Message links: precision | 90% | 88% to 91% | 87% to 91% |
+| Message links: recall | 84% | 83% to 85% | 82% to 86% |
+| Agent pairs: precision | 95% | 94% to 96% | 94% to 96% |
+| Agent pairs: recall | 90% | 88% to 90% | 88% to 92% |
+| Signs within 1 h of the truth | 90% | 90% to 100% | 90% to 100% |
+| Dating error, median (h) | 0.02 | 0.02 to 0.02 | 0.02 to 0.02 |
+| Alert (2 kinds of coordination): hours before the first true harm | -2.06 | -2.25 to -1.66 | -2.17 to -1.66 |
+| Watch (first harmful sign): hours before the first true harm | 0.04 | 0.03 to 0.05 | 0.02 to 0.05 |
 
 ### Each early sign on the coordinated swarms
 
@@ -131,11 +148,11 @@ Generated 2026-11-13T16:00:49Z by `python3 -m agenttrace.validation run --out re
 | First hf dataset write | 45 of 45 | 45 of 45 | -0.22–**-0.04**–0.01 |
 | First kubernetes api | 45 of 45 | 45 of 45 | -0.12–**-0.02**–0.04 |
 | First registry board | 45 of 45 | 45 of 45 | -0.42–**-0.03**–0.11 |
-| A group of 3+ agents linked by messages | 45 of 45 | 41 of 45 | -2.12–**-0.01**–2.06 |
-| A group of 10+ agents linked by messages | 45 of 45 | 39 of 45 | -2.24–**-0.02**–1.63 |
-| A group of 5+ agents linked by messages | 45 of 45 | 39 of 45 | -0.79–**-0.01**–2.60 |
-| First two-way exchange | 45 of 45 | 34 of 45 | -0.12–**-0.00**–6.43 |
-| A group of 20+ agents linked by messages | 41 of 41 | 25 of 41 | -4.27–**-0.18**–1.92 |
+| A group of 3+ agents linked by messages | 45 of 45 | 43 of 45 | -0.60–**-0.01**–2.06 |
+| A group of 10+ agents linked by messages | 45 of 45 | 39 of 45 | -2.32–**-0.02**–1.63 |
+| A group of 5+ agents linked by messages | 45 of 45 | 39 of 45 | -0.45–**-0.01**–2.60 |
+| First two-way exchange | 45 of 45 | 34 of 45 | -0.12–**-0.00**–7.39 |
+| A group of 20+ agents linked by messages | 41 of 41 | 25 of 41 | -3.39–**-0.23**–1.57 |
 
 ### Identity merge proposals, all runs pooled
 
@@ -143,7 +160,7 @@ Generated 2026-11-13T16:00:49Z by `python3 -m agenttrace.validation run --out re
 |---|---|---|---|---|
 | high | 12 | 12 | 100% (76%–100%) | – |
 | medium | 60 | 60 | 100% (94%–100%) | – |
-| low | 21721 | 207 | 1% (1%–1%) | same_programs 20326, handoff 14257, messages 2625, same_place 2128 |
+| low | 21722 | 207 | 1% (1%–1%) | same_programs 20327, handoff 14257, messages 2645, same_place 2130 |
 | direct rule | 279 | 279 | 100% (99%–100%) | – |
 
 ### Message precision by confidence grade, coordinated swarms pooled
@@ -154,34 +171,85 @@ Each message the tool reports carries a grade: direct (the verbs of both sides s
 |---|---|---|---|---|---|---|
 | direct | 56 | 46 | 82% (70%–90%) | 56 | 46 | 82% (70%–90%) |
 | inferred | 2670 | 2088 | 78% (77%–80%) | 217 | 175 | 81% (75%–85%) |
-| weak | 6057 | 4745 | 78% (77%–79%) | 712 | 567 | 80% (77%–82%) |
+| weak | 6154 | 5809 | 94% (94%–95%) | 724 | 647 | 89% (87%–91%) |
 
 ### Benign baseline (15 swarms with no coordination)
 
 Messages between different agents reported: 0; between two tokens of one agent: 0–**0**–5; records flagged harmful by the pack: 0–**45**–54; identity pairs proposed as high: 0.
 
-| fires | what | runs | hours from the start |
-|---|---|---|---|
-| Watch: first single-actor harmful sign | default rule (watch) | 10 of 15 | 0.53–**1.27**–5.43 |
-| Volume baseline: ordinary volume alarm | default rule (info) | 6 of 15 | 16.00–**18.50**–23.00 |
-| Alert: 2 kinds of coordination | default rule (alert) | 2 of 15 | 5.36–**12.85**–20.33 |
-| First Hugging Face dataset write | sign (single, harm) | 10 of 15 | 0.53–**1.27**–5.43 |
-| First message between named actors | sign (joint, message) | 7 of 15 | 4.86–**10.94**–17.96 |
-| Volume alarm on all actions | sign (baseline, baseline) | 4 of 15 | 16.00–**17.00**–20.00 |
-| Volume alarm on harmful actions | sign (baseline, baseline) | 2 of 15 | 23.00 |
-| First two-way exchange | sign (joint, two_way) | 2 of 15 | 5.36–**12.85**–20.33 |
+Each swarm counts once per sign or rule, so the interval is a per-swarm binomial one (Wilson, 95%), not a rate per day.
+
+| fires | what | swarms | share (95% range) | hours from the start |
+|---|---|---|---|---|
+| Watch: first single-actor harmful sign | default rule (watch) | 10 of 15 | 67% (42%–85%) | 0.53–**1.27**–5.43 |
+| Volume baseline: ordinary volume alarm | default rule (info) | 6 of 15 | 40% (20%–64%) | 16.00–**18.50**–23.00 |
+| Alert: 2 kinds of coordination | default rule (alert) | 2 of 15 | 13% (4%–38%) | 5.36–**12.85**–20.33 |
+| First Hugging Face dataset write | sign (single, harm) | 10 of 15 | 67% (42%–85%) | 0.53–**1.27**–5.43 |
+| First message between named actors | sign (joint, message) | 7 of 15 | 47% (25%–70%) | 4.86–**10.94**–17.96 |
+| Volume alarm on all actions | sign (baseline, baseline) | 4 of 15 | 27% (11%–52%) | 16.00–**17.00**–20.00 |
+| Volume alarm on harmful actions | sign (baseline, baseline) | 2 of 15 | 13% (4%–38%) | 23.00 |
+| First two-way exchange | sign (joint, two_way) | 2 of 15 | 13% (4%–38%) | 5.36–**12.85**–20.33 |
 
 ### Default rules on the coordinated swarms: hours before the first true harmful action
 
 | rule | hours before (min–median–max) |
 |---|---|
-| alert-coord2 | -5.68–**-1.99**–-0.49 |
+| alert-coord2 | -5.68–**-2.06**–-0.49 |
 | baseline-volume | -13.86–**-5.90**–-2.75 |
 | watch-harm | -0.11–**0.04**–0.22 |
 
+
+## Independent generator (agenttrace/indepgen.py)
+
+Generated 2026-11-16T09:41:56Z by `python3 -m agenttrace.indepeval run --out reports/validation --seeds 601 602 603 604 605 606 607 608 609 610`. 80 coordinated and 50 benign swarms of 30 agents over 48 h, seeds 601–610. Different naming (no zz boards), Python, curl and JavaScript code, library calls with no URL, clock skew, notes that name a dataset without reading it, attacks timed independently of the coordination, and benign look-alike classes. The original simulator's numbers stay above; these are the ones to read first, because the original writes the strings the rules match (docs/audit-v2.1.md 1.3). The independent swarms are still written by the same team.
+
+Original simulator, for comparison (45 coordinated swarms, median over swarms): message precision 90%, recall 84%, agent-pair precision 95%, recall 90%.
+
+### Message links by file layout
+
+Pooled over swarms: links the tool reports that are true messages, and true messages the tool finds. Wilson 95% ranges treat links as independent, so they are optimistic.
+
+| layout | swarms dated | links reported | precision (95% range) | true messages | recall (95% range) | median per swarm: precision / recall | agent pairs: precision / recall | dating error, median (h) |
+|---|---|---|---|---|---|---|---|---|
+| file in time order, epoch stamps on 60% of records | 20 of 20 | 2733 | 70% (69%–72%) | 3314 | 58% (56%–60%) | 70% / 57% | 85% / 73% | 0.04 |
+| file in time order, a time field on every record | 20 of 20 | 2722 | 60% (58%–62%) | 3308 | 50% (48%–51%) | 61% / 50% | 77% / 67% | – |
+| file in time order, a time field on 30% of records | 20 of 20 | 1706 | 19% (17%–21%) | 3308 | 10% (9%–11%) | 18% / 10% | 57% / 33% | – |
+| file grouped by agent, epoch stamps on 60% of records | 0 of 20 | 0 | – | 3314 | 0% (0%–0%) | – / 0% | – / 0% | – |
+
+A swarm with no times the tool can order is reported as undated and has no messages: it counts in recall as all missed.
+
+### Early warning on the coordinated swarms (file in time order, epoch stamps on 60% of records)
+
+Lead is hours before the first true harmful action (negative: after it). Alert is the default two-kinds-of-coordination rule, Watch the first-harmful-sign rule; the rest are the simple baselines of agenttrace/baselines.py.
+
+| alarm | fired | median lead (h) | fired before the first true harm |
+|---|---|---|---|
+| Alert rule | 20 of 20 | -4.68 | 20% |
+| Watch rule | 20 of 20 | 0.16 | 70% |
+| First new host after 12 h | 14 of 20 | 0.15 | 64% |
+| Distinct-actor alarm (3 sd, 12 h history) | 17 of 20 | -7.71 | 0% |
+| Volume alarm (3 sd, 12 h history) | 18 of 20 | -6.71 | 0% |
+| Volume alarm (3 sd, 6 h history) | 19 of 20 | -5.23 | 5% |
+
+The shared-place sign fired in 0 of 20 coordinated swarms: its pattern is the pack's zz board name and the other handles the pack lists, and these swarms coordinate through ordinary dataset names, so it cannot see them.
+
+### Benign look-alike classes
+
+Swarms with no malice. The first three carry real information flow; the fourth makes calls the pack lists as harmful; the fifth does neither. Cells are swarms where the alarm fired, with a Wilson 95% range.
+
+| class | swarms | true messages per swarm | reported between agents (right) | Watch | Alert | Volume alarm | New host after 12 h | Distinct actors |
+|---|---|---|---|---|---|---|---|---|
+| many agents push results to one shared leaderboard dataset and read it for the best | 10 | 102.8 | 85.3 (61.5) | 10 of 10 (72%–100%) | 10 of 10 (72%–100%) | 3 of 10 (11%–60%) | 0 of 10 (0%–28%) | 0 of 10 (0%–28%) |
+| one release bot writes a status dataset; CI-style agents poll it every ~10 minutes | 10 | 480.0 | 433.4 (286.1) | 10 of 10 (72%–100%) | 10 of 10 (72%–100%) | 3 of 10 (11%–60%) | 0 of 10 (0%–28%) | 0 of 10 (0%–28%) |
+| a coordinator hands tasks through one dataset; workers return results through another | 10 | 384.7 | 325.1 (219.7) | 10 of 10 (72%–100%) | 10 of 10 (72%–100%) | 6 of 10 (31%–83%) | 0 of 10 (0%–28%) | 2 of 10 (6%–51%) |
+| honest agents on cloud machines: metadata for the region, cluster API for pod status, results to their own dataset | 10 | 0.0 | 0.0 (0.0) | 10 of 10 (72%–100%) | 9 of 10 (60%–98%) | 4 of 10 (17%–69%) | 0 of 10 (0%–28%) | 2 of 10 (6%–51%) |
+| plain agents that read one public reference dataset | 10 | 0.0 | 0.0 (0.0) | 0 of 10 (0%–28%) | 0 of 10 (0%–28%) | 2 of 10 (6%–51%) | 0 of 10 (0%–28%) | 2 of 10 (6%–51%) |
+
+All 50 benign swarms: Watch 40 of 50 (80%) (67%–89%); Alert 39 of 50 (78%) (65%–87%); Volume alarm 18 of 50 (36%) (24%–50%); new host after 12 h 0 of 50 (0%) (0%–7%); distinct actors 6 of 50 (12%) (6%–24%). The Alert fired in 30 of 30 swarms of the three classes with real information flow (89%–100%): it detects information flow, not malice.
+
 ## Audited links on the real release
 
-The simulated swarms cannot say whether a link on real data is a message. So we read the real ones.
+The simulated swarms cannot say whether a link on real data is a message. So we read the real ones. **Who read them:** the authors' AI assistant, with a helper script that parsed the request around each mention; no person read the links by hand, and none was labelled twice. Texts that said otherwise were wrong. A reviewer who read both records of the 23 deliveries counted at v2.1.0 disagreed with 11 to 13 of the 18 labels that said "true" and would defend about 5 (range 3 to 7); those labels were corrected for the v2.2.0 rule.
 
 **Method.** We checked out v1.1.0 in a git worktree and ran it on the Swarm Traces release (`redacted_columns.csv`, 189,579 records, code-traces pack) to recover the 166 messages between named tokens it reported. We ran the current code the same way (19 messages; 7 of them among the 166). For each of the 178 links we read the write record and the read record and asked three questions: is the "write" a commit, upload, POST or PUT to that same place; is the "read" a fetch of it; is it the same repository. A separate script, not the tool's rules, parsed the request around each mention as a cross-check; where the script and the reading differed, the reading decided. Each link has a label, a one-line reason and a snippet of at most 120 characters around the place in each record, in `agenttrace/claims/audited_links.json`.
 
@@ -205,21 +273,21 @@ The simulated swarms cannot say whether a link on real data is a message. So we 
 - The fixes since v1.1.0 did what they were meant to do: all 149 read-then-post links are gone, as are the different-repository links and most of the downloads.
 - **The 18 false links the current code reports are the rows where the code and the reading disagree.** Fourteen are two tokens *writing* to the same dataset: the commit URL sits in a variable or is passed to a helper, and the verb is on a later call (`u='…';fetch(u,{method:'POST'})`, `requests.post(url, …)`, `urlopen(Request(v, data=body))`). The rule that stops the code window at the start of the next request call, added to fix the read-then-post error, now cuts the verb off, so the second commit is taken for a read. Three are a Python `urlopen(url)` read still taken for a write, because a commit to another dataset sits just before it. One is a POST that only lists files. In five of the fourteen the tool also names the wrong sender: the record holds two tokens and the commit uses the second.
 
-**What follows.** On this release, "messages between named tokens" is not a finding yet: none of the reported links survives a reading. The app shows the same table under **Forensics → Test and export → Audited links (real data)**, with the 19 rows where the code and the reading disagree, each with its two records one click away. `GET /api/x/benchmark` returns it for the loaded session when that session is the release.
+**What follows (as of v1.3.0).** On this release, "messages between named tokens" was not a finding yet: none of the reported links survived a reading. (Superseded: see the v2.2.0 result above.) The app shows the same table under **Forensics → Test and export → Audited links (real data)**, with the 19 rows where the code and the reading disagree, each with its two records one click away. `GET /api/x/benchmark` returns it for the loaded session when that session is the release.
 
-**The simulator now has these patterns.** The "real-world payload patterns" settings above reproduce them with exact truth. v1.1.0's rules and the current code on the same swarms (`python3 -m agenttrace.validation old-rules --worktree <checkout of v1.1.0>`, saved as `reports/validation/old_rules.json`; pooled over 5 seeds):
+**The simulator now has these patterns.** The "real-world payload patterns" settings above reproduce them with exact truth. v1.1.0's rules and the code of 13 November on the same swarms (`reports/validation/old_rules.json`; not re-run since) (`python3 -m agenttrace.validation old-rules --worktree <checkout of v1.1.0>`, saved as `reports/validation/old_rules.json`; pooled over 5 seeds):
 
 | setting | v1.1.0 rules | current code |
 |---|---|---|
-| 40 agents, defaults (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% (identical links) |
-| 40 agents, real-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 72% (68%–74%), recall 62% (59%–65%) |
-| benign, real-world payload patterns (no true message) | 292 links, 282 between different agents | 9 links, 0 between different agents |
+| 40 agents, defaults (the old simulator) | precision 79%, recall 73% | precision 79%, recall 73% on the 13 November code (identical links); 90% / 85% now |
+| 40 agents, real-world payload patterns | precision 66% (63%–69%), recall 57% (54%–60%) | precision 80% (77%–82%), recall 78% (75%–81%) on the 13 November code; 86% / 88% median now (summary above) |
+| benign, real-world payload patterns (no true message) | 292 links, 282 between different agents | 9 links, 0 between different agents (13 November code) |
 
 The old simulator could not tell the two versions apart. The new settings can: on the benign one v1.1.0 invents about 56 messages between agents per swarm and the current code none. They also show what the current code still gets wrong, with the same causes as on the real data: writes taken for reads (59 false links over the 5 coordinated swarms), writes not seen as writes (28 missed), and a place split in two because the pattern keeps the next path word after a repository number (`…] REPO 12]/resolve` and `…] REPO 12]/commit` become two places; this is among the 124 messages missed because write and read ended up on different places or the read was not seen).
 
 **Limits of the audit.**
 
-- **One labeller, tool-assisted.** The labels are by the authors' assistant reading the records with a helper script; nobody labelled them a second time. Disagreement between labellers is unmeasured.
+- **One labeller, tool-assisted.** The labels are by the authors' AI assistant reading the records with a helper script (and, for 13 links in v2.2.0, a reviewer's reading); nobody labelled them a second time. Disagreement between labellers is unmeasured. The labelling kit (`python3 -m agenttrace.tools.labelkit export`) is ready for a second labeller; nobody has used it.
 - **Recall is within the audited pool.** Only links some version of the tool reported were read. True messages that no version ever reported are not in the pool, so "0 of 1" says nothing about how many real messages the release holds. Two of the false links are two tokens reading one file that a third party must have put there: there are real messages nearby that the tool attributes to the wrong writer.
 - **"Message" is the tool's definition**: a read of a shared place after a write to it by a different token. Two tokens committing to one dataset do share that place, and may well be working together; it is not a message by this definition, and the tool should not call it one.
 - **Redaction and cut text.** Paths are often swallowed by the redaction and long records are cut, so some calls cannot be seen (one link is unclear for this reason, and one "read" was judged from a call cut at `{metho`).
@@ -235,31 +303,47 @@ The audit showed two opposite errors. The v1.1.0 rule called a read a write when
 - does not take API path words (`/commit`, `/resolve`, `/info` …) as part of a place name, so a commit and a download of one repository meet on one place;
 - takes as the actor the token named in the judged call when a record holds several.
 
-Scored with `python3 -m agenttrace.benchmark run redacted_columns.csv`: of the 177 audited false links it reports none; it keeps the one audited true link and reports four more, which were then read (both records) and labelled true: an LFS upload followed by another token downloading the file, and three commits each followed by another token fetching that dataset's API entry. Those four labels were made after the rule change by the same labeller, so they are weaker evidence than the 178 made before it. The simulated real-world setting, which reproduces these payload shapes with exact truth, is the independent check: precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; an intermediate version of this fix raised benign false links from 0 to 45 across five swarms and the simulator caught it before release.
+Scored with `python3 -m agenttrace.benchmark run redacted_columns.csv`: of the 177 audited false links it reports none; it keeps the one audited true link and reports four more, which were then read (both records) and labelled true: an LFS upload followed by another token downloading the file, and three commits each followed by another token fetching that dataset's API entry. Those four labels were made after the rule change by the same labeller, so they are weaker evidence than the 178 made before it (and a reviewer later judged most of them not to be messages: see the v2.2.0 note below). The simulated real-world setting, which reproduces these payload shapes with exact truth, was the check at that time: precision 79%, recall 79% (median), against 66% and 57% for the v1.1.0 rules; the simulator is optimistic (see the independent generator); an intermediate version of this fix raised benign false links from 0 to 45 across five swarms and the simulator caught it before release.
 
-What the release now shows (final rules, phase 1): **23 messages, 6 of them between named tokens (5 pairs)**; counted by estimated agent, 3 between agents and 3 inside one. The report submitted to the hackathon says 19; that figure is superseded.
+What the release showed at v2.1.0 (final rules, phase 1): 23 messages, 6 of them between named tokens (5 pairs); counted by estimated agent, 3 between agents and 3 inside one. The report submitted to the hackathon says 19; that figure is superseded.
+
+### v2.2.0: the audit of v2.1.0 and the rule it led to (2026-11-16)
+
+Four reviewers were told to find what was wrong. One read both records of all 23 deliveries. Its findings and the rule changes they led to:
+
+- **10 of the 23 rested on one upload probe.** A write was an LFS batch request with `operation: 'upload'` for a file whose download had been requested 34,000 s earlier. The rule now counts an upload batch only if its object was not downloaded earlier and a later record sends it (R6b).
+- **A reader looped over a token list that contained the writer's own token** (R0006727 to R0006743, R0006792); such a delivery is no longer counted (R23a).
+- **Two calls were cut inside the verb** (`'POS'`) and are now not counted (R13); a `paths-info` POST is a read (R6a); unnumbered `[HF REPO]`, `[REDACTED:username:…]` and `[USER n]` places are coarse (R31).
+- **Result: 9 write-then-read deliveries, 4 between named tokens in 4 pairs among 7 tokens; counted by estimated agent, 2 between agents and 2 inside one.** All 9 are on Hugging Face datasets, none on a board folder. 5 of the 9 are labelled true, 4 unclear (3 sit on a place the redaction may have merged).
+- **0 of the 9 shows the reader using what was written.** The written-content test (R38) lists the identifiers shared by the writer's and the reader's record; none shares one. Even the survivors are a commit followed by a later GET of the repository. "Write then later read of the same place by another identity" is accurate; "message" overstates it.
+- **The second implementation found 192 deliveries at v2.1.0** (it took commits for reads; 40 sampled extras held no message, 0% to 8.8%). The cause was its handling of redaction, and it was fixed for v2.2.0: it now finds the same 9 as the rule, which is not an independent check because it was changed while reading where it differed (see [integrity](integrity.md)).
+- **Recall is unknown.** The reviewer read about 90 places the rule ignores and found no missed delivery; that is a failed hunt, not proof (the ceiling for unseen misses is about 23 more at 95% confidence).
 
 ### Phase 1: every delivery audited, a grade for each message, a second method (2026-11-13)
 
 **All deliveries, not only the named ones.** The code reported 74 deliveries on the release; only 5 were between two named tokens, so the audit above said little about the rest. We read the other 69 the same way (both records, the judged call around each mention) and added them to `audited_links.json` with an `endpoint_kind` (`named_named` or `involves_run`, when either side is an anonymous `run:` endpoint). Of those 69: 6 were true messages, 28 were a GET of the place followed by a POST elsewhere, 9 were a "read" that is itself a commit, and 26 could not be decided (a record cut off before its verb, an LFS batch whose `operation` the redaction hid, a place that names only an owner). So the anonymous endpoints were mostly false or unreadable, as the named ones had been.
 
-**Rule changes.** (1) A verb literal in a helper call (`Q('GET', src, …)`) is read from that call only, not from a POST later in the text. (2) A variable's later uses stop where the name is given another value. (3) A record cut off inside a call right after the place, or a bare URL, is not counted. (4) An LFS batch with no visible `operation` is not counted. (5) `…/<owner>/'+repo+'/…`, where the repository is a variable, names only an owner and is not counted. (6) A request written as data (`{"u": …, "m": "POST"}`) is judged by its method or body, and `Request(url, data=…)` is a write. The release now shows **23 deliveries, 6 of them between named tokens** (was 74 and 5; 24 until the false link was removed on 15 November). The simulator did not move: precision 79.4% and recall 73.0% on the default setting, 80.0% and 78.1% on the real-world setting, and 9 false links, none between agents, on the benign real-world setting, all as before the change.
+**Rule changes.** (1) A verb literal in a helper call (`Q('GET', src, …)`) is read from that call only, not from a POST later in the text. (2) A variable's later uses stop where the name is given another value. (3) A record cut off inside a call right after the place, or a bare URL, is not counted. (4) An LFS batch with no visible `operation` is not counted. (5) `…/<owner>/'+repo+'/…`, where the repository is a variable, names only an owner and is not counted. (6) A request written as data (`{"u": …, "m": "POST"}`) is judged by its method or body, and `Request(url, data=…)` is a write. At v2.1.0 the release showed 23 deliveries, 6 of them between named tokens (it was 74 and 5 before these rule changes; 24 until the false link was removed on 15 November; 9 and 4 at v2.2.0, below). The simulator did not move: precision 79.4% and recall 73.0% on the default setting, 80.0% and 78.1% on the real-world setting, and 9 false links, none between agents, on the benign real-world setting, all as before the change.
 
-**Score on the 258 audited links** (18 true messages, 177 read-then-post, 23 "read is a write", 9 downloads or `urlopen`, 4 different repositories, 27 unclear):
+**Score on the 258 audited links** (labels as corrected in v2.2.0: 5 true, 177 read-then-post, 23 "read is a write", 19 downloads, `urlopen` or upload probes, 4 different repositories, 29 unclear, 1 reader holding the writer's own token). In-sample: 13 labels were changed in the same commit as the rule that is scored against them.
 
 | group | reported | read as true | precision (95% range) |
 |---|---|---|---|
-| all deliveries | 23 (5 unclear) | 18 of 18 | 100% (82%–100%) |
-| between two named tokens | 6 | 6 of 6 | 100% (61%–100%) |
-| an anonymous run on one side | 17 (5 unclear) | 12 of 12 | 100% (76%–100%) |
+| all deliveries | 9 (4 unclear) | 5 of 5 | 100% (57%–100%) |
+| between two named tokens | 4 | 4 of 4 | 100% (51%–100%) |
+| an anonymous run on one side | 5 (4 unclear) | 1 of 1 | 100% (21%–100%) |
 
-Until 15 November one false link was reported (a script that writes a script that POSTs); a rule fix removed it, with all 18 true links kept. **Read these as optimistic.** The rule was changed while looking at these same links, 7 of the 18 true links were added after the change, and many share one writer (an LFS upload read by seven later fetches; three commits read by one or two readers each). Recall is within the audited pool only.
+Read these as optimistic: the labels of 13 links were changed in the same commit as the rule, only 5 links are decidable, and the interval reflects that. At v2.1.0 the same table read 18 of 18 (82%–100%), which a reviewer's reading cut to about 5. Recall is within the audited pool only.
 
-**A grade on every message.** Each delivery now carries `grade` (the last column of `/api/messages`): *direct* (the write verb and the read verb are both in the very call that names the place), *inferred* (the verb was found through a variable, a helper, an LFS operation or nearby text) or *weak* (no verb found, a merged place, or an estimated time more than an hour from the other side). On the release: 0 direct, 4 inferred, 19 weak. Precision by grade does not separate. On the audit: inferred 3 of 3 (44%–100%), weak 15 of 15 (80%–100%). On the simulated swarms, pooled over 5 seeds (all 45 coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 78% (4,745 of 6,057); on the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 80% (567 of 712; 77%–82%). The ranges overlap, so a reader should not trust one grade more than another; the grade records how the verb was found, nothing more. We tried also marking messages whose place had several earlier writers: it moved precision from 78% to 88% on only 5% of messages, so we left it out. The simulator's errors are the wrong write picked and one agent reading its own token's write, not a missing verb.
+**A grade on every message.** Each delivery now carries `grade` (the last column of `/api/messages`): *direct* (the write verb and the read verb are both in the very call that names the place), *inferred* (the verb was found through a variable, a helper, an LFS operation or nearby text) or *weak* (no verb found, a merged place, or an estimated time more than an hour from the other side). On the release: 0 direct, 0 inferred, 9 weak. On the audit: weak 5 of 5 (57%–100%). Precision by grade does not separate and, on the real release, no grade has enough links to say anything. On the simulated swarms, pooled over 5 seeds (all 45 coordinated runs): direct 82% (46 of 56; 70%–90%), inferred 78% (2,088 of 2,670), weak 94% (5,809 of 6,154); on the real-world setting direct 82%, inferred 81% (175 of 217; 75%–85%), weak 89% (647 of 724; 87%–91%). The ranges overlap, so a reader should not trust one grade more than another; the grade records how the verb was found, nothing more. We tried also marking messages whose place had several earlier writers: it moved precision from 78% to 88% on only 5% of messages, so we left it out. The simulator's errors are the wrong write picked and one agent reading its own token's write, not a missing verb.
 
-**A second method, not a second labeller.** `benchmark.independent_agreement` classifies each mention with a small tokenizer: it finds the call that holds the place, its arguments and any verb (following one variable, an options object, an LFS `operation`, a `data=` argument), and treats a request with no verb as a GET. It is written apart from `messages.judge_span`. Against our labels (unclear left out, 231 links): raw agreement 98% (226 of 231; 95%–99%), Cohen's kappa 0.83. It never calls a false link a message; its 5 misses are true links it cannot see (a commit path with the call cut at `POS`, a read in a loop, a GET with the place in a header-less wrapper). 27 links are unclear, and it calls 4 of them messages. We fixed the method twice after its first disagreements, so the agreement is flattering; it shows that a different reading of the text mostly lands where we did, not that the labels are right.
+**A second method, not a second labeller.** `benchmark.independent_agreement` classifies each mention with a small tokenizer: it finds the call that holds the place, its arguments and any verb (following one variable, an options object, an LFS `operation`, a `data=` argument), and treats a request with no verb as a GET. It is written apart from `messages.judge_span`. Against our corrected labels (unclear left out, 229 links): raw agreement 94% (215 of 229; 90%–96%), Cohen's kappa 0.20 (the labels now hold only 5 true links, so kappa is dominated by them; at v2.1.0 it was 98% and 0.83 against 18). Its 14 disagreements are 10 LFS upload probes it reads as writes, the 1 reader holding the writer's own token, and 3 of the 5 true links it cannot see (a call it finds no verb for). We fixed the method twice after its first disagreements, so the agreement is flattering; it shows that a different reading of the text mostly lands where we did, not that the labels are right.
 
-**What a reader may trust.** A message on this release is a lead that was checked once by one reader. Of the 6 between named tokens all were read as real; of those with an anonymous endpoint 12 of 12. Nothing here measures how many true messages are missed outside the pool.
+**What a reader may trust.** A delivery on this release is a lead that was checked once by one reader, the authors' AI assistant. Of the 4 between named tokens all 4 were read as a write then a later read; of those with an anonymous endpoint 1 of 1 decidable. None is shown to carry information. Nothing here measures how many true deliveries are missed outside the pool.
+
+## What to quote
+
+The numbers to quote for the message and early-warning questions are these, not the ones in the first tables: message precision about 70% and recall about 58%, falling to 19% and 10% with sparse timestamps and to nothing when the file is grouped by agent. The same generator's benign look-alike swarms make the Alert rule fire in 39 of 50. The forward test of the early-warning signs on the same two generators is in [early-warning.md](early-warning.md).
 
 ## What the numbers mean
 
@@ -279,10 +363,11 @@ Until 15 November one false link was reported (a script that writes a script tha
 
 ## Honest limits
 
-- **The simulations were too easy once already.** v1.1.0 scored 79% message precision on them while 165 of its 166 links on the real release were false. The real-world settings close the gaps we found; there will be others.
+- **The simulations were too easy once already, and still are.** v1.1.0 scored 79% message precision on them while 165 of its 166 links on the real release were false. The real-world settings close the gaps we found; there will be others. The independent generator (70% precision, 58% recall) shows the size of the optimism, and it is still written by the same team.
 - **The simulations are ours.** The generator was written by the same team as the tool, from the shapes we saw in one incident. Real swarms differ: other channels, other naming, mixed threads, retries, partial logs. These ranges describe how the tool behaves on swarms shaped like these, not its accuracy on yours. The strongest use of this page is relative: which settings hurt, which measures are fragile, and what a change to the rules does.
 - **Some evidence is clean by construction.** In the simulation an agent's threads never contain another agent, so "same small thread" is perfect identity evidence here; real threads can mix. The direct-evidence rule's 100% is therefore an upper bound, while the old high band's 4% was a real failure on this kind of swarm, which the rule change fixed.
 - **Truth of a sign is our definition.** Each sign's true time is computed from the truth with the same definition the tool uses (first message, first group of N, first harmful action of a kind). A different definition would move the timing errors.
 - **The benign baseline is narrow.** Three kinds of benign swarm, 15 runs, one pack. Benign swarms that share a workspace, hand work to each other on purpose, or use one key for many agents would fire more. These are the first false-positive measurements the project has, not a false-positive rate for real deployments.
 - **The default rules were written with hindsight** on the datasets their packs were made for; this page is the first test of them on swarms they were not written on.
-- **Five seeds per setting** give ranges, not confidence intervals; the pooled identity figures carry 95% Wilson ranges.
+- **Five seeds per setting** give ranges, not confidence intervals; the pooled identity figures carry 95% Wilson ranges. The pooled-medians table resamples whole settings (they share seeds); the v2.1.0 intervals resampled swarms and were too narrow.
+- **Not every number here has a range,** and the registered numbers (`python3 -m agenttrace verify`) cover only part of the figures on this page.

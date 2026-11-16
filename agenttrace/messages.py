@@ -273,6 +273,8 @@ def _hidden_holder_written(text, start, end, wrx, cap=8000):
 
 POSITIONAL_DATA = re.compile(r"\(\s*[\w$.]+\s*,\s*(?!headers\s*=|method\s*=|origin_req_host\s*=|unverifiable\s*=|None\b)[\w$.('\"]")
 HELPER_VERB_FIRST = re.compile(r"[\w$.]\(\s*['\"](POST|PUT|PATCH|DELETE)['\"]\s*,\s*[\w$.+\s]{0,30}['\"`][^'\"`();{}]{0,90}$")
+CUT_IN_VERB = re.compile(r"[^)\n]{0,40}\{\s*method\s*:\s*['\"]?[A-Za-z]{0,6}\Z")   # …{method:'POS<end of record>
+PATHS_INFO = re.compile(r"/paths-info\b")
 REDACTION_MARKER = re.compile(r"\[[^\[\]\n]{0,80}\]")   # [HF REPO 5], [REDACTED:destination:000233]: may hold spaces
 
 
@@ -313,6 +315,8 @@ def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
         return "mention", start, end, None      # …/<owner>/'+repo+'/…: the repository is a variable, so this names only an owner
     if "info/lfs" in text[end:end + 40]:
         return "mention", start, end, None      # an LFS batch whose 'operation' is not in the record: upload or download, unknown
+    if PATHS_INFO.match(text, end):
+        return "read", start, min(len(text), end + 160), "inferred"   # a POST to .../paths-info only asks about files (R6a)
     if not direct:
         am = ASSIGNED.search(text, max(0, start - 200), start)
         if am:
@@ -358,6 +362,8 @@ def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):
             return "write", lead.start(), end, "inferred"
     if re.match(r"[^)]{0,12}\{\s*metho(?!d)", text[end:end + 30]):
         return "mention", start, end, None      # the call is cut off before its verb: unknown, so not counted
+    if CUT_IN_VERB.match(text, end):
+        return "mention", start, end, None      # the record ends inside the verb itself ({method:'POS): not counted (R13)
     if last is not None:
         lo = last
     nxt = REQUEST_START.search(text, end, hi)
@@ -423,6 +429,52 @@ def _mention_index(events):
     return idx
 
 
+LFS_UPLOAD = re.compile(r"operation['\"]?\s*:\s*['\"]upload['\"]")
+LFS_DOWNLOAD = re.compile(r"operation['\"]?\s*:\s*['\"]download['\"]")
+LFS_OID = re.compile(r"\boid['\"]?\s*:\s*['\"]([^'\"\s]{4,})['\"]")
+LFS_BATCH = re.compile(r"operation['\"]?\s*:\s*['\"](?:upload|download)['\"]")
+LFS_SENT = re.compile(r"lfsFile|\.open\(\s*['\"]PUT['\"]|method\s*:\s*['\"]PUT['\"]|method\s*=\s*['\"]PUT['\"]|upload_file|\buploadId\b")
+
+
+def _lfs_index(events, rec):
+    """Per object id of a Git LFS batch: when it was first asked for with operation 'download', and the records that
+    later send the object (a commit that names it as an lfsFile, a PUT). An upload batch only announces an upload;
+    it is a write only when the object really goes up (R6b)."""
+    if "_lfs" in rec:
+        return rec["_lfs"]
+    times = rec["_times"]
+    down, sent = {}, defaultdict(list)
+    for i, e in enumerate(events):
+        if "oid" not in e.text:
+            continue
+        oids = set(LFS_OID.findall(e.text))
+        if not oids:
+            continue
+        key = (times.get(e.id) if times.get(e.id) is not None else float("-inf"), i)
+        if LFS_DOWNLOAD.search(e.text):
+            for o in oids:
+                if o not in down or key < down[o]:
+                    down[o] = key
+        elif not LFS_BATCH.search(e.text) and LFS_SENT.search(e.text):
+            for o in oids:
+                sent[o].append(key)
+    rec["_lfs"] = (down, sent)
+    return rec["_lfs"]
+
+
+def _lfs_upload_counts(text, seg, key, lfs):
+    """False for an LFS upload batch that is only a probe: its object was asked for with 'download' earlier (the file
+    already existed), or no later request sends it, or no object id is visible (R6b)."""
+    down, sent = lfs
+    oids = set(LFS_OID.findall(seg)) or set(LFS_OID.findall(text))
+    for o in oids:
+        if o in down and down[o] <= key:
+            continue
+        if any(k > key for k in sent.get(o, ())):
+            return True
+    return False
+
+
 def channel_ops(events, pack, rec, res):
     """One operation per channel a record touches.
     - pattern channels (from the pack): a write or a read, judged from the code around the mention
@@ -450,7 +502,7 @@ def channel_ops(events, pack, rec, res):
         if midx:
             own_prefix = e.channel.rsplit("~", 1)[0] if e.channel and "~" in e.channel else None
             seen = set()
-            for tok in set(NAME_TOKEN.findall(e.text)):
+            for tok in sorted(set(NAME_TOKEN.findall(e.text))):
                 keys = midx.get(tok)
                 if not keys:
                     continue
@@ -477,6 +529,11 @@ def channel_ops(events, pack, rec, res):
                 key = f"{name}:{m.group(1)}"
                 if op == "mention":
                     continue
+                if op == "write" and LFS_UPLOAD.search(e.text[slo:shi]) and "info/lfs" in e.text:
+                    tk = times.get(e.id)
+                    if not _lfs_upload_counts(e.text, e.text[slo:shi], (tk if tk is not None else float("-inf"), i),
+                                              _lfs_index(events, rec)):
+                        continue                      # an upload batch for an object that already existed, or never went up (R6b)
                 if ops_here.get(key) != "write":
                     ops_here[key] = op
                     seg_of[key] = e.text[slo:shi]
@@ -547,14 +604,24 @@ def grade_of(d, w, r, how, coarse=None, estimated=None):
     return "inferred"
 
 
-def deliveries(ops, fam=None, texts=None, how=None, coarse=None, estimated=None):
+def _lists_token(text, actor):
+    """True when the text names the actor's own token (a credential marker or a long handle), as a whole word."""
+    if len(actor) < 6 or actor.startswith("run:") or actor not in text:
+        return False
+    return re.search(r"(?<![\w])" + re.escape(actor) + r"(?![\w])", text) is not None
+
+
+def deliveries(ops, fam=None, texts=None, how=None, coarse=None, estimated=None, bodies=None):
     """Link each read to the latest earlier write on the same channel by another actor.
     Order is by time when both records are dated; otherwise the pair is 'order unknown'.
 
     texts: given when each post holds the whole place (a wiki edit sends the full page).
     Then a later post is evidence of reading an earlier one only if it keeps some of the lines
     the earlier post added. A post that drops all of them may have been written without
-    seeing it, so it is returned as an overwrite, not a delivery."""
+    seeing it, so it is returned as an overwrite, not a delivery.
+
+    bodies: record id -> text, given so that a read whose record lists the writer's own token (a loop over
+    a token list that contains it) is not taken as another actor reading the write (R23a)."""
     by_ch = defaultdict(list)
     for o in ops:
         by_ch[o[0]].append(o)
@@ -588,6 +655,9 @@ def deliveries(ops, fam=None, texts=None, how=None, coarse=None, estimated=None)
                     unknown_order += 1
                 continue
             prior = [w for w in dated_w if w[4] <= r[4] and w[2] != r[2] and w[6] != r[6]]
+            if bodies is not None and prior:
+                text_r = bodies.get(r[6], "")
+                prior = [w for w in prior if not (w[3] == "token" and _lists_token(text_r, w[2]))]
             if fam:
                 # the same program rerun under another token is one sender retrying, not a message
                 same = [w for w in prior if fam.get(w[6]) and fam.get(w[6]) == fam.get(r[6])]
@@ -635,6 +705,64 @@ def deliveries(ops, fam=None, texts=None, how=None, coarse=None, estimated=None)
             "never_read": len(writes) > 0 and delivered == 0, "read_without_write_seen": len(writes) == 0,
         })
     return out, perf, unknown_order, same_program[0], overwrites, rereads[0]
+
+
+# ------------------------------------------------------------------ written content
+
+CONTENT_DF_MAX = 5      # a term found in more records than this is boilerplate, not what one actor wrote
+CONTENT_MIN_LEN = 8     # shortest term that can show a reader used what was written
+_TERM = re.compile(r"\[[A-Za-z][A-Za-z ]*:[A-Za-z_]+:\d+\]|[A-Za-z0-9_][A-Za-z0-9_.\-/]{%d,}" % (CONTENT_MIN_LEN - 1))
+_CRED = re.compile(r"\[CREDENTIAL[^\]]*\]")
+
+
+def _terms(text, drop):
+    """Terms of a record that can be quoted: long identifiers, paths, file names, numbered redaction markers. What
+    the record uses to address the place (its URL, its owner) and credentials are left out."""
+    for rx in drop:
+        text = rx.sub(" ", text)
+    return set(_TERM.findall(_CRED.sub(" ", text)))
+
+
+def written_content_test(events, pack, dels):
+    """For each delivery that is not a logged direct message: does the reader's record quote or use something the
+    writer's record wrote? A term counts when it appears in both records, is not part of the place's address and
+    is rare in the trace (found in at most CONTENT_DF_MAX records). A wiki edit that kept lines the writer added
+    counts as used. Adds d["uses_content"] and d["shared_terms"] (up to 3) to each delivery and returns how many
+    deliveries are checked and how many pass."""
+    by_id = {e.id: e.text for e in events}
+    drop = [rx for _n, rx, _w, _r in compile_channels(pack)]
+    cand = {}
+    needed = set()
+    for d in dels:
+        if d.get("how") == DIRECT_HOW:
+            continue
+        if str(d.get("how", "")).startswith("kept "):
+            d["uses_content"], d["shared_terms"] = True, []
+            continue
+        w, r = by_id.get(d["write_id"], ""), by_id.get(d["read_id"], "")
+        both = _terms(w, drop) & _terms(r, drop)
+        cand[(d["write_id"], d["read_id"])] = both
+        needed |= both
+    df = Counter()
+    if needed:
+        for e in events:
+            if len(e.text) < CONTENT_MIN_LEN:
+                continue
+            for x in needed.intersection(_TERM.findall(e.text)):
+                df[x] += 1
+    checked = passed = 0
+    for d in dels:
+        k = (d["write_id"], d["read_id"])
+        if k not in cand:
+            if d.get("uses_content"):
+                checked += 1
+                passed += 1
+            continue
+        rare = sorted(x for x in cand[k] if df[x] <= CONTENT_DF_MAX)
+        d["uses_content"], d["shared_terms"] = bool(rare), rare[:3]
+        checked += 1
+        passed += 1 if rare else 0
+    return checked, passed
 
 
 # ------------------------------------------------------------------ content spread
@@ -743,7 +871,10 @@ def message_flow(events, pack, rec, res):
     by_id = {e.id: e for e in events}
     est = lambda rid: rid in by_id and not by_id[rid].time and rid in rec["_times"]
     dels, perf, unknown, same_prog, overwrites, rereads = deliveries(inferred, program_prefix(events), texts,
-                                                                       rec.get("_op_how", {}), is_coarse, est)
+                                                                       rec.get("_op_how", {}), is_coarse, est,
+                                                                       {e.id: e.text for e in events})
+    # the written-content test: does the reader quote or use what the writer wrote? (kept separate from the count)
+    content_checked, content_used = written_content_test(events, pack, dels)
     # logged direct messages are deliveries as they stand: no inference needed
     direct = direct_messages(events, pack, rec, res)
     dels = dels + [{**{k: v for k, v in d.items() if not k.startswith("_")}, "grade": "direct"} for d in direct if d["write_time"] is not None]
@@ -796,6 +927,10 @@ def message_flow(events, pack, rec, res):
         "channel_types": {k: dict(v) for k, v in by_type.items()},
         "actors_on_channels": dict(actor_kinds),
         "deliveries": len(dels),
+        "deliveries_write_then_read": len(dels),
+        "deliveries_reader_uses_content": content_used + sum(1 for d in direct if d["write_time"] is not None),
+        "deliveries_content_checked": content_checked,
+        "deliveries_exact_place": sum(1 for d in dels if not is_coarse(d["channel"])),
         "deliveries_order_unknown": unknown,
         "direct_messages": sum(1 for d in direct if d["write_time"] is not None),
         "direct_messages_undated": sum(1 for d in direct if d["write_time"] is None),

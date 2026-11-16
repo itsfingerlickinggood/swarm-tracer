@@ -11,7 +11,7 @@ from collections import defaultdict
 from . import fx_whatif, identity, insight
 
 RULE = "estimate"
-_CONF_ORDER = {None: 0, "low": 1, "medium": 2, "high": 3}
+_CONF_ORDER = {None: 0, "low": 1, "sweep rule": 1, "medium": 2, "high": 3}
 TOP_PAIRS = 60
 
 
@@ -34,6 +34,10 @@ def _links(s):
         v = dec.get(k)
         if v == "accept" or (v != "reject" and x["confidence"] == "high"):
             out[k] = {"a": k[0], "b": k[1], "confidence": x["confidence"], "score": x["score"], "decision": v}
+    for k in identity.sweep_self_pairs(base):       # key-sweep pairs that also run the same programs and message each other
+        if k not in out and dec.get(k) != "reject":
+            x = next(y for y in base["scored"] if (y["a"], y["b"]) in (k, k[::-1]))
+            out[k] = {"a": k[0], "b": k[1], "confidence": "sweep rule", "score": x["score"], "decision": None}
     for k, v in dec.items():
         if v == "accept" and k not in out:
             out[k] = {"a": k[0], "b": k[1], "confidence": None, "score": 0, "decision": v}

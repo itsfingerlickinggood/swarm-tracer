@@ -171,6 +171,8 @@ def _agent_map(s, rule):
         v = dec.get(k)
         if v == "accept" or (rule == "estimate" and v != "reject" and x["confidence"] == "high"):
             edges.append(k)
+    if rule == "estimate":
+        edges += [k for k in identity.sweep_self_pairs(base) if dec.get(k) != "reject"]
     for k, v in dec.items():
         if v == "accept" and k[0] in named and k[1] in named:
             edges.append(k)
