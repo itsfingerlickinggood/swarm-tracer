@@ -205,7 +205,7 @@ class TestUi(unittest.TestCase):
     def test_sections_registered_and_nothing_hard_coded(self):
         with open(os.path.join(APP, "fx_earlywarn.js"), encoding="utf-8") as f:
             js = f.read()
-        for sid, title in (("earlywarn", "Frozen signs"), ("ew_forward", "Forward test"), ("ew_false", "False alarms"),
+        for sid, title in (("ew_main", "Main alarms"), ("earlywarn", "Frozen signs"), ("ew_forward", "Forward test"), ("ew_false", "False alarms"),
                            ("ew_cost", "Cost curve"), ("ew_online", "Online mode")):
             self.assertIn(f'id: "{sid}", title: "{title}"', js)
         self.assertNotRegex(js, r"189,?579|\bonclick=|\bonchange=")

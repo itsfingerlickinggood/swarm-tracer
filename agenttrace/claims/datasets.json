@@ -34,12 +34,12 @@
         "actors": 257,
         "actors_note": "257 identities (redacted tokens and handles); 115,036 records belong to anonymous runs",
         "timed_records": 75068,
-        "messages": 9,
+        "messages": 11,
         "messages_between_named": 4,
         "messages_reader_uses_content": 0,
-        "messages_note": "v2.2.0 rule: 9 where one actor wrote to a place and another read it later (write then later read), 6 of them on places the redaction names exactly; 0 where the reader quotes or uses what was written. The earlier 23 included 10 LFS upload probes, a reader that listed the writer's own token, and a board folder read by random names.",
+        "messages_note": "v2.3.0 rule: 11 where one actor wrote to a place and another read it later (write then later read), 8 of them on places the redaction names exactly; 0 where the reader quotes or uses what was written. v2.2.0 counted 9: the two added are one commit that the release cut into two records, read as one record since v2.3.0 and fetched later by two anonymous runs. The earlier 23 included 10 LFS upload probes, a reader that listed the writer's own token, and a board folder read by random names.",
         "span": "2026-07-09 13:29 to 2026-07-13 15:50 UTC (estimated)",
-        "loaded_via": "swarm-tracer serve --port 8025, GET /api/state, on 2026-11-15; agrees with reports/evaluation/summary.json",
+        "loaded_via": "swarm-tracer serve --port 8025, GET /api/state, on 2026-11-15; the delivery counts are from reports/evaluation/summary.json as regenerated on 2026-11-22 (v2.3.0 rule)",
         "sha256_expanded": "91e9158487a63acb12e54faa8490c4a23f664e1650c947a87d270d2022b0451e (redacted.jsonl; the publisher gives no checksum to compare with)"
       },
       "terms": {
@@ -61,12 +61,19 @@
       "publish": "aggregates",
       "publish_note": "Numbers, charts and record ids with links to the publisher's viewer: yes. Record text, even short excerpts: wait for the authors' answer.",
       "citation": "Forman, Kharlov, Tom, Ladish, Kitts, Slade Byrd, McKenzie and Piecha, \"Revealing the details of how OpenAI agents hacked Hugging Face\", 25 September 2026, https://swarmtraces.org/ (our wording; the page gives no citation format)",
+      "gallery": {
+        "name": "Swarm Traces",
+        "url": "https://swarmtraces.org/",
+        "records": "viewer",
+        "record_url": "https://swarmtraces.org/viewer/#/row/{id}",
+        "attribution": "Record ids, times and tokens are from the Swarm Traces release: Forman, Kharlov, Tom et al., \"Revealing the details of how OpenAI agents hacked Hugging Face\", swarmtraces.org, 25 September 2026. The release states no licence, so no record text is reproduced here: each record links to the publisher's own viewer."
+      },
       "contact": "alex@parse.bot (the Contact line on the page; shown there in an obfuscated form)",
       "confidence": "high that no licence is stated on the report page, the viewer or robots.txt; we did not open the archive to look for a licence file inside it today (our local copy is a single JSONL with none)",
       "can": [
         "Date 75,068 of 189,579 records from timestamps the agents wrote into their own code (median fit error 0.26 h).",
         "Find 257 identities (redacted tokens and handles) and what each was used for.",
-        "Count deliveries in shared places: 9 write-then-read (4 between named tokens); in 0 the reader quotes what was written.",
+        "Count deliveries in shared places: 11 write-then-read (4 between named tokens); in 0 the reader quotes or uses what was written.",
         "Replay the warning signs hour by hour over 9 to 13 July."
       ],
       "cannot": [
@@ -225,60 +232,67 @@
     {
       "id": "who_and_when",
       "title": "Who&When: which agent caused the failure, and when",
-      "status": "candidate",
+      "status": "analysed",
       "kind": "benchmark runs with labels",
       "publisher": "Shaokun Zhang and ten co-authors; the repository sits under the ag2ai organisation",
       "source_url": "https://github.com/ag2ai/Agents_Failure_Attribution",
       "data_url": "https://huggingface.co/datasets/Kevin355/Who_and_When",
       "released": "2025 (ICML 2025)",
-      "contains": "184 failed multi-agent task runs (126 algorithm-generated, 58 hand-crafted) on GAIA and AssistantBench tasks, each with the full conversation and a human label of the agent and the step that caused the failure.",
-      "size": "184 rows, 8.68 MB",
-      "format": "Parquet on Hugging Face; JSON files in the GitHub repository. Each row: question, ground_truth, history (list of messages), mistake_agent, mistake_step, mistake_reason",
-      "fields": {"actor_ids": "yes", "timestamps": "no", "message_bodies": "yes", "tool_calls": "partial", "recipients": "no"},
-      "fields_note": "The card preview shows only the content key of each history message; role and name keys are expected (AutoGen style) but were not seen today.",
-      "reader": {"name": "chat transcript, or AutoGen / AG2 messages", "pack": "chat.json", "tested": false},
-      "local": null,
+      "contains": "184 failed multi-agent task runs (126 algorithm-generated AG2 group chats, 58 hand-crafted Magentic-One runs) on GAIA and AssistantBench tasks, each with the full conversation and a human label of the agent and the step that caused the failure.",
+      "size": "184 JSON files, 6.8 MB, from the GitHub repository (the data folder only; the whole repository is about 125 MB). The Hugging Face copy is 8.68 MB of Parquet.",
+      "format": "One JSON file per run: question, ground_truth, history (a list of messages: content, role and, in the group chats, name), mistake_agent, mistake_step, mistake_reason",
+      "fields": {"actor_ids": "yes", "timestamps": "no", "message_bodies": "yes", "tool_calls": "partial", "recipients": "partial"},
+      "fields_note": "No message has a time, only its position. In the 58 hand-crafted runs the role names the recipient of an instruction (\"Orchestrator (-> WebSurfer)\"): 689 messages. The 126 group chats name no recipient.",
+      "reader": {"name": "Who&When / Magentic-One transcript (agenttrace/readers_failure.py); the group chats also load as chat transcripts", "pack": "generic.json or chat.json, as the tool picks", "tested": true},
+      "local": {
+        "path": "datasets-ext/who_and_when/",
+        "records": 4092,
+        "actors": 197,
+        "actors_note": "184 runs, each loaded as its own trace; 197 agent names in all; messages here are the ones whose recipient the log names",
+        "timed_records": 0,
+        "messages": 689,
+        "runs": 184,
+        "loaded_via": "python3 -I agenttrace/failure_eval.py who_and_when on 2026-11-22; results in reports/external/who_and_when/",
+        "revision": "GitHub commit 1bcbbd96ba563400cededae6189833b8ea59dcae, fetched anonymously on 2026-11-22"
+      },
       "terms": {
         "badge": "open",
-        "licence": "MIT (GitHub repository); the Hugging Face card shows no licence tag",
+        "licence": "MIT (LICENSE file in the GitHub repository); the Hugging Face card shows no licence tag",
         "quote": "MIT license",
         "quote_url": "https://github.com/ag2ai/Agents_Failure_Attribution",
         "raw": "yes",
         "excerpts": "yes",
         "aggregates": "yes",
         "notes": [
-          "MIT covers the repository, which holds the data folder. Keep the copyright notice with any copy.",
+          "The LICENSE file is the MIT text, Copyright (c) 2025 Ming Yin (read 2026-11-22). MIT covers the repository, which holds the data folder. Keep the copyright notice with any copy.",
           "The runs contain GAIA questions and answers. GAIA asks people not to repost its validation or test set where crawlers can read it. Leave question and answer text out of anything we publish."
         ]
       },
       "publish": "excerpts",
       "publish_note": "Numbers and short excerpts of agent messages with the citation. Not the GAIA questions or answers.",
       "citation": "Zhang et al., \"Which Agent Causes Task Failures and When? On Automated Failure Attribution of LLM Multi-Agent Systems\", ICML 2025, arXiv:2505.00212",
+      "gallery": {
+        "name": "Who&When",
+        "url": "https://github.com/ag2ai/Agents_Failure_Attribution",
+        "records": "excerpts",
+        "report": "reports/external/who_and_when/results.json",
+        "attribution": "Excerpts are from Who&When: Zhang et al., \"Which Agent Causes Task Failures and When? On Automated Failure Attribution of LLM Multi-Agent Systems\", ICML 2025, arXiv:2505.00212; data at github.com/ag2ai/Agents_Failure_Attribution, MIT License, Copyright (c) 2025 Ming Yin. Each excerpt is cut short; nothing else is changed."
+      },
       "contact": "GitHub issues on ag2ai/Agents_Failure_Attribution",
-      "confidence": "medium: MIT is stated on GitHub; the Hugging Face copy carries no tag; the LICENSE text itself was not opened",
+      "confidence": "high: the LICENSE file in the repository was read on 2026-11-22 (MIT, Copyright (c) 2025 Ming Yin); the Hugging Face copy still carries no tag",
       "can": [
-        "Read each run as a conversation between named agents. (Expected; not tested.)",
-        "Score the tool's attribution against the human label of who failed and at which step.",
-        "Give a second, independent test of the Agents tab outside the incident it was built on."
+        "Read each run as a conversation between named agents: 184 runs, 4,092 records.",
+        "List all 689 messages whose recipient the log names as direct messages, once the records have a clock.",
+        "With recipients withheld, find 91 of the 92 logged sender-recipient pairs from speaking order alone.",
+        "Be scored against a human label of who failed and when: reports/external/who_and_when/summary.md."
       ],
       "cannot": [
-        "Date anything. Messages carry no timestamps, only their order.",
-        "Find cross-run coordination. Each run is one small team on one task.",
-        "Use the warning signs. There is no harm, only task failure."
+        "Date anything. No message has a time; loaded as logged, the graph is empty and no sign or rule can run.",
+        "Say who caused the failure. Its first sign names the right agent in 54 of 184 runs: chance is 29%.",
+        "Stay quiet on a benign team. On an order-only clock the Alert rule fired in 181 of 184 runs.",
+        "Find the single message once recipients are withheld: 62 of 689, though the pair is nearly always found.",
+        "Find cross-run coordination. Each run is one small team on one task."
       ],
-      "adapter": {
-        "summary": "Smallest job of the open candidates: 8.68 MB, already a list of messages per run.",
-        "mapping": [
-          "one conversation per row: question_ID -> channel",
-          "history[i]: position -> id and order; name (else role) -> actor; content -> text; role -> kind",
-          "mistake_agent, mistake_step, mistake_reason -> a truth file beside the trace, for scoring",
-          "no time field: keep order only"
-        ],
-        "open_questions": [
-          "Confirm the keys of a history message.",
-          "Parquet cannot be read with the standard library; use the JSON files from the GitHub repository instead."
-        ]
-      },
       "links": [
         {"label": "Repository", "url": "https://github.com/ag2ai/Agents_Failure_Attribution"},
         {"label": "Dataset card", "url": "https://huggingface.co/datasets/Kevin355/Who_and_When"}
@@ -287,19 +301,30 @@
     {
       "id": "mast_data",
       "title": "MAST-Data (MAD): multi-agent system failure traces",
-      "status": "candidate",
+      "status": "analysed",
       "kind": "benchmark runs with labels",
       "publisher": "Mert Cemri, Melissa Z. Pan, Shuyi Yang and co-authors",
       "source_url": "https://huggingface.co/datasets/mcemri/MAST-Data",
       "data_url": "https://huggingface.co/datasets/mcemri/MAST-Data",
       "released": "2025 (NeurIPS 2025 Datasets and Benchmarks)",
-      "contains": "1,642 full execution traces from seven multi-agent frameworks (AG2, ChatDev, MetaGPT, AppWorld, HyperAgent, Magentic, OpenManus), each labelled with 14 failure modes; 19 more with three human annotators.",
-      "size": "1,661 rows, about 202 MB",
-      "format": "JSON: mas_name, llm_name, benchmark_name, trace_id, trace (key, index, trajectory), mast_annotation",
-      "fields": {"actor_ids": "partial", "timestamps": "partial", "message_bodies": "yes", "tool_calls": "partial", "recipients": "no"},
-      "fields_note": "The trajectory is one block of log text per run. Agent names and times sit inside the text, in a different layout for each framework.",
-      "reader": {"name": "none yet: plain-text logs, one layout per framework", "pack": "a new pack per framework", "tested": false},
-      "local": null,
+      "contains": "1,642 execution traces from seven multi-agent frameworks (AG2, ChatDev, MetaGPT, AppWorld, HyperAgent, Magentic-One, OpenManus) on eight benchmarks, each marked 0 or 1 for 14 failure modes by an LLM judge; 19 more traces annotated by three people.",
+      "size": "MAD_full_dataset.json 199.6 MB (1,642 rows) and MAD_human_labelled_dataset.json 2.7 MB (19 rows)",
+      "format": "JSON, one row per run: mas_name, llm_name, benchmark_name, trace_id, trace (key, index, trajectory: the whole log as one text), mast_annotation",
+      "fields": {"actor_ids": "partial", "timestamps": "partial", "message_bodies": "yes", "tool_calls": "partial", "recipients": "partial"},
+      "fields_note": "The run is one block of log text, in a different layout for each framework. ChatDev, MetaGPT and OpenManus print times (24,461 of 37,805 records). ChatDev, AppWorld and HyperAgent name recipients (13,441 messages). Agent names are read from the turn headers.",
+      "reader": {"name": "MAST-Data traces, one parser per framework (agenttrace/readers_failure.py)", "pack": "generic.json or chat.json, as the tool picks", "tested": true},
+      "local": {
+        "path": "datasets-ext/mast_data/",
+        "records": 37805,
+        "actors": 37,
+        "actors_note": "1,640 of 1,642 runs parsed, each loaded as its own trace; 37 role names in all; 81,315 log blocks that are not agent turns left out; messages here are the ones whose recipient the log names",
+        "timed_records": 24461,
+        "messages": 13441,
+        "runs": 1640,
+        "loaded_via": "python3 -I agenttrace/failure_eval.py mast_data on 2026-11-22; results in reports/external/mast_data/",
+        "revision": "Hugging Face revision 95118ac951421753cf1deb87ddea3b01e693c41b, fetched anonymously on 2026-11-22",
+        "checksums": "SHA-256 MAD_full_dataset.json d636ac63dfc1c6af2d312e862f4b7d383b62d3898d431ccd0e7a79d21d85406f; MAD_human_labelled_dataset.json 30a0c4075078e9a1b8c39bc608d2b5156cc64c6bda1f6fd262786eb81ff4a286"
+      },
       "terms": {
         "badge": "open",
         "licence": "CC BY 4.0",
@@ -310,23 +335,34 @@
         "aggregates": "yes",
         "notes": [
           "Credit the authors and say if anything was changed.",
+          "The card says the 14 labels of the full set are produced by an LLM judge, not by human labelling. Only the 19-trace file has human annotators.",
           "Some runs are on GAIA tasks. GAIA asks people not to repost its questions and answers where crawlers can read them."
         ]
       },
       "publish": "excerpts",
       "publish_note": "The licence allows raw records with credit. We suggest excerpts and numbers, leaving out benchmark questions and answers.",
       "citation": "Cemri, Pan, Yang et al., \"Why Do Multi-Agent LLM Systems Fail?\", NeurIPS 2025, arXiv:2503.13657",
+      "gallery": {
+        "name": "MAST-Data",
+        "url": "https://huggingface.co/datasets/mcemri/MAST-Data",
+        "records": "excerpts",
+        "report": "reports/external/mast_data/results.json",
+        "attribution": "Excerpts are from MAST-Data (MAD): Cemri, Pan, Yang et al., \"Why Do Multi-Agent LLM Systems Fail?\", NeurIPS 2025, arXiv:2503.13657; data at huggingface.co/datasets/mcemri/MAST-Data, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Changes: each run's log text was split into turns by our reader, and each excerpt is cut short."
+      },
       "contact": "the dataset's Community tab; github.com/multi-agent-systems-failure-taxonomy/MAST",
-      "confidence": "high for the licence tag on the card; low for the layout of the trajectory text, which we have not seen",
+      "confidence": "high for the licence tag on the card (read again on 2026-11-22); medium for our parsing of seven log layouts, which keeps agent turns and leaves other log lines out",
       "can": [
-        "Compare how seven frameworks log the same kinds of failure.",
-        "Test the tool's format detection on real framework logs.",
-        "Score flagged runs against 14 human-defined failure labels."
+        "Load 1,640 of 1,642 runs from seven framework layouts: 37,805 records, 24,461 with a logged time.",
+        "List all 13,441 addressed messages (ChatDev, AppWorld, HyperAgent) as direct messages.",
+        "With recipients withheld, find 2,242 of 2,800 logged sender-recipient pairs from speaking order alone.",
+        "Give a false-alarm count on real benign teams: reports/external/mast_data/summary.md."
       ],
       "cannot": [
-        "Load it today. The trajectory is free text and needs a parser per framework.",
         "Study a swarm. Each run is one small team; runs do not interact.",
-        "Use the harm list. Failures here are task failures, not attacks."
+        "Stay quiet on a benign team. The Alert rule fired in 1,567 of 1,640 runs: it detects talk, not malice.",
+        "Find the single message once recipients are withheld: 490 of 12,500 in ChatDev.",
+        "Explain a failure. The Watch rule's pooled gap between failed and clean runs is mostly the framework mix.",
+        "Use the harm list as evidence. Failures here are task failures, not attacks."
       ],
       "links": [
         {"label": "Dataset card", "url": "https://huggingface.co/datasets/mcemri/MAST-Data"},
@@ -336,19 +372,29 @@
     {
       "id": "moltbook_observatory",
       "title": "Moltbook Observatory Archive: an agent-only social network",
-      "status": "candidate",
+      "status": "analysed",
       "kind": "real, open platform",
       "publisher": "Sushant Gautam and Michael A. Riegler (SimulaMet)",
       "source_url": "https://huggingface.co/datasets/SimulaMet/moltbook-observatory-archive",
       "data_url": "https://huggingface.co/datasets/SimulaMet/moltbook-observatory-archive",
-      "released": "2026 (covers 27 January to 14 April 2026)",
-      "contains": "Posts, comments, agent profiles and communities collected by passive polling of Moltbook, a social network whose accounts are AI agents.",
-      "size": "7.0 million rows, 5.38 GB: posts 3.6 million, comments 2.55 million, agents 183,000",
-      "format": "Parquet, one folder per table, split by date. Posts: id, agent_id, agent_name, submolt, title, content, score, created_at",
+      "released": "2026 (posts from 27 January 2026; the archive was last exported on 9 November 2026)",
+      "contains": "Posts, comments, agent profiles and communities collected by passive polling of Moltbook, a social network whose accounts are AI agents. A comment records the post and, when it answers one, the comment it replies to.",
+      "size": "5.38 GB in all on 2026-11-22. We hold one week, 13 to 19 February 2026, of the posts and comments tables (74.7 MB): 251,564 posts and 46,236 comments. The agents table is not fetched.",
+      "format": "Parquet, one folder per table, one file per day. Posts: id, agent_id, agent_name, submolt, title, content, score, created_at. Comments add post_id and parent_id",
       "fields": {"actor_ids": "yes", "timestamps": "yes", "message_bodies": "yes", "tool_calls": "no", "recipients": "partial"},
-      "fields_note": "Comments record their parent, which gives a reply link. The card says comment coverage is partial.",
-      "reader": {"name": "records read by field name, after converting Parquet to JSON Lines", "pack": "a new pack (communities as places)", "tested": false},
-      "local": null,
+      "fields_note": "A comment's parent gives the logged reply; the recipient is the parent's author, found by a join. Posts are addressed to nobody. The card says comment coverage is partial.",
+      "reader": {"name": "Moltbook Observatory posts and comments (agenttrace/readers_public.py), after python3 -m agenttrace.tools.external convert moltbook", "pack": "generic.json", "tested": true},
+      "local": {
+        "path": "datasets-ext/moltbook-observatory/",
+        "records": 187738,
+        "actors": 19879,
+        "actors_note": "the 40 communities with the most comments in the week, each loaded as its own trace; 19,879 agent accounts; messages here are the logged replies between two agents",
+        "timed_records": 187738,
+        "messages": 41737,
+        "span": "2026-02-13 to 2026-02-19 UTC",
+        "loaded_via": "python3 -m agenttrace.external_eval moltbook on 2026-11-22; results in reports/external/moltbook/",
+        "revision": "Hugging Face revision 33c69984a481073aee77b6c6da30d9d4a70bc827, fetched anonymously on 2026-11-22; every file checked against its listed SHA-256"
+      },
       "terms": {
         "badge": "open",
         "licence": "MIT (as declared by the archive's authors)",
@@ -358,30 +404,40 @@
         "excerpts": "yes",
         "aggregates": "yes",
         "notes": [
-          "The licence is the collectors'. The card says nothing about Moltbook's own terms of service, and we did not read them.",
-          "Posts may contain text written or prompted by people who run the agents. Treat names as personal data.",
+          "The licence is the collectors' (the card's tag and its License section, read again on 2026-11-22). The card says nothing about Moltbook's own terms of service, and we did not read them.",
+          "Posts may contain text written or prompted by people who run the agents, and the agents table holds their owners' X handles. We did not download that table and we publish no agent name.",
           "Several other Moltbook scrapes exist under MIT, CC BY 4.0 or Apache-2.0. This is the largest we found."
         ]
       },
       "publish": "excerpts",
-      "publish_note": "Numbers and short excerpts with the citation. Not raw tables, until Moltbook's own terms have been read.",
+      "publish_note": "The terms allow excerpts. We publish numbers only: no post, no comment and no agent name, until Moltbook's own terms have been read.",
       "citation": "Gautam and Riegler, \"Moltbook Observatory Archive\", Hugging Face Datasets, 2026; paper arXiv:2605.13860",
+      "gallery": {
+        "name": "Moltbook Observatory Archive",
+        "url": "https://github.com/kelkalot/moltbook-observatory",
+        "records": "none",
+        "report": "reports/external/moltbook/results.json",
+        "attribution": "Numbers are computed from the Moltbook Observatory Archive: Gautam and Riegler, Hugging Face Datasets, 2026 (SimulaMet/moltbook-observatory-archive), MIT License as declared by its authors; collector at github.com/kelkalot/moltbook-observatory. No post, comment or agent name is reproduced."
+      },
       "contact": "github.com/kelkalot/moltbook-observatory (issues); the dataset's Community tab",
       "confidence": "high for the MIT tag; low for whether the platform allows scraping and reposting",
       "can": [
-        "Use real agent ids and a timestamp on every post. (Expected; not tested.)",
-        "Count replies as logged messages through comment parents.",
-        "Follow how text spreads between agents and communities at very large scale."
+        "Read every logged reply as a direct message: 41,737 of 41,737 in 40 communities.",
+        "Date all 187,738 records: every post and comment has a time.",
+        "Be scored on inference: its write-then-read links are logged replies 26% of the time.",
+        "Serve as real traffic with no recorded incident for false-alarm rates: 40 community traces of one week."
       ],
       "cannot": [
-        "Read Parquet. The tool is standard-library only; the user must convert first.",
-        "Hold 7 million rows at once. It needs slices by date or community.",
+        "Find whom a later comment answers. Right for 1% of them; it links each to the comment just before.",
+        "Stay quiet: the Alert rule fired in 40 of 40 communities, the Watch rule in 37.",
+        "Read Parquet. The conversion needs DuckDB; the tool reads the JSON Lines it writes.",
         "Know which accounts are autonomous. People can post through an agent.",
-        "See actions. There are no tool calls, only posts."
+        "See actions. There are no tool calls, only posts and comments."
       ],
       "links": [
         {"label": "Dataset card", "url": "https://huggingface.co/datasets/SimulaMet/moltbook-observatory-archive"},
-        {"label": "Paper", "url": "https://arxiv.org/abs/2605.13860"}
+        {"label": "Paper", "url": "https://arxiv.org/abs/2605.13860"},
+        {"label": "Our measurement", "url": "https://github.com/itsfingerlickinggood/swarm-tracer/blob/main/reports/external/moltbook/summary.md"}
       ]
     },
     {
@@ -485,47 +541,71 @@
     {
       "id": "salt_agent_collusion",
       "title": "SALT agent-collusion episodes",
-      "status": "candidate",
+      "status": "analysed",
       "kind": "simulated",
-      "publisher": "Social and Language Technology Lab (Shi, Zhang, Yang)",
+      "publisher": "Social and Language Technology Lab (Xinrui Shi, Yanzhe Zhang, Diyi Yang)",
       "source_url": "https://huggingface.co/datasets/SALT-NLP/agent-collusion",
       "data_url": "https://huggingface.co/datasets/SALT-NLP/agent-collusion",
       "released": "2026",
-      "contains": "27,100 two-agent episodes from a study of collusion that emerges over long interactions, with one record per agent per episode and 200 human-labelled samples.",
-      "size": "27,100 episodes; 54,200 agent records; bytes not shown",
-      "format": "Parquet, ten tables (episodes, agents, runs, conditions, tasks, human_annotations and others)",
-      "fields": {"actor_ids": "yes", "timestamps": "no", "message_bodies": "unclear", "tool_calls": "unclear", "recipients": "yes"},
-      "fields_note": "Only run and episode id columns were visible on the card. Whether full message text is included was not confirmed.",
-      "reader": {"name": "records read by field name, after converting Parquet", "pack": "chat.json or a new pack", "tested": false},
-      "local": null,
+      "contains": "27,100 episodes of two agents (2,650 runs in 53 conditions) who each do a task, exchange short messages and then accept or reject each other's work. Each episode lists the messages, the verdicts and, in 36 conditions, a collusion label; 200 samples of the two LLM judges were checked by people.",
+      "size": "8.12 GB in all. We hold the 114 Parquet tables under data/ (81.3 MB): 27,100 episodes, 2,650 runs, 267,246 messages. The full model contexts (traces/, peer-cache/, 8.04 GB) are not fetched.",
+      "format": "Parquet, ten tables (episodes, agents, runs, conditions, agreement, relaxation, three human-label tables, tasks); converted to JSON Lines with the same columns",
+      "fields": {"actor_ids": "yes", "timestamps": "no", "message_bodies": "yes", "tool_calls": "partial", "recipients": "yes"},
+      "fields_note": "Every message has a sender and a receiver. No message has a time, only its order. Tool calls are in the agents table (raw_log) and in the traces, which the reader does not load.",
+      "reader": {"name": "SALT agent-collusion episodes (agenttrace/readers_public.py), after python3 -m agenttrace.tools.external convert salt", "pack": "peer_review.json", "tested": true},
+      "local": {
+        "path": "datasets-ext/salt-agent-collusion/",
+        "records": 267246,
+        "actors": 5300,
+        "actors_note": "two agents (alice, bob) in each of 2,650 runs, each run loaded as its own trace; 1,800 runs carry the collusion label",
+        "timed_records": 0,
+        "messages": 267246,
+        "runs": 2650,
+        "loaded_via": "python3 -m agenttrace.external_eval salt on 2026-11-22; results in reports/external/salt/",
+        "revision": "Hugging Face revision 2eba8f3771e8fbcc0f49f6cbbfd2111b939a117a, fetched anonymously on 2026-11-22; every file checked against its listed SHA-256"
+      },
       "terms": {
         "badge": "open",
-        "licence": "MIT",
-        "quote": "mit",
+        "licence": "MIT (LICENSE file in the repository)",
+        "quote": "Released under the MIT License",
         "quote_url": "https://huggingface.co/datasets/SALT-NLP/agent-collusion",
         "raw": "yes",
         "excerpts": "yes",
         "aggregates": "yes",
-        "notes": ["Keep the copyright notice with any copy. Cite the paper."]
+        "notes": [
+          "The LICENSE file is the MIT text, Copyright (c) 2026 Xinrui Shi, Yanzhe Zhang, and Diyi Yang (read 2026-11-22). Keep the copyright notice with any copy. Cite the paper.",
+          "Simulated data from a designed game. Say so wherever it is shown."
+        ]
       },
       "publish": "excerpts",
-      "publish_note": "The licence allows raw records. Simulated data; say so wherever it is shown.",
+      "publish_note": "Numbers and short excerpts of the agents' messages with the citation and the copyright line. The licence allows raw records; we do not host them.",
       "citation": "Shi, Zhang and Yang, \"Emergent Collusion in Long-Horizon LLM Agent Interaction\", 2026, arXiv:2609.24967",
-      "contact": "the dataset's Community tab",
-      "confidence": "medium: licence tag and table sizes read from the card; the schema was only partly visible",
+      "gallery": {
+        "name": "SALT agent-collusion",
+        "url": "https://arxiv.org/abs/2609.24967",
+        "records": "excerpts",
+        "report": "reports/external/salt/results.json",
+        "attribution": "Excerpts are from the SALT agent-collusion dataset: Shi, Zhang and Yang, \"Emergent Collusion in Long-Horizon LLM Agent Interaction\", 2026, arXiv:2609.24967; data in the Hugging Face dataset SALT-NLP/agent-collusion, MIT License, Copyright (c) 2026 Xinrui Shi, Yanzhe Zhang, and Diyi Yang. Each excerpt is cut short; nothing else is changed."
+      },
+      "contact": "the dataset's Community tab; github.com/SALT-NLP/agent-collusion (issues)",
+      "confidence": "high: LICENSE, README.md and SCHEMA.md were read from the repository on 2026-11-22",
       "can": [
-        "Test collusion signs where the truth is known for every episode.",
-        "Measure false alarms on the non-colluding conditions.",
-        "Compare the tool's flags with 200 human labels."
+        "Read all 267,246 messages with sender and receiver: each is a logged direct message.",
+        "Be scored against the dataset's own label: 1,351 runs colluded, 449 did not.",
+        "With a pack written from one run, flag 42% of colluding runs and 6% of the others (a phrase match).",
+        "Show a reply repeating a rare term of the message before it: 22,520 of 160,490 inferred deliveries."
       ],
       "cannot": [
-        "Study a swarm. Every episode has two agents.",
-        "Use time. Episodes are ordered, not dated.",
-        "Stand in for a real incident. The setting is a designed game."
+        "Fire anything as published. No message has a time, so nothing is replayed: recall 0 of 1,351.",
+        "Tell the runs apart with its shipped rules: on an order-only clock the Alert rule fired in all 1,800.",
+        "Carry that pack to other models: it flags 21% of colluding runs where no agent is the model it copied.",
+        "See collusion that is not said: 755 of 1,301 colluding runs never use a phrase the pack lists.",
+        "Stand in for a swarm or a real incident: two agents per run, in a designed game."
       ],
       "links": [
         {"label": "Dataset card", "url": "https://huggingface.co/datasets/SALT-NLP/agent-collusion"},
-        {"label": "Paper", "url": "https://arxiv.org/abs/2609.24967"}
+        {"label": "Paper", "url": "https://arxiv.org/abs/2609.24967"},
+        {"label": "Our measurement", "url": "https://github.com/itsfingerlickinggood/swarm-tracer/blob/main/reports/external/salt/summary.md"}
       ]
     },
     {

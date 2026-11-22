@@ -29,7 +29,11 @@ and where the two differ the crosscheck lists the record.
   group. A match with a non-empty group in a record's text is a *mention* of the place `name:group`. Two
   mentions are the same place only if both name and group text are equal.
 - **R2. Only action records operate on places.** If the pack lists `action_kinds`, records of other kinds
-  (replies, recovered copies) produce no operations.
+  (replies, recovered copies) produce no operations. If the pack lists `reply_kinds`, records of those kinds are
+  never actions. The general pack lists `result` and `error`, the two kinds the MCP reader gives a server's answer
+  to a call: a tool server is infrastructure, not a party, so its answer is what the caller was sent and not
+  something an actor did. Before v2.3.0 the answer posted on the session (R18) and every call was a delivery
+  from the agent to the server.
 - **R3. A mention in a comment is not counted.** A mention is in a comment when its line starts (after
   indentation) with `//`, `#`, `/*`, `* ` or `-- `, or when a `//`, `# ` or an unclosed `/*` preceded by
   whitespace or the start of the line comes before it on the same line. `https://` does not start a comment.
@@ -88,6 +92,28 @@ download, `urlopen(url)` with one argument, `requests.get`).
   record ends within 40 characters after the place with no `)` in between, and either the place sits inside
   an open call or the record up to the place is a bare URL (redaction markers such as `[HF REPO 5]` count
   as part of the URL).
+- **R13a. A record cut inside a verb that the next record completes is read as one record.** Some rows of a
+  trace are pieces of one program split across records. Two records are joined when all of this holds:
+  (a) the first record's text ends inside the verb of a call: its last characters are the word `method` and a
+  `:` or `=`, or `.open(` (spaces allowed between these), then a quote mark, then one to five letters that begin
+  one of POST, PUT, PATCH, DELETE, GET, HEAD without completing it (`…',{method:'POS`, `x.open('PU`), letter
+  case ignored;
+  (b) the next record in the input begins with the missing letters of one of those verbs, followed at once by the
+  same quote mark (`T',headers:…`);
+  (c) both are action records (R2) of the same kind with the same actor and channel fields, neither is addressed
+  to a recipient (a logged direct message, R20, is never joined), and the second has no parent, or its parent is
+  the first record or the first record's parent.
+  The joined record's text is the first text followed by the second with nothing in between. It keeps the first
+  record's id, fields and position in the input; its time is the first record's, or the second's when the first
+  has none; its identity tokens are the first record's followed by those of the second that the first does not
+  have (R21 then runs on the joined record; for step 4 of R21 each original record's tokens still count in that
+  record's own thread). The second record no longer exists for the rule: it has no operations of its own. If the
+  joined text again ends inside a verb and the following record completes it, that record is joined too. Joining
+  is done first: every other statement on this page sees only the joined record (its text for R3 to R17, R23a,
+  R27 and R38; its time for R24), except R20, which reads the records as they stand in the input. A record that ends inside a verb and is
+  *not* completed by the next record stays cut and is not counted (R13). A record cut anywhere else (inside an
+  address, a string, a name) is never joined: only the missing letters of a verb are taken as evidence that one
+  record continues another. On the release this joins one pair (R0022674 with R0022675).
 - **R14. Otherwise the nearest verb decides, and no verb means a read.** *(heuristic)* For a mention that
   none of R6 to R13 and R17 settles, the main implementation looks at the text from 160 characters before
   the mention (or the start of its request call) to 260 after, cut at the neighbouring place mentions and
@@ -114,6 +140,22 @@ download, `urlopen(url)` with one argument, `requests.get`).
 - **R18. A record posted to a place posts there.** When the pack has `structural_channels` (the default)
   and the record has a channel field, the record is a *post* on `place:<channel>`: it reads what is there
   and writes to it. A record whose kind is in the pack's `write_only_kinds` is a write instead.
+- **R18a. A tool call that names its place operates on that place.** *(v2.3.0)* When the pack has `tool_places`
+  (the general pack does, and a pack made by the pack builder inherits it), a record with a tool field is looked
+  at as a call of that tool. Its arguments are the first JSON object in the record's text (from the first `{` to
+  the `}` that closes it, or to the end of the text when it is cut). Every string of 1 to 300 characters that is,
+  at any depth of that object, the value of one of the pack's place keys (`place`, `path`, `file`, `key`, `uri`,
+  `board`, `channel`, `page` and the others in `tool_places.keys`; letter case of the key ignored; a list
+  under such a key is not read) names the place `tool:<value>`, the value without spaces at its ends. The value
+  counts whatever its shape: one word is a place as much as a path. The tool's name is the verb: split into words at every
+  character that is not a letter and before a capital that follows a lower-case letter (`read_file`, `readFile`),
+  the record is a *write* when one of the words is in `tool_places.write_words` (write, save, put, post, append,
+  ...), else a *read* when one is in `tool_places.read_words` (read, get, fetch, list, ...), else it has no
+  operation on the place. One operation per record and place (R5). The verb counts as found in the call itself
+  (R32). R3 does not apply: an argument is data of the call, not code. An argument inside which a channel
+  pattern of the pack matches (R1) is left to that channel and is not counted again. The server is not part of
+  the place's name: the record does not say which server the call went to, so two servers that each hold a place
+  of the same name are one place to the rule.
 - **R19. Naming another structural place reads it.** When the pack has `mention_channels`, a word of six
   or more characters in the record's text that equals the short name (the last part after `~`, `/`, `:` or
   `#`) of another record's channel is a read of that place. If several places share the short name, those
@@ -187,15 +229,55 @@ download, `urlopen(url)` with one argument, `requests.get`).
 
 - **R38. Two counts are reported, never one for the other.** *Write then later read* is the count of R30:
   one actor wrote to a place and a different actor read it later. *Reader uses what was written* is the
-  subset that passes the written-content test. For each delivery that is not a logged direct message, the
-  terms (identifiers, paths, file names and numbered redaction markers of 8 or more characters) found in
-  both the writer's and the reader's record, leaving out the place's address and credentials, are listed; the
-  delivery passes when at least one such term is rare, that is, found in at most 5 records of the trace. A wiki
-  edit that kept lines the writer added passes by R29. A logged direct message passes as it stands. The output
-  keeps `deliveries_write_then_read`, `deliveries_reader_uses_content` and, for each delivery, `uses_content`
-  and up to three `shared_terms`. The test measures a shared quotation, not understanding: a pass does not
-  prove the reader acted on the content, a failure does not prove it did not (it may have used it
-  without quoting).
+  subset that passes the written-content test. A logged direct message passes as it stands. A wiki edit that
+  kept lines the writer added passes by R29. Any other delivery passes when R38a or R38b holds. The output
+  keeps `deliveries_write_then_read`, `deliveries_reader_uses_content` and, for each delivery, `uses_content`,
+  up to three `shared_terms`, and for a pass `content_how` (`kept lines`, `quoted in the read`,
+  `in the reader's later output`; with the last, `used_in` is the reader's record). The test measures a shared
+  quotation, not understanding: a pass does not prove the reader acted on the content, a failure does not
+  prove it did not (it may have used it without quoting, or reworded it).
+  *The content of a record*, for R38a and R38b, is its text. Of a tool call (a record with a tool field whose
+  text holds a JSON object) it is only the strings that are not keys in the first JSON object of the text, JSON
+  escapes decoded: the tool's name and the names of its arguments are the tool's vocabulary, the same in every
+  call, and the tool's name is never a term. A place argument (a string under a place key in the first JSON
+  object of a text, R18a) is an address and is left out.
+- **R38a. The read record quotes what was written.** The terms (identifiers, paths, file names and numbered
+  redaction markers of 8 or more characters) found in the content of both the writer's and the reader's record,
+  leaving out the place's address and credentials, are listed; the delivery passes when at least one such term
+  is rare, that is, found in at most 5 records of the trace.
+- **R38b. The reader's later output holds a distinctive term the writer wrote.** *(v2.3.0)* R38a compares the
+  write record with the read record. In a tool-call log the read record is the request, which holds no
+  content, so a reader that fetched a fact and then handed it in was never seen. R38b looks at what the
+  reader did after the read.
+  - *What was written* is the content of the write record with every match of a channel pattern of the pack
+    taken out: the place's address is not content. When the pack has `full_body_posts` and the write is a post,
+    what was written is only the lines that post added (R29).
+  - A *distinctive term* is one of: a numbered redaction marker (`[`, a letter, then letters, spaces, `:` and
+    `_`, a space or colon, digits, `]`) that is not a credential (`[CREDENTIAL n]`); a number of 5 or more digits; a run of letters,
+    digits and `_ . - /`, taken without dots, hyphens and slashes at its ends, that is 8 or more characters
+    long, holds a digit, an underscore or a capital letter after its first character, and does not begin with
+    a date (`2026-05-26…`). `R2-PELICAN-1585`, `report_v2.json` and `48213` are distinctive. A plain word is
+    not, however long, and neither is a compound of plain words (`field-value`, `example.com/hello`) or a
+    phrase of plain words. Markers are taken first, runs from the rest of the text. A record *holds* a term
+    when the term is one of the markers or runs of its whole text (runs of 5 or more characters), as an equal
+    string.
+  - A *later record of the reader* is an action record (R2) whose actor (R21) is the delivery's reader, that has
+    a time, comes after the read record (a later time, or the same time and later in the input) and whose
+    parent is not the read record: the answer to a read is what was fetched, not what the reader did with it.
+  - The delivery passes when a distinctive term of what was written is held by a later record of the reader,
+    and both guards hold for that term. **Guard 1, new at the write:** no record that comes before the write
+    record, by an actor other than the writer, holds the term. **Guard 2, not the reader's already:** no
+    record of the reader that comes before the read record holds the term, and the read record does not hold
+    it. For both guards a record without a time comes before every record that has one. Guard 1 is the
+    false-positive guard against boilerplate: a name, a path or a number that was in the trace before the
+    writer wrote it is not evidence that the reader got it from the writer. Guard 2 keeps out what the reader
+    brought itself. `shared_terms` lists up to three of the terms, the one found first first.
+  - What still passes wrongly: a term both actors were given outside the trace (a prompt, a shared config) that
+    the writer happens to write first; a term the reader took from another copy of it written after the
+    write. What is missed: a reader that rewords, a fact that is a phrase of plain words, a number of fewer
+    than 5 digits, a reader whose later records have no time. The shapes and the 5 digits were chosen while
+    looking at the harness's own scripted swarms ([the harness](harness.md)); they are not validated on real
+    agents.
 - **R39. Board places are keyed by their full path.** A folder `zzNAME/CHILD_A` and a read of
   `zzNAME/GETCHILD_…` are different places; naming only the top folder merged them.
 
@@ -228,7 +310,7 @@ download, `urlopen(url)` with one argument, `requests.get`).
 | a place held by a hidden name when a later call through a name writes | R17 | read or write cannot be told |
 | a read by the writer itself | R23, R23a | not a message between two actors |
 | an LFS upload batch of an object already requested for download, or never sent | R6b | a probe of a file that existed |
-| a record that ends inside the verb | R13 | the verb cannot be seen |
+| a record that ends inside the verb, when the next record does not complete it | R13, R13a | the verb cannot be seen |
 | a read before any write, or with no time | R24, R25 | order is the only evidence of direction |
 | the same program rerun under another token | R27 | one sender retrying |
 | a repeat read of the same write | R28 | one message, read twice |
@@ -236,12 +318,19 @@ download, `urlopen(url)` with one argument, `requests.get`).
 
 ## What the rule counts on the Swarm Traces release
 
-With the rules above, the release gives 9 deliveries (write then later read), 4 of them between two named
-tokens, 6 on places the redaction names exactly (the other 3 are weak by R31). None passes the written-content
-test: no reader quotes a term the writer wrote. v2.1.0 counted 23; 10 were one LFS upload probe (R6b), 1 a reader
-listing the writer's own token (R23a), 2 a call cut inside its verb (R13), 1 a board folder read by random
-names (R39). By agent the 4 named deliveries become 2 between agents and 2 inside one agent. One reviewer
-defends about 5 (range 3 to 7); the rule has not been checked by a second human labeller.
+With the rules above, the release gives 11 deliveries (write then later read), 4 of them between two named
+tokens, 8 on places the redaction names exactly (the other 3 are weak by R31). None passes the written-content
+test, in either form: no reader quotes a term the writer wrote (R38a), and no reader's later record holds a
+distinctive term of its write record under the two guards (R38b). By agent the 4 named deliveries become 2
+between agents and 2 inside one agent. On the audit 5 of the 11 are labelled true and 6 unclear; the labels are
+one reader's and the rule has not been checked by a second human labeller.
+
+How the count got here. v2.1.0 counted 23; 10 were one LFS upload probe (R6b), 1 a reader listing the writer's
+own token (R23a), 2 a call cut inside its verb (R13), 1 a board folder read by random names (R39). One reviewer
+defended about 5 of the 23 (range 3 to 7). v2.2.0 counted 9. With R13a (v2.3.0) the count is 11: the commit
+joined from R0022674 and R0022675 is read later by two anonymous runs. These are the two links v2.2.0 dropped as
+a call cut inside its verb; their audit label is still "unclear", because nobody has judged the joined text. The
+other v2.3.0 statements change nothing on the release: it has no tool calls (R2, R18a).
 
 ## Properties the rule must have
 
@@ -261,6 +350,8 @@ These follow from the statements and are tested in `agenttrace/tests/test_proper
   passed) changes no delivery.
 - **P6 (R24).** Removing every write leaves no delivery.
 - **P7.** The count is the same on every run.
+- **P8 (R13a).** Cutting a record inside a verb into two consecutive records changes no delivery (tested on
+  both implementations in `agenttrace/tests/test_refcount.py`, `JoinTests`).
 
 ## Checking the rule
 
@@ -271,13 +362,25 @@ These follow from the statements and are tested in `agenttrace/tests/test_proper
 | mutation testing | `python3 -m agenttrace.tools.mutate --quick` (sample) or without `--quick` (all) | how many deliberate breaks of `messages.py` the tests notice, and the ones they miss |
 
 The second implementation (`agenttrace/refcount.py`) reads the call around a mention with a tokenizer instead
-of character windows. It finds the same deliveries as the main one on every dataset checked: the release (9), the
+of character windows. It finds the same deliveries as the main one on every dataset checked: the release (11), the
 collusion.wiki logs (9,867), the demo swarm, the benign swarm, the framework samples. On the release it did not
-until v2.2.0: redaction breaks quote pairing, and it then took commits for reads (191 deliveries against 9). It was
+until v2.2.0: redaction breaks quote pairing, and it then took commits for reads (191 deliveries against the 9 of v2.2.0). It was
 fixed by implementing R6a, R6b, R23a, R38 and R39 from this page and by reading the call from the raw text where the
 tokens cannot be trusted, while reading where it differed from the main one on the release; so its agreement
 there is not independent evidence. 262 single operations on the release still differ without changing a delivery.
-`reports/integrity/crosscheck_judgement.json` lists them with a judgement.
+`reports/integrity/crosscheck_judgement.json` lists them with a judgement made for the v2.2.0 rule; for v2.3.0 the
+group sizes were checked and are the same, and the rows were not read again.
+
+R18a and R38b (v2.3.0) were written into `refcount.py` from this page, with other means than the main
+implementation uses (the arguments of a call are walked as JSON character by character instead of matched by a
+pattern; the terms are cut by splitting the text; every holder of a term is kept instead of the two earliest).
+The crosscheck now also reports the written-content test: how many deliveries pass in each implementation and
+on how many the verdict is the same. R38b gives the same verdict in both on every dataset checked. R38a, which
+v2.3.0 did not change, does not: the main implementation passes 82 deliveries of the demo swarm on the host
+name left over when the place's pattern is cut out of its URL, and 51 on the collusion.wiki logs on the page's
+own name; the second implementation leaves both out as part of the place's address. Those passes of R38a in
+the main implementation are not quotations of content. They are listed in `reports/integrity/crosscheck.json`
+(`content_test.verdict_differs`) and are not fixed here.
 
 ## What the rule does not see
 
@@ -291,7 +394,23 @@ there is not independent evidence. 262 single operations on the release still di
   is a read by default (R14).
 - R7 also drops `…place/' + id + '/merge'` where the place is a whole repository and only a sub-path is a
   variable.
-- Whether a read fetched the newest write or an older one (R26 assumes the newest).
+- A fragment that continues somewhere other than at the start of the next record. Of the 15 action records on
+  the release that end inside a verb, one is joined (R13a), and two are continued after a staging header line in
+  the next record (R0006647 in R0006648, R0020565 in R0020566).
+  R13a does not join those two: it would have to guess where the header ends. The first of them is followed by a
+  complete copy of the same program (R0006649), which is judged as it stands. The other 12 are followed by an
+  unrelated record and stay cut (R13). Records cut inside an address or a string are not joined at all, and
+  the live monitor (`online.py`) judges records one at a time and never joins.
+- Whether a read fetched the newest write or an older one (R26 assumes the newest). A board that returns every
+  line delivers the older lines too; on the harness's scripted swarms that is 25 of 58 true deliveries
+  ([the harness](harness.md)).
+- Which server a tool call went to (R18a): two servers that each hold a place of the same name are one place.
+  A tool whose name has no write or read word (`submit`, `run_tests`), a place under a key the pack does not
+  list, and a place passed as a list are not seen.
+- A tool server that sends a request of its own (MCP sampling): only its answers are set aside by R2, so such a
+  request still posts on the session.
+- A use that is not a quotation (R38): a reader that rewords what it read, or a fact that is a phrase of plain
+  words, passes neither R38a nor R38b.
 - Records outside the pack's patterns. Recall is not measured on real data.
 
 ## Tests that guard each statement
@@ -317,8 +436,11 @@ one statement each, that fail when the statement's code is changed. Test names c
 | R22 to R25, R28, R29, R31 | `DeliveryTests` |
 | R27 | `ProgramTests` |
 | R30, R31, R37, list caps | `FlowTests` |
-| R6a, R6b, R13 (inside the verb), R23a, R31 (coarse), R38, R39, R35 (sweep pairs), release counts | `agenttrace/tests/test_audit_rules.py` |
+| R6a, R6b, R13 (inside the verb), R13a (joined fragments), R23a, R31 (coarse), R38, R39, R35 (sweep pairs), release counts | `agenttrace/tests/test_audit_rules.py` |
+| R13a in the second implementation, P8 | `JoinTests` in `agenttrace/tests/test_refcount.py` |
+| R2 (reply kinds), R18a (tool places), R38b (the reader's later output, its two guards, what is distinctive), each in both implementations | `agenttrace/tests/test_tool_calls.py` |
 
-The full mutation run (1,173 mutants of `messages.py`) is in `reports/integrity/mutation.json`: 1,124 killed,
-49 survive, of which 48 are judged equivalent by hand (each with its reason, listed in
-`agenttrace/tools/mutate.py`) and 1 is unjudged. The judgements are a reading of the code, not a proof.
+The full mutation run (22 November 2026, 1,656 mutants of `messages.py` as it stands for v2.3.0) is in
+`reports/integrity/mutation.json`: 1,570 killed, 86 survive, of which 78 are judged equivalent (each with its
+reason, listed in `agenttrace/tools/mutate.py`) and 8 are not. The judgements are a reading of the code by the
+authors' AI assistant, not a proof. The earlier run, on the v2.1.0 file, had 1,173 mutants and 1,124 killed.

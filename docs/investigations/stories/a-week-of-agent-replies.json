@@ -1,0 +1,311 @@
+{
+ "slug": "a-week-of-agent-replies",
+ "order": 5,
+ "title": "A week of agent replies: who answers whom, and how often the alarms ring",
+ "dek": "On Moltbook the accounts are AI agents, and every reply records what it answers. In one week of {communities} communities the tool's own guess at who answered whom is a logged reply for {rec_precision} of its links, and its Alert rule rings in all {alert_k}.",
+ "dataset": "moltbook_observatory",
+ "kicker": "Moltbook Observatory Archive, a public archive of an agent social network",
+ "source": {
+  "authors": "Gautam and Riegler",
+  "title": "Moltbook Observatory Archive",
+  "site": "Hugging Face Datasets",
+  "url": "https://github.com/kelkalot/moltbook-observatory",
+  "date": "2026",
+  "licence": "MIT, as declared by the archive's authors",
+  "attribution": "Numbers are computed from the Moltbook Observatory Archive: Gautam and Riegler, Hugging Face Datasets, 2026 (SimulaMet/moltbook-observatory-archive), MIT License as declared by its authors; collector at github.com/kelkalot/moltbook-observatory. No post, comment or agent name is reproduced.",
+  "snippets": "off",
+  "input": "the smallest of the forty communities, only so that the builder has a loaded trace; no record is cited (python3 -m agenttrace.external_eval story a-week-of-agent-replies)"
+ },
+ "figures": {
+  "week_start": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.week.0",
+   "as": "text",
+   "label": "first day of the week (UTC)"
+  },
+  "week_end": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.week.1",
+   "as": "text",
+   "label": "last day"
+  },
+  "communities": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.communities",
+   "as": "int",
+   "label": "communities, each loaded as one trace"
+  },
+  "records": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.records",
+   "as": "int",
+   "label": "posts and comments in them"
+  },
+  "posts": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.posts",
+   "as": "int",
+   "label": "posts"
+  },
+  "comments": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.comments",
+   "as": "int",
+   "label": "comments"
+  },
+  "agents": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.agents",
+   "as": "int",
+   "label": "agent accounts that wrote them"
+  },
+  "replies": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "reader.logged_replies",
+   "as": "int",
+   "label": "comments that answer a record by another agent"
+  },
+  "self_replies": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "reader.self_replies",
+   "as": "int",
+   "label": "comments that answer their own author, not counted"
+  },
+  "direct": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "reader.direct_messages_reported",
+   "as": "int",
+   "label": "logged direct messages the tool reports"
+  },
+  "match_k": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "reader.communities_where_they_match",
+   "as": "int",
+   "label": "communities where the two lists are the same"
+  },
+  "rec_precision": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record.precision.share",
+   "as": "pct",
+   "label": "of the tool's inferred links are logged replies"
+  },
+  "rec_recall": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record.recall.share",
+   "as": "pct",
+   "label": "of the logged replies are found"
+  },
+  "rec_found": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record.found",
+   "as": "int",
+   "label": "links the tool inferred from a comment to an earlier record"
+  },
+  "rec_both": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record.both",
+   "as": "int",
+   "label": "of them, logged replies"
+  },
+  "pair_precision": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_pair.precision.share",
+   "as": "pct",
+   "label": "of the inferred pairs of agents have a logged reply"
+  },
+  "pair_recall": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_pair.recall.share",
+   "as": "pct",
+   "label": "of the pairs with a logged reply are found"
+  },
+  "first_precision": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record_first_comment.precision.share",
+   "as": "pct",
+   "label": "right, when only one other agent has written in the thread so far"
+  },
+  "first_found": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record_first_comment.found",
+   "as": "int",
+   "label": "such links"
+  },
+  "later_precision": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record_later_comment.precision.share",
+   "as": "pct",
+   "label": "right, for later comments"
+  },
+  "later_found": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record_later_comment.found",
+   "as": "int",
+   "label": "such links"
+  },
+  "alert_k": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.flags[flag=rule:alert-coord2].fired.k",
+   "as": "int",
+   "label": "communities where the Alert rule fired"
+  },
+  "alert_h": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.flags[flag=rule:alert-coord2].median_hours_to_fire",
+   "as": "h1",
+   "label": "hours into the week, median"
+  },
+  "watch_k": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.flags[flag=rule:watch-harm].fired.k",
+   "as": "int",
+   "label": "communities where the Watch rule fired"
+  },
+  "volume_k": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.flags[flag=rule:baseline-volume].fired.k",
+   "as": "int",
+   "label": "communities where the volume baseline fired"
+  },
+  "word": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.watch_words.0.match",
+   "as": "text",
+   "label": "the word that set off the Watch rule most often"
+  },
+  "word_records": {
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.watch_words.0.records",
+   "as": "int",
+   "label": "records that matched it"
+  }
+ },
+ "body": [
+  {
+   "h": "Real traffic, with the replies written down"
+  },
+  {
+   "p": "Moltbook is a social network whose accounts are AI agents. Researchers at SimulaMet archive it by passive polling and publish the archive under an open licence. [[c1|We took one week of it: {records} posts and comments in the {communities} busiest communities]]. No incident is recorded for that week. It is the ordinary talk of agents, with spam and promotion in it."
+  },
+  {
+   "p": "Every comment records what it answers: another comment, or the post. That is a known answer to the question this tool was built for. [[c2|The week holds {replies} replies from one agent to another]]."
+  },
+  {
+   "h": "Reading the log"
+  },
+  {
+   "p": "Our reader hands those fields to the tool, and [[c3|the tool lists all {direct} of them as logged direct messages]]. That checks the reader. It is not an accuracy."
+  },
+  {
+   "h": "Inferring it"
+  },
+  {
+   "p": "The Swarm Traces release has no reply field. There the tool infers: a record in a shared place has read the latest earlier record there by someone else. We let it apply the same rule inside each thread and compared its links with the logged replies. [[c4|{rec_precision} of its links are logged replies, and it finds {rec_recall} of them]]. [[c5|Counted by pair of agents the figures are {pair_precision} and {pair_recall}]]."
+  },
+  {
+   "p": "The misses have one cause. [[c6|When only one other agent has written in a thread, the rule is right {first_precision} of the time]]: there is nothing else to answer. [[c7|For later comments it is right {later_precision} of the time]]. Most comments answer the post, and the rule ties each one to the comment just before it. A write followed by a read shows that the text was there to be read. It does not show whom the reader was answering."
+  },
+  {
+   "h": "The alarms"
+  },
+  {
+   "p": "Each community's week is one trace. [[c8|The Alert rule fired in {alert_k} of {communities}]], a median of {alert_h} hours in. It asks for two kinds of coordination between named agents, and on a network made for replies those appear at once. [[c9|The Watch rule fired in {watch_k}]]; its commonest match was the plain word {word}. [[c10|The volume baseline fired in {volume_k}]]. On traffic like this an alarm says that agents are talking, and nothing more."
+  },
+  {
+   "note": "One week of one platform, chosen before any result. The archive's authors say that comment coverage is partial, so the replies here are the ones that were collected. No agent is named and no post is quoted on this page; the table that holds the handles of the agents' owners was not downloaded."
+  }
+ ],
+ "claims": {
+  "c1": {
+   "evidence": "The slice, as loaded.",
+   "figures": [
+    "week_start",
+    "week_end",
+    "communities",
+    "records",
+    "posts",
+    "comments",
+    "agents"
+   ],
+   "docs": [
+    {
+     "href": "../../datasets.html#moltbook_observatory",
+     "label": "Moltbook Observatory Archive in the dataset registry: source, licence, what the tool can and cannot do with it"
+    }
+   ],
+   "caveat": "Data: Gautam and Riegler, \"Moltbook Observatory Archive\", Hugging Face Datasets, 2026 (SimulaMet/moltbook-observatory-archive), MIT License as declared by its authors. The communities are the forty with the most comments in the week; the week and that rule were fixed before any result."
+  },
+  "c2": {
+   "evidence": "Replies the archive logs.",
+   "figures": [
+    "replies",
+    "self_replies"
+   ],
+   "caveat": "A reply is a comment whose parent, a comment or the post, was written by another agent and is in the same community's file."
+  },
+  "c3": {
+   "evidence": "The reader against the log.",
+   "figures": [
+    "direct",
+    "replies",
+    "match_k"
+   ]
+  },
+  "c4": {
+   "evidence": "The write-then-read rule against the logged replies, by record.",
+   "figures": [
+    "rec_precision",
+    "rec_recall",
+    "rec_found",
+    "rec_both",
+    "replies"
+   ],
+   "caveat": "The rule does not use the reply fields. A link the log does not confirm may still be a real read; nothing here shows that it is. The intervals are in reports/external/moltbook/summary.md."
+  },
+  "c5": {
+   "evidence": "The same comparison by pair of agents.",
+   "figures": [
+    "pair_precision",
+    "pair_recall"
+   ]
+  },
+  "c6": {
+   "evidence": "Comments made when only one other agent has written in the thread.",
+   "figures": [
+    "first_precision",
+    "first_found"
+   ]
+  },
+  "c7": {
+   "evidence": "All later comments.",
+   "figures": [
+    "later_precision",
+    "later_found"
+   ]
+  },
+  "c8": {
+   "evidence": "The Alert rule on traffic with no recorded incident.",
+   "figures": [
+    "alert_k",
+    "communities",
+    "alert_h"
+   ],
+   "caveat": "Nobody labelled this traffic. An alarm here is a false alarm only in the sense that no incident is known."
+  },
+  "c9": {
+   "evidence": "The Watch rule with the general pack, which the tool picks by itself for this data.",
+   "figures": [
+    "watch_k",
+    "word",
+    "word_records"
+   ],
+   "caveat": "The general pack marks a record as harmful when it matches a word list. A post that uses such a word is not shown to do harm."
+  },
+  "c10": {
+   "evidence": "The ordinary volume alarm.",
+   "figures": [
+    "volume_k"
+   ]
+  }
+ }
+}

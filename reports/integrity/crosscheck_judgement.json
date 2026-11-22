@@ -1,6 +1,301 @@
 {
- "about": "Where agenttrace/messages.py (A) and agenttrace/refcount.py (B) differ after the last crosscheck run, with a judgement of each group. Written for the v2.2.0 rule. The deliveries agree everywhere; the groups below are single operations (a place, a record, write or read) on the Swarm Traces release. Judged by reading samples of each group; not every row was read. The judgement of the v2.1.0 run (which had 173 of B's extras unread) is replaced by this file.",
+ "about": "Where agenttrace/messages.py (A) and agenttrace/refcount.py (B) differ, with a judgement of each group. The judgement was written for the v2.2.0 rule on 2026-11-16 and is kept below as written. The rule changed in v2.3.0: the block 'v2_3_0' (2026-11-22) gives the current crosscheck numbers (release 11 and 11) and marks what has not been judged again. Judged by reading samples of each group; not every row was read. The judgement of the v2.1.0 run (which had 173 of B's extras unread) is replaced by this file.",
  "made": "2026-11-16",
+ "v2_3_0": {
+  "made": "2026-11-22",
+  "crosscheck_run": "2026-11-22T10:34:19Z",
+  "read_this_first": "The rule changed after the judgement below was written (R13a: a record cut inside a verb is joined with the record that completes it; R2: the answer kinds of a tool server are not actions; R18a: a tool call that names its place operates on it; R38b: the reader's later output). The crosscheck was run again on 22 November 2026 and this block records what that run shows and what was NOT judged again. Everything outside this block is the v2.2.0 judgement, kept as written; where the two differ, this block is the current one.",
+  "swarm_traces_release": {
+   "deliveries": {
+    "A": 11,
+    "B": 11,
+    "both": 11,
+    "only_A": 0,
+    "only_B": 0,
+    "disagreement": 0.0
+   },
+   "named": {
+    "A": 4,
+    "B": 4
+   },
+   "grades_equal": {
+    "same": 11,
+    "of": 11
+   },
+   "written_content_test": {
+    "A_reader_uses_content": 0,
+    "B_reader_uses_content": 0,
+    "same_verdict": 11,
+    "of": 11,
+    "later_output_R38b": {
+     "A": 0,
+     "B": 0,
+     "both": 0
+    },
+    "note": "R38a and R38b: neither implementation passes any of the 11 deliveries."
+   },
+   "deliveries_added_since_v2_2_0": [
+    {
+     "place": "hf_dataset:[HF REPO 280]",
+     "write_id": "R0022674",
+     "read_id": "R0032250",
+     "from": "[CREDENTIAL 169]",
+     "to": "run:R0032250",
+     "grade_A": "weak",
+     "grade_B": "weak",
+     "audit_label": "unclear",
+     "judged": "NOT JUDGED. Found by both implementations after R13a joined R0022674 with R0022675 (a POST to .../commit/main cut inside 'POS). The audit label is still 'unclear': it was given on 2026-11-16 when the call could not be read, and nobody has read the joined text as a labeller. Both implementations were given R13a by the same team from the same statement, so their agreement on these two is not a second opinion."
+    },
+    {
+     "place": "hf_dataset:[HF REPO 280]",
+     "write_id": "R0022674",
+     "read_id": "R0032842",
+     "from": "[CREDENTIAL 169]",
+     "to": "run:R0032842",
+     "grade_A": "weak",
+     "grade_B": "weak",
+     "audit_label": "unclear",
+     "judged": "NOT JUDGED. Found by both implementations after R13a joined R0022674 with R0022675 (a POST to .../commit/main cut inside 'POS). The audit label is still 'unclear': it was given on 2026-11-16 when the call could not be read, and nobody has read the joined text as a labeller. Both implementations were given R13a by the same team from the same statement, so their agreement on these two is not a second opinion."
+    }
+   ],
+   "deliveries_dropped_since_v2_2_0": [],
+   "operations": {
+    "both": 16020,
+    "only_A": 156,
+    "only_B": 106,
+    "groups": [
+     {
+      "A": "read",
+      "B": "not counted",
+      "operations_v2_2_0": 110,
+      "operations_2026_11_22": 110
+     },
+     {
+      "A": "not counted",
+      "B": "read",
+      "operations_v2_2_0": 66,
+      "operations_2026_11_22": 66
+     },
+     {
+      "A": "read",
+      "B": "write",
+      "operations_v2_2_0": 29,
+      "operations_2026_11_22": 29
+     },
+     {
+      "A": "write",
+      "B": "read",
+      "operations_v2_2_0": 10,
+      "operations_2026_11_22": 10
+     },
+     {
+      "A": "write",
+      "B": "not counted",
+      "operations_v2_2_0": 7,
+      "operations_2026_11_22": 7
+     },
+     {
+      "A": "not counted",
+      "B": "write",
+      "operations_v2_2_0": 1,
+      "operations_2026_11_22": 1
+     }
+    ],
+    "judged": "NOT JUDGED AGAIN. The six groups come out with the same sizes as on 2026-11-16, and all 24 of the 24 rows read then still differ in the same way (same reading on each side). The list of operations of the 2026-11-16 run was not kept (crosscheck.json is not tracked), so it cannot be shown that the two sets of 262 are the same operations; the rows were not read again. The judgements under swarm_traces_release.operations.groups are therefore carried over from the v2.2.0 rule, not repeated for the v2.3.0 rule."
+   }
+  },
+  "other_datasets": {
+   "collusion.wiki logs": {
+    "A": 9867,
+    "B": 9867,
+    "both": 9867,
+    "only_A": 0,
+    "only_B": 0,
+    "overwrites_both": 4587,
+    "operations_only_A": 0,
+    "operations_only_B": 0,
+    "written_content_test": {
+     "A_pass": 2192,
+     "B_pass": 2141,
+     "same_verdict": 9816,
+     "of": 9867
+    }
+   },
+   "demo swarm": {
+    "A": 164,
+    "B": 164,
+    "both": 164,
+    "only_A": 0,
+    "only_B": 0,
+    "overwrites_both": 0,
+    "operations_only_A": 0,
+    "operations_only_B": 0,
+    "written_content_test": {
+     "A_pass": 82,
+     "B_pass": 0,
+     "same_verdict": 82,
+     "of": 164
+    }
+   },
+   "benign swarm": {
+    "A": 1,
+    "B": 1,
+    "both": 1,
+    "only_A": 0,
+    "only_B": 0,
+    "overwrites_both": 0,
+    "operations_only_A": 0,
+    "operations_only_B": 0,
+    "written_content_test": {
+     "A_pass": 0,
+     "B_pass": 0,
+     "same_verdict": 1,
+     "of": 1
+    }
+   },
+   "sample autogen_messages.jsonl": {
+    "A": 23,
+    "B": 23,
+    "both": 23,
+    "only_A": 0,
+    "only_B": 0,
+    "overwrites_both": 0,
+    "operations_only_A": 0,
+    "operations_only_B": 0,
+    "written_content_test": {
+     "A_pass": 12,
+     "B_pass": 12,
+     "same_verdict": 23,
+     "of": 23
+    }
+   },
+   "sample chat_transcript.json": {
+    "A": 10,
+    "B": 10,
+    "both": 10,
+    "only_A": 0,
+    "only_B": 0,
+    "overwrites_both": 0,
+    "operations_only_A": 0,
+    "operations_only_B": 0,
+    "written_content_test": {
+     "A_pass": 5,
+     "B_pass": 5,
+     "same_verdict": 10,
+     "of": 10
+    }
+   },
+   "sample crewai_log.jsonl": {
+    "A": 6,
+    "B": 6,
+    "both": 6,
+    "only_A": 0,
+    "only_B": 0,
+    "overwrites_both": 0,
+    "operations_only_A": 0,
+    "operations_only_B": 0,
+    "written_content_test": {
+     "A_pass": 3,
+     "B_pass": 3,
+     "same_verdict": 6,
+     "of": 6
+    }
+   },
+   "sample langfuse_observations.json": {
+    "A": 9,
+    "B": 9,
+    "both": 9,
+    "only_A": 0,
+    "only_B": 0,
+    "overwrites_both": 0,
+    "operations_only_A": 0,
+    "operations_only_B": 0,
+    "written_content_test": {
+     "A_pass": 3,
+     "B_pass": 3,
+     "same_verdict": 9,
+     "of": 9
+    }
+   },
+   "sample langsmith_runs.json": {
+    "A": 4,
+    "B": 4,
+    "both": 4,
+    "only_A": 0,
+    "only_B": 0,
+    "overwrites_both": 0,
+    "operations_only_A": 0,
+    "operations_only_B": 0,
+    "written_content_test": {
+     "A_pass": 2,
+     "B_pass": 2,
+     "same_verdict": 4,
+     "of": 4
+    }
+   },
+   "sample mcp_toolcalls.jsonl": {
+    "A": 3,
+    "B": 3,
+    "both": 3,
+    "only_A": 0,
+    "only_B": 0,
+    "overwrites_both": 0,
+    "operations_only_A": 0,
+    "operations_only_B": 0,
+    "written_content_test": {
+     "A_pass": 2,
+     "B_pass": 2,
+     "same_verdict": 3,
+     "of": 3
+    }
+   },
+   "sample openai_agents_trace.jsonl": {
+    "A": 4,
+    "B": 4,
+    "both": 4,
+    "only_A": 0,
+    "only_B": 0,
+    "overwrites_both": 0,
+    "operations_only_A": 0,
+    "operations_only_B": 0,
+    "written_content_test": {
+     "A_pass": 2,
+     "B_pass": 2,
+     "same_verdict": 4,
+     "of": 4
+    }
+   },
+   "sample otel_genai_spans.json": {
+    "A": 8,
+    "B": 8,
+    "both": 8,
+    "only_A": 0,
+    "only_B": 0,
+    "overwrites_both": 0,
+    "operations_only_A": 0,
+    "operations_only_B": 0,
+    "written_content_test": {
+     "A_pass": 3,
+     "B_pass": 3,
+     "same_verdict": 8,
+     "of": 8
+    }
+   }
+  },
+  "other_datasets_note": "Deliveries agree on every dataset. Counts that differ from the v2.2.0 block: {\"sample langfuse_observations.json\": {\"v2_2_0\": 8, \"v2_3_0\": 9}, \"sample mcp_toolcalls.jsonl\": {\"v2_2_0\": 17, \"v2_3_0\": 3}, \"sample otel_genai_spans.json\": {\"v2_2_0\": 6, \"v2_3_0\": 8}}. They changed with the v2.3.0 rule. R2 and R18a concern tool-call logs (the server is no longer a party; a call that names its place operates on it) and are the likely cause, but the cause was not traced and the rows were not read.",
+  "written_content_test_where_the_verdicts_differ": {
+   "demo swarm": 82,
+   "collusion.wiki logs": 51,
+   "judged": "PARTLY. docs/counting-rule.md gives the cause as read from the code: the main implementation's R38a passes a delivery on the host name left over when the place's pattern is cut out of its URL (demo swarm) or on the page's own name (wiki logs), which is part of the place's address and not content; the second implementation leaves both out. That is a fault of the main implementation's R38a, unchanged in v2.3.0 and not fixed. The rows (listed in crosscheck.json, content_test.verdict_differs) were not read one by one.",
+   "R38b": "On the wiki logs B passes 262 deliveries by R38b and A 258; A passes the other 4 by R38a already, so the verdicts agree there."
+  },
+  "not_done": [
+   "a reading of the two added deliveries as a labeller",
+   "a row-by-row reading of the 262 single operations under the v2.3.0 rule",
+   "any check of the two implementations by someone outside the team"
+  ],
+  "mutation_testing": "Run again on 2026-11-22 on messages.py with R13a and R38b (reports/integrity/mutation.json: 1,570 of 1,656 mutants killed; 78 of the 86 survivors judged equivalent by one reader, 8 not). That run is of the main implementation only and says nothing about the differences listed here."
+ },
  "read_this_first": {
   "deliveries": "On every dataset the two implementations now find the same deliveries (Swarm Traces release 9 and 9, collusion.wiki logs 9,867 and 9,867, demo swarm 164, benign swarm 1, and the 8 format samples).",
   "not_independent": "That agreement was reached by changing B while reading where it differed from A on the release. Before the change B found 191 deliveries against A's 9 (7 in both; disagreement 96.4%, threshold 10%). Every change to B is one of the faults below, judged against the written rule (docs/counting-rule.md) and not by copying messages.py, but the release disagreements were read, B was changed more than a dozen times against them, and the release was run after each change. So agreement on the release is no longer an independent check of messages.py there; it shows that two tokenisations of the same rule can be brought to agree, and that B's first result (191) was B's own fault. The independent evidence is the earlier agreement of the two on the wiki logs, the demo swarm and the samples (unchanged by this work, still exact) and the 262 operation-level differences listed below, which were not removed.",

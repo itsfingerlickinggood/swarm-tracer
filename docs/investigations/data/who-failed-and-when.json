@@ -1,0 +1,284 @@
+{
+ "schema": 1,
+ "story": "who-failed-and-when",
+ "dataset": "who_and_when",
+ "snippets": "on",
+ "citation": {
+  "dataset": "who_and_when",
+  "name": "Who&When",
+  "title": "Who&When: which agent caused the failure, and when",
+  "kind": "benchmark runs with labels",
+  "text": "Zhang et al., \"Which Agent Causes Task Failures and When? On Automated Failure Attribution of LLM Multi-Agent Systems\", ICML 2025, arXiv:2505.00212",
+  "url": "https://github.com/ag2ai/Agents_Failure_Attribution",
+  "licence": "MIT (LICENSE file in the GitHub repository); the Hugging Face card shows no licence tag",
+  "attribution": "Excerpts are from Who&When: Zhang et al., \"Which Agent Causes Task Failures and When? On Automated Failure Attribution of LLM Multi-Agent Systems\", ICML 2025, arXiv:2505.00212; data at github.com/ag2ai/Agents_Failure_Attribution, MIT License, Copyright (c) 2025 Ming Yin. Each excerpt is cut short; nothing else is changed.",
+  "records": "excerpts",
+  "viewer": null,
+  "report": "reports/external/who_and_when/results.json",
+  "input": "datasets-ext/who_and_when/",
+  "pack": "generic.json or chat.json, as the tool picks"
+ },
+ "produced_by": {
+  "tool": "Swarm Tracer",
+  "version": "2.3.0",
+  "pack": "generic agent traces",
+  "agent_rule": "estimate",
+  "agent_rule_note": "no tokens are merged in this trace",
+  "dataset": "Who&When",
+  "records": 2993,
+  "report": "reports/external/who_and_when/results.json",
+  "report_tool_version": "2.3.0",
+  "report_date": "2026-11-22"
+ },
+ "figures": {
+  "runs": {
+   "value": 184,
+   "text": "184",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "totals.runs",
+   "label": "failed runs, each loaded as its own trace"
+  },
+  "records": {
+   "value": 4092,
+   "text": "4,092",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "totals.records",
+   "label": "records (one per message)"
+  },
+  "timed": {
+   "value": 0,
+   "text": "0",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "totals.records_with_time",
+   "label": "records that carry a time"
+  },
+  "undated": {
+   "value": 689,
+   "text": "689",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "groups.Hand-Crafted.as_logged.direct_messages_undated",
+   "label": "logged messages the tool holds as undated, and leaves out of its graph"
+  },
+  "logged": {
+   "value": 689,
+   "text": "689",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "totals.logged_messages_with_recipient",
+   "label": "messages whose recipient the log names"
+  },
+  "kept": {
+   "value": 689,
+   "text": "689",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "groups.Hand-Crafted.who_talked_to_whom.recipients_kept.message_recall.k",
+   "label": "of them listed as a direct message, recipients kept"
+  },
+  "pair_found": {
+   "value": 91,
+   "text": "91",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "groups.Hand-Crafted.who_talked_to_whom.recipients_withheld.pair_recall.k",
+   "label": "logged sender-recipient pairs the tool finds, recipients withheld"
+  },
+  "pair_logged": {
+   "value": 92,
+   "text": "92",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "groups.Hand-Crafted.who_talked_to_whom.recipients_withheld.pair_recall.n",
+   "label": "logged sender-recipient pairs (one per pair per run)"
+  },
+  "msg_found": {
+   "value": 62,
+   "text": "62",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "groups.Hand-Crafted.who_talked_to_whom.recipients_withheld.message_recall.k",
+   "label": "single addressed messages the tool finds, recipients withheld"
+  },
+  "sign_agent": {
+   "value": 54,
+   "text": "54",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.methods.tool_first_sign.agent.k",
+   "label": "runs where the record of the tool's first sign is by the labelled agent"
+  },
+  "sign_step": {
+   "value": 25,
+   "text": "25",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.methods.tool_first_sign.step.k",
+   "label": "runs where it is the labelled step"
+  },
+  "chance_agent": {
+   "value": 0.2913,
+   "text": "29%",
+   "as": "pct",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.chance.agent",
+   "label": "chance for the agent (mean of one over the agents in a run)"
+  },
+  "busy_agent": {
+   "value": 72,
+   "text": "72",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.methods.baseline_busiest_agent.agent.k",
+   "label": "runs where the agent with most records is the labelled agent"
+  },
+  "last_agent": {
+   "value": 80,
+   "text": "80",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.methods.baseline_last_step.agent.k",
+   "label": "runs where the last speaker is the labelled agent"
+  },
+  "published_agent": {
+   "value": 0.535,
+   "text": "54%",
+   "as": "pct",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.published_for_scale.agent",
+   "label": "the dataset paper's best method, agent level (not re-measured)"
+  },
+  "alert": {
+   "value": 181,
+   "text": "181",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "false_alarms_all.by_rule_auto_pack.alert-coord2.k",
+   "label": "runs where the Alert rule fired (step clock)"
+  },
+  "watch": {
+   "value": 40,
+   "text": "40",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "false_alarms_all.by_rule_auto_pack.watch-harm.k",
+   "label": "runs where the Watch rule fired (step clock)"
+  },
+  "label_ok": {
+   "value": 178,
+   "text": "178",
+   "as": "int",
+   "from": "reports/external/who_and_when/results.json",
+   "path": "label_check.label_step_is_by_label_agent",
+   "label": "runs where the labelled step was spoken by the labelled agent"
+  }
+ },
+ "records": {
+  "hc1:3": {
+   "id": "hc1:3",
+   "kind": "instruction",
+   "time": null,
+   "time_estimated": false,
+   "time_source": null,
+   "actor": "Orchestrator",
+   "actor_kind": "named",
+   "agent": null,
+   "intent": "message",
+   "text_length": 131,
+   "judged": [
+    {
+     "op": "write",
+     "place": "inbox:WebSurfer",
+     "place_label": "inbox WebSurfer",
+     "in_text": false
+    },
+    {
+     "op": "post",
+     "place": "place:hc1",
+     "place_label": "place hc1",
+     "in_text": false
+    }
+   ],
+   "messages": [],
+   "snippet": "Please search for martial arts schools or studios near the New York Stock Exchange and provide a list of their names and addresses."
+  },
+  "hc1:4": {
+   "id": "hc1:4",
+   "kind": "message",
+   "time": null,
+   "time_estimated": false,
+   "time_source": null,
+   "actor": "WebSurfer",
+   "actor_kind": "named",
+   "agent": null,
+   "intent": "network_read",
+   "text_length": 3224,
+   "judged": [
+    {
+     "op": "read",
+     "place": "inbox:WebSurfer",
+     "place_label": "inbox WebSurfer",
+     "in_text": false
+    },
+    {
+     "op": "post",
+     "place": "place:hc1",
+     "place_label": "place hc1",
+     "in_text": false
+    },
+    {
+     "op": "read",
+     "place": "url:www.bing.com/sa/simg",
+     "place_label": "url www.bing.com/sa/simg",
+     "in_text": false
+    },
+    {
+     "op": "read",
+     "place": "url:www.bing.com/search",
+     "place_label": "url www.bing.com/search",
+     "in_text": true
+    }
+   ],
+   "messages": [],
+   "snippet": "…York Stock Exchange - Search](https://www.bing.com/search?q=martial+arts+schools+near+the+New+York+Stock+Exchange&form=QBLH&sp=-1&lq=0&pq=&sc=0-0&qs=n&sk=&cvi…"
+  },
+  "hc1:12": {
+   "id": "hc1:12",
+   "kind": "message",
+   "time": null,
+   "time_estimated": false,
+   "time_source": null,
+   "actor": "WebSurfer",
+   "actor_kind": "named",
+   "agent": null,
+   "intent": "network_read",
+   "text_length": 887,
+   "judged": [
+    {
+     "op": "read",
+     "place": "inbox:WebSurfer",
+     "place_label": "inbox WebSurfer",
+     "in_text": false
+    },
+    {
+     "op": "post",
+     "place": "place:hc1",
+     "place_label": "place hc1",
+     "in_text": false
+    },
+    {
+     "op": "read",
+     "place": "url:www.keyence.com.tw/landing/lpc",
+     "place_label": "url www.keyence.com.tw/landing/lpc",
+     "in_text": true
+    }
+   ],
+   "messages": [],
+   "snippet": "…- VK系列雷射顯微鏡 | KEYENCE 台灣基恩斯](https://www.keyence.com.tw/landing/lpc/microscope_thickness_vk_1pic.jsp?utm_medium=display&utm_content=KW-RM-CH-MIC-VK-Competitor…"
+  }
+ },
+ "findings": {}
+}

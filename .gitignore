@@ -3,6 +3,7 @@ redacted.jsonl
 redacted.jsonl.gz
 redacted_columns.csv
 full-wiki-logs/
+datasets-ext/
 *.jsonl.gz
 
 # Generated outputs (rebuild with the commands in the README)
@@ -13,6 +14,8 @@ reports/*
 !reports/validation/
 !reports/earlywarn/
 !reports/integrity/
+!reports/external/
+!reports/harness/
 reports/integrity/labelkit/
 reports/integrity/.cache/
 reports/integrity/crosscheck.json

@@ -52,13 +52,22 @@ def unword(s):
 
 
 NUM = r"(\d[\d,]*|" + "|".join(WORDS) + ")"
+# what the script calls one write-then-read: "messages" until v2.2.0, "deliveries" since (a read does not show the
+# reader used what was written). Either word is understood; the count checked against the app is the same one.
+NOUN = r"(messages?|deliver(?:y|ies))"
 # the sentences that carry the audited counts, as regular expressions over the narration
 CLAIMS = [
-    ("messages", re.compile(r"That leaves " + NUM + r" messages? in all"), "That leaves {messages} messages in all", False),
+    ("messages", re.compile(r"That leaves " + NUM + " " + NOUN + r" in all"), "That leaves {messages} messages in all", False),
     ("named", re.compile(NUM + r" of them between " + NUM + r" named tokens"), None, True),
     ("pairs", re.compile(r"in " + NUM + r" sender-receiver pairs?"), None, True),
     ("inside", re.compile(NUM + r" of those " + NUM + r" (?:are|is) between tokens", re.I), None, True),
 ]
+
+
+def noun_for(n, like="messages"):
+    """'message(s)' or 'delivery/deliveries' for a count, following the word the script already uses."""
+    one, many = ("delivery", "deliveries") if like.startswith("deliver") else ("message", "messages")
+    return one if n == 1 else many
 
 
 def parse_script(path):
@@ -90,9 +99,10 @@ def app_numbers(base):
             "inside": (um.get("messages") or {}).get("inside_one_agent"), "agent_messages": (um.get("messages") or {}).get("agent")}
 
 
-def claim_sentence(n):
-    """The counts sentence, written from the numbers."""
-    s = f"That leaves {n['messages']} messages in all, {word(n['named'])} of them between {word(n['tokens'])} named tokens, in {word(n['pairs'])} sender-receiver pairs."
+def claim_sentence(n, noun="messages"):
+    """The counts sentence, written from the numbers, with the script's own word for a write-then-read."""
+    s = (f"That leaves {n['messages']} {noun_for(n['messages'], noun)} in all, {word(n['named'])} of them between {word(n['tokens'])} named tokens, "
+         f"in {word(n['pairs'])} sender-receiver pairs.")
     if n.get("inside"):
         s += f" {word(n['inside']).capitalize()} of those {word(n['named'])} are between tokens that Swarm Tracer estimates belong to one agent."
     return s
@@ -104,9 +114,9 @@ def check_numbers(sections, n):
     probs = []
     m = CLAIMS[0][1].search(text)
     if not m:
-        probs.append('no sentence "That leaves N messages in all" in the script')
+        probs.append('no sentence "That leaves N messages in all" (or "N deliveries in all") in the script')
     elif unword(m.group(1)) != n["messages"]:
-        probs.append(f"script says {m.group(1)} messages in all; the app has {n['messages']}")
+        probs.append(f"script says {m.group(1)} {m.group(2)} in all; the app has {n['messages']}")
     m = CLAIMS[1][1].search(text)
     if not m:
         probs.append('no "N of them between M named tokens" in the script')
@@ -138,10 +148,10 @@ def update_script(path, n):
     """Rewrite the counts sentence(s) in the narration file from the app's numbers. True when the file changed."""
     with open(path, encoding="utf-8") as f:
         src = f.read()
-    pat = re.compile(r"That leaves " + NUM + r" messages? in all[^.]*\.(?: [A-Za-z]+ of those " + NUM + r" (?:are|is) between tokens[^.]*\.)?")
-    new, k = pat.subn(claim_sentence(n), src, count=1)
+    pat = re.compile(r"That leaves " + NUM + " " + NOUN + r" in all[^.]*\.(?: [A-Za-z]+ of those " + NUM + r" (?:are|is) between tokens[^.]*\.)?")
+    new, k = pat.subn(lambda m: claim_sentence(n, m.group(2)), src, count=1)
     if not k:
-        raise RuntimeError('the script has no sentence starting "That leaves N messages in all" to rewrite')
+        raise RuntimeError('the script has no sentence starting "That leaves N messages in all" (or "N deliveries in all") to rewrite')
     if new != src:
         with open(path, "w", encoding="utf-8") as f:
             f.write(new)

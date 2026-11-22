@@ -81,10 +81,24 @@ DATASETS = {
                 "related": [], "command": "python3 -m agenttrace demo"},
     "repo": {"name": "this repository", "path": ".", "pack": None, "inputs": [], "related": [],
              "command": "python3 -m unittest discover -s agenttrace/tests -t ."},
+    # v2.3.0: saved results, read as the validation run is. The measurements themselves are not re-run here.
+    "external": {"name": "saved measurements on four outside datasets (v2.3.0)", "path": "reports/external", "pack": None,
+                 "inputs": ["reports/external/who_and_when/results.json", "reports/external/mast_data/results.json",
+                            "reports/external/salt/results.json", "reports/external/moltbook/results.json"], "related": [],
+                 "command": "python3 -I agenttrace/failure_eval.py who_and_when; python3 -I agenttrace/failure_eval.py mast_data; "
+                            "python3 -m agenttrace.external_eval salt; python3 -m agenttrace.external_eval moltbook"},
+    "earlywarn": {"name": "saved pre-registered forward test of the main alarms and benign false alarms (v2.3.0)",
+                  "path": "reports/earlywarn/summary_v23.json", "pack": None,
+                  "inputs": ["reports/earlywarn/summary_v23.json", "reports/earlywarn/benign_external_v23.json"], "related": [],
+                  "command": "python3 -m agenttrace.earlywarn forward23; python3 -m agenttrace.earlywarn external"},
+    "crosscheck": {"name": "saved crosscheck of the two implementations of the counting rule (file not tracked in git)",
+                   "path": "reports/integrity/crosscheck.json", "pack": None, "inputs": ["reports/integrity/crosscheck.json"], "related": [],
+                   "command": "python3 -m agenttrace.tools.crosscheck --out reports/integrity/crosscheck.json"},
 }
 # the parts each dataset is computed in (each part is one subprocess; parts of one dataset run side by side)
 PARTS = {"release": ["release_core", "release_evaluate", "release_attribution", "release_insiders"], "wiki": ["wiki"],
-         "audit": ["audit"], "validation": ["validation"], "variance": ["variance"], "samples": ["samples"], "repo": ["repo"]}
+         "audit": ["audit"], "validation": ["validation"], "variance": ["variance"], "samples": ["samples"], "repo": ["repo"],
+         "external": ["external"], "earlywarn": ["earlywarn"], "crosscheck": ["crosscheck"]}
 HEAVY = {"release", "wiki"}       # computed from the gitignored datasets; skipped when they are absent
 
 KEYWORDS = (r"messages?|deliver(?:y|ies)|agents?|tokens?|links?|pairs?|records?|folders?|findings?|swarms?|runs?|"
@@ -381,33 +395,43 @@ def registry():
     A(C("release.harm_timed", "Timed harmful actions", f"{S4}['harm_events_timed']",
         ("R", r"registry mailbox use \(<v> timed actions\)"), ("R", r"share of the <v> timed harmful actions"), ("IX", r"of the <v> dated harmful actions")))
     # ---- the release: messages
-    msgs = [("R", r"It finds <v> write-then-read deliveries \(a write to a shared place"), ("R", r"All <v> write-then-read deliveries passed through dataset repositories"), ("R", r"and report <v> write-then-read deliveries, \d+ labelled true"),
+    msgs = [("R", r"it finds <v> such write-then-read deliveries, \d+ of them between"), ("R", r"All <v> write-then-read deliveries passed through dataset repositories"), ("R", r"Of the <v>, \d+ are labelled true and \d+ undecidable"),
             ("R", r"reconstructed <v> write-then-read deliveries \(\d+ between named tokens"), ("R", r"\d+ of <v> deliveries rest on one, none between named tokens"),
             ("RM", r"The Swarm Traces release has <v> write-then-read deliveries \(\d+ between named tokens\)"),
-            ("S", r"published <v> write-then-read deliveries, \d+ between \d+ named tokens in \d+ pairs"), ("S", r"\) \d+ → \d+ → \d+ → <v>; a reviewer defends"), ("IX", r"published <v> write-then-read deliveries \(\d+ between named tokens"),
-            ("SUB", r"It finds <v> write-then-read deliveries \(not messages"), ("DS", r"That leaves <v> deliveries in all"),
-            ("V", r"On the audit the <v> score \d+ of \d+ decidable"), ("V", r"The v2\.2\.0 rule reports <v> write-then-read deliveries, \d+ between named tokens"),
+            ("S", r"published <v> write-then-read deliveries, \d+ between \d+ named tokens in \d+ pairs"), ("S", r"\) \d+ → \d+ → \d+ → \d+ → <v>; a reviewer defends"), ("IX", r"published <v> write-then-read deliveries \(\d+ between named tokens"),
+            ("SUB", r"it finds <v> write-then-read deliveries \(not messages"), ("DS", r"That leaves <v> deliveries in all"),
+            ("V", r"On the audit the <v> score \d+ of \d+ decidable"), ("V", r"The v2\.3\.0 rule reports <v> write-then-read deliveries, \d+ between named tokens"),
             ("V", r"\| all deliveries \| <v> \("),
-            ("S", r"through Hugging Face datasets: all <v> deliveries\."), ("S", r"\d+ of <v> deliveries sit on places the redaction may have merged")]
+            ("S", r"through Hugging Face datasets: all <v> deliveries\."), ("S", r"\d+ of <v> deliveries sit on places the redaction may have merged"),
+            # v2.3.0 places
+            ("RM", r"moved the Swarm Traces count from 9 to <v> write-then-read deliveries"), ("RM", r"The v2\.3\.0 rule reports <v> write-then-read deliveries \(one actor wrote"),
+            ("RM", r"on the release that is \d+ of <v>, and a second form of the test"),
+            ("KI", r"The release now has <v> write-then-read deliveries, \d+ between named tokens \(unchanged\)"),
+            ("KI", r"The rule now reports <v> write-then-read deliveries, \d+ between named tokens, none where"),
+            ("LIM", r"\(\d+ of <v> on the Swarm Traces release do\)"), ("HW", r"which is \d+ of <v> on the Swarm Traces release"),
+            ("R", r"on the release that is \d+ of <v>\. Earlier versions"), ("S", r"On the incident itself: <v> write-then-read deliveries, \d+ between named tokens")]
     A(C("release.deliveries", "Messages (deliveries) the final rule reports on the release", "session.flow['deliveries']", *msgs))
-    named = [("R", r"so we do not call them messages\), <v> of them between \d+ named tokens in \d+ sender.receiver pairs"), ("R", r"Between named tokens the tool finds <v> deliveries among"),
-             ("R", r"reconstructed \d+ write-then-read deliveries \(<v> between named tokens"), ("R", r"puts \d+ of the <v> named deliveries inside one agent"),
+    named = [("R", r"such write-then-read deliveries, <v> of them between \d+ named tokens in \d+ sender.receiver pairs"), ("R", r"Between named tokens the tool finds <v> deliveries among"),
+             ("R", r"reconstructed \d+ write-then-read deliveries \(<v> between named tokens"),
              ("R", r"Between estimated agents, \d+ of the <v> named deliveries fall inside"),
              ("RM", r"The Swarm Traces release has \d+ write-then-read deliveries \(<v> between named tokens\)"),
              ("S", r"published \d+ write-then-read deliveries, <v> between \d+ named tokens in"), ("S", r"likely one agent: \d+ of the <v> named deliveries fall inside one agent"), ("S", r"with dating error, the <v> named deliveries range"),
              ("IX", r"published \d+ write-then-read deliveries \(<v> between named tokens"), ("SUB", r"using what was written\), <v> of them between \d+ named tokens in \d+ sender-receiver pairs"), ("SUB", r"merged into estimated agents, \d+ of the <v> named deliveries fall inside one agent"),
              ("DS", r"<v> of them between (?:\w+ )?named tokens, in", "word"),
-             ("V", r"\| between two named tokens \| <v> \| \d+ of \d+ \|"), ("V", r"The v2\.2\.0 rule reports \d+ write-then-read deliveries, <v> between named tokens"),
-             ("V", r"\| between two named tokens \| <v> \|"), ("V", r"Of the <v> between named tokens all \d+ were read as a write")]
+             ("V", r"\| between two named tokens \| <v> \| \d+ of \d+ \|"), ("V", r"The v2\.3\.0 rule reports \d+ write-then-read deliveries, <v> between named tokens"),
+             ("V", r"\| between two named tokens \| <v> \|"), ("V", r"Of the <v> between named tokens all \d+ were read as a write"),
+             # v2.3.0 places
+             ("RM", r"still <v> between named tokens and still"), ("KI", r"The release now has \d+ write-then-read deliveries, <v> between named tokens \(unchanged\)"),
+             ("S", r"On the incident itself: \d+ write-then-read deliveries, <v> between named tokens")]
     A(C("release.named_deliveries", "Messages between two named tokens", "session.flow['deliveries_between_named_actors']", *named))
     A(C("release.named_pairs", "Sender-receiver pairs between named tokens", "session.flow['named_actor_pairs']",
-        ("R", r"of them between \d+ named tokens in <v> sender.receiver pairs, all through"), ("R", r"among \d+ tokens in <v> sender.receiver pairs \(Figure 2\)"),
-        ("R", r"Who talked to whom: the <v> sender.receiver pairs"), ("R", r"\(v2\.2\.0 has <v> pairs between \d+ tokens\)"),
-        ("RM", r"Every write-then-read delivery between named tokens in the Swarm Traces release \(<v> sender-receiver pairs\)"),
+        ("R", r"of them between \d+ named tokens in <v> sender.receiver pairs; in none does the reader"), ("R", r"among \d+ tokens in <v> sender.receiver pairs \(Figure 2\)"),
+        ("R", r"Who talked to whom: the <v> sender.receiver pairs"), ("R", r"\(the v2\.3\.0 list has <v> pairs between \d+ tokens, as v2\.2\.0 had"),
+        ("RM", r"Every write-then-read delivery between named tokens in the Swarm Traces release \(<v> sender-receiver pairs; the other"),
         ("S", r"named tokens in <v> pairs, all through"), ("SUB", r"named tokens in <v> sender-receiver pairs"),
         ("DS", r"named tokens, in <v> sender-receiver pairs", "word")))
     A(C("release.named_message_tokens", "Named tokens that take part in a message", "distinct senders and receivers of the named deliveries",
-        ("R", r"\d+ of them between <v> named tokens in"), ("R", r"Between named tokens the tool finds \d+ deliveries among <v> tokens in"), ("R", r"\(v2\.2\.0 has \d+ pairs between <v> tokens\)"),
+        ("R", r"\d+ of them between <v> named tokens in"), ("R", r"Between named tokens the tool finds \d+ deliveries among <v> tokens in"), ("R", r"\(the v2\.3\.0 list has \d+ pairs between <v> tokens, as v2\.2\.0 had"),
         ("S", r"deliveries, \d+ between <v> named tokens in \d+ pairs"), ("SUB", r"\d+ of them between <v> named tokens"),
         ("DS", r"of them between <v> named tokens, in", "word")))
     A(C("release.deliveries_hf_dataset", "Messages that passed through Hugging Face datasets", "session.flow['channel_types']['hf_dataset']['deliveries']",
@@ -463,19 +487,20 @@ def registry():
     A(C("release.volume_alarm_hour", "Hour whose count set off the volume alarm", f"{ev}['baselines']['rate_alarm_all_actions']['hour']",
         ("R", r"The volume alarm fired at the end of the <v> hour", "hm")))
     A(C("release.volume_alarm_share", "Harm still to come when the volume alarm fired", f"{ev}['baselines']['rate_alarm_all_actions']['harm_share_after']",
-        ("R", r"a volume alarm that fires with <v>% of the harm still to come", "pct"), ("R", r"later than a simple volume alarm \(<v>%\)", "pct"), ("R", r"hour, with <v>% to come, on both", "pct"),
-        ("S", r"Volume alarm \(12 h history\) <v>%", "pct"), ("IX", r"a plain volume alarm fired with <v>% to come", "pct"),
-        ("SUB", r"after a plain volume alarm \(<v>%\)", "pct"), ("DS", r"a volume alarm at <v> percent", "pct_word")))
+        ("R", r"a volume alarm that fires with <v>% of the harm still to come", "pct"), ("R", r"hour, with <v>% to come, on both", "pct"),
+        ("R", r"\(the 12-hour volume alarm: <v>%\)", "pct"),
+        ("S", r"Volume alarm \(12 h history\) <v>%", "pct"),
+        ("SUB", r"after a plain volume alarm \(<v>%\)", "pct"), ("DS", r"the volume alarm with a longer history at <v> percent", "pct_word")))
     A(C("release.carried_sign_time", "First time one token holds another's token", f"{ev}['replay_signs']", ("R", r"one token holding another's token at <v> \(", "hm")))
     A(C("release.carried_sign_share", "Harm still to come at the carried-token sign", f"{ev}['replay_signs']",
         ("R", r"holding another's token at [\d:]+ \(<v>% to come\)", "pct"), ("R", r"signs of shared control fired with \d+.<v>% of the timed harmful", "pct"),
-        ("R", r"Signs of shared control came late \(\d+.<v>% of harm", "pct"), ("S", r"Signs of shared control \d+.<v>%", "pct"),
+        ("R", r"On the incident, signs of shared control came late \(\d+.<v>% of harm", "pct"), ("S", r"Signs of shared control \d+.<v>%", "pct"),
         ("S", r"the earliest with \d+% of harm to come, not <v>%", "pct"), ("IX", r"\d+.<v>% of the [\d,]+ dated harmful actions were still to come", "pct"),
         ("SUB", r"signs of shared control fired with only \d+.<v>%", "pct"), ("DS", r"fire when \w+ to <v> percent of the harm", "pct_word")))
     A(C("release.shared_name_sign_time", "First time two tokens share a place name", f"{ev}['replay_signs']", ("R", r"two tokens sharing a name at <v> \(", "hm")))
     A(C("release.shared_name_sign_share", "Harm still to come at the shared-name sign", f"{ev}['replay_signs']",
         ("R", r"sharing a name at [\d:]+ \(<v>% to come\)", "pct"), ("R", r"signs of shared control fired with <v>.\d+% of the timed harmful", "pct"),
-        ("R", r"Signs of shared control came late \(<v>.\d+% of harm", "pct"), ("S", r"Signs of shared control <v>.\d+%", "pct"),
+        ("R", r"On the incident, signs of shared control came late \(<v>.\d+% of harm", "pct"), ("S", r"Signs of shared control <v>.\d+%", "pct"),
         ("IX", r"<v>.\d+% of the [\d,]+ dated harmful actions were still to come", "pct"), ("SUB", r"signs of shared control fired with only <v>.\d+%", "pct"),
         ("DS", r"fire when <v> to [\w-]+ percent of the harm", "pct_word")))
     A(C("release.program2_time", "First program run by a second token", f"{ev}['replay_signs']", ("R", r"a program run by a second token, fired at <v> \(", "hm_on_md")))
@@ -496,7 +521,7 @@ def registry():
     A(C("release.milestones", "Moments compared with times the investigators published", f"{ev}['external']['milestones']",
         ("R", r"<v> moments it dates fall within", "word"), ("R", r"<v> estimated event times fall within", "word"), ("R", r"We compare <v> moments in our reconstruction", "word"),
         ("R", r"the external timing check covers <v> moments", "word"), ("S", r"largest gap between <v> moments"), ("IX", r"largest gap between <v> moments", "word"),
-        ("SUB", r"and <v> moments it dates fall within", "word"), ("DS", r"And <v> key moments land within", "word")))
+        ("SUB", r"where the release could date 3%, <v> moments it dates fall within", "word"), ("DS", r"And <v> key moments land within", "word")))
     A(C("release.milestone_max_diff_h", "Largest difference between an estimated and a published time (h)", "max |difference_h| over the milestones",
         ("R", r"the largest difference is <v> h", "f2"), ("R", r"moments it dates fall within about <v> hours", "f1"), ("R", r"event times fall within about <v> hours", "f1"),
         ("R", r"Every matched moment falls within about <v> hours", "f1"), ("S", r"<v> h largest gap between", "f1"), ("IX", r"<v> h largest gap between", "f1"),
@@ -520,9 +545,9 @@ def registry():
     A(C("release.largest_agent_records", "Records under the largest estimated agent", "records of the largest group", ("R", r"1623, 1069; <v> records\)")))
     A(C("release.agent_messages", "Messages between different estimated agents", f"{un}['messages']"))
     A(C("release.agent_messages_inside", "Named messages that fall inside one estimated agent", f"{un}['inside_one_agent']",
-        ("R", r"puts <v> of the \d+ named deliveries inside one agent"), ("R", r"Between estimated agents, <v> of the \d+ named deliveries fall inside one agent"),
+        ("R", r"Between estimated agents, <v> of the \d+ named deliveries fall inside one agent"),
         ("S", r"likely one agent: <v> of the \d+ named deliveries fall inside one agent"), ("SUB", r"merged into estimated agents, <v> of the \d+ named deliveries fall inside one agent"),
-        ("V", r"counted by estimated agent, \d+ between agents and <v> inside one"),
+        ("V", r"\(\d+ between agents, <v> inside one agent\), 0 where the reader is shown using what was written: the two added"),
         ("DS", r"<v> of those \w+ are between tokens that Swarm Tracer estimates belong to one agent", "word")))
     A(C("release.agent_first_message_time", "First message between different estimated agents", f"{un}['first_message']['time']",
         ("R", r"moves from [^.]+ to <v>, with", "hm_on_md")))
@@ -537,11 +562,13 @@ def registry():
     # ---- audit score of the current code
     bm = "agenttrace.benchmark.score(benchmark.all_links(session), audit)"
     A(C("release.audit_reported_true", "Reported links the audit read as true", f"{bm}['groups']['all']['true']",
-        ("R", r"and report \d+ write-then-read deliveries, <v> labelled true"), ("V", r"On the audit the \d+ score <v> of \d+ decidable"), ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| <v> of \d+ \|"),
+        ("R", r"Of the \d+, <v> are labelled true and \d+ undecidable"), ("V", r"On the audit the \d+ score <v> of \d+ decidable"), ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| <v> of \d+ \|"),
         ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| <v> of")))
     A(C("release.audit_reported_false", "Reported links the audit read as false", f"{bm}['groups']['all']['false']"))
     A(C("release.audit_reported_unclear", "Reported links the audit could not decide", f"{bm}['groups']['all']['unclear']",
-        ("R", r"labelled true and <v> undecidable"), ("V", r"\| all deliveries \| \d+ \(<v> unclear\)")))
+        ("R", r"labelled true and <v> undecidable"), ("V", r"\| all deliveries \| \d+ \(<v> unclear\)"),
+        ("V", r"So \d+ of the \d+ are labelled true and <v> unclear"), ("KI", r"<v> of the \d+ are labelled unclear, and the labels are one reader"),
+        ("S", r"and <v> of the \d+ are labelled unclear\.")))
     A(C("release.audit_decidable", "Reported links the audit could decide", f"{bm}['precision']['n']",
         ("V", r"On the audit the \d+ score \d+ of <v> decidable"), ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| \d+ of <v> \|"), ("V", r"\| all deliveries \| \d+ \(\d+ unclear\) \| \d+ of <v> \|")))
     A(C("release.audit_precision", "Precision of the reported links on the audit", f"{bm}['precision']['value']",
@@ -552,7 +579,8 @@ def registry():
         ("V", r"\(\d+ are unclear; 95% range \d+%.<v>%", "pct"), ("V", r"\| all deliveries \| [^|]+\| [^|]+\| \d+% \(\d+%.<v>%\)", "pct")))
     A(C("release.audit_named_true", "Named links read as true", f"{bm}['groups']['named_named']", ("V", r"\| between two named tokens \| \d+ \| <v> of"), ("V", r"\| between two named tokens \| \d+ \| <v> of \d+ \|")))
     A(C("release.audit_run_reported", "Reported links with an anonymous run on one side", f"{bm}['groups']['involves_run']['reported']",
-        ("V", r"\| an anonymous run on one side \| <v> \(")))
+        ("V", r"\| an anonymous run on one side \| <v> \("), ("RM", r"the other <v> of the \d+ deliveries have an anonymous run on one side"),
+        ("R", r"\(Figure 2\); the other <v> have an anonymous run on one side")))
     A(C("release.audit_run_true", "Of those, read as true", f"{bm}['groups']['involves_run']['true']",
         ("V", r"\| an anonymous run on one side \| [^|]+\| <v> of"), ("V", r"of those with an anonymous endpoint <v> of \d+")))
     A(C("release.audit_run_decidable", "Of those, decidable", f"{bm}['groups']['involves_run']['precision']['n']",
@@ -602,9 +630,9 @@ def registry():
     A(C("wiki.span_days", "Days the wiki logs span", "last - first dated record, in days", ("R", r"named actors over <v> days\)", "f0")))
     cr = "agenttrace.evaluate.counting_ablation(...)"
     A(C("wiki.counting_naive", "Wiki messages under naive counting", f"{cr}[0]['messages']",
-        ("R", r"on wiki logs they cut <v> apparent messages"), ("S", r"the rules cut <v> apparent messages")))
+        ("R", r"Over all the wiki logs they cut <v> apparent messages"), ("S", r"the rules cut <v> apparent messages")))
     A(C("wiki.counting_final", "Wiki messages after all three counting rules", f"{cr}[-1]['messages']",
-        ("R", r"apparent messages to <v>\. Identity"), ("S", r"apparent messages to <v>\.")))
+        ("R", r"apparent messages to <v>\. On the Swarm Traces release the three counting rules"), ("S", r"apparent messages to <v>\.")))
     A(C("wiki.overwrites", "Wiki edits counted as overwrites", "session.flow['overwrites']",
         ("R", r"On the wiki logs, <v> edits replaced another agent's edit"), ("RM", r"In the wiki logs this removes <v> edits")))
     A(C("wiki.top_pair_messages", "Messages in the LinkHelper771 / AgentMassPointer13 exchange", "session.conversation(...)['a_to_b'] + ['b_to_a']",
@@ -625,7 +653,7 @@ def registry():
     A(C("audit.unclear", "Links the audit could not decide", "label == unclear", ("V", r"different repositories, <v> unclear, \d+ reader holding")))
     A(C("audit.first_count", "Named links the first version (v1.1.0) reported", "reported_v110 true",
         ("R", r"cut a first count of <v> to 19, then 23, then 9"), ("R", r"Of the <v> an early version reported between named tokens"), ("S", r"Counts fell <v> → \d+ → \d+ → \d+ over three audits"),
-        ("S", r"\) <v> → \d+ → \d+ → \d+; a reviewer defends"), ("SUB", r"cut a first count of <v> to 19, then 23, then 9"), ("DS", r"A first count said <v>, then 19"),
+        ("S", r"\) <v> → \d+ → \d+ → \d+ → \d+; a reviewer defends"), ("SUB", r"cut a first count of <v> to 19, then 23, then 9"), ("DS", r"A first count said <v>, then 19"),
         ("V", r"every link between named tokens that v1.1.0 reported on the Swarm Traces release \(<v>\)")))
     # ---- saved runs
     vs = "reports/validation/summary.json"
@@ -697,6 +725,222 @@ def registry():
     A(C("repo.unit_tests", "Unit tests in the test suite", "unittest discovery over agenttrace/tests"))
     A(C("repo.version", "Package version", "pyproject.toml [project] version",
         ("RM", r"swarm-tracer@v<v>", "str"), ("IX", r"swarm-tracer@v<v>", "str"), ("S", r"swarm-tracer@v<v>", "str")))
+    # ---- v2.3.0: the four outside datasets (saved results in reports/external/)
+    P1 = "pct1"
+    ww = "reports/external/who_and_when/results.json"
+    A(C("external.ww_runs", "Who&When: runs", f"{ww} totals.runs",
+        ("RM", r"fired in \d+ of <v> runs of Who&When"), ("IX", r"set off the Alert rule: \d+ of <v> Who&When runs"),
+        ("KI", r"fired in \d+ of <v> Who&When runs"), ("V", r"the Alert rule fired in \d+ of <v> \(Who&When\)"),
+        ("R", r"\d+ of [\d,]+ \(9\.0%\) \d+ of <v> Failing agent named"), ("S", r"set off the Alert rule \(\d+ of <v>,")))
+    A(C("external.ww_alert_fired", "Who&When: runs where the Alert rule fired (pack the tool picks)", f"{ww} false_alarms_all.by_rule_auto_pack['alert-coord2'].k",
+        ("RM", r"fired in <v> of \d+ runs of Who&When"), ("IX", r"set off the Alert rule: <v> of \d+ Who&When runs"),
+        ("KI", r"fired in <v> of \d+ Who&When runs"), ("V", r"the Alert rule fired in <v> of \d+ \(Who&When\)"),
+        ("R", r"\d+ of [\d,]+ \(9\.0%\) <v> of \d+ Failing agent named"), ("S", r"set off the Alert rule \(<v> of \d+,")))
+    A(C("external.ww_pairs_found", "Who&When: logged pairs the tool finds with recipients withheld", f"{ww} groups['Hand-Crafted'].who_talked_to_whom.recipients_withheld.pair_recall.k",
+        ("RM", r"the tool still finds <v> of the \d+ logged sender-recipient pairs"), ("IX", r"<v> of \d+ logged sender-recipient pairs found with the recipients withheld"),
+        ("KI", r"With recipients withheld the tool finds <v> of \d+ logged pairs on Who&When"), ("V", r"\| Who&When, 58 runs that name recipients \| <v> of \d+ \("),
+        ("R", r"with recipients withheld it recovers <v> of \d+ logged agent pairs"), ("R", r"the tool still finds <v> of \d+ logged sender.recipient pairs in Who&When"),
+        ("S", r"<v> of \d+ logged pairs of agents found with the recipients withheld"), ("SUB", r"with recipients withheld it recovers <v> of \d+ logged pairs of agents"),
+        ("LIM", r"most pairs of agents that talked \(<v> of \d+ on Who&When")))
+    A(C("external.ww_pairs_logged", "Who&When: logged sender-recipient pairs", f"{ww} …pair_recall.n",
+        ("RM", r"the tool still finds \d+ of the <v> logged sender-recipient pairs"), ("IX", r"\d+ of <v> logged sender-recipient pairs found with the recipients withheld"),
+        ("KI", r"With recipients withheld the tool finds \d+ of <v> logged pairs on Who&When"), ("V", r"\| Who&When, 58 runs that name recipients \| \d+ of <v> \("),
+        ("R", r"with recipients withheld it recovers \d+ of <v> logged agent pairs"), ("R", r"the tool still finds \d+ of <v> logged sender.recipient pairs in Who&When"),
+        ("S", r"\d+ of <v> logged pairs of agents found with the recipients withheld"), ("SUB", r"with recipients withheld it recovers \d+ of <v> logged pairs of agents"),
+        ("LIM", r"most pairs of agents that talked \(\d+ of <v> on Who&When")))
+    A(C("external.ww_pair_precision", "Who&When: share of the tool's pairs that are logged", f"{ww} …pair_precision_vs_logged",
+        ("RM", r"\(<v>% of its Who&When pairs are logged", P1), ("KI", r"\(<v>% of its Who&When pairs are logged", P1),
+        ("R", r"\(<v>% of its Who&When pairs are logged", P1), ("V", r"\| \d+ of \d+ \(<v>%; [\d.]+% in either direction\)", P1)))
+    A(C("external.ww_pair_precision_either", "Who&When: share of the tool's pairs logged in either direction", f"{ww} …pair_precision_either_direction",
+        ("RM", r"Who&When pairs are logged, <v>% in either direction", P1), ("KI", r"Who&When pairs are logged; <v>% in either direction", P1),
+        ("R", r"Who&When pairs are logged; <v>% in either direction", P1), ("V", r"\| \d+ of \d+ \([\d.]+%; <v>% in either direction\)", P1)))
+    A(C("external.ww_message_recall", "Who&When: logged single messages the tool finds", f"{ww} …message_recall",
+        ("RM", r"the tool finds <v>% of the logged messages on Who&When", P1), ("KI", r"on MAST-Data, but <v>% and [\d.]+% of the single logged messages", P1),
+        ("V", r"\| 62 of 689 \(<v>%\) \|", P1), ("R", r"It finds <v>% and [\d.]+% of the single logged messages", P1), ("S", r"\(people\) \d+ of \d+ <v>% \d+ of \d+", P1)))
+    A(C("external.ww_agent_right", "Who&When: runs where the first warning sign names the labelled agent", f"{ww} attribution_all.methods.tool_first_sign.agent.k",
+        ("RM", r"names the labelled agent in <v> of \d+ Who&When runs"), ("KI", r"names the labelled agent in <v> runs \("),
+        ("V", r"\| the record of the tool's first warning sign \| <v> \("), ("R", r"names the labelled agent in <v> of \d+ runs \("),
+        ("S", r"agent at fault named in <v> of \d+ \(chance")))
+    A(C("external.ww_agent_right_share", "Who&When: that share", f"{ww} …tool_first_sign.agent k / n",
+        ("RM", r"Who&When runs \(<v>%, against", P1), ("IX", r"<v>% of \d+ Who&When runs where the tool's first warning sign", P1),
+        ("KI", r"names the labelled agent in \d+ runs \(<v>%; chance", P1), ("V", r"\| the record of the tool's first warning sign \| \d+ \(<v>%\)", P1),
+        ("R", r"name a failing agent at chance \(<v>% against", P1), ("R", r"names the labelled agent in \d+ of \d+ runs \(<v>%; chance", P1),
+        ("S", r"<v>% of \d+ failed runs where the tool's first warning sign", P1), ("SUB", r"name the agent at fault at chance \(<v>% against", P1),
+        ("LIM", r"reading its flags as blame is at chance \(<v>% against", P1)))
+    A(C("external.ww_chance_agent", "Who&When: chance of naming the right agent", f"{ww} attribution_all.chance.agent",
+        ("RM", r"against <v>% by chance", P1), ("IX", r"names the agent that caused the failure; chance is <v>%", P1),
+        ("KI", r"names the labelled agent in \d+ runs \([\d.]+%; chance <v>%\)", P1), ("V", r"\| chance \| <v>% \|", P1),
+        ("R", r"name a failing agent at chance \([\d.]+% against <v>%\)", P1), ("R", r"runs \([\d.]+%; chance <v>%\), fewer than naming", P1),
+        ("S", r"names the agent at fault; chance is <v>%", P1), ("SUB", r"at chance \([\d.]+% against <v>%\)", P1), ("LIM", r"at chance \([\d.]+% against <v>% on Who&When\)", P1)))
+    A(C("external.ww_busiest_right", "Who&When: runs where the agent with most records is the labelled one", f"{ww} …baseline_busiest_agent.agent.k",
+        ("RM", r"Naming the busiest agent gets <v> and"), ("KI", r"Naming the agent with most records gets <v>,"), ("V", r"\| baseline: the agent with most records \| <v> \("),
+        ("R", r"fewer than naming the busiest agent \(<v>\)"), ("S", r"busiest agent <v>, last speaker")))
+    A(C("external.ww_last_right", "Who&When: runs where the last speaker is the labelled agent", f"{ww} …baseline_last_step.agent.k",
+        ("RM", r"and the last speaker <v>\."), ("KI", r"gets \d+, the last speaker <v>\."), ("V", r"\| baseline: the last step \| <v> \("),
+        ("R", r"or the last speaker \(<v>\)"), ("S", r"last speaker <v> MAST-Data")))
+    ma = "reports/external/mast_data/results.json"
+    A(C("external.mast_runs", "MAST-Data: runs read", f"{ma} totals.runs",
+        ("RM", r"in [\d,]+ of <v> runs of seven agent frameworks"), ("IX", r"Who&When runs, [\d,]+ of <v> MAST-Data runs"),
+        ("KI", r"Who&When runs, [\d,]+ of <v> MAST-Data runs"), ("V", r"\(Who&When\), [\d,]+ of <v> \(MAST-Data\)"),
+        ("R", r"\(9\.5%\) [\d,]+ of <v> Alert on"), ("S", r"set off the Alert rule \(\d+ of \d+, [\d,]+ of <v>,")))
+    A(C("external.mast_alert_fired", "MAST-Data: runs where the Alert rule fired (pack the tool picks)", f"{ma} false_alarms_all.by_rule_auto_pack['alert-coord2'].k",
+        ("RM", r"in <v> of [\d,]+ runs of seven agent frameworks"), ("IX", r"Who&When runs, <v> of [\d,]+ MAST-Data runs"),
+        ("KI", r"Who&When runs, <v> of [\d,]+ MAST-Data runs"), ("V", r"\(Who&When\), <v> of [\d,]+ \(MAST-Data\)"),
+        ("R", r"\(9\.5%\) <v> of [\d,]+ Alert on"), ("S", r"set off the Alert rule \(\d+ of \d+, <v> of [\d,]+,")))
+    A(C("external.mast_pairs_found", "MAST-Data: logged pairs the tool finds with recipients withheld", f"{ma} who_talked_to_whom_all.recipients_withheld.pair_recall.k",
+        ("RM", r"and <v> of [\d,]+ \([\d.]+%\) in the three MAST frameworks"), ("KI", r"on Who&When and <v> of [\d,]+ \([\d.]+%\) on MAST-Data"),
+        ("V", r"\| MAST-Data, three frameworks that name recipients \| <v> of"), ("R", r"runs of seven frameworks <v> of [\d,]+ \(")))
+    A(C("external.mast_pairs_logged", "MAST-Data: logged sender-recipient pairs", f"{ma} …pair_recall.n",
+        ("RM", r"and [\d,]+ of <v> \([\d.]+%\) in the three MAST frameworks"), ("KI", r"on Who&When and [\d,]+ of <v> \([\d.]+%\) on MAST-Data"),
+        ("V", r"\| MAST-Data, three frameworks that name recipients \| [\d,]+ of <v> \("), ("R", r"runs of seven frameworks [\d,]+ of <v> \(")))
+    A(C("external.mast_pair_recall", "MAST-Data: share of logged pairs found", f"{ma} …pair_recall k / n",
+        ("RM", r"of [\d,]+ \(<v>%\) in the three MAST frameworks", P1), ("IX", r"recipients withheld \(Who&When; <v>% on MAST-Data\)", P1),
+        ("KI", r"of [\d,]+ \(<v>%\) on MAST-Data, but", P1), ("V", r"\| MAST-Data, three frameworks that name recipients \| [\d,]+ of [\d,]+ \(<v>%\)", P1),
+        ("R", r"logged agent pairs on one outside dataset and <v>% on another", P1), ("R", r"sender.recipient pairs in Who&When and <v>% in MAST-Data", P1),
+        ("S", r"found with the recipients withheld \(<v>% on a second dataset\)", P1), ("SUB", r"on one outside dataset and <v>% on another", P1),
+        ("LIM", r"on Who&When, <v>% on MAST-Data\)", P1)))
+    A(C("external.mast_message_recall", "MAST-Data: logged single messages the tool finds", f"{ma} …message_recall k / n",
+        ("RM", r"logged messages on Who&When and <v>% on MAST", P1), ("KI", r"on MAST-Data, but [\d.]+% and <v>% of the single logged messages", P1),
+        ("V", r"\| 1,277 of 13,441 \(<v>%\) \|", P1), ("R", r"It finds [\d.]+% and <v>% of the single logged messages", P1), ("S", r"\(an LLM judge\) [\d.]+% <v>% [\d,]+ of", P1)))
+    sa = "reports/external/salt/results.json"
+    A(C("external.salt_labelled_runs", "SALT: runs that carry the collusion label", f"{sa} loaded.runs_with_label",
+        ("RM", r"and in all <v> labelled SALT runs"), ("KI", r"Moltbook communities and all <v> labelled SALT runs"), ("R", r"SALT, <v> labelled two-agent runs n/a"),
+        ("S", r"SALT, <v> labelled two-agent runs")))
+    A(C("external.salt_colluded_runs", "SALT: labelled runs that colluded", f"{sa} loaded.colluded_runs",
+        ("RM", r"the Alert rule fires on [\d,]+ of <v> colluding runs and \d+ of \d+ others"), ("IX", r"On SALT the Alert rule fired on [\d,]+ of <v> colluding runs"),
+        ("KI", r"the Alert rule fires on [\d,]+ of <v> colluding runs and \d+ of \d+ others\. A pack"), ("V", r"the Alert rule fires on [\d,]+ of <v> colluding runs and \d+ of \d+ others, so"),
+        ("R", r"n/a [\d,]+ of <v> colluding; \d+ of \d+ others"), ("S", r"n/a n/a [\d,]+ of <v> colluding and")))
+    A(C("external.salt_alert_colluded", "SALT: colluding runs where the Alert rule fired (step clock)", f"{sa} step_clock.flags['rule:alert-coord2'].recall.k",
+        ("RM", r"the Alert rule fires on <v> of [\d,]+ colluding runs and \d+ of \d+ others"), ("IX", r"On SALT the Alert rule fired on <v> of [\d,]+ colluding runs"),
+        ("KI", r"the Alert rule fires on <v> of [\d,]+ colluding runs and \d+ of \d+ others\. A pack"), ("V", r"the Alert rule fires on <v> of [\d,]+ colluding runs and \d+ of \d+ others, so"),
+        ("R", r"n/a <v> of [\d,]+ colluding; \d+ of \d+ others"), ("S", r"n/a n/a <v> of [\d,]+ colluding and")))
+    A(C("external.salt_other_runs", "SALT: labelled runs that did not collude", f"{sa} loaded.not_colluded_runs",
+        ("RM", r"colluding runs and \d+ of <v> others\. A phrase pack"), ("IX", r"colluding runs and \d+ of <v> others, so it cannot tell them apart"),
+        ("KI", r"colluding runs and \d+ of <v> others\. A pack written from one run"), ("V", r"colluding runs and \d+ of <v> others, so it does not separate them"),
+        ("R", r"colluding; \d+ of <v> others Phrase pack"), ("S", r"colluding and \d+ of <v> others a phrase pack")))
+    A(C("external.salt_alert_other", "SALT: non-colluding runs where the Alert rule fired (step clock)", f"{sa} step_clock.flags['rule:alert-coord2'].false_positive_rate.k",
+        ("RM", r"colluding runs and <v> of \d+ others\. A phrase pack"), ("IX", r"colluding runs and <v> of \d+ others, so it cannot tell them apart"),
+        ("KI", r"colluding runs and <v> of \d+ others\. A pack written from one run"), ("V", r"colluding runs and <v> of \d+ others, so it does not separate them"),
+        ("R", r"colluding; <v> of \d+ others Phrase pack"), ("S", r"colluding and <v> of \d+ others a phrase pack")))
+    A(C("external.salt_pack_recall", "SALT: recall of the peer_review pack on the conditions it was not written from", f"{sa} pack.runs.recall k / n",
+        ("RM", r"fires on <v>% of colluding runs and [\d.]+% of the others in the", P1), ("IX", r"written from one run catches <v>% of colluding runs", P1),
+        ("KI", r"fires on <v>% of colluding runs and [\d.]+% of the others in the", P1), ("V", r"colluding runs \(<v>%\) and \d+ of \d+ others", P1),
+        ("R", r"written from one SALT run catches <v>% of colluding runs", P1), ("R", r"Phrase pack: recall <v>%", P1), ("S", r"a phrase pack from one run: recall <v>%", P1)))
+    A(C("external.salt_pack_false_positives", "SALT: non-colluding runs the peer_review pack fires on", f"{sa} pack.runs.false_positive_rate k / n",
+        ("RM", r"% of colluding runs and <v>% of the others in the \d+ conditions", P1), ("IX", r"% of colluding runs at <v>% false positives, mostly", P1),
+        ("KI", r"% of colluding runs and <v>% of the others in the \d+ conditions", P1), ("V", r"and \d+ of \d+ others \(<v>%\) in the \d+ conditions", P1),
+        ("R", r"% of colluding runs at <v>% false positives, but", P1), ("R", r"Phrase pack: recall [\d.]+%, false positives <v>%", P1),
+        ("S", r"recall [\d.]+%, false positives <v>% \(", P1)))
+    A(C("external.salt_pack_recall_own_model", "SALT: pack recall where an agent is the model the pack was written from", f"{sa} pack.by_model.an_agent_is_the_training_model.recall k / n",
+        ("RM", r"but on <v>% where an agent is the model whose wording it copied", P1), ("KI", r"it was not written from: <v>% where an agent is the model", P1),
+        ("V", r"model whose wording it copied: <v>% of colluding runs where an agent is that model", P1), ("R", r"false positives, but <v>% where an agent is the model", P1),
+        ("S", r"false positives [\d.]+% \(<v>% on its own model", P1)))
+    A(C("external.salt_pack_recall_other_models", "SALT: pack recall where no agent is that model", f"{sa} pack.by_model.no_agent_is.recall k / n",
+        ("RM", r"whose wording it copied and <v>% elsewhere", P1), ("KI", r"its phrases were read from, <v>% where none is", P1),
+        ("V", r"where an agent is that model, <v>% where none is", P1), ("R", r"the model it was written from and <v>% elsewhere", P1),
+        ("S", r"on its own model, <v>% elsewhere\)", P1)))
+    mo = "reports/external/moltbook/results.json"
+    A(C("external.moltbook_communities", "Moltbook: communities scored (one week)", f"{mo} false_alarms.communities",
+        ("RM", r"in \d+ of <v> Moltbook communities, and in all"), ("IX", r"MAST-Data runs, \d+ of <v> Moltbook communities"),
+        ("KI", r"MAST-Data runs, \d+ of <v> Moltbook communities"), ("V", r"\(MAST-Data\) and \d+ of <v> \(Moltbook communities\)"),
+        ("R", r"\(precision [\d.]+%\) \d+ of <v> No incident on record"), ("S", r"[\d,]+ of [\d,]+, \d+ of <v>\)\. It detects")))
+    A(C("external.moltbook_alert_fired", "Moltbook: communities where the Alert rule fired", f"{mo} false_alarms.flags['rule:alert-coord2'].fired.k",
+        ("RM", r"in <v> of \d+ Moltbook communities, and in all"), ("IX", r"MAST-Data runs, <v> of \d+ Moltbook communities"),
+        ("KI", r"MAST-Data runs, <v> of \d+ Moltbook communities"), ("V", r"\(MAST-Data\) and <v> of \d+ \(Moltbook communities\)"),
+        ("R", r"\(precision [\d.]+%\) <v> of \d+ No incident on record"), ("S", r"[\d,]+ of [\d,]+, <v> of \d+\)\. It detects")))
+    A(C("external.moltbook_reply_precision", "Moltbook: share of inferred reply links that are logged replies", f"{mo} inference.by_record.precision k / n",
+        ("RM", r"On Moltbook <v>% of its inferred links are logged replies", P1), ("IX", r"On Moltbook <v>% of the tool's inferred reply links", P1),
+        ("KI", r"On Moltbook <v>% of its inferred reply links are logged replies", P1), ("V", r"\| [\d,]+ of [\d,]+ \(<v>%\) \|–\|", P1),
+        ("R", r"On Moltbook <v>% of its inferred reply links are logged replies", P1), ("R", r"of logged replies \(precision <v>%\)", P1),
+        ("S", r"of replies; <v>% of links are replies", P1), ("LIM", r"On a social network of agents <v>% of its inferred reply links", P1)))
+    A(C("external.moltbook_reply_recall", "Moltbook: share of logged replies the tool finds", f"{mo} inference.by_record.recall k / n",
+        ("V", r"\| Moltbook, replies by record \| [\d,]+ of [\d,]+ \(<v>%\)", P1), ("R", r"replying pairs <v>% of logged replies", P1), ("S", r"replying pairs <v>% of replies;", P1)))
+    A(C("external.moltbook_first_comment_precision", "Moltbook: precision on the first comment in a thread", f"{mo} inference.by_record_first_comment.precision k / n",
+        ("RM", r"logged replies \(<v>% for the first comment in a thread", P1), ("KI", r"logged replies: <v>% for the first comment in a thread", P1),
+        ("V", r"right about the first comment in a thread \(<v>% of its links\)", P1), ("R", r"logged replies: <v>% for the first comment in a thread", P1),
+        ("S", r"first comment in a thread <v>% right", P1)))
+    A(C("external.moltbook_later_comment_precision", "Moltbook: precision on later comments", f"{mo} inference.by_record_later_comment.precision k / n",
+        ("RM", r"first comment in a thread, <v>% for later ones", P1), ("KI", r"first comment in a thread, <v>% for later comments", P1),
+        ("V", r"and wrong after it \(<v>%\)", P1), ("R", r"first comment in a thread and <v>% after it", P1), ("S", r"later ones <v>% None of the four", P1)))
+    # ---- v2.3.0: the pre-registered forward test of the four main alarms (reports/earlywarn/)
+    ew = "reports/earlywarn/summary_v23.json generators"
+    A(C("earlywarn.any_before_harm_original", "Forward test, original simulator: swarms where the first of the four alarms fired before the first true harm", f"{ew}.original.main['any_main'].coordinated.before_harm.k",
+        ("RM", r"the first of the four came before it in <v> of \d+ swarms and in"), ("IX", r"<v> of \d+ simulated swarms in which the first of the four main alarms"),
+        ("KI", r"\(the first of the four came before it in <v> of \d+ and"), ("R", r"the first of the four came before it in <v> of \d+ and in"),
+        ("R", r"Any of the four <v> of \d+ \d+ of \d+ \d+ of \d+ \d+ of \d+ \d+ of \d+"), ("S", r"<v> of \d+ simulated swarms where the first of the four main alarms"),
+        ("S", r"fired before the first true harm in <v> of \d+ and \d+ of \d+ simulated swarms"), ("SUB", r"led the first harm in <v> of \d+ and")))
+    A(C("earlywarn.coordinated_original", "Forward test, original simulator: coordinated swarms", f"{ew}.original.coordinated_runs",
+        ("RM", r"the first of the four came before it in \d+ of <v> swarms and in"), ("IX", r"\d+ of <v> simulated swarms in which the first of the four main alarms"),
+        ("KI", r"\(the first of the four came before it in \d+ of <v> and"), ("R", r"the first of the four came before it in \d+ of <v> and in"),
+        ("R", r"On <v> coordinated swarms of the original simulator"), ("S", r"\d+ of <v> simulated swarms where the first of the four main alarms"),
+        ("SUB", r"led the first harm in \d+ of <v> and")))
+    A(C("earlywarn.any_before_harm_independent", "Forward test, independent generator: the same", f"{ew}.independent.main['any_main'].coordinated.before_harm.k",
+        ("RM", r"swarms and in <v> of \d+\. Any of the four"), ("IX", r"before the first true harm \(<v> of \d+ on the independent generator\)"),
+        ("KI", r"came before it in \d+ of \d+ and <v> of \d+ swarms\)"), ("R", r"came before it in \d+ of \d+ and in <v> of \d+, a median"),
+        ("R", r"Any of the four \d+ of \d+ <v> of \d+ \d+ of \d+ \d+ of \d+ \d+ of \d+"), ("S", r"before the first true harm \(<v> of \d+ on an independent generator\)"),
+        ("SUB", r"led the first harm in \d+ of \d+ and <v> of \d+ simulated swarms")))
+    A(C("earlywarn.coordinated_independent", "Forward test, independent generator: coordinated swarms", f"{ew}.independent.coordinated_runs",
+        ("RM", r"swarms and in \d+ of <v>\. Any of the four"), ("IX", r"before the first true harm \(\d+ of <v> on the independent generator\)"),
+        ("KI", r"came before it in \d+ of \d+ and \d+ of <v> swarms\)"), ("R", r"came before it in \d+ of \d+ and in \d+ of <v>, a median"),
+        ("R", r"of the original simulator and <v> of the independently written one"), ("S", r"before the first true harm \(\d+ of <v> on an independent generator\)"),
+        ("SUB", r"led the first harm in \d+ of \d+ and \d+ of <v> simulated swarms")))
+    A(C("earlywarn.any_fired_benign_original", "Forward test, original simulator: benign swarms where any of the four alarms fired", f"{ew}.original.main['any_main'].benign.fired.k",
+        ("RM", r"Any of the four fired in <v> of \d+ and \d+ of \d+ simulated benign swarms"), ("IX", r"any of the four fired in <v> of \d+ and \d+ of \d+ benign swarms"),
+        ("KI", r"any of the four in <v> of \d+ and \d+ of \d+ simulated benign swarms"), ("R", r"Any of the four fired in <v> of \d+ and \d+ of \d+ benign swarms"),
+        ("R", r"Any of the four \d+ of \d+ \d+ of \d+ <v> of \d+ \d+ of \d+ \d+ of \d+"), ("S", r"any of the four fired in <v> of \d+ and \d+ of \d+ benign swarms")))
+    A(C("earlywarn.benign_original", "Forward test, original simulator: benign swarms", f"{ew}.original.benign_runs",
+        ("RM", r"Any of the four fired in \d+ of <v> and \d+ of \d+ simulated benign swarms"), ("KI", r"any of the four in \d+ of <v> and \d+ of \d+ simulated benign swarms"),
+        ("R", r"Any of the four fired in \d+ of <v> and \d+ of \d+ benign swarms"), ("S", r"any of the four fired in \d+ of <v> and \d+ of \d+ benign swarms")))
+    A(C("earlywarn.any_fired_benign_independent", "Forward test, independent generator: benign swarms where any of the four alarms fired", f"{ew}.independent.main['any_main'].benign.fired.k",
+        ("RM", r"Any of the four fired in \d+ of \d+ and <v> of \d+ simulated benign swarms"), ("IX", r"any of the four fired in \d+ of \d+ and <v> of \d+ benign swarms"),
+        ("KI", r"any of the four in \d+ of \d+ and <v> of \d+ simulated benign swarms"), ("R", r"Any of the four fired in \d+ of \d+ and <v> of \d+ benign swarms"),
+        ("R", r"Any of the four \d+ of \d+ \d+ of \d+ \d+ of \d+ <v> of \d+ \d+ of \d+"), ("S", r"any of the four fired in \d+ of \d+ and <v> of \d+ benign swarms")))
+    A(C("earlywarn.benign_independent", "Forward test, independent generator: benign swarms", f"{ew}.independent.benign_runs",
+        ("RM", r"Any of the four fired in \d+ of \d+ and \d+ of <v> simulated benign swarms"), ("KI", r"any of the four in \d+ of \d+ and \d+ of <v> simulated benign swarms"),
+        ("R", r"Any of the four fired in \d+ of \d+ and \d+ of <v> benign swarms"), ("S", r"any of the four fired in \d+ of \d+ and \d+ of <v> benign swarms")))
+    A(C("earlywarn.new_host_fired_benign_original", "Forward test, original simulator: benign swarms where the new-host alarm fired", f"{ew}.original.main['new_host_12h'].benign.fired.k",
+        ("KI", r"stayed quiet on simulated benign swarms \(<v> of \d+,"), ("R", r"only the new-host alarm stayed quiet \(<v> of \d+,")))
+    A(C("earlywarn.new_host_fired_benign_independent", "Forward test, independent generator: the same", f"{ew}.independent.main['new_host_12h'].benign.fired.k",
+        ("KI", r"stayed quiet on simulated benign swarms \(\d+ of \d+, <v> of \d+\)"), ("R", r"only the new-host alarm stayed quiet \(\d+ of \d+, <v> of \d+\)")))
+    A(C("earlywarn.h1_holds_original", "Forward test, original simulator: alarms for which the lead hypothesis (H1) holds", f"{ew}.original.hypotheses, H1 with holds true"))
+    A(C("earlywarn.h1_holds_independent", "Forward test, independent generator: the same", f"{ew}.independent.hypotheses, H1 with holds true"))
+    be = "reports/earlywarn/benign_external_v23.json datasets['moltbook-observatory']"
+    A(C("earlywarn.moltbook_traces", "Real Moltbook community traces with times that the early-warning measurement read", f"{be}.timed_alarms_measurable",
+        ("RM", r"and in \d+ of <v> real Moltbook community traces"), ("IX", r"they fire almost always \(\d+ of <v> Moltbook community traces\)"),
+        ("KI", r"and in \d+ of <v> real Moltbook community traces"), ("R", r"On <v> real traces of an agent social network"),
+        ("S", r"and in \d+ of <v> real Moltbook traces"), ("LIM", r"that we could read \(<v> Moltbook community traces\)")))
+    A(C("earlywarn.moltbook_any_fired", "Of those, traces where any of the four alarms fired", f"{be}.benign_set.rows['any_main'].fired.k",
+        ("RM", r"and in <v> of \d+ real Moltbook community traces"), ("IX", r"they fire almost always \(<v> of \d+ Moltbook community traces\)"),
+        ("KI", r"and in <v> of \d+ real Moltbook community traces"), ("R", r"Any of the four \d+ of \d+ \d+ of \d+ \d+ of \d+ \d+ of \d+ <v> of \d+"),
+        ("S", r"and in <v> of \d+ real Moltbook traces")))
+    A(C("earlywarn.moltbook_new_host_fired", "Of those, traces where the new-host alarm fired", f"{be}.benign_set.rows['new_host_12h'].fired.k",
+        ("KI", r"and it fired in <v> of \d+ Moltbook traces"), ("R", r"the three time-based alarms each fired in <v> \(Appendix B"),
+        ("V", r"the three time-based main alarms each fired in <v> \("), ("LIM", r"the three time-based main alarms each fired in <v>\.")))
+    # ---- v2.3.0: the two implementations of the counting rule (reports/integrity/crosscheck.json, not tracked)
+    cc = "reports/integrity/crosscheck.json datasets"
+    A(C("crosscheck.release_main", "Deliveries the main implementation finds on the release, in the saved crosscheck", f"{cc}['Swarm Traces'].A.deliveries",
+        ("RM", r"Swarm Traces release <v> and \d+, collusion\.wiki logs"), ("R", r"its agreement on the release \(<v> and \d+\) is not independent"),
+        ("S", r"the second implementation now agrees \(<v> and \d+\)")))
+    A(C("crosscheck.release_second", "Deliveries the second implementation finds on the release", f"{cc}['Swarm Traces'].B.deliveries",
+        ("RM", r"Swarm Traces release \d+ and <v>, collusion\.wiki logs"), ("RM", r"A second implementation of the rule finds the same <v>\."),
+        ("KI", r"The second implementation finds the same <v>, and"), ("KI", r"but not independently \(<v> deliveries each"),
+        ("V", r"written rule and finds the same <v> deliveries on the release"), ("R", r"its agreement on the release \(\d+ and <v>\) is not independent"),
+        ("S", r"the second implementation now agrees \(\d+ and <v>\)")))
+    A(C("crosscheck.release_both", "Deliveries both implementations find on the release", f"{cc}['Swarm Traces'].both"))
+    A(C("crosscheck.release_uses_content", "Deliveries on the release that pass the written-content test (R38a or R38b)", f"{cc}['Swarm Traces'].content_test.A_pass",
+        ("RM", r"and still <v> where the reader is shown using what was written"), ("RM", r"on the release that is <v> of \d+, and a second form of the test"),
+        ("KI", r"\(unchanged\), <v> where the reader is shown using what was written \(unchanged\)"), ("LIM", r"\(<v> of \d+ on the Swarm Traces release do\)"),
+        ("HW", r"which is <v> of \d+ on the Swarm Traces release"), ("R", r"on the release that is <v> of \d+\. Earlier versions")))
+    A(C("crosscheck.release_operations_differ", "Single operations on the release that only one implementation reports", f"{cc}['Swarm Traces'].operations only_A + only_B",
+        ("KI", r"<v> single operations on the release still differ without changing a delivery")))
+    A(C("crosscheck.wiki_both", "Deliveries both implementations find on the collusion.wiki logs", f"{cc}['collusion.wiki logs'].both",
+        ("RM", r"collusion\.wiki logs <v>, demo swarm"), ("KI", r"finds the same \d+, and <v> on the collusion\.wiki logs"),
+        ("V", r"deliveries on the release and <v> on the wiki logs"), ("V", r"\([\d,]+ of <v> pass, against")))
+    A(C("crosscheck.wiki_uses_content", "Wiki deliveries that pass the written-content test (main implementation)", f"{cc}['collusion.wiki logs'].content_test.A_pass",
+        ("V", r"\(<v> of [\d,]+ pass, against")))
+    A(C("crosscheck.wiki_uses_content_r38b", "Wiki deliveries that pass by R38b (main implementation)", f"{cc}['collusion.wiki logs'].content_test.later_output_R38b.A",
+        ("V", r"On the collusion\.wiki logs it passes <v> deliveries that did not pass before")))
+    A(C("crosscheck.demo_both", "Deliveries both implementations find on the demo swarm", f"{cc}['demo swarm'].both", ("RM", r"demo swarm <v>, the format samples")))
     # ---- a text block that must be the saved output, verbatim
     blk = Claim("validation.tables", "The tables under 'Results' in docs/validation.md are the saved run's summary.md, line for line",
                 "reports/validation/summary.md, written by agenttrace.validation run")
@@ -992,9 +1236,106 @@ def part_repo():
     return {"repo.unit_tests": n, "repo.version": package_version()}
 
 
+def _saved(rel):
+    with open(os.path.join(ROOT, rel), encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _share(x):
+    """k / n of a saved {"k", "n"} cell, kept to 6 places (the files round their own share to 3 or 4)."""
+    return round(x["k"] / x["n"], 6) if x.get("n") else None
+
+
+def part_external():
+    """Headline numbers of the four outside datasets, read from the saved results (reports/external/*/results.json)."""
+    m = {}
+    w = _saved("reports/external/who_and_when/results.json")
+    wh = w["groups"]["Hand-Crafted"]["who_talked_to_whom"]["recipients_withheld"]
+    at = w["attribution_all"]
+    m["external.ww_runs"] = w["totals"]["runs"]
+    m["external.ww_pairs_found"] = wh["pair_recall"]["k"]
+    m["external.ww_pairs_logged"] = wh["pair_recall"]["n"]
+    m["external.ww_pair_precision"] = _share(wh["pair_precision_vs_logged"])
+    m["external.ww_pair_precision_either"] = _share(wh["pair_precision_either_direction"])
+    m["external.ww_message_recall"] = _share(wh["message_recall"])
+    m["external.ww_alert_fired"] = w["false_alarms_all"]["by_rule_auto_pack"]["alert-coord2"]["k"]
+    m["external.ww_agent_right"] = at["methods"]["tool_first_sign"]["agent"]["k"]
+    m["external.ww_agent_right_share"] = _share(at["methods"]["tool_first_sign"]["agent"])
+    m["external.ww_chance_agent"] = at["chance"]["agent"]
+    m["external.ww_busiest_right"] = at["methods"]["baseline_busiest_agent"]["agent"]["k"]
+    m["external.ww_last_right"] = at["methods"]["baseline_last_step"]["agent"]["k"]
+    a = _saved("reports/external/mast_data/results.json")
+    ah = a["who_talked_to_whom_all"]["recipients_withheld"]
+    m["external.mast_runs"] = a["totals"]["runs"]
+    m["external.mast_pairs_found"] = ah["pair_recall"]["k"]
+    m["external.mast_pairs_logged"] = ah["pair_recall"]["n"]
+    m["external.mast_pair_recall"] = _share(ah["pair_recall"])
+    m["external.mast_message_recall"] = _share(ah["message_recall"])
+    m["external.mast_alert_fired"] = a["false_alarms_all"]["by_rule_auto_pack"]["alert-coord2"]["k"]
+    s = _saved("reports/external/salt/results.json")
+    al = next(x for x in s["step_clock"]["flags"] if x["flag"] == "rule:alert-coord2")
+    pk = s["pack"]
+    m["external.salt_labelled_runs"] = s["loaded"]["runs_with_label"]
+    m["external.salt_colluded_runs"] = s["loaded"]["colluded_runs"]
+    m["external.salt_other_runs"] = s["loaded"]["not_colluded_runs"]
+    m["external.salt_alert_colluded"] = al["recall"]["k"]
+    m["external.salt_alert_other"] = al["false_positive_rate"]["k"]
+    m["external.salt_pack_recall"] = _share(pk["runs"]["recall"])
+    m["external.salt_pack_false_positives"] = _share(pk["runs"]["false_positive_rate"])
+    m["external.salt_pack_recall_own_model"] = _share(pk["by_model"]["an_agent_is_the_training_model"]["recall"])
+    m["external.salt_pack_recall_other_models"] = _share(pk["by_model"]["no_agent_is"]["recall"])
+    b = _saved("reports/external/moltbook/results.json")
+    inf = b["inference"]
+    ba = next(x for x in b["false_alarms"]["flags"] if x["flag"] == "rule:alert-coord2")
+    m["external.moltbook_communities"] = b["false_alarms"]["communities"]
+    m["external.moltbook_alert_fired"] = ba["fired"]["k"]
+    m["external.moltbook_reply_precision"] = _share(inf["by_record"]["precision"])
+    m["external.moltbook_reply_recall"] = _share(inf["by_record"]["recall"])
+    m["external.moltbook_first_comment_precision"] = _share(inf["by_record_first_comment"]["precision"])
+    m["external.moltbook_later_comment_precision"] = _share(inf["by_record_later_comment"]["precision"])
+    return m
+
+
+def part_earlywarn():
+    """The pre-registered forward test of the four main alarms and the real traces with times, from the saved results."""
+    d = _saved("reports/earlywarn/summary_v23.json")
+    m = {}
+    for gen, tag in (("original", "original"), ("independent", "independent")):
+        g = d["generators"][gen]
+        rows = {r["id"]: r for r in g["main"]}
+        m[f"earlywarn.coordinated_{tag}"] = g["coordinated_runs"]
+        m[f"earlywarn.benign_{tag}"] = g["benign_runs"]
+        m[f"earlywarn.any_before_harm_{tag}"] = rows["any_main"]["coordinated"]["before_harm"]["k"]
+        m[f"earlywarn.any_fired_benign_{tag}"] = rows["any_main"]["benign"]["fired"]["k"]
+        m[f"earlywarn.new_host_fired_benign_{tag}"] = rows["new_host_12h"]["benign"]["fired"]["k"]
+        m[f"earlywarn.h1_holds_{tag}"] = sum(1 for h in g["hypotheses"] if h["hypothesis"] == "H1" and h["holds"])
+    b = _saved("reports/earlywarn/benign_external_v23.json")
+    mb = next(x for x in b["datasets"] if x["dataset"] == "moltbook-observatory")
+    rows = {r["id"]: r for r in mb["benign_set"]["rows"]}
+    m["earlywarn.moltbook_traces"] = mb["timed_alarms_measurable"]
+    m["earlywarn.moltbook_any_fired"] = rows["any_main"]["fired"]["k"]
+    m["earlywarn.moltbook_new_host_fired"] = rows["new_host_12h"]["fired"]["k"]
+    return m
+
+
+def part_crosscheck():
+    """Deliveries found by the main and the second implementation, from the saved crosscheck."""
+    d = _saved("reports/integrity/crosscheck.json")
+    by = {x["dataset"]: x for x in d["datasets"]}
+    rel = next(v for k, v in by.items() if k.startswith("Swarm Traces"))
+    wiki, demo = by["collusion.wiki logs"], by["demo swarm"]
+    return {"crosscheck.release_main": rel["A"]["deliveries"], "crosscheck.release_second": rel["B"]["deliveries"],
+            "crosscheck.release_both": rel["both"], "crosscheck.release_uses_content": rel["content_test"]["A_pass"],
+            "crosscheck.release_operations_differ": rel["operations"]["only_A"] + rel["operations"]["only_B"],
+            "crosscheck.wiki_both": wiki["both"], "crosscheck.wiki_uses_content": wiki["content_test"]["A_pass"],
+            "crosscheck.wiki_uses_content_r38b": wiki["content_test"]["later_output_R38b"]["A"],
+            "crosscheck.demo_both": demo["both"]}
+
+
 PART_FUNCS = {"release_core": part_release_core, "release_evaluate": part_release_evaluate, "release_attribution": part_release_attribution,
               "release_insiders": part_release_insiders, "wiki": part_wiki, "audit": part_audit, "validation": part_validation,
-              "variance": part_variance, "samples": part_samples, "repo": part_repo}
+              "variance": part_variance, "samples": part_samples, "repo": part_repo,
+              "external": part_external, "earlywarn": part_earlywarn, "crosscheck": part_crosscheck}
 
 
 def _run_part(part, home):

@@ -168,8 +168,14 @@ def infer_times(events, pack):
 def is_action(e, pack):
     """Records that are actions (for example code an agent ran, or messages it sent).
     The pack's action_kinds limits identities, intents and harm to these; other records
-    still count as places where information is seen."""
-    kinds = pack.raw.get("action_kinds")
+    still count as places where information is seen.
+    The pack's reply_kinds are never actions: the answer of a tool server to a call (kinds result and error
+    in an MCP log) is what the caller was sent, not something a party did (docs/counting-rule.md R2)."""
+    raw = pack.raw
+    replies = raw.get("reply_kinds")
+    if replies and e.kind in replies:
+        return False
+    kinds = raw.get("action_kinds")
     return not kinds or e.kind in kinds
 
 

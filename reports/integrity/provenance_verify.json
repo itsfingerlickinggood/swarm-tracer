@@ -3,9 +3,9 @@
  "disagreements": [],
  "skipped": [],
  "checked": {
-  "values": 179,
-  "places": 359,
-  "dataset_files": 13,
+  "values": 236,
+  "places": 660,
+  "dataset_files": 20,
   "claim_files": 9,
   "blocks": 1,
   "saved_fields": 0
@@ -18,43 +18,13 @@
   },
   {
    "file": "paper/report.html",
-   "number": "3%",
-   "context": "9% of payloads, where the release could date 3%. Seven moments it dates fall within about 2."
+   "number": "100%",
+   "context": "o recorded attack the Alert rule fires on 95–100%, a pre-registered forward test of four simpl"
   },
   {
    "file": "paper/report.html",
-   "number": "9",
-   "context": "ut a first count of 166 to 19, then 23, then 9, and the labels are one reader’s, the authors"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "93%",
-   "context": "to come; four simple baselines fired with 83–93%; the first dataset write fired with 90%. Cou"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "90%",
-   "context": "h 83–93%; the first dataset write fired with 90%. Counting rules remove false contact: on wik"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "70%",
-   "context": "ic: an independently written generator gives 70% message precision and 58% recall, against 90"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "58%",
-   "context": "en generator gives 70% message precision and 58% recall, against 90% and 84% on the original "
-  },
-  {
-   "file": "paper/report.html",
-   "number": "90%",
-   "context": "0% message precision and 58% recall, against 90% and 84% on the original simulator, and a sha"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "84%",
-   "context": "ge precision and 58% recall, against 90% and 84% on the original simulator, and a shared-plac"
+   "number": "10%",
+   "context": "side dataset and 80.1% on another, but under 10% of single messages. The audit labels are one"
   },
   {
    "file": "paper/report.html",
@@ -73,23 +43,18 @@
   },
   {
    "file": "paper/report.html",
+   "number": "11",
+   "context": "itten down statement by statement it reports 11 deliveries, none shown to carry information."
+  },
+  {
+   "file": "paper/report.html",
    "number": "93%",
-   "context": "m (83%) and three other simple baselines (87–93%), and much later than the first dataset writ"
+   "context": " to come), later than four simple alarms (87–93%). Those alarms were then pre-registered and "
   },
   {
    "file": "paper/report.html",
-   "number": "100%",
-   "context": "e first dataset write and registry signs (90–100%); the Kubernetes and metadata signs fire at "
-  },
-  {
-   "file": "paper/report.html",
-   "number": "82%",
-   "context": "the Kubernetes and metadata signs fire at 79–82%, after the volume alarm. Three counting rule"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "15",
-   "context": "online is untested: on the release only 3 of 15 signs match the replay within 15 minutes, an"
+   "number": "80.1%",
+   "context": " most pairs of agents that talked (91 of 92; 80.1%), but few single messages, and it cannot say"
   },
   {
    "file": "paper/report.html",
@@ -108,6 +73,11 @@
   },
   {
    "file": "paper/report.html",
+   "number": "1,642",
+   "context": ". Cemri et al. (2025) label failure modes in 1,642 runs of seven frameworks, and Shi et al. (20"
+  },
+  {
+   "file": "paper/report.html",
    "number": "3%",
    "context": "s Time field None; the release authors dated 3% of payloads from embedded headers On every r"
   },
@@ -118,73 +88,58 @@
   },
   {
    "file": "paper/report.html",
-   "number": "20",
-   "context": "a quarter or more of all runs in traces with 20 or more tokens. As a check on stability, 39 "
-  },
-  {
-   "file": "paper/report.html",
    "number": "90%",
    "context": "five or more times keep one role in at least 90% of their uses. Places and messages. A place "
   },
   {
    "file": "paper/report.html",
-   "number": "60",
-   "context": "e same program as the writer (the same first 60 normalized tokens) is one sender retrying, n"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "23",
-   "context": "ons cut off before their verb. They reported 23 links, 18 judged true by our reading. Four i"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "191",
-   "context": "ond, separately written implementation finds 191 deliveries; in a sample of 40 of its extras "
+   "number": "91%",
+   "context": "s of history). On the release they fire with 91%, 91%, 87% and 93% of the harm still to come "
   },
   {
    "file": "paper/report.html",
    "number": "91%",
-   "context": "so run with a 6-hour history. They fire with 91%, 87%, 91% and 93% of the harm still to come "
+   "context": "history). On the release they fire with 91%, 91%, 87% and 93% of the harm still to come (the "
   },
   {
    "file": "paper/report.html",
    "number": "87%",
-   "context": "n with a 6-hour history. They fire with 91%, 87%, 91% and 93% of the harm still to come (the "
-  },
-  {
-   "file": "paper/report.html",
-   "number": "91%",
-   "context": "h a 6-hour history. They fire with 91%, 87%, 91% and 93% of the harm still to come (the 12-ho"
+   "context": "ry). On the release they fire with 91%, 91%, 87% and 93% of the harm still to come (the 12-ho"
   },
   {
    "file": "paper/report.html",
    "number": "93%",
-   "context": "ur history. They fire with 91%, 87%, 91% and 93% of the harm still to come (the 12-hour volum"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "83%",
-   "context": "arm still to come (the 12-hour volume alarm: 83%), earlier than both shared-control signs (57"
+   "context": "the release they fire with 91%, 91%, 87% and 93% of the harm still to come (the 12-hour volum"
   },
   {
    "file": "paper/report.html",
    "number": "57%",
-   "context": "3%), earlier than both shared-control signs (57% and 50%). Robustness. We recompute every sig"
+   "context": "3%), earlier than both shared-control signs (57% and 50%). Because of that order, v2.3.0 of t"
   },
   {
    "file": "paper/report.html",
    "number": "50%",
-   "context": "lier than both shared-control signs (57% and 50%). Robustness. We recompute every signal's sh"
+   "context": "lier than both shared-control signs (57% and 50%). Because of that order, v2.3.0 of the tool "
   },
   {
    "file": "paper/report.html",
-   "number": "58",
-   "context": "port sections show up in the traces, and all 58 cited records are present. The behavior patt"
+   "number": "20%",
+   "context": "gn in more than half; it fires in fewer than 20% of benign swarms (reports/earlywarn/prereg_v"
   },
   {
    "file": "paper/report.html",
-   "number": "192",
-   "context": "patterns were checked on a labeled sample of 192 records (Appendix B). 4. Results 4.1 The rec"
+   "number": "184",
+   "context": "lure labels of Who&When (Zhang et al., 2025; 184 runs), the recipients and LLM-judged failure"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "1,640",
+   "context": "ure labels of MAST-Data (Cemri et al., 2025; 1,640 readable runs), the collusion label of SALT "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "1,800",
+   "context": "e collusion label of SALT (Shi et al., 2026; 1,800 labelled runs), and the reply fields of one "
   },
   {
    "file": "paper/report.html",
@@ -193,23 +148,8 @@
   },
   {
    "file": "paper/report.html",
-   "number": "95%",
-   "context": " 100 times, σ = 0.12 h gives 4–5 deliveries (95% range) and σ = 2 h gives 2–7, so dating erro"
-  },
-  {
-   "file": "paper/report.html",
    "number": "11",
-   "context": ", such as a token check (R0014376) run under 11 tokens. The widest non-routine program, a da"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "9",
-   "context": " in R0016522 at 12:59 on July 11 and then by 9 other tokens within 16 hours, the last being"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "95%",
-   "context": "lines. Light vertical bars show each point's 95% range when every time is perturbed by the da"
+   "context": ", such as a token check (R0014376) run under 11 tokens. Credentials spread the same way: 45 "
   },
   {
    "file": "paper/report.html",
@@ -219,17 +159,142 @@
   {
    "file": "paper/report.html",
    "number": "91%",
-   "context": " come), the first search_for_secrets action (91%) and a distinct-actor alarm (87%), and a vol"
+   "context": " come), the first search_for_secrets action (91%), a distinct-actor alarm (87%), and a volume"
   },
   {
    "file": "paper/report.html",
    "number": "87%",
-   "context": "ets action (91%) and a distinct-actor alarm (87%), and a volume alarm with a 6-hour history f"
+   "context": "ecrets action (91%), a distinct-actor alarm (87%), and a volume alarm with a 6-hour history ("
   },
   {
    "file": "paper/report.html",
    "number": "93%",
-   "context": "olume alarm with a 6-hour history fires with 93% to come. The Kubernetes token, Kubernetes AP"
+   "context": "), and a volume alarm with a 6-hour history (93%). Tokens are not agents, and that changes th"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "3%",
+   "context": "y on simulated swarms: high precision, about 3% recall). Here it merges 11 tokens into three"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "169",
+   "context": "hers, which makes the first delivery, 170 to 169, likely one agent talking to itself. Between "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "95%",
+   "context": "lines. Light vertical bars show each point's 95% range when every time is perturbed by the da"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "90",
+   "context": "ill to come than the new-host alarm in 87 of 90 swarms. Any of the four fired in 18 of 30 an"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "100%",
+   "context": "eparate anything. The Alert rule fires on 95–100% of runs with no recorded attack, and on SALT"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "184",
+   "context": "rning sign names the labelled agent in 54 of 184 runs (29.3%; chance 29.1%), fewer than namin"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "184",
+   "context": "plies found Alert rule fired Other Who&When, 184 failed team runs 91 of 92 (98.9%) 62 of 689 "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "98.9%",
+   "context": "her Who&When, 184 failed team runs 91 of 92 (98.9%) 62 of 689 (9.0%) 181 of 184 Failing agent n"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "9.0%",
+   "context": "failed team runs 91 of 92 (98.9%) 62 of 689 (9.0%) 181 of 184 Failing agent named: 54 of 184 ("
+  },
+  {
+   "file": "paper/report.html",
+   "number": "29.1%",
+   "context": "f 184 Failing agent named: 54 of 184 (chance 29.1%) MAST-Data, 1,640 runs of seven frameworks 2"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "1,640",
+   "context": "t named: 54 of 184 (chance 29.1%) MAST-Data, 1,640 runs of seven frameworks 2,242 of 2,800 (80."
+  },
+  {
+   "file": "paper/report.html",
+   "number": "80.1%",
+   "context": "640 runs of seven frameworks 2,242 of 2,800 (80.1%) 1,277 of 13,441 (9.5%) 1,567 of 1,640 Alert"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "9.5%",
+   "context": "orks 2,242 of 2,800 (80.1%) 1,277 of 13,441 (9.5%) 1,567 of 1,640 Alert on 94.6% of failed and"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "94.6%",
+   "context": "277 of 13,441 (9.5%) 1,567 of 1,640 Alert on 94.6% of failed and 98.5% of clean runs SALT, 1,80"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "98.5%",
+   "context": " 1,567 of 1,640 Alert on 94.6% of failed and 98.5% of clean runs SALT, 1,800 labelled two-agent"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "31.3%",
+   "context": "ives 5.8% Moltbook, 40 communities, one week 31.3% of replying pairs 25.7% of logged replies (p"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "93%",
+   "context": " surge, and four simple alarms fired with 87–93% of the harm still to come. But that order wa"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "70%",
+   "context": "oo: an independently written generator gives 70% message precision and 58% recall where the o"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "58%",
+   "context": "en generator gives 70% message precision and 58% recall where the original simulator gives 90"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "90%",
+   "context": "8% recall where the original simulator gives 90% and 84% (Appendix C). The signals, the harm "
+  },
+  {
+   "file": "paper/report.html",
+   "number": "84%",
+   "context": "l where the original simulator gives 90% and 84% (Appendix C). The signals, the harm definiti"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "23",
+   "context": "aces. A reviewer would defend about 5 of the 23 deliveries counted at v2.1.0. That tokens ar"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "258",
+   "context": " is an LLM judge’s. The audit labels for the 258 links and the behavior patterns on 192 recor"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "192",
+   "context": "r the 258 links and the behavior patterns on 192 records were made by the AI assistant that h"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "95%",
+   "context": "nts are not in the release; it held at least 95% of Artifactory communication (OpenAI, 2026b)"
   },
   {
    "file": "paper/report.html",
@@ -245,6 +310,31 @@
    "file": "paper/report.html",
    "number": "79%",
    "context": "nd cloud-metadata signs fire at 82%, 80% and 79%, after the volume alarm. The app's replay tr"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "15",
+   "context": "% to come). Online. On the release only 3 of 15 signs match the replay within 15 minutes whe"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "60",
+   "context": "e same program as the writer (the same first 60 normalized tokens) is one sender retrying, n"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "20",
+   "context": "a quarter or more of all runs in traces with 20 or more tokens. Dating error and the named d"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "95%",
+   "context": " 100 times, σ = 0.12 h gives 4–5 deliveries (95% range) and σ = 2 h gives 2–7, so dating erro"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "9",
+   "context": " in R0016522 at 12:59 on July 11 and then by 9 other tokens within 16 hours, the last being"
   },
   {
    "file": "paper/report.html",
@@ -283,68 +373,13 @@
   },
   {
    "file": "paper/report.html",
-   "number": "3%",
-   "context": " were 12 of 12 right, but those 12 are about 3% of the 380 true pairs, and the rule was rewr"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "380",
-   "context": "f 12 right, but those 12 are about 3% of the 380 true pairs, and the rule was rewritten after"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "169",
-   "context": "hers, which makes the first delivery, 170 to 169, likely one agent talking to itself. Between "
-  },
-  {
-   "file": "paper/report.html",
-   "number": "93%",
-   "context": "me alarm with a short history) fired with 87–93% of the harm still to come. A write-then-read"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "70%",
-   "context": "se; an independently written generator gives 70% message precision and 58% recall (19% and 10"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "58%",
-   "context": "en generator gives 70% message precision and 58% recall (19% and 10% with times on 30% of rec"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "19%",
-   "context": " gives 70% message precision and 58% recall (19% and 10% with times on 30% of records, and no"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "10%",
-   "context": "0% message precision and 58% recall (19% and 10% with times on 30% of records, and no dating "
-  },
-  {
-   "file": "paper/report.html",
-   "number": "30%",
-   "context": "on and 58% recall (19% and 10% with times on 30% of records, and no dating at all when the fi"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "95%",
-   "context": "nts are not in the release; it held at least 95% of Artifactory communication (OpenAI, 2026b)"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "23",
-   "context": "aces. A reviewer would defend about 5 of the 23 deliveries counted at v2.1.0. That tokens ar"
-  },
-  {
-   "file": "paper/report.html",
-   "number": "258",
-   "context": "lse-positive rates. The audit labels for the 258 links and the behavior patterns on 192 recor"
+   "number": "58",
+   "context": "port sections show up in the traces, and all 58 cited records are present. The behavior patt"
   },
   {
    "file": "paper/report.html",
    "number": "192",
-   "context": "r the 258 links and the behavior patterns on 192 records were made by the AI assistant that h"
+   "context": "patterns were checked on a labeled sample of 192 records (Appendix B). Deep dive into the rel"
   },
   {
    "file": "paper/report.html",
@@ -358,13 +393,28 @@
   },
   {
    "file": "paper/report.html",
+   "number": "23",
+   "context": "ons cut off before their verb. They reported 23 links, 18 judged true by our reading. Four i"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "191",
+   "context": "ond, separately written implementation found 191 deliveries until v2.2.0 because redaction br"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "30",
+   "context": "mple alarms (fresh seeds; 90 coordinated and 30 benign swarms of the original simulator, 20 "
+  },
+  {
+   "file": "paper/report.html",
    "number": "95%",
    "context": "h its share of timed harm still to come, the 95% range under the conservative time-error test"
   },
   {
    "file": "paper/report.html",
    "number": "95%",
-   "context": "ater. Signal First fired (UTC) Still to come 95% range −1 h +1 h {{ROBUST_ROWS}} Table 6. Pre"
+   "context": "ater. Signal First fired (UTC) Still to come 95% range −1 h +1 h {{ROBUST_ROWS}} Table 8. Pre"
   },
   {
    "file": "paper/report.html",
@@ -398,13 +448,28 @@
   },
   {
    "file": "paper/report.html",
+   "number": "100%",
+   "context": "valuated since (Section 4.5), it fires on 95–100% of real runs with no attack, so the app now "
+  },
+  {
+   "file": "paper/report.html",
    "number": "2",
-   "context": "NAL_ROWS}} Figure 6. Who talked to whom: the 2 pairs between 4 agents in the v2.2.0 list (v"
+   "context": "NAL_ROWS}} Figure 6. Who talked to whom: the 2 pairs between 4 agents among the named deliv"
   },
   {
    "file": "paper/report.html",
    "number": "4",
-   "context": "e 6. Who talked to whom: the 2 pairs between 4 agents in the v2.2.0 list (v2.2.0 has 4 pair"
+   "context": "e 6. Who talked to whom: the 2 pairs between 4 agents among the named deliveries (the v2.3."
+  },
+  {
+   "file": "paper/report.html",
+   "number": "7",
+   "context": "4 pairs between 7 tokens, as v2.2.0 had; the 7 other deliveries have an anonymous run on on"
+  },
+  {
+   "file": "paper/report.html",
+   "number": "4",
+   "context": " tokens in the v2.3.0 deliveries (11 in all, 4 between named tokens), ordered by deliveries"
   },
   {
    "file": "paper/report.html",
@@ -562,6 +627,11 @@
    "context": "s) 70% / 58% pooled (19% / 10% with times on 30%; undated when grouped by agent) Agent pairs "
   },
   {
+   "file": "paper/report.html",
+   "number": "258",
+   "context": "ort under our direction. It also labeled the 258 audited links and the 192-record precision s"
+  },
+  {
    "file": "paper/slides.html",
    "number": "1,200",
    "context": "od.github.io/swarm-tracer The incident About 1,200 agents built a message board; about 700 brok"
@@ -570,6 +640,21 @@
    "file": "paper/slides.html",
    "number": "3%",
    "context": " 169], with no agent field and timestamps on 3% of payloads. The question: from public logs "
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "100%",
+   "context": "026) Most of what we measured is negative 95–100% of real runs with no recorded attack set off"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "184",
+   "context": " pre-registered forward test failed 29.3% of 184 failed runs where the tool's first warning s"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "10%",
+   "context": "to whom holds by pair; single messages under 10% On the incident itself: 11 write-then-read d"
   },
   {
    "file": "paper/slides.html",
@@ -584,12 +669,57 @@
   {
    "file": "paper/slides.html",
    "number": "100%",
-   "context": "ired: First dataset write; registry signs 90–100% Simple baselines (new host, distinct actors,"
+   "context": "dent: First dataset write; registry signs 90–100% Four simple alarms, now the main alarms 87–9"
   },
   {
    "file": "paper/slides.html",
    "number": "93%",
-   "context": "tinct actors, secrets search, 6 h volume) 87–93% First delivery between tokens 87% Volume ala"
+   "context": "% Four simple alarms, now the main alarms 87–93% First delivery between tokens 87% Volume ala"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "20",
+   "context": "fore the first true harm in 5 of 90 and 6 of 20 simulated swarms, and any of the four fired "
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "184",
+   "context": "plies found Alert rule fired Other Who&When, 184 failed team runs (people) 91 of 92 9.0% 181 "
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "184",
+   "context": "iled team runs (people) 91 of 92 9.0% 181 of 184 agent at fault named in 54 of 184 (chance 29"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "29.1%",
+   "context": "84 agent at fault named in 54 of 184 (chance 29.1%); busiest agent 72, last speaker 80 MAST-Dat"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "1,640",
+   "context": "busiest agent 72, last speaker 80 MAST-Data, 1,640 runs of seven frameworks (an LLM judge) 80.1"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "80.1%",
+   "context": ",640 runs of seven frameworks (an LLM judge) 80.1% 9.5% 1,567 of 1,640 fires on 94.6% of failed"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "94.6%",
+   "context": "LM judge) 80.1% 9.5% 1,567 of 1,640 fires on 94.6% of failed and 98.5% of clean runs SALT, 1,80"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "98.5%",
+   "context": " 1,567 of 1,640 fires on 94.6% of failed and 98.5% of clean runs SALT, 1,800 labelled two-agent"
+  },
+  {
+   "file": "paper/slides.html",
+   "number": "31.3%",
+   "context": " Moltbook, 40 communities, one week (nobody) 31.3% of replying pairs 25.7% of replies; 26.5% of"
   },
   {
    "file": "paper/slides.html",
@@ -648,11 +778,6 @@
   },
   {
    "file": "README.md",
-   "number": "9",
-   "context": "ng what was written. The v2.2.0 rule reports 9 write-then-read deliveries (one actor wrote "
-  },
-  {
-   "file": "README.md",
    "number": "4",
    "context": "o a place, a different actor read it later), 4 between named tokens (2 between agents, 2 in"
   },
@@ -679,12 +804,12 @@
   {
    "file": "README.md",
    "number": "50%",
-   "context": "l release it is one of the last signs (about 50% of harm still to come), behind simple baseli"
+   "context": "l release it is one of the last signs (about 50% of harm still to come), behind the simple al"
   },
   {
    "file": "README.md",
    "number": "90%",
-   "context": "lines. > - Simulated accuracy is optimistic. 90% precision and 84% recall on the original sim"
+   "context": "larms. > - Simulated accuracy is optimistic. 90% precision and 84% recall on the original sim"
   },
   {
    "file": "README.md",
@@ -744,12 +869,22 @@
   {
    "file": "README.md",
    "number": "130",
-   "context": "known answers, including benign ones, and on 130 swarms from an independently written generat"
+   "context": "ith known answers, including benign ones, on 130 swarms from an independently written generat"
   },
   {
    "file": "README.md",
-   "number": "9,867",
-   "context": " Traces release 9 and 9, collusion.wiki logs 9,867, demo swarm 164, the format samples). It did "
+   "number": "11",
+   "context": "(4 sender-receiver pairs; the other 7 of the 11 deliveries have an anonymous run on one side"
+  },
+  {
+   "file": "README.md",
+   "number": "95%",
+   "context": "h no recorded attack the Alert rule fires on 95% to 100% of runs, the four main alarms were c"
+  },
+  {
+   "file": "README.md",
+   "number": "100%",
+   "context": "corded attack the Alert rule fires on 95% to 100% of runs, the four main alarms were chosen af"
   },
   {
    "file": "docs/validation.md",
@@ -868,18 +1003,13 @@
   },
   {
    "file": "docs/validation.md",
-   "number": "2",
-   "context": "s, 4 between named tokens (2 between agents, 2 inside one agent), 0 where the reader is sho"
-  },
-  {
-   "file": "docs/validation.md",
    "number": "258",
    "context": "double-labelled them, and no person read the 258 links by hand (earlier versions of this page"
   },
   {
    "file": "docs/validation.md",
    "number": "95%",
-   "context": "the 9 score 5 of 5 decidable (4 are unclear; 95% range 57%–100%), but the labels for 13 links"
+   "context": "he 11 score 5 of 5 decidable (6 are unclear; 95% range 57%–100%), but the labels for 13 links"
   },
   {
    "file": "docs/validation.md",
@@ -1364,12 +1494,12 @@
   {
    "file": "docs/validation.md",
    "number": "9",
-   "context": " [USER n] places are coarse (R31). - Result: 9 write-then-read deliveries, 4 between named "
+   "context": "places are coarse (R31). - Result at v2.2.0: 9 write-then-read deliveries, 4 between named "
   },
   {
    "file": "docs/validation.md",
    "number": "4",
-   "context": "31). - Result: 9 write-then-read deliveries, 4 between named tokens in 4 pairs among 7 toke"
+   "context": "ult at v2.2.0: 9 write-then-read deliveries, 4 between named tokens in 4 pairs among 7 toke"
   },
   {
    "file": "docs/validation.md",
@@ -1384,7 +1514,7 @@
   {
    "file": "docs/validation.md",
    "number": "2",
-   "context": " among 7 tokens; counted by estimated agent, 2 between agents and 2 inside one. All 9 are o"
+   "context": " among 7 tokens; counted by estimated agent, 2 between agents and 2 inside one. All 9 were "
   },
   {
    "file": "docs/validation.md",
@@ -1409,7 +1539,17 @@
   {
    "file": "docs/validation.md",
    "number": "95%",
-   "context": "eiling for unseen misses is about 23 more at 95% confidence). ### Phase 1: every delivery aud"
+   "context": "eiling for unseen misses is about 23 more at 95% confidence). ### v2.3.0: joined fragments an"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "11",
+   "context": ". They are counted again, so the release has 11 write-then-read deliveries; still 4 between "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "4",
+   "context": "ase has 11 write-then-read deliveries; still 4 between named tokens. - Their labels did not"
   },
   {
    "file": "docs/validation.md",
@@ -1429,7 +1569,7 @@
   {
    "file": "docs/validation.md",
    "number": "79.4%",
-   "context": "elow). The simulator did not move: precision 79.4% and recall 73.0% on the default setting, 80."
+   "context": "bove). The simulator did not move: precision 79.4% and recall 73.0% on the default setting, 80."
   },
   {
    "file": "docs/validation.md",
@@ -1469,27 +1609,27 @@
   {
    "file": "docs/validation.md",
    "number": "51%",
-   "context": "etween two named tokens | 4 | 4 of 4 | 100% (51%–100%) | | an anonymous run on one side | 5 ("
+   "context": "etween two named tokens | 4 | 4 of 4 | 100% (51%–100%) | | an anonymous run on one side | 7 ("
   },
   {
    "file": "docs/validation.md",
    "number": "100%",
-   "context": "en two named tokens | 4 | 4 of 4 | 100% (51%–100%) | | an anonymous run on one side | 5 (4 unc"
+   "context": "en two named tokens | 4 | 4 of 4 | 100% (51%–100%) | | an anonymous run on one side | 7 (6 unc"
   },
   {
    "file": "docs/validation.md",
    "number": "100%",
-   "context": "s run on one side | 5 (4 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the l"
+   "context": "s run on one side | 7 (6 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the l"
   },
   {
    "file": "docs/validation.md",
    "number": "21%",
-   "context": "on one side | 5 (4 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the labels"
+   "context": "on one side | 7 (6 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the labels"
   },
   {
    "file": "docs/validation.md",
    "number": "100%",
-   "context": "ne side | 5 (4 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the labels of 1"
+   "context": "ne side | 7 (6 unclear) | 1 of 1 | 100% (21%–100%) | Read these as optimistic: the labels of 1"
   },
   {
    "file": "docs/validation.md",
@@ -1498,8 +1638,8 @@
   },
   {
    "file": "docs/validation.md",
-   "number": "5",
-   "context": "changed in the same commit as the rule, only 5 links are decidable, and the interval reflec"
+   "number": "11",
+   "context": "ame commit as the v2.2.0 rule, only 5 of the 11 links are decidable, and the interval reflec"
   },
   {
    "file": "docs/validation.md",
@@ -1514,12 +1654,12 @@
   {
    "file": "docs/validation.md",
    "number": "57%",
-   "context": "inferred, 9 weak. On the audit: weak 5 of 5 (57%–100%). Precision by grade does not separate "
+   "context": "nferred, 11 weak. On the audit: weak 5 of 5 (57%–100%). Precision by grade does not separate "
   },
   {
    "file": "docs/validation.md",
    "number": "100%",
-   "context": "rred, 9 weak. On the audit: weak 5 of 5 (57%–100%). Precision by grade does not separate and, "
+   "context": "red, 11 weak. On the audit: weak 5 of 5 (57%–100%). Precision by grade does not separate and, "
   },
   {
    "file": "docs/validation.md",
@@ -1628,8 +1768,183 @@
   },
   {
    "file": "docs/validation.md",
+   "number": "184",
+   "context": "--|---|---| | Who&When (Zhang et al., MIT) | 184 failed runs of small agent teams, 4,092 reco"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "4,092",
+   "context": "MIT) | 184 failed runs of small agent teams, 4,092 records | recipients in 58 runs; the agent a"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "58",
+   "context": "l agent teams, 4,092 records | recipients in 58 runs; the agent and the step that caused the"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "1,640",
+   "context": "rs | | MAST-Data (Cemri et al., CC BY 4.0) | 1,640 readable runs of seven agent frameworks on o"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "37,805",
+   "context": "of seven agent frameworks on ordinary tasks, 37,805 records | recipients in three frameworks; 14"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "2,650",
+   "context": "| | SALT agent-collusion (Shi et al., MIT) | 2,650 simulated runs of two agents grading each ot"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "187,738",
+   "context": "ents, the 40 communities with most comments, 187,738 records | what each comment replies to | nob"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "58",
+   "context": "ges it finds | |---|---|---|---| | Who&When, 58 runs that name recipients | 91 of 92 (98.9%)"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "98.9%",
+   "context": "en, 58 runs that name recipients | 91 of 92 (98.9%) | 91 of 237 (38.4%; 75.9% in either directi"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "60.6%",
+   "context": "%) | 2,086 of 3,443 on ChatDev, the largest (60.6%) | 1,277 of 13,441 (9.5%) | | Moltbook, repl"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "184",
+   "context": "st harmful sign) | |---|---|---| | Who&When, 184 runs | 181 (98.4%) | 40 (21.7%) | | MAST-Dat"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "98.4%",
+   "context": " | |---|---|---| | Who&When, 184 runs | 181 (98.4%) | 40 (21.7%) | | MAST-Data, 1,640 runs | 1,"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "21.7%",
+   "context": "--| | Who&When, 184 runs | 181 (98.4%) | 40 (21.7%) | | MAST-Data, 1,640 runs | 1,567 (95.5%) |"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "1,640",
+   "context": "ns | 181 (98.4%) | 40 (21.7%) | | MAST-Data, 1,640 runs | 1,567 (95.5%) | 348 (21.2%) | | Moltb"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "95.5%",
+   "context": "0 (21.7%) | | MAST-Data, 1,640 runs | 1,567 (95.5%) | 348 (21.2%) | | Moltbook, 40 communities "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "21.2%",
+   "context": "MAST-Data, 1,640 runs | 1,567 (95.5%) | 348 (21.2%) | | Moltbook, 40 communities | 40 (100%) | "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": "8 (21.2%) | | Moltbook, 40 communities | 40 (100%) | 37 (92.5%) | The Alert rule fires on almo"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "92.5%",
+   "context": "| Moltbook, 40 communities | 40 (100%) | 37 (92.5%) | The Alert rule fires on almost any team t"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "13.6%",
+   "context": "tool's first warning sign | 54 (29.3%) | 25 (13.6%) | | the tool's first harmful record | 13 (7"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "7.1%",
+   "context": "%) | | the tool's first harmful record | 13 (7.1%) | 1 (0.5%) | | baseline: the agent with mos"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "0.5%",
+   "context": "tool's first harmful record | 13 (7.1%) | 1 (0.5%) | | baseline: the agent with most records |"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "39.1%",
+   "context": " baseline: the agent with most records | 72 (39.1%) |–| | baseline: the last step | 80 (43.5%) "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "43.5%",
+   "context": " (39.1%) |–| | baseline: the last step | 80 (43.5%) | 8 (4.3%) | | chance | 29.1% | 9.5% | The "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "4.3%",
+   "context": " | baseline: the last step | 80 (43.5%) | 8 (4.3%) | | chance | 29.1% | 9.5% | The dataset's p"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "9.5%",
+   "context": "| 80 (43.5%) | 8 (4.3%) | | chance | 29.1% | 9.5% | The dataset's paper reports 53.5% and 14.2"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "53.5%",
+   "context": "| 29.1% | 9.5% | The dataset's paper reports 53.5% and 14.2% for its best method, an LLM readin"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "14.2%",
+   "context": "9.5% | The dataset's paper reports 53.5% and 14.2% for its best method, an LLM reading the whol"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "94.6%",
+   "context": "e that. On MAST-Data the Alert rule fired on 94.6% of runs with a failure label and 98.5% of ru"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "98.5%",
+   "context": "ed on 94.6% of runs with a failure label and 98.5% of runs with none: it does not track failure"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "1,351",
+   "context": "ges as logged and fires nothing (recall 0 of 1,351 colluding runs). With an order-only clock th"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "1,301",
+   "context": "review.json, a phrase match) fires on 546 of 1,301 colluding runs (42.0%) and 26 of 449 others "
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "160,490",
+   "context": "s. The written-content test passes 31,305 of 160,490 inferred deliveries (19.5%), in colluding an"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "19.5%",
+   "context": "asses 31,305 of 160,490 inferred deliveries (19.5%), in colluding and other runs alike (20.4% a"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "20.4%",
+   "context": " (19.5%), in colluding and other runs alike (20.4% and 16.6% of their checked deliveries). What"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "16.6%",
+   "context": "in colluding and other runs alike (20.4% and 16.6% of their checked deliveries). What these do "
+  },
+  {
+   "file": "docs/validation.md",
    "number": "70%",
-   "context": "in the first tables: message precision about 70% and recall about 58%, falling to 19% and 10%"
+   "context": "t tables. Simulated: message precision about 70% and recall about 58%, falling to 19% and 10%"
   },
   {
    "file": "docs/validation.md",
@@ -1645,6 +1960,31 @@
    "file": "docs/validation.md",
    "number": "10%",
    "context": "70% and recall about 58%, falling to 19% and 10% with sparse timestamps and to nothing when t"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "80.1%",
+   "context": "with recipients withheld: pairs 91 of 92 and 80.1%, single messages under 10%, reply links on a"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "10%",
+   "context": "rs 91 of 92 and 80.1%, single messages under 10%, reply links on a social site 26.5%. Real ru"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "26.5%",
+   "context": "ages under 10%, reply links on a social site 26.5%. Real runs with no attack: the Alert rule on"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "95%",
+   "context": " Real runs with no attack: the Alert rule on 95% to 100%. Failure attribution: at chance. The"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": "uns with no attack: the Alert rule on 95% to 100%. Failure attribution: at chance. The forward"
   },
   {
    "file": "docs/validation.md",
@@ -1694,6 +2034,16 @@
   {
    "file": "docs/validation.md",
    "number": "95%",
+   "context": "asured in v2.3.0 do: the Alert rule fires on 95% to 100% of them. Neither is a false-positive"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "100%",
+   "context": "in v2.3.0 do: the Alert rule fires on 95% to 100% of them. Neither is a false-positive rate fo"
+  },
+  {
+   "file": "docs/validation.md",
+   "number": "95%",
    "context": "intervals; the pooled identity figures carry 95% Wilson ranges. The pooled-medians table resa"
   },
   {
@@ -1709,12 +2059,22 @@
   {
    "file": "docs/index.html",
    "number": "87%",
-   "context": "83% to come, and three simple baselines with 87% to 91% Investigations: every claim opens its"
+   "context": "arms that are now the main alarms fired with 87% to 93% to come. That order was seen after th"
   },
   {
    "file": "docs/index.html",
-   "number": "91%",
-   "context": "come, and three simple baselines with 87% to 91% Investigations: every claim opens its eviden"
+   "number": "93%",
+   "context": "at are now the main alarms fired with 87% to 93% to come. That order was seen after the fact,"
+  },
+  {
+   "file": "docs/index.html",
+   "number": "100%",
+   "context": "arms. Most of what came back is negative. 95–100% of runs with no recorded attack set off the "
+  },
+  {
+   "file": "docs/index.html",
+   "number": "10%",
+   "context": "s structure; single messages are found under 10% of the time On SALT the Alert rule fired on "
   },
   {
    "file": "docs/index.html",
@@ -1733,8 +2093,28 @@
   },
   {
    "file": "docs/index.html",
+   "number": "87%",
+   "context": " volume alarm. In this swarm they fired with 87% to 93% of the harm still to come, single-age"
+  },
+  {
+   "file": "docs/index.html",
+   "number": "93%",
+   "context": " alarm. In this swarm they fired with 87% to 93% of the harm still to come, single-agent sign"
+  },
+  {
+   "file": "docs/index.html",
    "number": "50",
-   "context": "the Alert rule in 5 of 30 original and 40 of 50 independent look-alike swarms, because it de"
+   "context": " any of the four fired in 18 of 30 and 23 of 50 benign swarms. On real agent traffic with no"
+  },
+  {
+   "file": "docs/index.html",
+   "number": "95%",
+   "context": "y traces), and the older Alert rule fires on 95% to 100% of real runs with no attack, because"
+  },
+  {
+   "file": "docs/index.html",
+   "number": "100%",
+   "context": "s), and the older Alert rule fires on 95% to 100% of real runs with no attack, because it dete"
   },
   {
    "file": "reports/submission/SUBMISSION.md",
@@ -1743,13 +2123,28 @@
   },
   {
    "file": "reports/submission/SUBMISSION.md",
-   "number": "3%",
-   "context": "9% of payloads, where the release could date 3%, and seven moments it dates fall within abou"
+   "number": "9",
+   "context": "ut a first count of 166 to 19, then 23, then 9, and a record cut in two was joined; the audi"
   },
   {
    "file": "reports/submission/SUBMISSION.md",
-   "number": "93%",
-   "context": "m (83%) and three other simple baselines (87–93%). Scored on 60 simulated swarms with known a"
+   "number": "95%",
+   "context": "hree public datasets the Alert rule fires on 95% to 100%, a pre-registered forward test of fo"
+  },
+  {
+   "file": "reports/submission/SUBMISSION.md",
+   "number": "100%",
+   "context": "blic datasets the Alert rule fires on 95% to 100%, a pre-registered forward test of four simpl"
+  },
+  {
+   "file": "reports/submission/SUBMISSION.md",
+   "number": "3%",
+   "context": "9% of payloads, where the release could date 3%, seven moments it dates fall within about 2."
+  },
+  {
+   "file": "reports/submission/SUBMISSION.md",
+   "number": "10%",
+   "context": "e dataset and 80.1% on another, though under 10% of single messages. Scored on 60 simulated s"
   },
   {
    "file": "reports/submission/SUBMISSION.md",
@@ -1764,12 +2159,17 @@
   {
    "file": "reports/submission/SUBMISSION.md",
    "number": "19",
-   "context": " v2.2.0; the version submitted to Apart said 19 messages. Before you press submit: - The rep"
+   "context": "r 2026); the version submitted to Apart said 19 messages. The summary above is longer than t"
   },
   {
    "file": "docs/assets/demo-script.md",
-   "number": "9",
-   "context": "orrected script on 16 November 2026. It says 9 write-then-read deliveries, not 23, and one "
+   "number": "11",
+   "context": " numbers were checked against the app first: 11 deliveries, four between seven named tokens "
+  },
+  {
+   "file": "docs/assets/demo-script.md",
+   "number": "11",
+   "context": "rs, two inside one estimated agent). It says 11 write-then-read deliveries, gives the four s"
   },
   {
    "file": "docs/deep-dive.md",
@@ -1778,13 +2178,13 @@
   },
   {
    "file": "docs/deep-dive.md",
-   "number": "9",
-   "context": " is a download), and the v2.2.0 rule reports 9 write-then-read deliveries, 4 between named "
+   "number": "11",
+   "context": "load), and the current rule (v2.3.0) reports 11 write-then-read deliveries, 4 between named "
   },
   {
    "file": "docs/deep-dive.md",
    "number": "4",
-   "context": "0 rule reports 9 write-then-read deliveries, 4 between named tokens, 0 where the reader is "
+   "context": ".3.0) reports 11 write-then-read deliveries, 4 between named tokens, 0 where the reader is "
   },
   {
    "file": "docs/deep-dive.md",
@@ -1948,13 +2348,783 @@
   },
   {
    "file": "docs/deep-dive.md",
-   "number": "9",
-   "context": "ages\" overstates coordination (superseded by 9 write-then-read deliveries, 4 between named "
+   "number": "11",
+   "context": "ages\" overstates coordination (superseded by 11 write-then-read deliveries, 4 between named "
   },
   {
    "file": "docs/deep-dive.md",
    "number": "4",
-   "context": "(superseded by 9 write-then-read deliveries, 4 between named tokens): most of the 24 were a"
+   "context": "superseded by 11 write-then-read deliveries, 4 between named tokens): most of the 24 were a"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "189,579",
+   "context": "ident, post-hoc On the Swarm Traces release (189,579 records, 8,124 timed harmful actions), score"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "93.4%",
+   "context": "---|---| | Volume alarm, 6 h history | 8.0 | 93.4% | | First new host after 12 h | 12.6 | 91.3%"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "91.3%",
+   "context": "93.4% | | First new host after 12 h | 12.6 | 91.3% | | First secrets-search action | 12.6 | 91."
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "91.2%",
+   "context": ".3% | | First secrets-search action | 12.6 | 91.2% | | Distinct-actor alarm | 40.0 | 86.9% | | "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "86.9%",
+   "context": ".6 | 91.2% | | Distinct-actor alarm | 40.0 | 86.9% | | Volume alarm, 12 h history (variant) | 4"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "83.2%",
+   "context": "olume alarm, 12 h history (variant) | 44.0 | 83.2% | | First new host after 24 h (variant) | 37"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "87.5%",
+   "context": "First new host after 24 h (variant) | 37.8 | 87.5% | | Context: first program reused by another"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "87.7%",
+   "context": "rst program reused by another actor | 35.4 | 87.7% | | Context: first delivery between named ac"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "87.4%",
+   "context": "first delivery between named actors | 38.1 | 87.4% | | Context: one identity carries another's "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "57.0%",
+   "context": "ne identity carries another's token | 52.2 | 57.0% | | Context: two identities share a place | "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50.2%",
+   "context": "ntext: two identities share a place | 55.1 | 50.2% | | Context: a group of 3 actors linked by d"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "3",
+   "context": "place | 55.1 | 50.2% | | Context: a group of 3 actors linked by deliveries | 72.1 | 7.2% | "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "7.2%",
+   "context": "up of 3 actors linked by deliveries | 72.1 | 7.2% | The two shared-control signs (57.0% and 50"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "57.0%",
+   "context": " 72.1 | 7.2% | The two shared-control signs (57.0% and 50.2%) fire later than all four alarms. "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50.2%",
+   "context": "2% | The two shared-control signs (57.0% and 50.2%) fire later than all four alarms. This table"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "95%",
+   "context": "ordinated swarms (lower end of the per-swarm 95% binomial interval above 0.5). Expected to fa"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "20%",
+   "context": "false alarms). The alarm fires in fewer than 20% of the benign swarms (upper end of the inter"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "95%",
+   "context": ".json. \"k/n (a to b%)\" is per swarm with its 95% binomial (Wilson) interval. The second range"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "30",
+   "context": "as 0. Original simulator: 90 coordinated and 30 benign swarms, seeds 41 to 50, 12 settings |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "4%",
+   "context": "rst new host after 12 h | 90/90 | 0/90 (0 to 4%) | -8.6 (-8.9 to -7.5) | 87.6% (86 to 91%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "87.6%",
+   "context": "/90 | 0/90 (0 to 4%) | -8.6 (-8.9 to -7.5) | 87.6% (86 to 91%) | 3/90 (1 to 9%) | 0/30 (0 to 11"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "91%",
+   "context": " to 4%) | -8.6 (-8.9 to -7.5) | 87.6% (86 to 91%) | 3/90 (1 to 9%) | 0/30 (0 to 11%) | | Firs"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "9%",
+   "context": ".9 to -7.5) | 87.6% (86 to 91%) | 3/90 (1 to 9%) | 0/30 (0 to 11%) | | First secrets-search "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "11%",
+   "context": "6% (86 to 91%) | 3/90 (1 to 9%) | 0/30 (0 to 11%) | | First secrets-search action | 0/90 | 0/"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "4%",
+   "context": "st secrets-search action | 0/90 | 0/90 (0 to 4%) |–| 0% | 0/90 (0 to 4%) | 0/30 (0 to 11%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "0%",
+   "context": "ts-search action | 0/90 | 0/90 (0 to 4%) |–| 0% | 0/90 (0 to 4%) | 0/30 (0 to 11%) | | Disti"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "4%",
+   "context": " | 0/90 | 0/90 (0 to 4%) |–| 0% | 0/90 (0 to 4%) | 0/30 (0 to 11%) | | Distinct-actor alarm "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "11%",
+   "context": " to 4%) |–| 0% | 0/90 (0 to 4%) | 0/30 (0 to 11%) | | Distinct-actor alarm | 67/90 | 0/90 (0 "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "4%",
+   "context": " | Distinct-actor alarm | 67/90 | 0/90 (0 to 4%) | -9.5 (-10.0 to -8.7) | 82.2% (79 to 84%) "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "82.2%",
+   "context": "90 | 0/90 (0 to 4%) | -9.5 (-10.0 to -8.7) | 82.2% (79 to 84%) | 0/90 (0 to 4%) | 9/30 (17 to 4"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "84%",
+   "context": "to 4%) | -9.5 (-10.0 to -8.7) | 82.2% (79 to 84%) | 0/90 (0 to 4%) | 9/30 (17 to 48%; setting"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "4%",
+   "context": ".0 to -8.7) | 82.2% (79 to 84%) | 0/90 (0 to 4%) | 9/30 (17 to 48%; settings 20 to 40%) | | "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "48%",
+   "context": "% (79 to 84%) | 0/90 (0 to 4%) | 9/30 (17 to 48%; settings 20 to 40%) | | Volume alarm, 6 h h"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "40%",
+   "context": " (0 to 4%) | 9/30 (17 to 48%; settings 20 to 40%) | | Volume alarm, 6 h history | 89/90 | 5/9"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "12%",
+   "context": "lume alarm, 6 h history | 89/90 | 5/90 (2 to 12%) | -4.5 (-6.0 to -2.9) | 94.5% (93 to 96%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "94.5%",
+   "context": "90 | 5/90 (2 to 12%) | -4.5 (-6.0 to -2.9) | 94.5% (93 to 96%) | 20/90 (15 to 32%) | 13/30 (27 "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "96%",
+   "context": "to 12%) | -4.5 (-6.0 to -2.9) | 94.5% (93 to 96%) | 20/90 (15 to 32%) | 13/30 (27 to 61%; set"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "32%",
+   "context": " to -2.9) | 94.5% (93 to 96%) | 20/90 (15 to 32%) | 13/30 (27 to 61%; settings 40 to 50%) | |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "61%",
+   "context": "3 to 96%) | 20/90 (15 to 32%) | 13/30 (27 to 61%; settings 40 to 50%) | | Any of the four (th"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50%",
+   "context": "5 to 32%) | 13/30 (27 to 61%; settings 40 to 50%) | | Any of the four (the first to fire) | 9"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "12%",
+   "context": "our (the first to fire) | 90/90 | 5/90 (2 to 12%) | -3.4 (-4.1 to -2.8) | 96.6% (96 to 97%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "96.6%",
+   "context": "90 | 5/90 (2 to 12%) | -3.4 (-4.1 to -2.8) | 96.6% (96 to 97%) | 23/90 (18 to 35%) | 18/30 (42 "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "97%",
+   "context": "to 12%) | -3.4 (-4.1 to -2.8) | 96.6% (96 to 97%) | 23/90 (18 to 35%) | 18/30 (42 to 75%; set"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "35%",
+   "context": " to -2.8) | 96.6% (96 to 97%) | 23/90 (18 to 35%) | 18/30 (42 to 75%; settings 50 to 70%) | |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "75%",
+   "context": "6 to 97%) | 23/90 (18 to 35%) | 18/30 (42 to 75%; settings 50 to 70%) | | Volume alarm, 12 h "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "70%",
+   "context": "8 to 35%) | 18/30 (42 to 75%; settings 50 to 70%) | | Volume alarm, 12 h history (variant) | "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "4%",
+   "context": " 12 h history (variant) | 86/90 | 0/90 (0 to 4%) | -8.5 (-9.0 to -6.6) | 87.1% (85 to 89%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "87.1%",
+   "context": "/90 | 0/90 (0 to 4%) | -8.5 (-9.0 to -6.6) | 87.1% (85 to 89%) | 1/90 (0 to 6%) | 9/30 (17 to 4"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "89%",
+   "context": " to 4%) | -8.5 (-9.0 to -6.6) | 87.1% (85 to 89%) | 1/90 (0 to 6%) | 9/30 (17 to 48%) | | Fir"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "6%",
+   "context": ".0 to -6.6) | 87.1% (85 to 89%) | 1/90 (0 to 6%) | 9/30 (17 to 48%) | | First new host after"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "48%",
+   "context": "% (85 to 89%) | 1/90 (0 to 6%) | 9/30 (17 to 48%) | | First new host after 24 h (variant) | 1"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "4%",
+   "context": "st after 24 h (variant) | 11/90 | 0/90 (0 to 4%) | -16.6 (-17.9 to -15.3) | 0% | 0/90 (0 to "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "0%",
+   "context": " | 0/90 (0 to 4%) | -16.6 (-17.9 to -15.3) | 0% | 0/90 (0 to 4%) | 0/30 (0 to 11%) | | Conte"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "4%",
+   "context": ") | -16.6 (-17.9 to -15.3) | 0% | 0/90 (0 to 4%) | 0/30 (0 to 11%) | | Context: two identiti"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "11%",
+   "context": "to -15.3) | 0% | 0/90 (0 to 4%) | 0/30 (0 to 11%) | | Context: two identities share one place"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "4%",
+   "context": "ntities share one place | 90/90 | 0/90 (0 to 4%) | -1.8 (-2.4 to -1.3) | 98.8% (98 to 99%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "98.8%",
+   "context": "/90 | 0/90 (0 to 4%) | -1.8 (-2.4 to -1.3) | 98.8% (98 to 99%) |–| 0/30 (0 to 11%) | | Context:"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "99%",
+   "context": " to 4%) | -1.8 (-2.4 to -1.3) | 98.8% (98 to 99%) |–| 0/30 (0 to 11%) | | Context: one identi"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "11%",
+   "context": " to -1.3) | 98.8% (98 to 99%) |–| 0/30 (0 to 11%) | | Context: one identity carries another's"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "4%",
+   "context": " carries another's token | 0/90 | 0/90 (0 to 4%) |–| 0% |–| 0/30 (0 to 11%) | | Context: old"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "0%",
+   "context": " another's token | 0/90 | 0/90 (0 to 4%) |–| 0% |–| 0/30 (0 to 11%) | | Context: old Alert r"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "11%",
+   "context": " 0/90 | 0/90 (0 to 4%) |–| 0% |–| 0/30 (0 to 11%) | | Context: old Alert rule, 2 kinds of coo"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "4%",
+   "context": "2 kinds of coordination | 90/90 | 0/90 (0 to 4%) | -2.4 (-3.0 to -2.2) | 97.9% |–| 8/30 (14 "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "97.9%",
+   "context": "/90 | 0/90 (0 to 4%) | -2.4 (-3.0 to -2.2) | 97.9% |–| 8/30 (14 to 44%; settings 0 to 50%) | In"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "44%",
+   "context": " -2.4 (-3.0 to -2.2) | 97.9% |–| 8/30 (14 to 44%; settings 0 to 50%) | Independent generator:"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50%",
+   "context": ") | 97.9% |–| 8/30 (14 to 44%; settings 0 to 50%) | Independent generator: 20 coordinated and"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50",
+   "context": " | Independent generator: 20 coordinated and 50 benign look-alike swarms, seeds 511 to 520, "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "47%",
+   "context": "st new host after 12 h | 15/20 | 5/20 (11 to 47%) | -0.0 (-1.5 to -0.0) | 97.2% (88 to 98%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "97.2%",
+   "context": "0 | 5/20 (11 to 47%) | -0.0 (-1.5 to -0.0) | 97.2% (88 to 98%) | 15/20 (53 to 89%) | 2/50 (1 to"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "98%",
+   "context": "to 47%) | -0.0 (-1.5 to -0.0) | 97.2% (88 to 98%) | 15/20 (53 to 89%) | 2/50 (1 to 14%; setti"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "89%",
+   "context": " to -0.0) | 97.2% (88 to 98%) | 15/20 (53 to 89%) | 2/50 (1 to 14%; settings 0 to 12%) | | Fi"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "14%",
+   "context": "(88 to 98%) | 15/20 (53 to 89%) | 2/50 (1 to 14%; settings 0 to 12%) | | First secrets-search"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "12%",
+   "context": " (53 to 89%) | 2/50 (1 to 14%; settings 0 to 12%) | | First secrets-search action | 0/20 | 0/"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "16%",
+   "context": "st secrets-search action | 0/20 | 0/20 (0 to 16%) |–| 0% | 0/20 (0 to 16%) | 0/50 (0 to 7%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "0%",
+   "context": "s-search action | 0/20 | 0/20 (0 to 16%) |–| 0% | 0/20 (0 to 16%) | 0/50 (0 to 7%) | | Disti"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "16%",
+   "context": "| 0/20 | 0/20 (0 to 16%) |–| 0% | 0/20 (0 to 16%) | 0/50 (0 to 7%) | | Distinct-actor alarm |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "7%",
+   "context": "o 16%) |–| 0% | 0/20 (0 to 16%) | 0/50 (0 to 7%) | | Distinct-actor alarm | 16/20 | 1/20 (1 "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "24%",
+   "context": " | Distinct-actor alarm | 16/20 | 1/20 (1 to 24%) | -12.2 (-14.8 to -5.1) | 58.9% (50 to 59%)"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "58.9%",
+   "context": " | 1/20 (1 to 24%) | -12.2 (-14.8 to -5.1) | 58.9% (50 to 59%) | 16/20 (58 to 92%) | 9/50 (10 t"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "59%",
+   "context": " 24%) | -12.2 (-14.8 to -5.1) | 58.9% (50 to 59%) | 16/20 (58 to 92%) | 9/50 (10 to 31%; sett"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "92%",
+   "context": " to -5.1) | 58.9% (50 to 59%) | 16/20 (58 to 92%) | 9/50 (10 to 31%; settings 12 to 26%) | | "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "31%",
+   "context": "50 to 59%) | 16/20 (58 to 92%) | 9/50 (10 to 31%; settings 12 to 26%) | | Volume alarm, 6 h h"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "26%",
+   "context": "58 to 92%) | 9/50 (10 to 31%; settings 12 to 26%) | | Volume alarm, 6 h history | 20/20 | 1/2"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "24%",
+   "context": "lume alarm, 6 h history | 20/20 | 1/20 (1 to 24%) | -8.3 (-9.1 to -8.2) | 73.8% (69 to 79%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "73.8%",
+   "context": "20 | 1/20 (1 to 24%) | -8.3 (-9.1 to -8.2) | 73.8% (69 to 79%) | 20/20 (84 to 100%) | 18/50 (24"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "79%",
+   "context": "to 24%) | -8.3 (-9.1 to -8.2) | 73.8% (69 to 79%) | 20/20 (84 to 100%) | 18/50 (24 to 50%; se"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "100%",
+   "context": " to -8.2) | 73.8% (69 to 79%) | 20/20 (84 to 100%) | 18/50 (24 to 50%; settings 28 to 44%) | |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50%",
+   "context": " to 79%) | 20/20 (84 to 100%) | 18/50 (24 to 50%; settings 28 to 44%) | | Any of the four (th"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "44%",
+   "context": " to 100%) | 18/50 (24 to 50%; settings 28 to 44%) | | Any of the four (the first to fire) | 2"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "52%",
+   "context": "ur (the first to fire) | 20/20 | 6/20 (14 to 52%) | -0.1 (-5.0 to -0.1) | 97.2% (88 to 98%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "97.2%",
+   "context": "0 | 6/20 (14 to 52%) | -0.1 (-5.0 to -0.1) | 97.2% (88 to 98%) | 20/20 (84 to 100%) | 23/50 (33"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "98%",
+   "context": "to 52%) | -0.1 (-5.0 to -0.1) | 97.2% (88 to 98%) | 20/20 (84 to 100%) | 23/50 (33 to 60%; se"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "100%",
+   "context": " to -0.1) | 97.2% (88 to 98%) | 20/20 (84 to 100%) | 23/50 (33 to 60%; settings 36 to 58%) | |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "60%",
+   "context": " to 98%) | 20/20 (84 to 100%) | 23/50 (33 to 60%; settings 36 to 58%) | | Volume alarm, 12 h "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "58%",
+   "context": " to 100%) | 23/50 (33 to 60%; settings 36 to 58%) | | Volume alarm, 12 h history (variant) | "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "24%",
+   "context": " 12 h history (variant) | 20/20 | 1/20 (1 to 24%) | -9.9 (-12.2 to -8.2) | 69.3% (66 to 79%) "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "69.3%",
+   "context": "0 | 1/20 (1 to 24%) | -9.9 (-12.2 to -8.2) | 69.3% (66 to 79%) | 20/20 (84 to 100%) | 14/50 (18"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "79%",
+   "context": "o 24%) | -9.9 (-12.2 to -8.2) | 69.3% (66 to 79%) | 20/20 (84 to 100%) | 14/50 (18 to 42%) | "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "100%",
+   "context": " to -8.2) | 69.3% (66 to 79%) | 20/20 (84 to 100%) | 14/50 (18 to 42%) | | First new host afte"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "42%",
+   "context": " to 79%) | 20/20 (84 to 100%) | 14/50 (18 to 42%) | | First new host after 24 h (variant) | 0"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "16%",
+   "context": "ost after 24 h (variant) | 0/20 | 0/20 (0 to 16%) |–| 0% | 0/20 (0 to 16%) | 0/50 (0 to 7%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "0%",
+   "context": " 24 h (variant) | 0/20 | 0/20 (0 to 16%) |–| 0% | 0/20 (0 to 16%) | 0/50 (0 to 7%) | | Conte"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "16%",
+   "context": "| 0/20 | 0/20 (0 to 16%) |–| 0% | 0/20 (0 to 16%) | 0/50 (0 to 7%) | | Context: two identitie"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "7%",
+   "context": "o 16%) |–| 0% | 0/20 (0 to 16%) | 0/50 (0 to 7%) | | Context: two identities share one place"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "16%",
+   "context": "entities share one place | 0/20 | 0/20 (0 to 16%) |–| 0% |–| 0/50 (0 to 7%) | | Context: one "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "0%",
+   "context": "share one place | 0/20 | 0/20 (0 to 16%) |–| 0% |–| 0/50 (0 to 7%) | | Context: one identity"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "7%",
+   "context": "0/20 | 0/20 (0 to 16%) |–| 0% |–| 0/50 (0 to 7%) | | Context: one identity carries another's"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "16%",
+   "context": " carries another's token | 0/20 | 0/20 (0 to 16%) |–| 0% |–| 0/50 (0 to 7%) | | Context: old "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "0%",
+   "context": "another's token | 0/20 | 0/20 (0 to 16%) |–| 0% |–| 0/50 (0 to 7%) | | Context: old Alert ru"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "7%",
+   "context": "0/20 | 0/20 (0 to 16%) |–| 0% |–| 0/50 (0 to 7%) | | Context: old Alert rule, 2 kinds of coo"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "30%",
+   "context": "2 kinds of coordination | 20/20 | 2/20 (3 to 30%) | -6.0 (-7.8 to -2.9) | 84.3% (83 to 87%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "84.3%",
+   "context": "20 | 2/20 (3 to 30%) | -6.0 (-7.8 to -2.9) | 84.3% (83 to 87%) |–| 40/50 (67 to 89%; settings 4"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "87%",
+   "context": "to 30%) | -6.0 (-7.8 to -2.9) | 84.3% (83 to 87%) |–| 40/50 (67 to 89%; settings 40 to 100%) "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "89%",
+   "context": "o -2.9) | 84.3% (83 to 87%) |–| 40/50 (67 to 89%; settings 40 to 100%) | The hypotheses, as d"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "100%",
+   "context": "to 87%) |–| 40/50 (67 to 89%; settings 40 to 100%) | The hypotheses, as decided in advance | |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "90",
+   "context": "ill to come than the new-host alarm in 87 of 90 swarms. That simulator writes the board name"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "20",
+   "context": " because the shared-place sign fired in 0 of 20 swarms there. - Only the new-host alarm is q"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "95%",
+   "context": "of the swarms in the set, with the per-swarm 95% binomial interval. | Benign set | swarms | t"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "11%",
+   "context": "50 (pre-registered) | 30 | 1064 | 0/30 (0 to 11%) | 0/30, empty | 9/30 (17 to 48%) | 13/30 (2"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "48%",
+   "context": " 0/30 (0 to 11%) | 0/30, empty | 9/30 (17 to 48%) | 13/30 (27 to 61%) | 18/30 (42 to 75%) | 8"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "61%",
+   "context": "/30, empty | 9/30 (17 to 48%) | 13/30 (27 to 61%) | 18/30 (42 to 75%) | 8/30 (14 to 44%) | | "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "75%",
+   "context": "7 to 48%) | 13/30 (27 to 61%) | 18/30 (42 to 75%) | 8/30 (14 to 44%) | | Independent generato"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "44%",
+   "context": "27 to 61%) | 18/30 (42 to 75%) | 8/30 (14 to 44%) | | Independent generator look-alike classe"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "14%",
+   "context": "20 (pre-registered) | 50 | 2406 | 2/50 (1 to 14%) | 0/50, empty | 9/50 (10 to 31%) | 18/50 (2"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "31%",
+   "context": " 2/50 (1 to 14%) | 0/50, empty | 9/50 (10 to 31%) | 18/50 (24 to 50%) | 23/50 (33 to 60%) | 4"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50%",
+   "context": "/50, empty | 9/50 (10 to 31%) | 18/50 (24 to 50%) | 23/50 (33 to 60%) | 40/50 (67 to 89%) | |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "60%",
+   "context": "0 to 31%) | 18/50 (24 to 50%) | 23/50 (33 to 60%) | 40/50 (67 to 89%) | |–shared leaderboard "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "89%",
+   "context": "4 to 50%) | 23/50 (33 to 60%) | 40/50 (67 to 89%) | |–shared leaderboard dataset | 10 | 480 |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "11%",
+   "context": "40 (the v2.2.0 run) | 30 | 1052 | 0/30 (0 to 11%) | 0/30, empty | 3/30 (4 to 26%) | 4/30 (5 t"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "26%",
+   "context": "| 0/30 (0 to 11%) | 0/30, empty | 3/30 (4 to 26%) | 4/30 (5 to 30%) | 6/30 (10 to 37%) | 5/30"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "30%",
+   "context": "| 0/30, empty | 3/30 (4 to 26%) | 4/30 (5 to 30%) | 6/30 (10 to 37%) | 5/30 (7 to 34%) | | In"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "37%",
+   "context": "0 (4 to 26%) | 4/30 (5 to 30%) | 6/30 (10 to 37%) | 5/30 (7 to 34%) | | Independent generator"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "34%",
+   "context": "0 (5 to 30%) | 6/30 (10 to 37%) | 5/30 (7 to 34%) | | Independent generator, seeds 501 to 510"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "14%",
+   "context": "10 (the v2.2.0 run) | 50 | 2405 | 2/50 (1 to 14%) | 0/50, empty | 10/50 (11 to 33%) | 19/50 ("
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "33%",
+   "context": "2/50 (1 to 14%) | 0/50, empty | 10/50 (11 to 33%) | 19/50 (26 to 52%) | 24/50 (35 to 62%) | 4"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "52%",
+   "context": "50, empty | 10/50 (11 to 33%) | 19/50 (26 to 52%) | 24/50 (35 to 62%) | 40/50 (67 to 89%) | |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "62%",
+   "context": "1 to 33%) | 19/50 (26 to 52%) | 24/50 (35 to 62%) | 40/50 (67 to 89%) | | Bundled benign samp"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "89%",
+   "context": "6 to 52%) | 24/50 (35 to 62%) | 40/50 (67 to 89%) | | Bundled benign sample (one simulated tr"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "99.5%",
+   "context": "aces with times | 38 | 6128 | 37/38 (86.5 to 99.5%) | pattern in 3/38 (3 to 21%) | 37/38 (86.5 "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "21%",
+   "context": "7/38 (86.5 to 99.5%) | pattern in 3/38 (3 to 21%) | 37/38 (86.5 to 99.5%) | 37/38 (86.5 to 99"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "99.5%",
+   "context": " pattern in 3/38 (3 to 21%) | 37/38 (86.5 to 99.5%) | 37/38 (86.5 to 99.5%) | 38/38 (91 to 100%"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "99.5%",
+   "context": "1%) | 37/38 (86.5 to 99.5%) | 37/38 (86.5 to 99.5%) | 38/38 (91 to 100%) | 38/38 (91 to 100%) |"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "100%",
+   "context": "9.5%) | 37/38 (86.5 to 99.5%) | 38/38 (91 to 100%) | 38/38 (91 to 100%) | | Real: Who&When, 18"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "100%",
+   "context": "o 99.5%) | 38/38 (91 to 100%) | 38/38 (91 to 100%) | | Real: Who&When, 184 traces, none with t"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "6%",
+   "context": " |–| not measurable | pattern in 4/184 (1 to 6%) | not measurable | not measurable | not mea"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "30",
+   "context": "n: three benign settings share each seed, so 30 swarms are closer to 10 independent draws th"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "18,436",
+   "context": "s on a social site, one trace per community, 18,436 records, 6,128 trace hours, about 161 hours "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "48",
+   "context": " is far easier to reach here than in a 36 to 48 hour simulated swarm: per 24 h the new-host "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "57.0%",
+   "context": "eeds after an alarm. Their measured numbers: 57.0% and 50.2% of harm still to come on the real "
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50.2%",
+   "context": " an alarm. Their measured numbers: 57.0% and 50.2% of harm still to come on the real release, l"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "20",
+   "context": "n the independent generator it fires in 0 of 20 coordinated swarms. The old Alert rule (2 ki"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "50",
+   "context": " of coordination) fires in 8 of 30 and 40 of 50 benign swarms. On a simulated swarm the cont"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "99.5%",
+   "context": "he shared-place sign fires at hour 10.0 with 99.5% of the harm still to come, and the first mai"
+  },
+  {
+   "file": "docs/early-warning.md",
+   "number": "90.6%",
+   "context": "irst main alarm (new host) at hour 15.8 with 90.6%. The app says so on that dataset rather than"
   },
   {
    "file": "docs/early-warning.md",
@@ -1994,7 +3164,7 @@
   {
    "file": "docs/early-warning.md",
    "number": "30",
-   "context": "on real systems. ### 3a. Original simulator: 30 benign swarms, 1052 trace hours, 42,080 agen"
+   "context": ", is section 0d. ### 3a. Original simulator: 30 benign swarms, 1052 trace hours, 42,080 agen"
   },
   {
    "file": "docs/early-warning.md",
@@ -2199,12 +3369,12 @@
   {
    "file": "docs/early-warning.md",
    "number": "3",
-   "context": "share a place | 57.0% / 50.2% | | A group of 3 actors linked by deliveries | 7.2% | The sha"
+   "context": "share a place | 57.0% / 50.2% | | A group of 3 actors linked by deliveries | 7.2% | This is"
   },
   {
    "file": "docs/early-warning.md",
    "number": "7.2%",
-   "context": "| A group of 3 actors linked by deliveries | 7.2% | The shared-control signs are the latest of"
+   "context": "| A group of 3 actors linked by deliveries | 7.2% | This is the table that led to section 0, w"
   },
   {
    "file": "docs/early-warning.md",
@@ -2268,6 +3438,11 @@
   },
   {
    "file": "docs/early-warning.md",
+   "number": "189,579",
+   "context": "l four fire online within the first 6,756 of 189,579 records, and all four fire in the replay, bu"
+  },
+  {
+   "file": "docs/early-warning.md",
    "number": "3",
    "context": "check) | 500,000 | | program families (up to 3 actors and 8 copies each) | 100,000 | | plac"
   },
@@ -2308,18 +3483,8 @@
   },
   {
    "file": "docs/how-it-works.md",
-   "number": "9",
-   "context": "dentifiers with the writer's), which is 0 of 9 on the Swarm Traces release. Three rules kee"
-  },
-  {
-   "file": "docs/how-it-works.md",
    "number": "20",
-   "context": "e first program reused, a group of 3, 5, 10, 20 actors linked by messages, the first two-way"
-  },
-  {
-   "file": "docs/limitations.md",
-   "number": "9",
-   "context": " show the reader used what was written (0 of 9 on the Swarm Traces release do), and one tha"
+   "context": "e first program reused, a group of 3, 5, 10, 20 actors linked by deliveries, the first two-w"
   },
   {
    "file": "docs/limitations.md",
@@ -2343,28 +3508,73 @@
   },
   {
    "file": "docs/limitations.md",
+   "number": "10%",
+   "context": "2 on Who&When, 80.1% on MAST-Data) but under 10% of the single messages, and it reports many "
+  },
+  {
+   "file": "docs/limitations.md",
    "number": "1%",
    "context": "ed programs) were almost always wrong (about 1% right), so the tool now keeps those at low c"
   },
   {
+   "file": "docs/limitations.md",
+   "number": "95%",
+   "context": "h no recorded attack the Alert rule fires on 95% to 100% of runs, and on the only real traffi"
+  },
+  {
+   "file": "docs/limitations.md",
+   "number": "100%",
+   "context": "corded attack the Alert rule fires on 95% to 100% of runs, and on the only real traffic with t"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "184",
+   "context": "ilure attribution is at chance. On Who&When (184 failed runs with human labels) the tool's fi"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "13.6%",
+   "context": "; chance 29.1%) and the labelled step in 25 (13.6%; chance 9.5%). Naming the agent with most re"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "9.5%",
+   "context": ") and the labelled step in 25 (13.6%; chance 9.5%). Naming the agent with most records gets 72"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "1,351",
+   "context": "imes and the tool fires nothing (recall 0 of 1,351 colluding runs). With an order-only clock th"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "16",
+   "context": "or v2.3.0. The independent-generator scores (16 November run), the count-variance run and th"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "1,656",
+   "context": "g was run again on the v2.3.0 rule: 1,570 of 1,656 mutants of messages.py are killed; of the 86"
+  },
+  {
    "file": "docs/known-issues.md",
    "number": "23",
-   "context": "ember 2026). What changed: - Message count. \"23 messages, 6 between named tokens\" is replace"
+   "context": "ember 2026). What changed: - Message count. \"23 messages, 6 between named tokens\" was replac"
   },
   {
    "file": "docs/known-issues.md",
    "number": "6",
-   "context": "What changed: - Message count. \"23 messages, 6 between named tokens\" is replaced by 9 write"
+   "context": "What changed: - Message count. \"23 messages, 6 between named tokens\" was replaced by 9 writ"
   },
   {
    "file": "docs/known-issues.md",
    "number": "9",
-   "context": "ages, 6 between named tokens\" is replaced by 9 write-then-read deliveries, 4 between named "
+   "context": "ges, 6 between named tokens\" was replaced by 9 write-then-read deliveries, 4 between named "
   },
   {
    "file": "docs/known-issues.md",
    "number": "4",
-   "context": "is replaced by 9 write-then-read deliveries, 4 between named tokens (2 between agents, 2 in"
+   "context": "as replaced by 9 write-then-read deliveries, 4 between named tokens (2 between agents, 2 in"
   },
   {
    "file": "docs/known-issues.md",
@@ -2474,7 +3684,7 @@
   {
    "file": "docs/known-issues.md",
    "number": "166",
-   "context": "nd v1.1.0 scored 79% on one while 165 of its 166 real links were false. - False alarms. On 50"
+   "context": "nd v1.1.0 scored 79% on one while 165 of its 166 real links were false. - False alarms (simul"
   },
   {
    "file": "docs/known-issues.md",
@@ -2503,13 +3713,13 @@
   },
   {
    "file": "docs/known-issues.md",
-   "number": "9",
-   "context": " and so is v2.1.0's 23. The rule now reports 9 write-then-read deliveries, 4 between named "
+   "number": "11",
+   "context": " on 22 November 2026 from the v2.3.0 script (11 deliveries, the simple alarms as main alarms"
   },
   {
    "file": "docs/known-issues.md",
    "number": "4",
-   "context": "le now reports 9 write-then-read deliveries, 4 between named tokens, none where the reader "
+   "context": "e now reports 11 write-then-read deliveries, 4 between named tokens, none where the reader "
   },
   {
    "file": "docs/known-issues.md",
@@ -2583,6 +3793,26 @@
   },
   {
    "file": "docs/known-issues.md",
+   "number": "95%",
+   "context": "coordinator and workers) in 30 of 30, and on 95% to 100% of the real runs measured in v2.3.0."
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "100%",
+   "context": "ator and workers) in 30 of 30, and on 95% to 100% of the real runs measured in v2.3.0. It dete"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "43.7%",
+   "context": "ired on 37 of 40 Moltbook communities and on 43.7% of colluding and 42.5% of non-colluding SALT"
+  },
+  {
+   "file": "docs/known-issues.md",
+   "number": "42.5%",
+   "context": "ok communities and on 43.7% of colluding and 42.5% of non-colluding SALT runs, on words such as"
+  },
+  {
+   "file": "docs/known-issues.md",
    "number": "380",
    "context": "of 12 high-confidence merges right\" is 12 of 380 true pairs (about 3% recall), and the merge "
   },
@@ -2625,11 +3855,6 @@
    "file": "docs/known-issues.md",
    "number": "15",
    "context": "varied. - The online monitor reproduces 3 of 15 replay signs within 15 minutes; on the onlin"
-  },
-  {
-   "file": "docs/known-issues.md",
-   "number": "9",
-   "context": " rule on the release, but not independently (9 deliveries each; it found 191 until v2.2.0 b"
   },
   {
    "file": "docs/collect-next-time.md",
@@ -2684,6 +3909,9 @@
   "validation",
   "variance",
   "samples",
-  "repo"
+  "repo",
+  "external",
+  "earlywarn",
+  "crosscheck"
  ]
 }

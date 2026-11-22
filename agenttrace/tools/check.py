@@ -6,6 +6,8 @@
                                                   # (no browser); oracle on the demo swarm
     python3 -m agenttrace.tools.check --full     # also the two real datasets (smoke + oracle), the concurrency checks
                                                   # and the interaction test (tools.interact --quick) on the demo swarm
+    python3 -m agenttrace.tools.check --quick --skip-unit   # what CI runs after its own unit-test step: no browser,
+                                                  # no dataset outside the repository
 
 Prints one line per stage and a summary, and exits non-zero when anything fails. Servers run on free ports.
 """
@@ -76,6 +78,7 @@ def main(argv=None):
     g.add_argument("--quick", action="store_true", help="API-only smoke on the demo swarm and the samples")
     g.add_argument("--full", action="store_true", help="also the two real datasets and the concurrency checks")
     ap.add_argument("--port", type=int, default=0, help="server port (default: a free one)")
+    ap.add_argument("--skip-unit", action="store_true", help="leave out the unit tests (when they have just been run on their own)")
     a = ap.parse_args(argv)
     port = a.port or smoke.free_port()
     stages = []
@@ -91,7 +94,8 @@ def main(argv=None):
         sys.stdout.write(f"{'PASS' if ok else 'FAIL'}  {name} ({sec:.0f} s): {detail}\n")
         sys.stdout.flush()
 
-    stage("unit tests", run_unit_tests)
+    if not a.skip_unit:
+        stage("unit tests", run_unit_tests)
 
     def run_smoke():
         t0 = time.time()

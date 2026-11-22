@@ -660,6 +660,18 @@ DETECTORS = [("otel", _is_otel, read_otel), ("openai_agents", _is_openai_agents,
              ("mcp", _is_mcp, read_mcp), ("autogen", _is_autogen, read_autogen),
              ("crewai", _is_crewai, read_crewai), ("chat", _is_chat, read_chat)]
 
+# Who&When and MAST-Data (two public datasets of failed runs) have their own module; their shapes are tested first
+from . import readers_failure as _failure  # noqa: E402
+FORMATS.update(_failure.FORMATS)
+SOURCE_FIELDS.update(_failure.SOURCE_FIELDS)
+DETECTORS[:0] = _failure.DETECTORS
+
+# SALT agent-collusion and Moltbook Observatory (two openly licensed public datasets): readers_public.py, same way
+from . import readers_public as _public  # noqa: E402
+FORMATS.update(_public.FORMATS)
+SOURCE_FIELDS.update(_public.SOURCE_FIELDS)
+DETECTORS[:0] = _public.DETECTORS
+
 
 def detect(rows):
     """The format whose shape at least half the rows have, else None."""
@@ -908,7 +920,10 @@ def _base_pack():
     except (OSError, ValueError):
         g = {}
     keep = ("behaviors", "info_patterns", "harm", "time", "handles", "handle_families", "shared_names",
-            "structural_channels", "mention_channels", "auto_shared_identities")
+            "structural_channels", "mention_channels", "auto_shared_identities",
+            # a place a tool call names in an argument counts whatever its shape (counting rule R18a): the builder
+            # proposes patterns only for places that look like an address or a path, so a one-word place needs this
+            "tool_places")
     return {k: g[k] for k in keep if k in g}
 
 

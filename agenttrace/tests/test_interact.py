@@ -34,6 +34,52 @@ class SamplePlan(unittest.TestCase):
         self.assertFalse([p for p in interact.sample_plan(self.ITEMS, per_sig=9) if p["kind"] in ("file-input", "disabled")])
 
 
+class KeyboardPass(unittest.TestCase):
+    """The keyboard-access pass itself needs Chrome (python3 -m agenttrace.tools.interact --keyboard); here only what
+    can be checked without one: what it looks for, and that the app still has the handlers it presses on."""
+
+    def test_targets_cover_chips_rows_and_terms(self):
+        whats = [w for _n, _s, w in interact.KB_TARGETS]
+        self.assertEqual(sorted(whats), ["actor", "agent", "place", "record", "row", "term"])
+        sel = {w: s for _n, s, w in interact.KB_TARGETS}
+        self.assertIn("tr.click", sel["row"])
+        self.assertIn("data-id", sel["record"])
+        self.assertIn("events", interact.KB_TABS)
+
+    def test_the_pass_uses_real_keys_only(self):
+        import inspect
+        src = inspect.getsource(interact.Runner.keyboard_access_checks) + inspect.getsource(interact.Runner.kb_tab_to)
+        self.assertNotIn("click_sel", src)
+        self.assertNotIn(".click()", src)
+        self.assertNotIn("dispatchMouseEvent", src)
+        for key in ('self.key("Tab")', '"Enter"', '"Space"', '"Escape"', '"ArrowDown"', "shift=True"):
+            self.assertIn(key, src, key)
+        self.assertEqual(interact.KEYS["Space"], 32)
+
+    def test_app_has_the_keyboard_handlers_the_pass_relies_on(self):
+        with open(os.path.join(interact.PKG, "app", "core.js"), encoding="utf-8") as f:
+            js = f.read()
+        self.assertIn('const KEY_TARGETS = "tr.click,.ent,', js)                          # chips and rows get a tab stop
+        self.assertIn('(e.key !== "Enter" && e.key !== " ")', js)                         # Enter and Space press them
+        self.assertIn('e.key === "Escape" || e.key === "Tab") close();', js)              # the search results close when focus moves on
+        self.assertIn("glossaryOpener", js)                                               # the glossary gives the focus back
+        with open(os.path.join(interact.PKG, "app", "app.css"), encoding="utf-8") as f:
+            css = f.read()
+        self.assertIn(":focus-visible{outline:2px solid", css)
+
+    @unittest.skipUnless(os.environ.get("SWARM_TRACER_BROWSER_TESTS") and interact.find_chrome(), "set SWARM_TRACER_BROWSER_TESTS=1 (needs Chrome) to run the keyboard pass here")
+    def test_keyboard_pass_in_chrome(self):
+        srv = interact.Server(interact.free_port(), os.path.join(interact.PKG, "samples", "demo_swarm"))
+        try:
+            self.assertTrue(srv.wait(300), srv.output(300))
+            ds = interact.run_dataset("demo swarm", srv.base, keyboard_only=True)
+        finally:
+            srv.stop()
+        bad = [c for c in ds["checks"] if not c["ok"]]
+        self.assertEqual(bad, [])
+        self.assertGreaterEqual(len(ds["checks"]), 30)
+
+
 class Report(unittest.TestCase):
     def test_diff(self):
         self.assertEqual(interact.diff_snap({"a": 1, "b": 2, "c": 3}, {"a": 1, "b": 5, "c": 4}), ["b", "c"])
@@ -111,6 +157,38 @@ class DemoScript(unittest.TestCase):
     def test_no_merges_drops_the_agent_sentence(self):
         s = demo_video.claim_sentence(dict(NUMBERS, inside=0))
         self.assertNotIn("one agent", s)
+
+    def _deliveries_script(self, n):
+        with open(self.path, "w") as f:
+            f.write(SCRIPT.replace("That leaves 19 messages in all, six of them between named tokens",
+                                   f"That leaves {n} deliveries in all, six of them between eight named tokens")
+                    + " Three of those six are between tokens that Swarm Tracer estimates belong to one agent.\n")
+
+    def test_deliveries_wording_is_understood(self):
+        # since v2.3.0 the script says "deliveries", not "messages": the same count is checked
+        self._deliveries_script(24)
+        self.assertEqual(demo_video.check_numbers(demo_video.parse_script(self.path), NUMBERS), [])
+
+    def test_deliveries_wording_is_still_checked(self):
+        self._deliveries_script(19)
+        probs = demo_video.check_numbers(demo_video.parse_script(self.path), NUMBERS)
+        self.assertEqual(probs, ["script says 19 deliveries in all; the app has 24"])
+        # another noun is not accepted as the count sentence
+        with open(self.path, "w") as f:
+            f.write(SCRIPT.replace("19 messages in all", "24 contacts in all"))
+        probs = demo_video.check_numbers(demo_video.parse_script(self.path), NUMBERS)
+        self.assertTrue(any("no sentence" in p for p in probs), probs)
+
+    def test_update_keeps_the_scripts_word(self):
+        self._deliveries_script(19)
+        self.assertTrue(demo_video.update_script(self.path, NUMBERS))
+        with open(self.path) as f:
+            text = f.read()
+        self.assertIn("That leaves 24 deliveries in all, six of them between eight named tokens, in five sender-receiver pairs. "
+                      "Three of those six are between tokens", text)
+        self.assertNotIn("messages in all", text)
+        self.assertEqual(demo_video.check_numbers(demo_video.parse_script(self.path), NUMBERS), [])
+        self.assertIn("1 delivery in all", demo_video.claim_sentence(dict(NUMBERS, messages=1), "deliveries"))
 
 
 if __name__ == "__main__":

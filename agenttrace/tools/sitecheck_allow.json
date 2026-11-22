@@ -43,6 +43,12 @@
  },
  {
   "rule": "unredacted-hf-repo",
+  "match": "mcemri/MAST-Data",
+  "path": "investigations/*",
+  "reason": "the public MAST-Data dataset card, licensed CC BY 4.0: the licence asks for a link to the source beside any excerpt, so the MAST-Data story, its bundle and the gallery's source line for that dataset give this address (taken from the registry entry mast_data); it is the dataset's published name, not a name the Swarm Traces release redacts"
+ },
+ {
+  "rule": "unredacted-hf-repo",
   "match": "metr-evals/malt-public",
   "path": "dataset*",
   "reason": "public dataset card on Hugging Face, linked from the datasets page as a source; not a redacted name"

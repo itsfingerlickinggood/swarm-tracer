@@ -7,11 +7,11 @@
 <meta name="description" content="The people who ran the incident published what they found. We checked each finding against the public release. 15 of 41 cannot be seen in it at all.">
 <link rel="stylesheet" href="../story.css">
 </head>
-<body class="story" data-story="what-is-missed" data-snippets="off">
+<body class="story" data-story="what-is-missed" data-dataset="swarm_traces" data-snippets="off">
 <a class="skip" href="#main">Skip to the content</a><header class="site"><div class="bar"><a class="brand" href="../../"><svg width="24" height="24" viewBox="0 0 26 26" aria-hidden="true"><g fill="none" stroke="#7fb3e6" stroke-width="1.3"><path d="M5 7L13 4L21 8L19 17L11 21L5 15Z" opacity=".55"/><path d="M13 4L11 21M5 7L19 17M21 8L5 15" opacity=".35"/></g><g fill="#fff"><circle cx="5" cy="7" r="2"/><circle cx="13" cy="4" r="2"/><circle cx="21" cy="8" r="2"/><circle cx="19" cy="17" r="2"/><circle cx="11" cy="21" r="2"/><circle cx="5" cy="15" r="2"/></g><circle cx="13" cy="12.5" r="2.6" fill="#e3a43b"/></svg><span>Swarm Tracer</span></a><nav aria-label="Site"><a href="../../">Home</a><a href="../../demo/">Demo</a><a href="../../investigations/" aria-current="page">Investigations</a><a href="../../datasets.html">Datasets</a><a href="https://github.com/itsfingerlickinggood/swarm-tracer">GitHub</a></nav></div></header>
 <main id="main" class="layout">
 <article class="text">
-<p class="kicker"><a href="../">Investigations</a> · 3 of 3 · Swarm Traces incident, July 2026</p>
+<p class="kicker"><a href="../">Investigations</a> · 3 of 7 · Swarm Traces incident, July 2026</p>
 <h1>What an investigator would still miss</h1>
 <p class="dek">The people who ran the incident published what they found. We checked each finding against the public release. <span class="v" data-v="invisible">15</span> of <span class="v" data-v="total">41</span> cannot be seen in it at all.</p>
 <p class="meta">13 claims · 5 records cited · 411 words. <span class="hint">Select a marked claim to see the evidence behind it.</span></p>
@@ -27,10 +27,11 @@
 <p><a class="claim" href="#ev-c13" data-claim="c13" aria-controls="ev-c13"><span class="sr">Evidence 13: </span>The tool ranks what to collect next time by how much each missing field leaves open.<sup aria-hidden="true">13</sup></a> First: <span class="v" data-v="collect_1">An actor id on every record (which agent run wrote it)</span>. Second: <span class="v" data-v="collect_2">The contents and the write and read log of every shared place (here, the board)</span>. Third: <span class="v" data-v="collect_3">A timestamp on every record (server clock, UTC, to the second)</span>. None of these is exotic. Until they exist, a count of agents who coordinated, read from this release, is a floor and not a measurement.</p>
 <footer class="source">
 <h2>Source and method</h2>
-<p><b>Data.</b> Forman, Kharlov, Tom et al., "<a href="https://swarmtraces.org/" rel="noopener">Revealing the details of how OpenAI agents hacked Hugging Face</a>", swarmtraces.org, 25 Sep 2026. Record text is not reproduced: each record links to the publisher's viewer. The release states no licence; see <a href="../../datasets.html">Datasets</a>.</p>
-<p class="produced">Numbers: Swarm Tracer 2.1.0, pack "code traces (Swarm Traces release)", agents counted by the "estimate" rule (tokens merged on direct evidence), on redacted_columns.csv (189,579 records). Times marked estimated are dated from timestamps in the agents' code.</p>
+<p><b>Data.</b> <a href="https://swarmtraces.org/" rel="noopener">Swarm Traces</a>. Forman, Kharlov, Tom, Ladish, Kitts, Slade Byrd, McKenzie and Piecha, &quot;Revealing the details of how OpenAI agents hacked Hugging Face&quot;, 25 September 2026, https://swarmtraces.org/ (our wording; the page gives no citation format). Licence: no stated licence — ask the authors. Record text is not reproduced: each record links to the publisher&#x27;s viewer. <a href="../../datasets.html#swarm_traces">The terms, and what this site may publish</a>.</p>
+<p class="credit">Record ids, times and tokens are from the Swarm Traces release: Forman, Kharlov, Tom et al., &quot;Revealing the details of how OpenAI agents hacked Hugging Face&quot;, swarmtraces.org, 25 September 2026. The release states no licence, so no record text is reproduced here: each record links to the publisher&#x27;s own viewer.</p>
+<p class="produced">Numbers: Swarm Tracer 2.3.0, pack "code traces (Swarm Traces release)", agents counted by the "estimate" rule (tokens merged on direct evidence), on redacted_columns.csv (189,579 records). Times marked estimated are dated from timestamps in the agents' code.</p>
 <p><a href="../data/what-is-missed.json">Evidence bundle (JSON)</a> · <a href="../stories/what-is-missed.json">Story source (JSON)</a> · <a href="../../validation.html">How accurate is the tool?</a> · <a href="../../limitations.html">Limits</a></p>
-<nav class="pager" aria-label="Investigations"><a rel="prev" href="../shared-place-sign/"><span>Previous</span>The sign that looked early</a><span></span></nav>
+<nav class="pager" aria-label="Investigations"><a rel="prev" href="../shared-place-sign/"><span>Previous</span>The sign that looked early</a><a rel="next" href="../collusion-said-aloud/"><span>Next</span>Collusion said aloud: what a message log gives away</a></nav>
 </footer>
 </article>
 <aside id="evidence" class="evidence" aria-label="Evidence">

@@ -1,0 +1,4184 @@
+{
+ "dataset": "mast_data",
+ "title": "MAST-Data (MAD)",
+ "source": "https://huggingface.co/datasets/mcemri/MAST-Data",
+ "licence": "CC BY 4.0 (licence tag on the dataset card)",
+ "attribution": "Cemri, Pan, Yang et al., \"Why Do Multi-Agent LLM Systems Fail?\", NeurIPS 2025, arXiv:2503.13657; data: huggingface.co/datasets/mcemri/MAST-Data (CC BY 4.0). Records are shown as parsed by our reader and cut to short excerpts.",
+ "labels_made_by": "an LLM judge (the dataset card: \"not by human labelling\"): 14 failure modes per run, 0 / 1",
+ "revision": "95118ac951421753cf1deb87ddea3b01e693c41b",
+ "measured_on": "2026-11-22",
+ "tool_version": "2.3.0",
+ "tool_files": {
+  "agenttrace/earlywarn.py": "adb95ea153080454",
+  "agenttrace/baselines.py": "711ffd87dee51dc5",
+  "agenttrace/messages.py": "d27a06d24cad624b",
+  "agenttrace/insight.py": "7c89f79c810aff86",
+  "agenttrace/reconstruct.py": "9217357619d1c799",
+  "agenttrace/live.py": "b42e4d18058888b8",
+  "agenttrace/packs/generic.json": "685d4fdb52a4d5f3",
+  "agenttrace/packs/chat.json": "12b6d45483d078c0"
+ },
+ "step_clock": "60 s a step from 2000-01-01 (undated runs only)",
+ "unit": "one run = one trace; every share is runs out of runs, with a Wilson 95% interval",
+ "parsing": {
+  "runs_in_file": 1642,
+  "runs_parsed": 1640,
+  "runs_with_no_record": [
+   "HyperAgent_SWE_Bench_Lite_Claude_28",
+   "HyperAgent_SWE_Bench_Lite_Claude_29"
+  ],
+  "log_blocks_left_out": 81315,
+  "note": "left out: HTTP and usage lines (ChatDev), token counters (OpenManus), loop markers and a second copy of each reply (AppWorld), start-up lines (HyperAgent)"
+ },
+ "groups": {
+  "AG2": {
+   "runs": 597,
+   "records": 3035,
+   "actors_named_in_runs": 6,
+   "records_with_time": 0,
+   "logged_messages_with_recipient": 0,
+   "clock": "step clock",
+   "as_logged": {
+    "runs_dated": 0,
+    "direct_messages_listed": 0,
+    "direct_messages_undated": 0,
+    "deliveries": 0,
+    "runs_any_rule": 0,
+    "runs": 597,
+    "note": "no record has a time, so the replay, the signs and the rules cannot run"
+   },
+   "who_talked_to_whom": null,
+   "false_alarms": {
+    "auto_pack": {
+     "runs": 597,
+     "runs_dated": 597,
+     "runs_undated": 0,
+     "trace_hours": null,
+     "clock": "step clock",
+     "packs": {
+      "chat.json": 597
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 528,
+       "runs": 597,
+       "share": 0.884,
+       "ci95": [
+        0.856,
+        0.908
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 10,
+       "runs": 597,
+       "share": 0.017,
+       "ci95": [
+        0.009,
+        0.031
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 597,
+       "runs": 597,
+       "share": 1.0,
+       "ci95": [
+        0.994,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 440,
+       "runs": 597,
+       "share": 0.737,
+       "ci95": [
+        0.7,
+        0.771
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 168,
+       "runs": 597,
+       "share": 0.281,
+       "ci95": [
+        0.247,
+        0.319
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: moves_data_out",
+       "name": "First moves data out",
+       "runs_fired": 9,
+       "runs": 597,
+       "share": 0.015,
+       "ci95": [
+        0.008,
+        0.028
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: touches_secret",
+       "name": "First touches secret",
+       "runs_fired": 1,
+       "runs": 597,
+       "share": 0.002,
+       "ci95": [
+        0.0,
+        0.009
+       ]
+      }
+     ]
+    },
+    "generic_pack": {
+     "runs": 597,
+     "runs_dated": 597,
+     "runs_undated": 0,
+     "trace_hours": null,
+     "clock": "step clock",
+     "packs": {
+      "generic.json": 597
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 528,
+       "runs": 597,
+       "share": 0.884,
+       "ci95": [
+        0.856,
+        0.908
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 1,
+       "runs": 597,
+       "share": 0.002,
+       "ci95": [
+        0.0,
+        0.009
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 597,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.006
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 597,
+       "runs": 597,
+       "share": 1.0,
+       "ci95": [
+        0.994,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 440,
+       "runs": 597,
+       "share": 0.737,
+       "ci95": [
+        0.7,
+        0.771
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 168,
+       "runs": 597,
+       "share": 0.281,
+       "ci95": [
+        0.247,
+        0.319
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: handles_secrets",
+       "name": "First secret handled",
+       "runs_fired": 1,
+       "runs": 597,
+       "share": 0.002,
+       "ci95": [
+        0.0,
+        0.009
+       ]
+      }
+     ]
+    },
+    "any_default_rule": {
+     "auto_pack": {
+      "k": 529,
+      "n": 597,
+      "share": 0.8861,
+      "ci95": [
+       0.858,
+       0.909
+      ]
+     },
+     "generic_pack": {
+      "k": 528,
+      "n": 597,
+      "share": 0.8844,
+      "ci95": [
+       0.856,
+       0.908
+      ]
+     }
+    }
+   },
+   "runs_in_file": 597
+  },
+  "AppWorld": {
+   "runs": 30,
+   "records": 2656,
+   "actors_named_in_runs": 7,
+   "records_with_time": 0,
+   "logged_messages_with_recipient": 460,
+   "clock": "step clock",
+   "as_logged": {
+    "runs_dated": 0,
+    "direct_messages_listed": 0,
+    "direct_messages_undated": 460,
+    "deliveries": 0,
+    "runs_any_rule": 0,
+    "runs": 30,
+    "note": "no record has a time, so the replay, the signs and the rules cannot run"
+   },
+   "who_talked_to_whom": {
+    "recipients_kept": {
+     "runs": 30,
+     "runs_with_logged_recipients": 30,
+     "message_recall": {
+      "k": 460,
+      "n": 460,
+      "share": 1.0,
+      "ci95": [
+       0.992,
+       1.0
+      ]
+     },
+     "reader_precision": {
+      "k": 460,
+      "n": 460,
+      "share": 1.0,
+      "ci95": [
+       0.992,
+       1.0
+      ]
+     },
+     "pair_recall": {
+      "k": 74,
+      "n": 74,
+      "share": 1.0,
+      "ci95": [
+       0.951,
+       1.0
+      ]
+     },
+     "pair_precision_vs_logged": {
+      "k": 74,
+      "n": 74,
+      "share": 1.0,
+      "ci95": [
+       0.951,
+       1.0
+      ]
+     },
+     "pair_precision_either_direction": {
+      "k": 74,
+      "n": 74,
+      "share": 1.0,
+      "ci95": [
+       0.951,
+       1.0
+      ]
+     },
+     "per_run_message_recall": {
+      "min": 1.0,
+      "median": 1.0,
+      "max": 1.0,
+      "runs_at_zero": 0
+     }
+    },
+    "recipients_withheld": {
+     "runs": 30,
+     "runs_with_logged_recipients": 30,
+     "message_recall": {
+      "k": 459,
+      "n": 460,
+      "share": 0.9978,
+      "ci95": [
+       0.988,
+       1.0
+      ]
+     },
+     "reader_precision": {
+      "k": 459,
+      "n": 459,
+      "share": 1.0,
+      "ci95": [
+       0.992,
+       1.0
+      ]
+     },
+     "pair_recall": {
+      "k": 74,
+      "n": 74,
+      "share": 1.0,
+      "ci95": [
+       0.951,
+       1.0
+      ]
+     },
+     "pair_precision_vs_logged": {
+      "k": 74,
+      "n": 74,
+      "share": 1.0,
+      "ci95": [
+       0.951,
+       1.0
+      ]
+     },
+     "pair_precision_either_direction": {
+      "k": 74,
+      "n": 74,
+      "share": 1.0,
+      "ci95": [
+       0.951,
+       1.0
+      ]
+     },
+     "per_run_message_recall": {
+      "min": 0.989,
+      "median": 1.0,
+      "max": 1.0,
+      "runs_at_zero": 0
+     }
+    },
+    "how_inferred": {
+     "posted after it": 600
+    }
+   },
+   "false_alarms": {
+    "auto_pack": {
+     "runs": 30,
+     "runs_dated": 30,
+     "runs_undated": 0,
+     "trace_hours": null,
+     "clock": "step clock",
+     "packs": {
+      "generic.json": 30
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: handles_secrets",
+       "name": "First secret handled",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: deletes",
+       "name": "First delete",
+       "runs_fired": 27,
+       "runs": 30,
+       "share": 0.9,
+       "ci95": [
+        0.744,
+        0.965
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 7,
+       "runs": 30,
+       "share": 0.233,
+       "ci95": [
+        0.118,
+        0.409
+       ]
+      }
+     ]
+    },
+    "generic_pack": {
+     "runs": 30,
+     "runs_dated": 30,
+     "runs_undated": 0,
+     "trace_hours": null,
+     "clock": "step clock",
+     "packs": {
+      "generic.json": 30
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: handles_secrets",
+       "name": "First secret handled",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: deletes",
+       "name": "First delete",
+       "runs_fired": 27,
+       "runs": 30,
+       "share": 0.9,
+       "ci95": [
+        0.744,
+        0.965
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 7,
+       "runs": 30,
+       "share": 0.233,
+       "ci95": [
+        0.118,
+        0.409
+       ]
+      }
+     ]
+    },
+    "any_default_rule": {
+     "auto_pack": {
+      "k": 30,
+      "n": 30,
+      "share": 1.0,
+      "ci95": [
+       0.886,
+       1.0
+      ]
+     },
+     "generic_pack": {
+      "k": 30,
+      "n": 30,
+      "share": 1.0,
+      "ci95": [
+       0.886,
+       1.0
+      ]
+     }
+    }
+   },
+   "runs_in_file": 30
+  },
+  "ChatDev": {
+   "runs": 330,
+   "records": 17206,
+   "actors_named_in_runs": 7,
+   "records_with_time": 17206,
+   "logged_messages_with_recipient": 12500,
+   "clock": "logged times",
+   "who_talked_to_whom": {
+    "recipients_kept": {
+     "runs": 330,
+     "runs_with_logged_recipients": 330,
+     "message_recall": {
+      "k": 12500,
+      "n": 12500,
+      "share": 1.0,
+      "ci95": [
+       1.0,
+       1.0
+      ]
+     },
+     "reader_precision": {
+      "k": 12500,
+      "n": 12500,
+      "share": 1.0,
+      "ci95": [
+       1.0,
+       1.0
+      ]
+     },
+     "pair_recall": {
+      "k": 2644,
+      "n": 2644,
+      "share": 1.0,
+      "ci95": [
+       0.999,
+       1.0
+      ]
+     },
+     "pair_precision_vs_logged": {
+      "k": 2644,
+      "n": 2644,
+      "share": 1.0,
+      "ci95": [
+       0.999,
+       1.0
+      ]
+     },
+     "pair_precision_either_direction": {
+      "k": 2644,
+      "n": 2644,
+      "share": 1.0,
+      "ci95": [
+       0.999,
+       1.0
+      ]
+     },
+     "per_run_message_recall": {
+      "min": 1.0,
+      "median": 1.0,
+      "max": 1.0,
+      "runs_at_zero": 0
+     }
+    },
+    "recipients_withheld": {
+     "runs": 330,
+     "runs_with_logged_recipients": 330,
+     "message_recall": {
+      "k": 490,
+      "n": 12500,
+      "share": 0.0392,
+      "ci95": [
+       0.036,
+       0.043
+      ]
+     },
+     "reader_precision": {
+      "k": 490,
+      "n": 1831,
+      "share": 0.2676,
+      "ci95": [
+       0.248,
+       0.288
+      ]
+     },
+     "pair_recall": {
+      "k": 2086,
+      "n": 2644,
+      "share": 0.789,
+      "ci95": [
+       0.773,
+       0.804
+      ]
+     },
+     "pair_precision_vs_logged": {
+      "k": 2086,
+      "n": 3443,
+      "share": 0.6059,
+      "ci95": [
+       0.589,
+       0.622
+      ]
+     },
+     "pair_precision_either_direction": {
+      "k": 2906,
+      "n": 3443,
+      "share": 0.844,
+      "ci95": [
+       0.832,
+       0.856
+      ]
+     },
+     "per_run_message_recall": {
+      "min": 0.0,
+      "median": 0.037,
+      "max": 0.333,
+      "runs_at_zero": 122
+     }
+    },
+    "how_inferred": {
+     "posted after it": 6529
+    }
+   },
+   "false_alarms": {
+    "auto_pack": {
+     "runs": 330,
+     "runs_dated": 330,
+     "runs_undated": 0,
+     "trace_hours": 386,
+     "clock": "logged times",
+     "packs": {
+      "generic.json": 330
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 330,
+       "runs": 330,
+       "share": 1.0,
+       "ci95": [
+        0.988,
+        1.0
+       ],
+       "per_24h": 20.518,
+       "per_24h_ci95": [
+        18.364,
+        22.856
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 131,
+       "runs": 330,
+       "share": 0.397,
+       "ci95": [
+        0.346,
+        0.451
+       ],
+       "per_24h": 8.145,
+       "per_24h_ci95": [
+        6.81,
+        9.665
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 330,
+       "runs": 330,
+       "share": 1.0,
+       "ci95": [
+        0.988,
+        1.0
+       ],
+       "per_24h": 20.518,
+       "per_24h_ci95": [
+        18.364,
+        22.856
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group5",
+       "name": "A group of 5+ actors linked by messages",
+       "runs_fired": 330,
+       "runs": 330,
+       "share": 1.0,
+       "ci95": [
+        0.988,
+        1.0
+       ],
+       "per_24h": 20.518,
+       "per_24h_ci95": [
+        18.364,
+        22.856
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 330,
+       "runs": 330,
+       "share": 1.0,
+       "ci95": [
+        0.988,
+        1.0
+       ],
+       "per_24h": 20.518,
+       "per_24h_ci95": [
+        18.364,
+        22.856
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 330,
+       "runs": 330,
+       "share": 1.0,
+       "ci95": [
+        0.988,
+        1.0
+       ],
+       "per_24h": 20.518,
+       "per_24h_ci95": [
+        18.364,
+        22.856
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: deletes",
+       "name": "First delete",
+       "runs_fired": 91,
+       "runs": 330,
+       "share": 0.276,
+       "ci95": [
+        0.23,
+        0.326
+       ],
+       "per_24h": 5.658,
+       "per_24h_ci95": [
+        4.555,
+        6.947
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: runs_shell",
+       "name": "First shell command",
+       "runs_fired": 32,
+       "runs": 330,
+       "share": 0.097,
+       "ci95": [
+        0.07,
+        0.134
+       ],
+       "per_24h": 1.99,
+       "per_24h_ci95": [
+        1.361,
+        2.809
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: handles_secrets",
+       "name": "First secret handled",
+       "runs_fired": 19,
+       "runs": 330,
+       "share": 0.058,
+       "ci95": [
+        0.037,
+        0.088
+       ],
+       "per_24h": 1.181,
+       "per_24h_ci95": [
+        0.711,
+        1.845
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: sends_data",
+       "name": "First data sent out",
+       "runs_fired": 9,
+       "runs": 330,
+       "share": 0.027,
+       "ci95": [
+        0.014,
+        0.051
+       ],
+       "per_24h": 0.56,
+       "per_24h_ci95": [
+        0.256,
+        1.062
+       ]
+      }
+     ]
+    },
+    "generic_pack": {
+     "runs": 330,
+     "runs_dated": 330,
+     "runs_undated": 0,
+     "trace_hours": 386,
+     "clock": "logged times",
+     "packs": {
+      "generic.json": 330
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 330,
+       "runs": 330,
+       "share": 1.0,
+       "ci95": [
+        0.988,
+        1.0
+       ],
+       "per_24h": 20.518,
+       "per_24h_ci95": [
+        18.364,
+        22.856
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 131,
+       "runs": 330,
+       "share": 0.397,
+       "ci95": [
+        0.346,
+        0.451
+       ],
+       "per_24h": 8.145,
+       "per_24h_ci95": [
+        6.81,
+        9.665
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 330,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.012
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.229
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 330,
+       "runs": 330,
+       "share": 1.0,
+       "ci95": [
+        0.988,
+        1.0
+       ],
+       "per_24h": 20.518,
+       "per_24h_ci95": [
+        18.364,
+        22.856
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group5",
+       "name": "A group of 5+ actors linked by messages",
+       "runs_fired": 330,
+       "runs": 330,
+       "share": 1.0,
+       "ci95": [
+        0.988,
+        1.0
+       ],
+       "per_24h": 20.518,
+       "per_24h_ci95": [
+        18.364,
+        22.856
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 330,
+       "runs": 330,
+       "share": 1.0,
+       "ci95": [
+        0.988,
+        1.0
+       ],
+       "per_24h": 20.518,
+       "per_24h_ci95": [
+        18.364,
+        22.856
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 330,
+       "runs": 330,
+       "share": 1.0,
+       "ci95": [
+        0.988,
+        1.0
+       ],
+       "per_24h": 20.518,
+       "per_24h_ci95": [
+        18.364,
+        22.856
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: deletes",
+       "name": "First delete",
+       "runs_fired": 91,
+       "runs": 330,
+       "share": 0.276,
+       "ci95": [
+        0.23,
+        0.326
+       ],
+       "per_24h": 5.658,
+       "per_24h_ci95": [
+        4.555,
+        6.947
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: runs_shell",
+       "name": "First shell command",
+       "runs_fired": 32,
+       "runs": 330,
+       "share": 0.097,
+       "ci95": [
+        0.07,
+        0.134
+       ],
+       "per_24h": 1.99,
+       "per_24h_ci95": [
+        1.361,
+        2.809
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: handles_secrets",
+       "name": "First secret handled",
+       "runs_fired": 19,
+       "runs": 330,
+       "share": 0.058,
+       "ci95": [
+        0.037,
+        0.088
+       ],
+       "per_24h": 1.181,
+       "per_24h_ci95": [
+        0.711,
+        1.845
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: sends_data",
+       "name": "First data sent out",
+       "runs_fired": 9,
+       "runs": 330,
+       "share": 0.027,
+       "ci95": [
+        0.014,
+        0.051
+       ],
+       "per_24h": 0.56,
+       "per_24h_ci95": [
+        0.256,
+        1.062
+       ]
+      }
+     ]
+    },
+    "any_default_rule": {
+     "auto_pack": {
+      "k": 330,
+      "n": 330,
+      "share": 1.0,
+      "ci95": [
+       0.988,
+       1.0
+      ]
+     },
+     "generic_pack": {
+      "k": 330,
+      "n": 330,
+      "share": 1.0,
+      "ci95": [
+       0.988,
+       1.0
+      ]
+     }
+    }
+   },
+   "runs_in_file": 330
+  },
+  "HyperAgent": {
+   "runs": 28,
+   "records": 2800,
+   "actors_named_in_runs": 4,
+   "records_with_time": 0,
+   "logged_messages_with_recipient": 481,
+   "clock": "step clock",
+   "as_logged": {
+    "runs_dated": 0,
+    "direct_messages_listed": 0,
+    "direct_messages_undated": 481,
+    "deliveries": 0,
+    "runs_any_rule": 0,
+    "runs": 28,
+    "note": "no record has a time, so the replay, the signs and the rules cannot run"
+   },
+   "who_talked_to_whom": {
+    "recipients_kept": {
+     "runs": 28,
+     "runs_with_logged_recipients": 28,
+     "message_recall": {
+      "k": 481,
+      "n": 481,
+      "share": 1.0,
+      "ci95": [
+       0.992,
+       1.0
+      ]
+     },
+     "reader_precision": {
+      "k": 481,
+      "n": 481,
+      "share": 1.0,
+      "ci95": [
+       0.992,
+       1.0
+      ]
+     },
+     "pair_recall": {
+      "k": 82,
+      "n": 82,
+      "share": 1.0,
+      "ci95": [
+       0.955,
+       1.0
+      ]
+     },
+     "pair_precision_vs_logged": {
+      "k": 82,
+      "n": 82,
+      "share": 1.0,
+      "ci95": [
+       0.955,
+       1.0
+      ]
+     },
+     "pair_precision_either_direction": {
+      "k": 82,
+      "n": 82,
+      "share": 1.0,
+      "ci95": [
+       0.955,
+       1.0
+      ]
+     },
+     "per_run_message_recall": {
+      "min": 1.0,
+      "median": 1.0,
+      "max": 1.0,
+      "runs_at_zero": 0
+     }
+    },
+    "recipients_withheld": {
+     "runs": 28,
+     "runs_with_logged_recipients": 28,
+     "message_recall": {
+      "k": 328,
+      "n": 481,
+      "share": 0.6819,
+      "ci95": [
+       0.639,
+       0.722
+      ]
+     },
+     "reader_precision": {
+      "k": 328,
+      "n": 328,
+      "share": 1.0,
+      "ci95": [
+       0.988,
+       1.0
+      ]
+     },
+     "pair_recall": {
+      "k": 82,
+      "n": 82,
+      "share": 1.0,
+      "ci95": [
+       0.955,
+       1.0
+      ]
+     },
+     "pair_precision_vs_logged": {
+      "k": 82,
+      "n": 164,
+      "share": 0.5,
+      "ci95": [
+       0.424,
+       0.576
+      ]
+     },
+     "pair_precision_either_direction": {
+      "k": 164,
+      "n": 164,
+      "share": 1.0,
+      "ci95": [
+       0.977,
+       1.0
+      ]
+     },
+     "per_run_message_recall": {
+      "min": 0.392,
+      "median": 1.0,
+      "max": 1.0,
+      "runs_at_zero": 0
+     }
+    },
+    "how_inferred": {
+     "posted after it": 660
+    }
+   },
+   "false_alarms": {
+    "auto_pack": {
+     "runs": 28,
+     "runs_dated": 28,
+     "runs_undated": 0,
+     "trace_hours": null,
+     "clock": "step clock",
+     "packs": {
+      "generic.json": 28
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 28,
+       "runs": 28,
+       "share": 1.0,
+       "ci95": [
+        0.879,
+        1.0
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 9,
+       "runs": 28,
+       "share": 0.321,
+       "ci95": [
+        0.179,
+        0.507
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 28,
+       "runs": 28,
+       "share": 1.0,
+       "ci95": [
+        0.879,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 28,
+       "runs": 28,
+       "share": 1.0,
+       "ci95": [
+        0.879,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 28,
+       "runs": 28,
+       "share": 1.0,
+       "ci95": [
+        0.879,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: runs_shell",
+       "name": "First shell command",
+       "runs_fired": 6,
+       "runs": 28,
+       "share": 0.214,
+       "ci95": [
+        0.102,
+        0.395
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: deletes",
+       "name": "First delete",
+       "runs_fired": 4,
+       "runs": 28,
+       "share": 0.143,
+       "ci95": [
+        0.057,
+        0.315
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: sends_data",
+       "name": "First data sent out",
+       "runs_fired": 1,
+       "runs": 28,
+       "share": 0.036,
+       "ci95": [
+        0.006,
+        0.177
+       ]
+      }
+     ]
+    },
+    "generic_pack": {
+     "runs": 28,
+     "runs_dated": 28,
+     "runs_undated": 0,
+     "trace_hours": null,
+     "clock": "step clock",
+     "packs": {
+      "generic.json": 28
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 28,
+       "runs": 28,
+       "share": 1.0,
+       "ci95": [
+        0.879,
+        1.0
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 9,
+       "runs": 28,
+       "share": 0.321,
+       "ci95": [
+        0.179,
+        0.507
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 28,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.121
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 28,
+       "runs": 28,
+       "share": 1.0,
+       "ci95": [
+        0.879,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 28,
+       "runs": 28,
+       "share": 1.0,
+       "ci95": [
+        0.879,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 28,
+       "runs": 28,
+       "share": 1.0,
+       "ci95": [
+        0.879,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: runs_shell",
+       "name": "First shell command",
+       "runs_fired": 6,
+       "runs": 28,
+       "share": 0.214,
+       "ci95": [
+        0.102,
+        0.395
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: deletes",
+       "name": "First delete",
+       "runs_fired": 4,
+       "runs": 28,
+       "share": 0.143,
+       "ci95": [
+        0.057,
+        0.315
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: sends_data",
+       "name": "First data sent out",
+       "runs_fired": 1,
+       "runs": 28,
+       "share": 0.036,
+       "ci95": [
+        0.006,
+        0.177
+       ]
+      }
+     ]
+    },
+    "any_default_rule": {
+     "auto_pack": {
+      "k": 28,
+      "n": 28,
+      "share": 1.0,
+      "ci95": [
+       0.879,
+       1.0
+      ]
+     },
+     "generic_pack": {
+      "k": 28,
+      "n": 28,
+      "share": 1.0,
+      "ci95": [
+       0.879,
+       1.0
+      ]
+     }
+    }
+   },
+   "runs_in_file": 30
+  },
+  "Magentic": {
+   "runs": 195,
+   "records": 4853,
+   "actors_named_in_runs": 6,
+   "records_with_time": 0,
+   "logged_messages_with_recipient": 0,
+   "clock": "step clock",
+   "as_logged": {
+    "runs_dated": 0,
+    "direct_messages_listed": 0,
+    "direct_messages_undated": 0,
+    "deliveries": 0,
+    "runs_any_rule": 0,
+    "runs": 195,
+    "note": "no record has a time, so the replay, the signs and the rules cannot run"
+   },
+   "who_talked_to_whom": null,
+   "false_alarms": {
+    "auto_pack": {
+     "runs": 195,
+     "runs_dated": 195,
+     "runs_undated": 0,
+     "trace_hours": null,
+     "clock": "step clock",
+     "packs": {
+      "generic.json": 195
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 192,
+       "runs": 195,
+       "share": 0.985,
+       "ci95": [
+        0.956,
+        0.995
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 66,
+       "runs": 195,
+       "share": 0.338,
+       "ci95": [
+        0.276,
+        0.407
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 195,
+       "runs": 195,
+       "share": 1.0,
+       "ci95": [
+        0.981,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 192,
+       "runs": 195,
+       "share": 0.985,
+       "ci95": [
+        0.956,
+        0.995
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 192,
+       "runs": 195,
+       "share": 0.985,
+       "ci95": [
+        0.956,
+        0.995
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: sends_data",
+       "name": "First data sent out",
+       "runs_fired": 56,
+       "runs": 195,
+       "share": 0.287,
+       "ci95": [
+        0.228,
+        0.354
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group5",
+       "name": "A group of 5+ actors linked by messages",
+       "runs_fired": 43,
+       "runs": 195,
+       "share": 0.221,
+       "ci95": [
+        0.168,
+        0.284
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: handles_secrets",
+       "name": "First secret handled",
+       "runs_fired": 18,
+       "runs": 195,
+       "share": 0.092,
+       "ci95": [
+        0.059,
+        0.141
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: deletes",
+       "name": "First delete",
+       "runs_fired": 2,
+       "runs": 195,
+       "share": 0.01,
+       "ci95": [
+        0.003,
+        0.037
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: runs_shell",
+       "name": "First shell command",
+       "runs_fired": 1,
+       "runs": 195,
+       "share": 0.005,
+       "ci95": [
+        0.001,
+        0.028
+       ]
+      }
+     ]
+    },
+    "generic_pack": {
+     "runs": 195,
+     "runs_dated": 195,
+     "runs_undated": 0,
+     "trace_hours": null,
+     "clock": "step clock",
+     "packs": {
+      "generic.json": 195
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 192,
+       "runs": 195,
+       "share": 0.985,
+       "ci95": [
+        0.956,
+        0.995
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 66,
+       "runs": 195,
+       "share": 0.338,
+       "ci95": [
+        0.276,
+        0.407
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 195,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.019
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 195,
+       "runs": 195,
+       "share": 1.0,
+       "ci95": [
+        0.981,
+        1.0
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 192,
+       "runs": 195,
+       "share": 0.985,
+       "ci95": [
+        0.956,
+        0.995
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 192,
+       "runs": 195,
+       "share": 0.985,
+       "ci95": [
+        0.956,
+        0.995
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: sends_data",
+       "name": "First data sent out",
+       "runs_fired": 56,
+       "runs": 195,
+       "share": 0.287,
+       "ci95": [
+        0.228,
+        0.354
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group5",
+       "name": "A group of 5+ actors linked by messages",
+       "runs_fired": 43,
+       "runs": 195,
+       "share": 0.221,
+       "ci95": [
+        0.168,
+        0.284
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: handles_secrets",
+       "name": "First secret handled",
+       "runs_fired": 18,
+       "runs": 195,
+       "share": 0.092,
+       "ci95": [
+        0.059,
+        0.141
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: deletes",
+       "name": "First delete",
+       "runs_fired": 2,
+       "runs": 195,
+       "share": 0.01,
+       "ci95": [
+        0.003,
+        0.037
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: runs_shell",
+       "name": "First shell command",
+       "runs_fired": 1,
+       "runs": 195,
+       "share": 0.005,
+       "ci95": [
+        0.001,
+        0.028
+       ]
+      }
+     ]
+    },
+    "any_default_rule": {
+     "auto_pack": {
+      "k": 192,
+      "n": 195,
+      "share": 0.9846,
+      "ci95": [
+       0.956,
+       0.995
+      ]
+     },
+     "generic_pack": {
+      "k": 192,
+      "n": 195,
+      "share": 0.9846,
+      "ci95": [
+       0.956,
+       0.995
+      ]
+     }
+    }
+   },
+   "runs_in_file": 195
+  },
+  "MetaGPT": {
+   "runs": 430,
+   "records": 2574,
+   "actors_named_in_runs": 4,
+   "records_with_time": 2574,
+   "logged_messages_with_recipient": 0,
+   "clock": "logged times",
+   "who_talked_to_whom": null,
+   "false_alarms": {
+    "auto_pack": {
+     "runs": 430,
+     "runs_dated": 430,
+     "runs_undated": 0,
+     "trace_hours": 440,
+     "clock": "logged times",
+     "packs": {
+      "generic.json": 430
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 429,
+       "runs": 430,
+       "share": 0.998,
+       "ci95": [
+        0.987,
+        1.0
+       ],
+       "per_24h": 23.4,
+       "per_24h_ci95": [
+        21.238,
+        25.723
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 95,
+       "runs": 430,
+       "share": 0.221,
+       "ci95": [
+        0.184,
+        0.263
+       ],
+       "per_24h": 5.182,
+       "per_24h_ci95": [
+        4.192,
+        6.335
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 430,
+       "runs": 430,
+       "share": 1.0,
+       "ci95": [
+        0.991,
+        1.0
+       ],
+       "per_24h": 23.455,
+       "per_24h_ci95": [
+        21.29,
+        25.78
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 429,
+       "runs": 430,
+       "share": 0.998,
+       "ci95": [
+        0.987,
+        1.0
+       ],
+       "per_24h": 23.4,
+       "per_24h_ci95": [
+        21.238,
+        25.723
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 425,
+       "runs": 430,
+       "share": 0.988,
+       "ci95": [
+        0.973,
+        0.995
+       ],
+       "per_24h": 23.182,
+       "per_24h_ci95": [
+        21.03,
+        25.494
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: runs_shell",
+       "name": "First shell command",
+       "runs_fired": 34,
+       "runs": 430,
+       "share": 0.079,
+       "ci95": [
+        0.057,
+        0.108
+       ],
+       "per_24h": 1.855,
+       "per_24h_ci95": [
+        1.284,
+        2.592
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: handles_secrets",
+       "name": "First secret handled",
+       "runs_fired": 33,
+       "runs": 430,
+       "share": 0.077,
+       "ci95": [
+        0.055,
+        0.106
+       ],
+       "per_24h": 1.8,
+       "per_24h_ci95": [
+        1.239,
+        2.528
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: deletes",
+       "name": "First delete",
+       "runs_fired": 27,
+       "runs": 430,
+       "share": 0.063,
+       "ci95": [
+        0.044,
+        0.09
+       ],
+       "per_24h": 1.473,
+       "per_24h_ci95": [
+        0.971,
+        2.143
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: sends_data",
+       "name": "First data sent out",
+       "runs_fired": 11,
+       "runs": 430,
+       "share": 0.026,
+       "ci95": [
+        0.014,
+        0.045
+       ],
+       "per_24h": 0.6,
+       "per_24h_ci95": [
+        0.3,
+        1.074
+       ]
+      }
+     ]
+    },
+    "generic_pack": {
+     "runs": 430,
+     "runs_dated": 430,
+     "runs_undated": 0,
+     "trace_hours": 440,
+     "clock": "logged times",
+     "packs": {
+      "generic.json": 430
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 429,
+       "runs": 430,
+       "share": 0.998,
+       "ci95": [
+        0.987,
+        1.0
+       ],
+       "per_24h": 23.4,
+       "per_24h_ci95": [
+        21.238,
+        25.723
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 95,
+       "runs": 430,
+       "share": 0.221,
+       "ci95": [
+        0.184,
+        0.263
+       ],
+       "per_24h": 5.182,
+       "per_24h_ci95": [
+        4.192,
+        6.335
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 430,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.009
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        0.201
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 430,
+       "runs": 430,
+       "share": 1.0,
+       "ci95": [
+        0.991,
+        1.0
+       ],
+       "per_24h": 23.455,
+       "per_24h_ci95": [
+        21.29,
+        25.78
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 429,
+       "runs": 430,
+       "share": 0.998,
+       "ci95": [
+        0.987,
+        1.0
+       ],
+       "per_24h": 23.4,
+       "per_24h_ci95": [
+        21.238,
+        25.723
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 425,
+       "runs": 430,
+       "share": 0.988,
+       "ci95": [
+        0.973,
+        0.995
+       ],
+       "per_24h": 23.182,
+       "per_24h_ci95": [
+        21.03,
+        25.494
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: runs_shell",
+       "name": "First shell command",
+       "runs_fired": 34,
+       "runs": 430,
+       "share": 0.079,
+       "ci95": [
+        0.057,
+        0.108
+       ],
+       "per_24h": 1.855,
+       "per_24h_ci95": [
+        1.284,
+        2.592
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: handles_secrets",
+       "name": "First secret handled",
+       "runs_fired": 33,
+       "runs": 430,
+       "share": 0.077,
+       "ci95": [
+        0.055,
+        0.106
+       ],
+       "per_24h": 1.8,
+       "per_24h_ci95": [
+        1.239,
+        2.528
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: deletes",
+       "name": "First delete",
+       "runs_fired": 27,
+       "runs": 430,
+       "share": 0.063,
+       "ci95": [
+        0.044,
+        0.09
+       ],
+       "per_24h": 1.473,
+       "per_24h_ci95": [
+        0.971,
+        2.143
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: sends_data",
+       "name": "First data sent out",
+       "runs_fired": 11,
+       "runs": 430,
+       "share": 0.026,
+       "ci95": [
+        0.014,
+        0.045
+       ],
+       "per_24h": 0.6,
+       "per_24h_ci95": [
+        0.3,
+        1.074
+       ]
+      }
+     ]
+    },
+    "any_default_rule": {
+     "auto_pack": {
+      "k": 429,
+      "n": 430,
+      "share": 0.9977,
+      "ci95": [
+       0.987,
+       1.0
+      ]
+     },
+     "generic_pack": {
+      "k": 429,
+      "n": 430,
+      "share": 0.9977,
+      "ci95": [
+       0.987,
+       1.0
+      ]
+     }
+    }
+   },
+   "runs_in_file": 430
+  },
+  "OpenManus": {
+   "runs": 30,
+   "records": 4681,
+   "actors_named_in_runs": 4,
+   "records_with_time": 4681,
+   "logged_messages_with_recipient": 0,
+   "clock": "logged times",
+   "who_talked_to_whom": null,
+   "false_alarms": {
+    "auto_pack": {
+     "runs": 30,
+     "runs_dated": 30,
+     "runs_undated": 0,
+     "trace_hours": 37,
+     "clock": "logged times",
+     "packs": {
+      "generic.json": 30
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ],
+       "per_24h": 19.459,
+       "per_24h_ci95": [
+        13.129,
+        27.78
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 7,
+       "runs": 30,
+       "share": 0.233,
+       "ci95": [
+        0.118,
+        0.409
+       ],
+       "per_24h": 4.541,
+       "per_24h_ci95": [
+        1.826,
+        9.355
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ],
+       "per_24h": 19.459,
+       "per_24h_ci95": [
+        13.129,
+        27.78
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ],
+       "per_24h": 19.459,
+       "per_24h_ci95": [
+        13.129,
+        27.78
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ],
+       "per_24h": 19.459,
+       "per_24h_ci95": [
+        13.129,
+        27.78
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: handles_secrets",
+       "name": "First secret handled",
+       "runs_fired": 6,
+       "runs": 30,
+       "share": 0.2,
+       "ci95": [
+        0.095,
+        0.373
+       ],
+       "per_24h": 3.892,
+       "per_24h_ci95": [
+        1.428,
+        8.471
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: sends_data",
+       "name": "First data sent out",
+       "runs_fired": 3,
+       "runs": 30,
+       "share": 0.1,
+       "ci95": [
+        0.035,
+        0.256
+       ],
+       "per_24h": 1.946,
+       "per_24h_ci95": [
+        0.401,
+        5.687
+       ]
+      }
+     ]
+    },
+    "generic_pack": {
+     "runs": 30,
+     "runs_dated": 30,
+     "runs_undated": 0,
+     "trace_hours": 37,
+     "clock": "logged times",
+     "packs": {
+      "generic.json": 30
+     },
+     "rows": [
+      {
+       "kind": "baseline",
+       "id": "new_host_12h",
+       "name": "First new host after 12 h",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "first_intent",
+       "name": "First search_for_secrets action",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "distinct_actors",
+       "name": "Distinct-actor alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_6h",
+       "name": "Volume alarm (3 sd, 6 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "new_host_24h",
+       "name": "First new host after 24 h",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "baseline",
+       "id": "volume_12h",
+       "name": "Volume alarm (3 sd, 12 h history)",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "alert-coord2",
+       "name": "Alert: 2 kinds of coordination",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ],
+       "per_24h": 19.459,
+       "per_24h_ci95": [
+        13.129,
+        27.78
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "watch-harm",
+       "name": "Watch: first single-actor harmful sign",
+       "runs_fired": 7,
+       "runs": 30,
+       "share": 0.233,
+       "ci95": [
+        0.118,
+        0.409
+       ],
+       "per_24h": 4.541,
+       "per_24h_ci95": [
+        1.826,
+        9.355
+       ]
+      },
+      {
+       "kind": "rule",
+       "id": "baseline-volume",
+       "name": "Volume baseline: ordinary volume alarm",
+       "runs_fired": 0,
+       "runs": 30,
+       "share": 0.0,
+       "ci95": [
+        0.0,
+        0.114
+       ],
+       "per_24h": 0.0,
+       "per_24h_ci95": [
+        0.0,
+        2.393
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "group3",
+       "name": "A group of 3+ actors linked by messages",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ],
+       "per_24h": 19.459,
+       "per_24h_ci95": [
+        13.129,
+        27.78
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "message",
+       "name": "First message between named actors",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ],
+       "per_24h": 19.459,
+       "per_24h_ci95": [
+        13.129,
+        27.78
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "two_way",
+       "name": "First two-way exchange",
+       "runs_fired": 30,
+       "runs": 30,
+       "share": 1.0,
+       "ci95": [
+        0.886,
+        1.0
+       ],
+       "per_24h": 19.459,
+       "per_24h_ci95": [
+        13.129,
+        27.78
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: handles_secrets",
+       "name": "First secret handled",
+       "runs_fired": 6,
+       "runs": 30,
+       "share": 0.2,
+       "ci95": [
+        0.095,
+        0.373
+       ],
+       "per_24h": 3.892,
+       "per_24h_ci95": [
+        1.428,
+        8.471
+       ]
+      },
+      {
+       "kind": "sign",
+       "id": "first: sends_data",
+       "name": "First data sent out",
+       "runs_fired": 3,
+       "runs": 30,
+       "share": 0.1,
+       "ci95": [
+        0.035,
+        0.256
+       ],
+       "per_24h": 1.946,
+       "per_24h_ci95": [
+        0.401,
+        5.687
+       ]
+      }
+     ]
+    },
+    "any_default_rule": {
+     "auto_pack": {
+      "k": 30,
+      "n": 30,
+      "share": 1.0,
+      "ci95": [
+       0.886,
+       1.0
+      ]
+     },
+     "generic_pack": {
+      "k": 30,
+      "n": 30,
+      "share": 1.0,
+      "ci95": [
+       0.886,
+       1.0
+      ]
+     }
+    }
+   },
+   "runs_in_file": 30
+  }
+ },
+ "totals": {
+  "runs": 1640,
+  "records": 37805,
+  "records_with_time": 24461,
+  "logged_messages_with_recipient": 13441
+ },
+ "false_alarms_all": {
+  "auto_pack": {
+   "k": 1568,
+   "n": 1640,
+   "share": 0.9561,
+   "ci95": [
+    0.945,
+    0.965
+   ]
+  },
+  "generic_pack": {
+   "k": 1567,
+   "n": 1640,
+   "share": 0.9555,
+   "ci95": [
+    0.944,
+    0.964
+   ]
+  },
+  "by_rule_auto_pack": {
+   "watch-harm": {
+    "k": 348,
+    "n": 1640,
+    "share": 0.2122,
+    "ci95": [
+     0.193,
+     0.233
+    ]
+   },
+   "alert-coord2": {
+    "k": 1567,
+    "n": 1640,
+    "share": 0.9555,
+    "ci95": [
+     0.944,
+     0.964
+    ]
+   },
+   "baseline-volume": {
+    "k": 0,
+    "n": 1640,
+    "share": 0.0,
+    "ci95": [
+     0.0,
+     0.002
+    ]
+   }
+  },
+  "by_rule_generic_pack": {
+   "watch-harm": {
+    "k": 339,
+    "n": 1640,
+    "share": 0.2067,
+    "ci95": [
+     0.188,
+     0.227
+    ]
+   },
+   "alert-coord2": {
+    "k": 1567,
+    "n": 1640,
+    "share": 0.9555,
+    "ci95": [
+     0.944,
+     0.964
+    ]
+   },
+   "baseline-volume": {
+    "k": 0,
+    "n": 1640,
+    "share": 0.0,
+    "ci95": [
+     0.0,
+     0.002
+    ]
+   }
+  }
+ },
+ "who_talked_to_whom_all": {
+  "recipients_kept": {
+   "message_recall": {
+    "k": 13441,
+    "n": 13441,
+    "share": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ]
+   },
+   "reader_precision": {
+    "k": 13441,
+    "n": 13441,
+    "share": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ]
+   },
+   "pair_recall": {
+    "k": 2800,
+    "n": 2800,
+    "share": 1.0,
+    "ci95": [
+     0.999,
+     1.0
+    ]
+   }
+  },
+  "recipients_withheld": {
+   "message_recall": {
+    "k": 1277,
+    "n": 13441,
+    "share": 0.095,
+    "ci95": [
+     0.09,
+     0.1
+    ]
+   },
+   "reader_precision": {
+    "k": 1277,
+    "n": 2618,
+    "share": 0.4878,
+    "ci95": [
+     0.469,
+     0.507
+    ]
+   },
+   "pair_recall": {
+    "k": 2242,
+    "n": 2800,
+    "share": 0.8007,
+    "ci95": [
+     0.786,
+     0.815
+    ]
+   }
+  }
+ },
+ "labels_vs_alarms": {
+  "runs_with_a_failure_mode": 1236,
+  "runs_with_none": 400,
+  "runs_without_full_labels": 4,
+  "rules": {
+   "watch-harm": {
+    "fired_on_failed": {
+     "k": 322,
+     "n": 1236,
+     "share": 0.2605,
+     "ci95": [
+      0.237,
+      0.286
+     ]
+    },
+    "fired_on_clean": {
+     "k": 24,
+     "n": 400,
+     "share": 0.06,
+     "ci95": [
+      0.041,
+      0.088
+     ]
+    }
+   },
+   "alert-coord2": {
+    "fired_on_failed": {
+     "k": 1169,
+     "n": 1236,
+     "share": 0.9458,
+     "ci95": [
+      0.932,
+      0.957
+     ]
+    },
+    "fired_on_clean": {
+     "k": 394,
+     "n": 400,
+     "share": 0.985,
+     "ci95": [
+      0.968,
+      0.993
+     ]
+    }
+   },
+   "baseline-volume": {
+    "fired_on_failed": {
+     "k": 0,
+     "n": 1236,
+     "share": 0.0,
+     "ci95": [
+      0.0,
+      0.003
+     ]
+    },
+    "fired_on_clean": {
+     "k": 0,
+     "n": 400,
+     "share": 0.0,
+     "ci95": [
+      0.0,
+      0.01
+     ]
+    }
+   }
+  },
+  "watch_by_layout": {
+   "AG2": {
+    "fired_on_failed": {
+     "k": 4,
+     "n": 286,
+     "share": 0.014,
+     "ci95": [
+      0.005,
+      0.035
+     ]
+    },
+    "fired_on_clean": {
+     "k": 6,
+     "n": 311,
+     "share": 0.0193,
+     "ci95": [
+      0.009,
+      0.041
+     ]
+    }
+   },
+   "AppWorld": {
+    "fired_on_failed": {
+     "k": 29,
+     "n": 29,
+     "share": 1.0,
+     "ci95": [
+      0.883,
+      1.0
+     ]
+    },
+    "fired_on_clean": {
+     "k": 1,
+     "n": 1,
+     "share": 1.0,
+     "ci95": [
+      0.207,
+      1.0
+     ]
+    }
+   },
+   "ChatDev": {
+    "fired_on_failed": {
+     "k": 125,
+     "n": 305,
+     "share": 0.4098,
+     "ci95": [
+      0.356,
+      0.466
+     ]
+    },
+    "fired_on_clean": {
+     "k": 4,
+     "n": 21,
+     "share": 0.1905,
+     "ci95": [
+      0.077,
+      0.4
+     ]
+    }
+   },
+   "HyperAgent": {
+    "fired_on_failed": {
+     "k": 9,
+     "n": 26,
+     "share": 0.3462,
+     "ci95": [
+      0.194,
+      0.538
+     ]
+    },
+    "fired_on_clean": {
+     "k": 0,
+     "n": 2,
+     "share": 0.0,
+     "ci95": [
+      0.0,
+      0.658
+     ]
+    }
+   },
+   "Magentic": {
+    "fired_on_failed": {
+     "k": 58,
+     "n": 153,
+     "share": 0.3791,
+     "ci95": [
+      0.306,
+      0.458
+     ]
+    },
+    "fired_on_clean": {
+     "k": 8,
+     "n": 42,
+     "share": 0.1905,
+     "ci95": [
+      0.1,
+      0.333
+     ]
+    }
+   },
+   "MetaGPT": {
+    "fired_on_failed": {
+     "k": 90,
+     "n": 408,
+     "share": 0.2206,
+     "ci95": [
+      0.183,
+      0.263
+     ]
+    },
+    "fired_on_clean": {
+     "k": 5,
+     "n": 22,
+     "share": 0.2273,
+     "ci95": [
+      0.101,
+      0.434
+     ]
+    }
+   },
+   "OpenManus": {
+    "fired_on_failed": {
+     "k": 7,
+     "n": 29,
+     "share": 0.2414,
+     "ci95": [
+      0.122,
+      0.421
+     ]
+    },
+    "fired_on_clean": {
+     "k": 0,
+     "n": 1,
+     "share": 0.0,
+     "ci95": [
+      0.0,
+      0.793
+     ]
+    }
+   }
+  }
+ }
+}

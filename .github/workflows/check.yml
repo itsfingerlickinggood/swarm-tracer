@@ -1,0 +1,79 @@
+# Checks that need nothing outside this repository: no dataset, no browser, no secret.
+# What this does and does not prove is written down in docs/integrity.md ("What CI runs").
+name: check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.12"]
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    steps:
+      - name: Check out
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: ${{ matrix.python }}
+
+      # The package needs only the standard library, so nothing is installed for the tests.
+      - name: Unit tests
+        run: python3 -W ignore -m unittest discover -s agenttrace/tests -t .
+
+      # Later steps run even when an earlier one failed, so one run shows everything that is wrong.
+      - name: Site check (links, anchors, assets and scripts of docs/)
+        if: ${{ !cancelled() }}
+        run: python3 -m agenttrace.tools.sitecheck
+
+      # API-only smoke test and the consistency oracle on the bundled demo swarm, then the printed numbers
+      # against the committed manifest. No Chrome, no dataset.
+      - name: Smoke test, oracle and published numbers (no browser)
+        if: ${{ !cancelled() }}
+        run: python3 -m agenttrace.tools.check --quick --skip-unit
+
+      # The Swarm Traces release and the collusion.wiki logs are not in the repository, so their numbers are
+      # not re-derived here: every printed place is compared with the value the manifest recorded, and the
+      # claims files and rule files with their recorded hashes. (The step above ends with the same check; this
+      # one prints the whole table.)
+      - name: Published numbers against the manifest (texts only)
+        if: ${{ !cancelled() }}
+        run: python3 -m agenttrace.tools.provenance verify --texts-only
+
+      # Built and installed in fresh virtual environments, then used from a folder outside the checkout, so that
+      # the test is of the wheel and not of the source tree. pip fetches setuptools>=64 for the build.
+      - name: Build the wheel
+        id: wheel
+        if: ${{ !cancelled() }}
+        run: |
+          python3 -m venv "$RUNNER_TEMP/build-venv"
+          "$RUNNER_TEMP/build-venv/bin/python" -m pip wheel . --no-deps --wheel-dir dist
+          ls dist/swarm_tracer-*.whl
+
+      - name: Install the wheel in a fresh environment and use it
+        if: ${{ !cancelled() && steps.wheel.outcome == 'success' }}
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/python" -m pip install --no-deps dist/swarm_tracer-*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/venv/bin/python" -c "import agenttrace, os; p = os.path.dirname(agenttrace.__file__); assert 'site-packages' in p, p; print('installed at', p)"
+          "$RUNNER_TEMP/venv/bin/swarm-tracer" --help > /dev/null
+          "$RUNNER_TEMP/venv/bin/python" -m agenttrace.tools.smoke --datasets demo --no-browser

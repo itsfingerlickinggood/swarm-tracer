@@ -1,0 +1,262 @@
+{
+ "schema": 1,
+ "story": "seven-frameworks-no-attack",
+ "dataset": "mast_data",
+ "snippets": "on",
+ "citation": {
+  "dataset": "mast_data",
+  "name": "MAST-Data",
+  "title": "MAST-Data (MAD): multi-agent system failure traces",
+  "kind": "benchmark runs with labels",
+  "text": "Cemri, Pan, Yang et al., \"Why Do Multi-Agent LLM Systems Fail?\", NeurIPS 2025, arXiv:2503.13657",
+  "url": "https://huggingface.co/datasets/mcemri/MAST-Data",
+  "licence": "CC BY 4.0",
+  "attribution": "Excerpts are from MAST-Data (MAD): Cemri, Pan, Yang et al., \"Why Do Multi-Agent LLM Systems Fail?\", NeurIPS 2025, arXiv:2503.13657; data at huggingface.co/datasets/mcemri/MAST-Data, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Changes: each run's log text was split into turns by our reader, and each excerpt is cut short.",
+  "records": "excerpts",
+  "viewer": null,
+  "report": "reports/external/mast_data/results.json",
+  "input": "datasets-ext/mast_data/",
+  "pack": "generic.json or chat.json, as the tool picks"
+ },
+ "produced_by": {
+  "tool": "Swarm Tracer",
+  "version": "2.3.0",
+  "pack": "generic agent traces",
+  "agent_rule": "estimate",
+  "agent_rule_note": "no tokens are merged in this trace",
+  "dataset": "MAST-Data",
+  "records": 5456,
+  "report": "reports/external/mast_data/results.json",
+  "report_tool_version": "2.3.0",
+  "report_date": "2026-11-22"
+ },
+ "figures": {
+  "runs_in_file": {
+   "value": 1642,
+   "text": "1,642",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "parsing.runs_in_file",
+   "label": "runs in the dataset"
+  },
+  "runs": {
+   "value": 1640,
+   "text": "1,640",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "totals.runs",
+   "label": "runs our reader could split into turns"
+  },
+  "records": {
+   "value": 37805,
+   "text": "37,805",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "totals.records",
+   "label": "records (one per agent turn)"
+  },
+  "left_out": {
+   "value": 81315,
+   "text": "81,315",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "parsing.log_blocks_left_out",
+   "label": "log blocks that are not agent turns, left out"
+  },
+  "timed": {
+   "value": 24461,
+   "text": "24,461",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "totals.records_with_time",
+   "label": "records with a time the framework printed"
+  },
+  "failed": {
+   "value": 1236,
+   "text": "1,236",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.runs_with_a_failure_mode",
+   "label": "runs the judge marked with at least one failure mode"
+  },
+  "clean": {
+   "value": 400,
+   "text": "400",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.runs_with_none",
+   "label": "runs the judge marked with none"
+  },
+  "alert": {
+   "value": 1567,
+   "text": "1,567",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "false_alarms_all.by_rule_auto_pack.alert-coord2.k",
+   "label": "runs where the Alert rule fired"
+  },
+  "watch": {
+   "value": 348,
+   "text": "348",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "false_alarms_all.by_rule_auto_pack.watch-harm.k",
+   "label": "runs where the Watch rule fired"
+  },
+  "volume": {
+   "value": 0,
+   "text": "0",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "false_alarms_all.by_rule_auto_pack.baseline-volume.k",
+   "label": "runs where the hourly volume baseline fired"
+  },
+  "cd_alert": {
+   "value": 330,
+   "text": "330",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "groups.ChatDev.false_alarms.auto_pack.rows[id=alert-coord2].runs_fired",
+   "label": "ChatDev runs (real clock) where the Alert rule fired"
+  },
+  "cd_runs": {
+   "value": 330,
+   "text": "330",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "groups.ChatDev.runs",
+   "label": "ChatDev runs"
+  },
+  "logged": {
+   "value": 13441,
+   "text": "13,441",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "totals.logged_messages_with_recipient",
+   "label": "messages whose recipient the log names"
+  },
+  "pair_found": {
+   "value": 2242,
+   "text": "2,242",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "who_talked_to_whom_all.recipients_withheld.pair_recall.k",
+   "label": "logged sender-recipient pairs the tool finds, recipients withheld"
+  },
+  "pair_logged": {
+   "value": 2800,
+   "text": "2,800",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "who_talked_to_whom_all.recipients_withheld.pair_recall.n",
+   "label": "logged sender-recipient pairs (one per pair per run)"
+  },
+  "cd_msg": {
+   "value": 490,
+   "text": "490",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "groups.ChatDev.who_talked_to_whom.recipients_withheld.message_recall.k",
+   "label": "single addressed ChatDev messages the tool finds, recipients withheld"
+  },
+  "cd_logged": {
+   "value": 12500,
+   "text": "12,500",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "groups.ChatDev.who_talked_to_whom.recipients_withheld.message_recall.n",
+   "label": "addressed ChatDev messages"
+  },
+  "watch_failed": {
+   "value": 0.2605,
+   "text": "26%",
+   "as": "pct",
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.rules.watch-harm.fired_on_failed.share",
+   "label": "of failed runs: the Watch rule fired"
+  },
+  "watch_clean": {
+   "value": 0.06,
+   "text": "6%",
+   "as": "pct",
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.rules.watch-harm.fired_on_clean.share",
+   "label": "of clean runs: the Watch rule fired"
+  },
+  "ag_clean": {
+   "value": 311,
+   "text": "311",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.watch_by_layout.AG2.fired_on_clean.n",
+   "label": "clean runs that are AG2 runs"
+  },
+  "ag_clean_watch": {
+   "value": 6,
+   "text": "6",
+   "as": "int",
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.watch_by_layout.AG2.fired_on_clean.k",
+   "label": "of those: the Watch rule fired"
+  }
+ },
+ "records": {
+  "AppWorld_Test_C_GPT_4o_0:2": {
+   "id": "AppWorld_Test_C_GPT_4o_0:2",
+   "kind": "message",
+   "time": null,
+   "time_estimated": false,
+   "time_source": null,
+   "actor": "Supervisor",
+   "actor_kind": "named",
+   "agent": null,
+   "intent": "message",
+   "text_length": 31,
+   "judged": [
+    {
+     "op": "write",
+     "place": "inbox:spotify",
+     "place_label": "inbox spotify",
+     "in_text": false
+    },
+    {
+     "op": "post",
+     "place": "place:AppWorld_Test_C_GPT_4o_0",
+     "place_label": "place AppWorld_Test_C_GPT_4o_0",
+     "in_text": false
+    }
+   ],
+   "messages": [],
+   "snippet": "What song is currently playing?"
+  },
+  "AppWorld_Test_C_GPT_4o_0:3": {
+   "id": "AppWorld_Test_C_GPT_4o_0:3",
+   "kind": "response",
+   "time": null,
+   "time_estimated": false,
+   "time_source": null,
+   "actor": "spotify",
+   "actor_kind": "named",
+   "agent": null,
+   "intent": "message",
+   "text_length": 213,
+   "judged": [
+    {
+     "op": "read",
+     "place": "inbox:spotify",
+     "place_label": "inbox spotify",
+     "in_text": false
+    },
+    {
+     "op": "post",
+     "place": "place:AppWorld_Test_C_GPT_4o_0",
+     "place_label": "place AppWorld_Test_C_GPT_4o_0",
+     "in_text": false
+    }
+   ],
+   "messages": [],
+   "snippet": "# To find out what song is currently playing, I need to check the available Spotify APIs to see if there's one that provides this information. print(apis.api_…"
+  }
+ },
+ "findings": {}
+}

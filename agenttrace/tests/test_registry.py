@@ -49,6 +49,28 @@ class RegistryTests(unittest.TestCase):
             self.assertEqual(loc["timed_records"], s["timed"], eid)
             self.assertEqual(loc["messages"], s["flow"]["deliveries"], eid + ": message count changed; update datasets.json")
 
+    def test_gallery_blocks_stay_inside_the_terms(self):
+        """What the investigations may show of a record is in the registry, and may not go past the reuse terms."""
+        with_gallery = {eid: e["gallery"] for eid, e in self.by_id.items() if e.get("gallery")}
+        self.assertEqual(with_gallery["swarm_traces"]["records"], "viewer", "no stated licence: no record text")
+        self.assertIn("{id}", with_gallery["swarm_traces"]["record_url"])
+        self.assertEqual(with_gallery["moltbook_observatory"]["records"], "none", "numbers only: no post, no agent name")
+        for eid, g in with_gallery.items():
+            if g["records"] == "excerpts":
+                self.assertEqual((self.by_id[eid]["terms"]["excerpts"], self.by_id[eid]["publish"]), ("yes", "excerpts"), eid)
+                self.assertIn("reports/external/", g["report"], eid)
+
+        def broken(eid, change):
+            reg = copy.deepcopy(self.reg)
+            change(next(e for e in reg["entries"] if e["id"] == eid))
+            return [x for x in registry.validate(reg) if "gallery" in x]
+        self.assertTrue(broken("swarm_traces", lambda e: e["gallery"].update(records="excerpts")))     # excerpts with no licence
+        self.assertTrue(broken("swarm_traces", lambda e: e["gallery"].pop("record_url")))              # a viewer rule with no viewer
+        self.assertTrue(broken("who_and_when", lambda e: e["gallery"].update(attribution="")))         # excerpts with no credit line
+        self.assertTrue(broken("who_and_when", lambda e: e["gallery"].update(report="reports/other.json")))
+        self.assertTrue(broken("mast_data", lambda e: e["gallery"].update(records="everything")))
+        self.assertTrue(broken("ai_village", lambda e: e.update(gallery=dict(self.by_id["mast_data"]["gallery"]))))   # a candidate
+
     def test_validator_catches_mistakes(self):
         def broken(change):
             reg = copy.deepcopy(self.reg)

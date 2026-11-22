@@ -1,0 +1,142 @@
+{
+ "provider": "fake",
+ "model": "fake-scripted-1",
+ "base_url": null,
+ "key_env": null,
+ "real": false,
+ "calls": 140,
+ "tokens": 33281,
+ "prompt_tokens": 31273,
+ "completion_tokens": 2008,
+ "calls_without_reported_usage": 0,
+ "cap_calls": 250,
+ "cap_tokens": 400000,
+ "hard_cap_calls": 250,
+ "hard_cap_tokens": 400000,
+ "swarms_planned": 15,
+ "swarms_finished": 15,
+ "stopped": null,
+ "generated": "2026-11-22T08:57:54Z",
+ "plan": [
+  [
+   "coordinated",
+   3,
+   101,
+   "code",
+   "path",
+   4
+  ],
+  [
+   "coordinated",
+   4,
+   102,
+   "code",
+   "path",
+   4
+  ],
+  [
+   "coordinated",
+   3,
+   103,
+   "phrase",
+   "path",
+   4
+  ],
+  [
+   "coordinated",
+   4,
+   104,
+   "number",
+   "path",
+   4
+  ],
+  [
+   "coordinated",
+   3,
+   105,
+   "code",
+   "word",
+   4
+  ],
+  [
+   "coordinated",
+   5,
+   106,
+   "phrase",
+   "word",
+   4
+  ],
+  [
+   "benign",
+   3,
+   201,
+   "code",
+   "path",
+   4
+  ],
+  [
+   "benign",
+   4,
+   202,
+   "code",
+   "path",
+   4
+  ],
+  [
+   "benign",
+   3,
+   203,
+   "code",
+   "path",
+   4
+  ],
+  [
+   "benign",
+   4,
+   204,
+   "code",
+   "word",
+   4
+  ],
+  [
+   "benign",
+   3,
+   205,
+   "code",
+   "path",
+   4
+  ],
+  [
+   "control",
+   3,
+   301,
+   "code",
+   "path",
+   3
+  ],
+  [
+   "control",
+   4,
+   302,
+   "code",
+   "path",
+   3
+  ],
+  [
+   "control",
+   3,
+   303,
+   "code",
+   "path",
+   3
+  ],
+  [
+   "control",
+   3,
+   304,
+   "code",
+   "path",
+   3
+  ]
+ ]
+}

@@ -10,6 +10,11 @@ hindsight.
     GET /api/x/online_replay    streams the loaded dataset through the monitor (starts in the background for a
                                 large dataset; poll until "running" is false)
 
+Since v2.3.0 the monitor's main output is the four simple alarms of agenttrace/baselines.py (keys "alarm:<id>",
+family "alarm", role "main"): the first new host after 12 h, the first search-for-secrets action, the distinct-actor
+alarm and the 6 h volume alarm. The signs of shared control are still emitted, with role "context": they say who
+shares control and are not an early warning.
+
 The signs are the replay's signs under the same keys, using the same functions where there is one
 (reconstruct.identities_of / info_of / places_of / intent_of, messages.channel_ops, judge_op, families,
 evaluate's rate rule). A sign fires once; when it has, the state only it needed is dropped.
@@ -26,6 +31,7 @@ how many were evicted):
     pairs           directed actor pairs (two-way check)  500,000
     families        program families (hashed text)        100,000, up to 3 actors and 8 copies each
     written         places written so far                 200,000
+    hosts           hosts named so far (new-host alarm)   200,000, dropped once the alarm has fired
 Windows: the volume rule keeps three numbers (count, mean, variance of the closed hours), not the hours.
 
 Where a sign needs global knowledge, the approximation (all measured against the replay in docs/early-warning.md):
@@ -55,13 +61,13 @@ import threading
 import time
 from collections import Counter, defaultdict, deque
 
-from . import insight, messages, model, packs, reconstruct
+from . import baselines, insight, messages, model, packs, reconstruct
 from .reconstruct import iso
 
 HOUR = 3600.0
 CAPS = {"ids_roots": 500_000, "thread_idents": 100_000, "tokens": 300_000, "places": 100_000, "channels": 100_000,
         "writes_per_channel": 16, "got": 500_000, "actors": 200_000, "pairs": 500_000, "families": 100_000,
-        "written": 200_000}
+        "written": 200_000, "hosts": 200_000}
 GROUP_THRESHOLDS = (3, 5, 10, 20)
 RATE_K = (2.0, 3.0, 4.0, 5.0)
 RATE_MIN_HISTORY = 12
@@ -94,8 +100,71 @@ def as_event(rec):
     if isinstance(t, str):
         t = model.parse_time(t)
     return model.Event(id=str(rec["id"]), text=str(rec.get("text") or ""), kind=str(rec.get("kind") or ""),
-                       parent=rec.get("parent"), actor=rec.get("actor"), time=t, channel=rec.get("channel"),
-                       to=rec.get("to"))
+                       parent=rec.get("parent"), actor=rec.get("actor"), time=t, tool=rec.get("tool"),
+                       channel=rec.get("channel"), to=rec.get("to"))
+
+
+class HourAlarm:
+    """The streaming form of baselines.series_alarm and evaluate.rate_alarm: the first closed hour whose value is
+    above the mean plus k standard deviations of every earlier hour (at least min_history of them; the standard
+    deviation never below min_sd). It keeps three numbers for the history, and the keys of the open hour when it
+    counts distinct things. An hour is judged when a later record closes it, so the alarm is known at its end."""
+
+    def __init__(self, k=3.0, min_history=12, min_sd=1.0):
+        self.k, self.min_history, self.min_sd = k, min_history, min_sd
+        self.cur = None
+        self.value = 0
+        self.keys = set()
+        self.n, self.mu, self.m2 = 0, 0.0, 0.0
+        self.hit = None                    # (alarm time, value, alarm line, hour start) once fired
+
+    def add(self, t, key=None, count=True):
+        """One timed action: count it (or its key, for distinct counts; count=False only opens the hour).
+        Returns the hit when this record closes the hour that crossed the line, else None."""
+        h = math.floor(t / HOUR)
+        new = None
+        if self.cur is None:
+            self.cur = h
+        elif h > self.cur:
+            new = self.close(h)
+            self.cur, self.value, self.keys = h, 0, set()
+        if key is not None:
+            self.keys.add(key)
+            self.value = len(self.keys)
+        elif count:
+            self.value += 1
+        return new
+
+    def close(self, upto=None):
+        """Judge the open hour and the empty hours before `upto` (the end of the stream closes only the open hour)."""
+        if self.cur is None or self.hit:
+            return None
+        upto = self.cur + 1 if upto is None else upto
+        for hr in range(self.cur, upto):
+            c = self.value if hr == self.cur else 0
+            if self.n >= self.min_history:
+                line = self.mu + self.k * max(math.sqrt(self.m2 / self.n), self.min_sd)
+                if c > line:
+                    self.hit = ((hr + 1) * HOUR, c, line, hr * HOUR)
+                    return self.hit
+            self.n += 1
+            d = c - self.mu
+            self.mu += d / self.n
+            self.m2 += d * (c - self.mu)
+        return None
+
+
+ALARM_KEY = {i: "alarm:" + i for i, _ in baselines.BASELINES}
+MAIN_KEYS = tuple(ALARM_KEY[i] for i in baselines.MAIN_IDS)
+
+
+def role_of(key, family, kind):
+    """main: one of the four simple alarms; variant: another simple alarm; context: who shares control; else other."""
+    if key in MAIN_KEYS:
+        return "main"
+    if key.startswith("alarm:"):
+        return "variant"
+    return "context" if baselines.is_context({"family": family, "kind": kind}) else "other"
 
 
 class OnlineMonitor:
@@ -116,6 +185,7 @@ class OnlineMonitor:
         self.action_kinds = set(pack.raw.get("action_kinds") or []) or None
         self.coarse = [re.compile(p) for p in pack.raw.get("coarse_channels", [])]
         self.chans = messages.compile_channels(pack)
+        self.tool_places = messages.compile_tool_places(pack)
         tcfg = pack.time or {}
         self.epoch = bool(tcfg.get("embedded_epoch"))
         w = tcfg.get("window", "auto")
@@ -150,13 +220,23 @@ class OnlineMonitor:
         self.h_first = None
         self.rate_done = {(w, k): None for w in ("all", "harm") for k in RATE_K}
         self.last_actor = None
+        # the simple alarms (the main early warning): the parameters are the frozen ones of baselines.MAIN_ALARMS
+        prm = {a["id"]: a["params"] for a in baselines.MAIN_ALARMS}
+        self.act_start = None                       # time of the first timed action with an intent
+        self.hosts = Bounded(c["hosts"])
+        self.new_host_after = prm["new_host_12h"]["after_h"] * HOUR
+        self.secret_intent = prm["first_intent"]["intent"]
+        da, v6 = prm["distinct_actors"], prm["volume_6h"]
+        self.actor_alarm = HourAlarm(da["k_sigma"], da["min_history_h"], da["min_sd"])
+        self.vol6_alarm = HourAlarm(v6["k_sigma"], v6["min_history_h"], v6["min_sd"])
 
     # ------------------------------------------------------------------ output
     def _emit(self, key, name, family, kind, t, rid, actors, why, evidence_t=None):
         if key in self.fired:
             return
         self.fired.add(key)
-        self.events_out.append({"key": key, "name": name, "family": family, "kind": kind, "t": t, "time": iso(t),
+        self.events_out.append({"key": key, "name": name, "family": family, "kind": kind, "role": role_of(key, family, kind),
+                                "t": t, "time": iso(t),
                                 "evidence_time": iso(evidence_t if evidence_t is not None else t),
                                 "evidence_t": evidence_t if evidence_t is not None else t,
                                 "record_index": self.n, "record": rid, "actors": [a for a in actors if a], "why": why})
@@ -234,6 +314,9 @@ class OnlineMonitor:
         text = e.text
         tags = [b.name for b in self.harm_behaviors if b.rx.search(text)] if is_act else []
         harmful = bool(is_act and (intent in self.harm_set or tags))
+        if t is not None and is_act and intent:
+            # (0) the simple alarms: the main early warning
+            self._alarms(e, t, ids, intent)
         if t is not None:
             # (1) first harmful action of each kind
             if is_act:
@@ -258,6 +341,41 @@ class OnlineMonitor:
         if t is not None and is_act:
             self._programs(e, t, ids, intent)
         return self._new
+
+    # ------------------------------------------------------------------ the simple alarms
+    def _alarms(self, e, t, ids, intent):
+        """New host after 12 h, first search-for-secrets action, distinct actors per hour, volume with 6 h of history.
+        Each counts timed actions that have an intent, as baselines.details does on a loaded dataset."""
+        if self.act_start is None:
+            self.act_start = t
+        key = ALARM_KEY["new_host_12h"]
+        if key not in self.fired:
+            hs = baselines.hosts_of(e.text)
+            new = sorted(h for h in hs if h not in self.hosts)
+            if new and t - self.act_start >= self.new_host_after:
+                self._emit(key, baselines.NAME["new_host_12h"], "alarm", "alarm", t, e.id, [],
+                           f"{e.id} contacts {new[0]}, a host no action had named in the first {(t - self.act_start) / HOUR:.1f} h")
+                self.hosts.clear()
+            else:
+                for h in new:
+                    self.hosts[h] = True
+        key = ALARM_KEY["first_intent"]
+        if key not in self.fired and intent == self.secret_intent:
+            self._emit(key, baselines.NAME["first_intent"], "alarm", "alarm", t, e.id, [], f"{e.id} is the first action labelled {intent}")
+        key = ALARM_KEY["distinct_actors"]
+        if key not in self.fired:
+            a, ak = self._actor_simple(e, ids)
+            self._hour_hit(key, "distinct_actors", self.actor_alarm.add(t, a if ak != "run" else None, count=False), "distinct named actors")
+        key = ALARM_KEY["volume_6h"]
+        if key not in self.fired:
+            self._hour_hit(key, "volume_6h", self.vol6_alarm.add(t), "actions")
+
+    def _hour_hit(self, key, aid, hit, what):
+        if hit:
+            tt, c, line, h0 = hit
+            self._emit(key, baselines.NAME[aid], "alarm", "alarm", tt, None, [],
+                       f"{c:,} {what} in the hour from {iso(h0)}, above the alarm line of {line:,.1f} "
+                       "(mean plus 3 standard deviations of every earlier hour); known at the end of that hour")
 
     # ------------------------------------------------------------------ volume
     def _rate(self, which, t):
@@ -315,7 +433,7 @@ class OnlineMonitor:
                 if sc and sc[0] <= t and not done_c:
                     self._emit("replay:coordination: one identity carries another's token", "One identity carries another's token", "joint", "carried",
                                t, sc[1], [sc[2], tok], f"{sc[2]} holds {tok}'s token in {sc[1]}, before that token's own first use", evidence_t=sc[0])
-        for fam, item in reconstruct.info_of(e, self.pack):
+        for fam, item in sorted(reconstruct.info_of(e, self.pack)):       # a set: sorted, so the sign does not depend on the hash seed
             if item in ids:
                 continue
             tu = self.first_use.get(item)
@@ -340,7 +458,7 @@ class OnlineMonitor:
         ps = reconstruct.places_of(e, self.pack)
         if not ps or not ids:
             return
-        for p in ps:
+        for p in sorted(ps):               # a set: sorted, so the place the sign names does not depend on the hash seed
             cur = self.places.get(p)
             if cur is False:
                 continue
@@ -514,6 +632,10 @@ class OnlineMonitor:
                         reads.add(f"{name}:{m.group(1)}")
                     if writes:
                         break
+            if not writes:
+                for key, op, _lo, _hi in messages.tool_places(e, self.tool_places):   # R18a places, as in the replay
+                    writes = writes or op == "write"
+                    reads.add(key)
             f["copies"].append((writes, reads))
         if ak != "run" and len(f["actors"]) < 3 and all(x[0] != a for x in f["actors"]):
             f["actors"].append((a, t, e.id))
@@ -551,13 +673,17 @@ class OnlineMonitor:
         for which in ("all", "harm"):
             if self.cur[which] is not None:
                 self._close_hours(which, self.cur[which], self.cur[which] + 1)
+        for key, aid, alarm, what in ((ALARM_KEY["distinct_actors"], "distinct_actors", self.actor_alarm, "distinct named actors"),
+                                      (ALARM_KEY["volume_6h"], "volume_6h", self.vol6_alarm, "actions")):
+            if key not in self.fired:
+                self._hour_hit(key, aid, alarm.close(), what)
         return self._new
 
     def memory(self):
         sizes = {"ids_roots": self.root, "thread_idents": self.votes, "tokens_first_use": self.first_use,
                  "tokens_seen_as_data": self.seen_data, "tokens_carried": self.seen_carried, "places": self.places,
                  "channels": self.chan, "got": self.got, "actors": self.parent, "pairs": self.pairs, "families": self.fams,
-                 "written": self.written}
+                 "written": self.written, "hosts": self.hosts}
         return {k: {"entries": len(v), "evicted": getattr(v, "evicted", 0)} for k, v in sizes.items()}
 
 
@@ -661,11 +787,18 @@ def compare(events, session, tolerance_h=0.25):
     sim = insight.simulate(session)
     t0 = sim.get("start_t")
     rep = {g["key"]: g for g in sim["signals"]}
+    for aid, d in baselines.details(session).items():      # the simple alarms, computed with the whole dataset in hand
+        if d["t"] is not None and aid in baselines.MAIN_IDS:
+            rep[ALARM_KEY[aid]] = {"key": ALARM_KEY[aid], "name": baselines.NAME[aid], "kind": "alarm", "family": "alarm",
+                                   "t": d["t"], "time": iso(d["t"]), "record": d["record"]}
     on = {e["key"]: e for e in events}
     rows = []
-    for key in sorted(set(rep) | set(on), key=lambda k: (rep[k]["t"] if k in rep else on[k]["t"])):
+    # by time, then by key: two signs at the same moment (the two volume alarms close the same hour) would otherwise
+    # come out in the order of a set, which changes with PYTHONHASHSEED
+    for key in sorted(set(rep) | set(on), key=lambda k: ((rep[k]["t"] if k in rep else on[k]["t"]), k)):
         r, o = rep.get(key), on.get(key)
         row = {"key": key, "name": (r or o)["name"], "kind": (r or o)["kind"], "family": (r or o)["family"],
+               "role": role_of(key, (r or o)["family"], (r or o)["kind"]),
                "online_time": o["time"] if o else None, "online_h": round((o["t"] - t0) / HOUR, 3) if o and t0 is not None else None,
                "online_evidence_time": o["evidence_time"] if o else None,
                "online_index": o["record_index"] if o else None,
@@ -682,7 +815,12 @@ def compare(events, session, tolerance_h=0.25):
         row["status"] = "both" if (r and o) else ("replay only" if r else "online only")
         rows.append(row)
     both = [x for x in rows if x["status"] == "both"]
-    return {"rows": rows, "tolerance_h": tolerance_h, "replay_signs": len(rep), "online_signs": len(on), "both": len(both),
+    main = [x for x in rows if x["role"] == "main"]
+    main_both = [x for x in main if x["status"] == "both"]
+    return {"rows": rows, "tolerance_h": tolerance_h,
+            "main": {"alarms": len(baselines.MAIN_IDS), "online": sum(1 for x in main if x["online_time"]),
+                     "replay": sum(1 for x in main if x["replay_time"]), "both": len(main_both),
+                     "matched": sum(1 for x in main_both if x["match"]), "within_1h": sum(1 for x in main_both if abs(x["diff_h"]) <= 1.0)}, "replay_signs": len(rep), "online_signs": len(on), "both": len(both),
             "matched": sum(1 for x in both if x["match"]), "within_1h": sum(1 for x in both if abs(x["diff_h"]) <= 1.0),"matched_known_at": sum(1 for x in both if x["match_known_at"]),
             "median_abs_diff_h": _med([abs(x["diff_h"]) for x in both]),
             "median_abs_evidence_diff_h": _med([abs(x["evidence_diff_h"]) for x in both])}
@@ -712,6 +850,7 @@ def replay_session(s, tolerance_h=0.25):
 
 
 APPROXIMATIONS = [
+    "The simple alarms use the online time estimate, so the new-host alarm's 12 hours and the hourly alarms' hours are counted on it; the distinct-actor alarm names an actor by its token so far, not by the whole thread.",
     "Times: the record's own time, else a unix time in its text (outliers replaced by the median of the last 21 such times), else the last accepted time, else its parent's. The replay fits all times together afterwards.",
     "Actor: a thread's token so far; the replay uses the thread's most used token over the whole thread.",
     "A carried token can only be known at its first use; the event says when the carrying happened (the replay's time) and when it was known.",
@@ -779,8 +918,13 @@ def main(argv=None):
     out = stream(iter_records(a.trace), pack, a.limit, progress=prog)
     peak = peak_mb()
     print(f"{out['records']:,} records in {out['seconds']} s: {out['records_per_s']:,} records/s; peak memory {peak} MB")
-    for e in out["events"]:
-        print(f"  record {e['record_index']:>8,}  {e['time']}  {e['key']:<52} {e['why'][:80]}")
+    label = {"main": "MAIN ALARM", "variant": "alarm", "context": "context", "other": "sign"}
+    main = [e for e in out["events"] if e["role"] == "main"]
+    print(f"main alarms fired: {len(main)} of {len(baselines.MAIN_IDS)}"
+          + ("" if main else " (none of: " + ", ".join(baselines.SHORT[i].lower() for i in baselines.MAIN_IDS) + ")"))
+    for e in sorted(out["events"], key=lambda e: (e["role"] != "main", e["record_index"])):
+        print(f"  {label[e['role']]:<10} record {e['record_index']:>8,}  {e['time']}  {e['key']:<52} {e['why'][:80]}")
+    print("context rows say who shares control; they are not an early warning (docs/early-warning.md)")
     big = {k: v for k, v in out["memory"].items() if v["evicted"]}
     print("evictions: " + (", ".join(f"{k} {v['evicted']:,}" for k, v in big.items()) if big else "none (no cap was reached)"))
     res = {"records": out["records"], "seconds": out["seconds"], "records_per_s": out["records_per_s"], "peak_mb": peak,
@@ -795,7 +939,7 @@ def main(argv=None):
               f"{cmp['matched_known_at']} on when it was known")
         for x in cmp["rows"]:
             d = "" if x["diff_h"] is None else f"{x['diff_h']:+.2f} h"
-            print(f"  {x['key'][:50]:<50} online {x['online_time'] or '-':<17} replay {x['replay_time'] or '-':<17} {d:>9}  {x['status']}")
+            print(f"  {label[x['role']]:<10} {x['key'][:50]:<50} online {x['online_time'] or '-':<17} replay {x['replay_time'] or '-':<17} {d:>9}  {x['status']}")
     if a.json:
         with open(a.json, "w", encoding="utf-8") as f:
             json.dump(res, f, indent=1)

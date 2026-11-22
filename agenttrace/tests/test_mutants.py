@@ -820,5 +820,354 @@ class FlowTests(unittest.TestCase):
         self.assertEqual(f["top_overwrite_pairs"][0], {"from": "W0", "to": "X0", "overwrites": 1})
 
 
+# ------------------------------------------------------------------ R13a: fragments
+
+class FragmentTests(unittest.TestCase):
+    def test_R13a_a_text_that_ends_inside_a_verb(self):
+        self.assertEqual(M._open_verb("{method:'POS"), ("POS", "'"))                 # the text need not begin with a letter
+        self.assertEqual(M._open_verb("method:'PO"), ("PO", "'"))                    # nor have anything before the word
+        self.assertEqual(M._open_verb('x.open("pu'), ("PU", '"'))
+        self.assertEqual(M._open_verb("f(u, {method  :  'POS"), ("POS", "'"))         # spaces allowed between these
+        self.assertIsNone(M._open_verb("x{method:'XY"))                              # letters that begin no verb
+        self.assertIsNone(M._open_verb("{method:'POST"))                             # the verb is complete: not cut inside it
+        self.assertIsNone(M._open_verb("{method:'POS'"))
+        self.assertIsNone(M._open_verb(""))
+
+    def test_R13a_the_next_text_brings_the_missing_letters_and_the_same_quote(self):
+        self.assertTrue(M._completes(("PO", "'"), "ST',headers:{}"))
+        self.assertTrue(M._completes(("PO", "'"), "st', x"))
+        self.assertFalse(M._completes(("PO", "'"), 'ST",headers:{}'))                # another quote
+        self.assertFalse(M._completes(("PO", "'"), "T', x"))                         # T completes PU, not PO
+        self.assertFalse(M._completes(("PUT", "'"), "', x"))                         # nothing is missing: not a cut verb
+
+    def test_R13a_c_the_two_records_own_fields(self):
+        a = E("a", actor="A", channel="c")
+        self.assertTrue(M._same_source(a, E("b", actor="A", channel="c")))
+        self.assertFalse(M._same_source(a, E("b", actor="B", channel="c")))
+        self.assertFalse(M._same_source(a, E("b", channel="c")))                     # one has an actor, the other none
+        self.assertFalse(M._same_source(E("a", channel="c"), E("b", actor="A", channel="c")))
+        self.assertFalse(M._same_source(a, E("b", actor="A", channel="d")))
+        self.assertFalse(M._same_source(a, E("b", actor="A")))                       # one has a channel, the other none
+        self.assertFalse(M._same_source(E("a", actor="A"), E("b", actor="A", channel="c")))
+        self.assertTrue(M._same_source(E("a", actor="", channel=""), E("b")))         # an empty field is no field
+
+    def joined(self, evs):
+        view, parts = M.join_fragments(evs, NS(raw={}))
+        return [(i, e.id, e.text, e.time) for i, e in view], parts
+
+    def test_R13a_the_last_record_of_the_input_may_end_inside_a_verb(self):
+        evs = [E("a", "f(u,{method:'PO"), E("b", "ST'}); g(v,{method:'PU")]
+        self.assertEqual(self.joined(evs), ([(0, "a", "f(u,{method:'POST'}); g(v,{method:'PU", None)], {"a": ["b"]}))
+
+    def test_R13a_the_time_is_the_first_records_or_the_next_that_has_one(self):
+        t1, t2, t3 = (datetime.datetime(2026, 7, 9, h) for h in (1, 2, 3))
+        a, b, c = "f(u,{method:'PO", "ST'}); g(v,{method:'PU", "T'})"
+        whole = a + b + c
+        got = self.joined([E("a", a, time=t1), E("b", b, time=t2), E("c", c, time=t3)])
+        self.assertEqual(got, ([(0, "a", whole, t1)], {"a": ["b", "c"]}))
+        self.assertEqual(self.joined([E("a", a), E("b", b, time=t2), E("c", c, time=t3)])[0], [(0, "a", whole, t2)])
+        self.assertEqual(self.joined([E("a", a), E("b", b), E("c", c, time=t3)])[0], [(0, "a", whole, t3)])
+        self.assertEqual(self.joined([E("a", a), E("b", b)])[0], [(0, "a", a + b, None)])
+
+
+# ------------------------------------------------------------------ R18a: tool places
+
+TP_RAW = {"tool_places": {"keys": ["place", "path"], "write_words": ["write", "save"], "read_words": ["read", "get"]},
+          "structural_channels": False}
+TP = M.compile_tool_places(NS(raw=TP_RAW))
+
+
+class ToolPlaceTests(unittest.TestCase):
+    def test_R18a_the_first_json_object(self):
+        self.assertIsNone(M._first_object("no object here"))
+        self.assertEqual(M._first_object('{"a":1} x'), (0, 7))                       # an object that opens the text
+        self.assertEqual(M._first_object('ab {"a":{"b":2}} {"c":3}'), (3, 16))
+        self.assertEqual(M._first_object('{"a":"}"} tail'), (0, 9))                  # a brace inside a string is not a brace
+        self.assertEqual(M._first_object('{"a":"x\\"}y"} tail'), (0, 13))            # an escaped quote does not end the string
+        self.assertEqual(M._first_object('{"a":"\\n"} tail}'), (0, 10))              # an escape is two characters, not three
+        self.assertEqual(M._first_object('x {"a": "cut'), (2, 12))                   # cut: to the end of the text
+
+    def places(self, text, tool="write_note", taken=()):
+        return M.tool_places(E("e", text, tool=tool), TP, taken)
+
+    def test_R18a_an_argument_a_channel_pattern_reads_is_left_to_it(self):
+        text = 'call {"place": "pinboard"} end'
+        lo, hi = text.index('"place"'), text.index("}")
+        self.assertEqual(self.places(text), [("tool:pinboard", "write", lo, hi)])
+        self.assertEqual(self.places(text, taken=[(hi - 1, hi + 3)]), [])            # overlaps its last character
+        self.assertEqual(self.places(text, taken=[(lo - 3, lo + 1)]), [])            # overlaps its first character
+        self.assertEqual(len(self.places(text, taken=[(hi, hi + 3)])), 1)            # begins where the argument ends
+        self.assertEqual(len(self.places(text, taken=[(0, lo)])), 1)                 # ends where the argument begins
+
+    def test_R18a_one_operation_per_place_and_no_empty_name(self):
+        got = self.places('{"place": " ", "path": "pin", "inner": {"place": "pin", "path": " board "}}', tool="read_note")
+        self.assertEqual([(p, op) for p, op, _lo, _hi in got], [("tool:pin", "read"), ("tool:board", "read")])
+
+    def test_R38_place_arguments_are_not_content(self):
+        text = 'call {"place": "pinboard", "text": "hello"} then {"place": "other"}'
+        self.assertEqual(M._without_place_arguments(text, TP), 'call { , "text": "hello"} then {"place": "other"}')
+        self.assertEqual(M._without_place_arguments(text, None), text)
+        self.assertEqual(M._without_place_arguments("no object: place pinboard", TP), "no object: place pinboard")
+        self.assertEqual(M.what_was_written('{"place": "pinboard", "text": "hello"}', "write_note", None), "pinboard\nhello")
+
+
+class SpreadToolTests(unittest.TestCase):
+    """A program that calls a tool on a place (R18a) is routine or not like one that names a pack place."""
+
+    def routine(self, tool, written=frozenset()):
+        evs = [E(i, PROG + ' {"place": "pinboard"}', actor=a, tool=tool) for i, a in (("a", "A"), ("b", "B"))]
+        rec, res, pack = world(evs, raw=TP_RAW, times={"a": 100, "b": 200})
+        out = M.content_spread(evs, pack, rec, res, None, None if written is None else set(written))
+        self.assertEqual(len(out), 1)
+        return out[0]["routine"]
+
+    def test_routine_or_not(self):
+        self.assertFalse(self.routine("write_note"))                                 # writes to a place
+        self.assertFalse(self.routine("write_note", written={"tool:pinboard"}))
+        self.assertTrue(self.routine("read_note"))                                   # reads a place nobody wrote to
+        self.assertFalse(self.routine("read_note", written={"tool:pinboard"}))       # reads a place somebody wrote to
+        self.assertFalse(self.routine("read_note", written=None))                    # no list of written places
+        self.assertTrue(self.routine("think_about"))                                 # the tool's name is no verb
+
+
+# ------------------------------------------------------------------ R6a, R6b: LFS
+
+OID = "oid:'abcd1234'"
+
+
+class LfsTests(unittest.TestCase):
+    def test_R6a_paths_info_judges_160_characters_after_the_mention(self):
+        self.assertEqual(jh("x PLACE/paths-info " + "t" * 300), ("read", 2, 167, "inferred"))
+        self.assertEqual(jh("x PLACE/paths-info " + "t" * 100), ("read", 2, 119, "inferred"))
+
+    def index(self, evs, times, view=False):
+        if view:
+            return M._lfs_index(list(enumerate(evs)), {}, times.get)                 # a view of join_fragments, its own times
+        return M._lfs_index(evs, {"_times": times})
+
+    def test_R6b_the_index_of_object_ids(self):
+        evs = [E("d2", "{operation:'download', " + OID + "}"), E("d1", "{operation:'download', " + OID + "}"),
+               E("up", "{operation:'upload', " + OID + ", lfsFile}"), E("c", "commit lfsFile " + OID),
+               E("p", "x.open('PUT', u); " + OID), E("n", "names " + OID + " only"), E("z", "lfsFile and no object id"),
+               E("o", "lfsFile void: 1")]
+        for view in (False, True):
+            down, sent = self.index(evs, {"d2": 50, "d1": 40, "c": 60}, view)
+            self.assertEqual(down, {"abcd1234": (40, 1)})                            # the earliest request, not the last one read
+            self.assertEqual(dict(sent), {"abcd1234": [(60, 3), (float("-inf"), 4)]})  # an upload batch only announces
+        down, sent = self.index(evs[:1] + evs[:1], {})
+        self.assertEqual(down, {"abcd1234": (float("-inf"), 0)})
+
+    def test_R6b_the_index_is_made_once_for_a_trace(self):
+        rec = {"_times": {}}
+        self.assertIs(M._lfs_index([E("c", "commit lfsFile " + OID)], rec), M._lfs_index([], rec))
+
+    def test_R6b_a_probe_does_not_count(self):
+        seg, key = "{operation:'upload', " + OID + "}", (100, 5)
+        counts = lambda down, sent, seg=seg, text="": M._lfs_upload_counts(text or seg, seg, key, (down, sent))
+        o = "abcd1234"
+        self.assertTrue(counts({}, {o: [(200, 9)]}))
+        self.assertTrue(counts({o: (150, 7)}, {o: [(200, 9)]}))                      # asked for only after the batch
+        self.assertFalse(counts({o: (50, 1)}, {o: [(200, 9)]}))                      # asked for earlier: it existed
+        self.assertFalse(counts({o: (100, 5)}, {o: [(200, 9)]}))                     # asked for in this very record
+        self.assertFalse(counts({}, {}))                                             # never sent
+        self.assertFalse(counts({}, {o: [(50, 1)]}))                                 # sent before the batch
+        self.assertFalse(counts({}, {o: [(100, 5)]}))                                # not later than the batch
+        self.assertFalse(counts({}, {o: [(200, 9)]}, seg="{operation:'upload'}", text="no object id visible"))
+        self.assertTrue(counts({}, {o: [(200, 9)]}, seg="{operation:'upload'}", text="{operation:'upload'}; " + OID))
+
+    LFS_RAW = {"channels": [{"name": "repo", "pattern": r"repo/(R\w*)", "write": "POST"}], "structural_channels": False}
+
+    def ops(self, times, down_first=True):
+        batch = "fetch('repo/RA/info/lfs/objects/batch', {method:'POST', body:{operation:'upload', " + OID + "}}) " + T
+        asked = E("d", "{operation:'download', " + OID + "}", actor="B")
+        evs = ([asked] if down_first else []) + [E("u", batch, actor="A"), E("c", "commit lfsFile " + OID, actor="A")]
+        return [(o[0], o[1], o[6]) for o in ops_of(evs, self.LFS_RAW, times=times)]
+
+    def test_R6b_through_the_operations(self):
+        write = [("repo:RA", "write", "u")]
+        self.assertEqual(self.ops({"u": 100, "c": 200}, down_first=False), write)     # the object goes up later
+        self.assertEqual(self.ops({"d": 50, "u": 100, "c": 200}), [])                # it was asked for earlier: a probe
+        self.assertEqual(self.ops({"d": 150, "u": 100, "c": 200}), write)            # asked for after the batch
+        self.assertEqual(self.ops({"d": 50, "c": 200}), write)                       # an undated batch comes before every dated record
+        self.assertEqual(self.ops({"u": 100}, down_first=False), [])                 # an undated send is not later
+
+
+# ------------------------------------------------------------------ R23a, R29, R38: content
+
+class ListsTokenTests(unittest.TestCase):
+    def test_R23a_the_writers_token_as_a_whole_word(self):
+        self.assertTrue(M._lists_token("for t in [abcdef, zzz]", "abcdef"))           # six characters is long enough
+        self.assertFalse(M._lists_token("for t in [abcde, zzz]", "abcde"))            # five is not
+        self.assertFalse(M._lists_token("for t in [abcdefg]", "abcdef"))              # part of a longer word
+        self.assertFalse(M._lists_token("nothing here", "abcdef"))
+        self.assertFalse(M._lists_token("it was run:abcdef then", "run:abcdef"))      # an anonymous run is no token
+
+    def test_R29_the_lines_each_post_added_are_handed_out(self):
+        ops = [op("p", "post", "A", 1, 0, "w"), op("p", "post", "B", 2, 1, "r")]
+        added = {}
+        M.deliveries(ops, texts={"w": "first line here", "r": "first line here\nsecond line here"}, added_out=added)
+        self.assertEqual(added, {("p", "w"): {"first line here"}, ("p", "r"): {"second line here"}})
+
+
+def dl(w="w", r="r", **kw):
+    return dict({"channel": "p:x", "write_id": w, "read_id": r, "from": "A", "to": "B", "write_time": 10, "read_time": 20,
+                 "how": "read in code"}, **kw)
+
+
+class WrittenContentTests(unittest.TestCase):
+    PACK = NS(raw={})
+
+    def run_test(self, evs, dels, times=None, added=None, who=True):
+        if who:
+            return M.written_content_test(evs, self.PACK, dels, who=lambda e: e.actor, time_of=(times or {}).get, added=added)
+        return M.written_content_test(evs, self.PACK, dels)
+
+    def test_R38_what_is_a_term_and_what_is_distinctive(self):
+        self.assertEqual(M._terms("abcdefg abcdefgh [Ab:c:1] ab.cd/ef-g", ()), {"abcdefgh", "[Ab:c:1]", "ab.cd/ef-g"})   # 8 or more
+        self.assertFalse(M._is_distinctive("1234"))
+        self.assertTrue(M._is_distinctive("12345"))
+        self.assertFalse(M._is_distinctive("Abcdefgh"))                              # a capital only as its first character
+        self.assertTrue(M._is_distinctive("aBcdefgh"))                               # a capital as its second
+
+    def test_R38_direct_and_kept_deliveries_are_not_tested(self):
+        evs = [E("w", "nothing shared", actor="A"), E("r", "at all here", actor="B")]
+        direct, kept = dl(how=M.DIRECT_HOW), dl(how="kept 2 lines")
+        self.assertEqual(self.run_test(evs, [direct, kept]), (1, 1))
+        self.assertNotIn("uses_content", direct)
+        self.assertEqual((kept["uses_content"], kept["shared_terms"], kept["content_how"]), (True, [], "kept lines"))
+        self.assertEqual(self.run_test(evs, [dl(how=M.DIRECT_HOW)]), (0, 0))
+
+    def quoted(self, n_more, term="shared_term_1", filler=None):
+        evs = [E("w", "post " + term, actor="A"), E("r", "get " + term, actor="B")]
+        evs += [E(f"x{k}", (filler or "again " + term), actor="C") for k in range(n_more)]
+        d = dl()
+        got = self.run_test(evs, [d], who=False)
+        return got, d["uses_content"], d["shared_terms"], d.get("content_how")
+
+    def test_R38a_rare_is_at_most_5_records(self):
+        self.assertEqual(self.quoted(3), ((1, 1), True, ["shared_term_1"], "quoted in the read"))       # 5 records hold it
+        self.assertEqual(self.quoted(4), ((1, 0), False, [], None))                                      # 6 do
+        self.assertEqual(self.quoted(4, term="abcd1234", filler="abcd1234"), ((1, 0), False, [], None))  # a record that is only the term
+        self.assertEqual(self.quoted(0, term="abc1234")[1], False)                                       # 7 characters: no term
+        self.assertEqual(self.quoted(0, term="abcd1234")[1], True)                                       # 8 characters
+
+    def test_R38_up_to_three_shared_terms(self):
+        four = "term_dd4 term_aa1 term_cc3 term_bb2"
+        evs = [E("w", "post " + four, actor="A"), E("r", "get " + four, actor="B")]
+        d = dl()
+        self.run_test(evs, [d], who=False)
+        self.assertEqual(d["shared_terms"], ["term_aa1", "term_bb2", "term_cc3"])
+        evs = [E("w", "post " + four, actor="A"), E("r", "get it", actor="B"), E("s", "use " + four, actor="B")]
+        d = dl()
+        self.assertEqual(self.run_test(evs, [d], times={"w": 10, "r": 20, "s": 30}), (1, 1))
+        self.assertEqual((d["shared_terms"], d["used_in"]), (["term_aa1", "term_bb2", "term_cc3"], "s"))
+
+    def test_R38b_without_actors_and_times_only_R38a_is_tested(self):
+        evs = [E("w", "post K7-PELICAN-4421", actor="A"), E("r", "get it", actor="B"), E("s", "use K7-PELICAN-4421", actor="B")]
+        d = dl()
+        self.assertEqual(self.run_test(evs, [d], who=False), (1, 0))
+        for kw in ({"who": lambda e: e.actor}, {"time_of": {"w": 10, "r": 20, "s": 30}.get}):
+            d = dl()
+            self.assertEqual(M.written_content_test(evs, self.PACK, [d], **kw), (1, 0), list(kw))
+
+    def test_R38b_of_a_full_body_post_only_the_added_lines_were_written(self):
+        evs = [E("w", "old line OLD_TERM_1\nnew line NEW_TERM_2", actor="A"), E("r", "look", actor="B"),
+               E("s", "use OLD_TERM_1", actor="B"), E("t", "use NEW_TERM_2", actor="B")]
+        times = {"w": 10, "r": 20, "s": 30, "t": 40}
+        d = dl()
+        self.run_test(evs, [d], times, added={("p:x", "w"): {"new line NEW_TERM_2"}})
+        self.assertEqual((d["shared_terms"], d["used_in"]), (["NEW_TERM_2"], "t"))
+        d = dl()
+        self.run_test(evs, [d], times)
+        self.assertEqual((d["shared_terms"], d["used_in"]), (["OLD_TERM_1", "NEW_TERM_2"], "s"))
+
+
+CODE = "K7-PELICAN-4421"
+
+
+class LaterOutputTests(unittest.TestCase):
+    """R38b through _later_output_test itself: (events, times) -> {delivery: [(term, record)]}."""
+    PACK = NS(raw={})
+
+    def later(self, evs, times, terms=(CODE,), d=None, who=None):
+        d = d or dl(write_time=times["w"], read_time=times["r"])
+        return M._later_output_test(evs, self.PACK, {0: (d, set(terms))}, who or (lambda e: e.actor), times.get).get(0)
+
+    def base(self, *more):
+        return [E("w", "post " + CODE, actor="A"), E("r", "get it", actor="B")] + list(more)
+
+    def test_the_first_later_record_of_the_reader(self):
+        evs = self.base(E("s2", "again " + CODE, actor="B"), E("s1", "use " + CODE, actor="B"))
+        self.assertEqual(self.later(evs, {"w": 10, "r": 20, "s2": 40, "s1": 30}), [(CODE, "s1")])     # by time, not by input order
+        self.assertEqual(self.later(evs, {"w": 10, "r": 20, "s2": 30, "s1": 40}), [(CODE, "s2")])
+        self.assertIsNone(self.later(self.base(E("s", "use " + CODE, actor="C")), {"w": 10, "r": 20, "s": 30}))
+
+    def test_a_record_that_is_only_a_five_digit_number(self):
+        evs = [E("w", "post 48213", actor="A"), E("r", "get it", actor="B"), E("s", "48213", actor="B")]
+        self.assertEqual(self.later(evs, {"w": 10, "r": 20, "s": 30}, terms=("48213",)), [("48213", "s")])
+
+    def test_guard_2_the_read_record_holds_the_term(self):
+        evs = [E("w", "post " + CODE, actor="A"), E("r", "get " + CODE, actor="B"), E("s", "use " + CODE, actor="B")]
+        self.assertIsNone(self.later(evs, {"w": 10, "r": 20, "s": 30}))
+
+    def test_guard_1_the_earliest_record_of_each_other_actor_counts(self):
+        times = {"w": 100, "r": 200, "s": 300}
+        s = E("s", "use " + CODE, actor="B")
+        # C held the term before the write and again after it, in either input order
+        self.assertIsNone(self.later(self.base(s, E("c1", "had " + CODE, actor="C"), E("c2", "has " + CODE, actor="C")),
+                                     dict(times, c1=50, c2=500)))
+        self.assertIsNone(self.later(self.base(s, E("c2", "has " + CODE, actor="C"), E("c1", "had " + CODE, actor="C")),
+                                     dict(times, c1=50, c2=500)))
+        # the same two records of C straight after the write, before any record of a third actor
+        self.assertIsNone(self.later(self.base(E("c2", "has " + CODE, actor="C"), E("c1", "had " + CODE, actor="C"), s),
+                                     dict(times, c1=50, c2=500)))
+        # the writer held it first of all, C second, both before the write: C's record still refuses it
+        evs = [E("a0", "mine " + CODE, actor="A"), E("c1", "had " + CODE, actor="C")] + self.base(s)
+        self.assertIsNone(self.later(evs, dict(times, a0=5, c1=50)))
+        self.assertEqual(self.later(evs, dict(times, a0=5, c1=150)), [(CODE, "s")])    # C only after the write
+        # three other actors before the write, the reader's later record after: refused all the same
+        evs = [E("c1", "had " + CODE, actor="C"), E("d1", "had " + CODE, actor="D"), E("f1", "had " + CODE, actor="F")] + self.base(s)
+        self.assertIsNone(self.later(evs, dict(times, c1=50, d1=60, f1=70)))
+
+    def test_guard_1_the_write_record_is_not_before_itself(self):
+        # the record's own actor (R21) is Z, the delivery's writer is A (R21a: the token named in the judged call)
+        evs = [E("w", "post " + CODE, actor="Z"), E("r", "get it", actor="B"), E("s", "use " + CODE, actor="B")]
+        self.assertEqual(self.later(evs, {"w": 10, "r": 20, "s": 30}), [(CODE, "s")])
+
+    def test_a_delivery_whose_records_are_not_in_the_input(self):
+        evs, times = self.base(E("s", "use " + CODE, actor="B")), {"w": 10, "r": 20, "s": 30}
+        self.assertIsNone(self.later(evs, times, d=dl(w="gone")))
+        self.assertIsNone(self.later(evs, times, d=dl(r="gone")))
+        self.assertIsNone(self.later(evs, times, d=dl(w="gone", r="gone too")))
+
+    def test_several_terms_the_one_found_first_first(self):
+        t1, t2, t3 = "bb_term_22", "aa_term_1", "aa_term_2"
+        evs = [E("w", f"post {t1} {t2} {t3}", actor="A"), E("r", "get it", actor="B"),
+               E("s9", "use " + t2, actor="B"), E("s1", "use " + t1, actor="B")]
+        got = self.later(evs, {"w": 10, "r": 20, "s9": 30, "s1": 40}, terms=(t1, t2))
+        self.assertEqual(got, [(t2, "s9"), (t1, "s1")])                                # by the time it was found, not by record id
+        evs = evs[:2] + [E("s", f"use {t2} {t1} {t3}", actor="B")]
+        got = self.later(evs, {"w": 10, "r": 20, "s": 30}, terms=(t1, t2, t3))
+        self.assertEqual(got, [(t1, "s"), (t2, "s"), (t3, "s")])                       # in one record: the longer first, then by name
+
+
+# ------------------------------------------------------------------ R30, R31, R38: the counts of message_flow
+
+class FlowCountTests(unittest.TestCase):
+    def test_R38_a_dated_direct_message_passes_as_it_stands(self):
+        evs = [E("m", actor="A", to="B", channel="c"), E("r", actor="B", channel="c"), E("n", actor="A", to="C", channel="c"),
+               E("m2", actor="A", to="D", channel="c")]
+        f = flow_of(evs, {"structural_channels": False}, {"m": 100, "r": 200, "m2": 300})
+        self.assertEqual((f["deliveries"], f["direct_messages"], f["direct_messages_undated"]), (2, 2, 1))
+        self.assertEqual((f["deliveries_reader_uses_content"], f["deliveries_content_checked"]), (2, 0))
+
+    def test_R31_deliveries_on_an_exact_place(self):
+        evs = [E("e0", "repo/RA WRITE", actor="A"), E("e1", "repo/RA READ", actor="B"),
+               E("e2", "repo/RCOARSE WRITE", actor="A"), E("e3", "repo/RCOARSE READ", actor="B"),
+               E("e4", "repo/RB WRITE", actor="A"), E("e5", "repo/RB READ", actor="B")]
+        f = flow_of(evs, dict(REPO, coarse_channels=["COARSE"]), {e.id: 10 + k for k, e in enumerate(evs)})
+        self.assertEqual((f["deliveries"], f["deliveries_exact_place"], f["coarse_channel_deliveries"]), (3, 2, 1))
+
+
 if __name__ == "__main__":
     unittest.main()

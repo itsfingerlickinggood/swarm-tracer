@@ -22,7 +22,7 @@ A place is anywhere one actor can leave something for another: a dataset, a boar
 
 ## 5. Messages
 
-A delivery (the app and older pages call it a message) is a read of a place after an earlier write to it by a different actor, linked to the latest such write: a write then a later read. It shows the content was there to read, not that the reader used it; the tool reports separately how many deliveries pass a written-content test (the reader's record shares identifiers with the writer's), which is 0 of 9 on the Swarm Traces release. Three rules keep the count honest:
+A delivery (the app and older pages call it a message) is a read of a place after an earlier write to it by a different actor, linked to the latest such write: a write then a later read. It shows the content was there to read, not that the reader used it; the tool reports separately how many deliveries pass a written-content test (the reader's record shares identifiers with the writer's, or the reader's later output holds a distinctive term the writer wrote), which is 0 of 11 on the Swarm Traces release. A record that the log cut in two inside a request is read as one record when the next record completes it. Three rules keep the count honest:
 
 1. a reader running the same program as the writer (the same first 60 normalized words) is one sender retrying, not a message;
 2. each write counts once per reader;
@@ -34,12 +34,14 @@ Messages agents logged to each other (handoffs, `to`/`recipient` fields) count d
 
 A program is identical code once ids, numbers and hashes are masked. A program run by two or more named actors spreads; the first run is its source. Reuse is a warning sign only when the program writes to a place, reads a place another actor wrote, or does something the pack calls harmful; the rest (a token check every agent runs, two agents fetching the same public file) is listed as routine. A token first seen as data inside a record and only later used to authenticate also spreads, as does a record that authenticates as one identity while holding another's token.
 
-## 7. Warning signs and the replay
+## 7. Alarms, context signs and the replay
 
-The replay finds the first time each sign fires: the first harmful action of each kind (single actor); the first message between named actors, the first program reused, a group of 3, 5, 10, 20 actors linked by messages, the first two-way exchange, a carried token, a shared name (actors together); and a volume alarm (mean plus three standard deviations of every earlier hour) as the baseline. For each it reports the share of dated harmful actions still to come. Harm is whatever the pack lists as harmful.
+Since v2.3.0 the main early-warning output is four simple alarms: the first new host after 12 hours, the first action the pack labels a search for secrets, the first hour with unusually many distinct actors, and the first hour with unusually many actions (mean plus three standard deviations of every earlier hour). None of them looks at who shares what. The replay also finds the first time each other sign fires: the first harmful action of each kind (single actor), and the signs of actors together (the first delivery between named actors, the first program reused, a group of 3, 5, 10, 20 actors linked by deliveries, the first two-way exchange, a carried token, a shared name). The last group is shown as context: it says who shares control, and it is not an early warning. For each alarm and sign the replay reports the share of dated harmful actions still to come. Harm is whatever the pack lists as harmful.
+
+The four alarms were chosen after seeing that they fired earliest on one real incident. Their pre-registered forward test on simulated swarms failed, and on real traces with no attack they fire almost always; [early-warning.md](early-warning.md) has the tables.
 
 ## 8. Checks
 
-`agenttrace evaluate` recomputes every sign under random time errors as large as the dating fit's own, compares the counting rules, and checks the estimated times against times the investigators published. The ground-truth mode scores message links on a simulated swarm whose true links are known.
+`agenttrace evaluate` recomputes every sign under random time errors as large as the dating fit's own, compares the counting rules, and checks the estimated times against times the investigators published. The ground-truth mode scores message links on a simulated swarm whose true links are known. `agenttrace/failure_eval.py` and `python3 -m agenttrace.external_eval` score the tool against what four public datasets record (recipients, replies, failure labels, collusion labels); the results are in `reports/external/` and summarised in [validation.md](validation.md#measured-on-four-outside-datasets-v230).
 
 The full method and results for the Hugging Face incident are in the [report](assets/Swarm_Tracer_report.pdf).

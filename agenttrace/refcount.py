@@ -4,7 +4,8 @@
     out = refcount.count(events, pack, rec, res)      # out["deliveries"]: [{place, write_id, read_id, ...}]
 
 It implements docs/counting-rule.md (statements R1 to R39, including the v2.2.0 changes R6a, R6b, R23a, R38 and
-R39) and nothing else. It does not import messages.py. It takes from the rest of the tool only what is not the
+R39, R13a, the joining of a record cut inside a verb with the record that completes it, and the v2.3.0 statements
+R18a, a tool call that names its place, and R38b, the reader's later output) and nothing else. It does not import messages.py. It takes from the rest of the tool only what is not the
 counting rule: the loaded records, the pack (its place patterns, verb vocabulary and coarse places), each
 record's identity tokens and time (rec["_ids"], rec["_times"]) and its thread root (res["_root"]). R39 (board
 places keyed by their full path) is carried by the pack's board pattern, which captures the whole path.
@@ -29,8 +30,12 @@ Known differences of method (each can produce a disagreement, listed by tools/cr
     between), where messages.py takes the nearest verb in a window of characters;
   - an upload batch is a probe (R6b) unless a later record names the object as an `lfsFile` or sends it with a PUT
     (messages.py also accepts upload_file and uploadId);
-  - a place named inside the body or data argument of a call is data, not the call's address.
+  - a place named inside the body or data argument of a call is data, not the call's address;
+  - the arguments of a tool call (R18a) are walked as JSON, character by character, where messages.py matches a
+    pattern; the terms of R38b are cut out of the text by splitting it, where messages.py matches a pattern, and
+    every record that holds a term is kept in a list, where messages.py keeps the two earliest holders.
 """
+import json
 import re
 from collections import Counter, defaultdict
 
@@ -948,6 +953,106 @@ class Judge:
         return self.window(start, end)
 
 
+# ------------------------------------------------------------------ fragments (R13a)
+
+_FULL_VERBS = ("POST", "PUT", "PATCH", "DELETE", "GET", "HEAD")
+_QUOTES = "'\""
+
+
+class Joined:
+    """Several records read as one (R13a): the first one's id and fields, the texts one after the other."""
+    __slots__ = ("id", "text", "kind", "parent", "actor", "channel", "to", "time", "pieces")
+
+    def __init__(self, first, text, time, pieces):
+        self.id, self.kind, self.parent, self.actor, self.channel = first.id, first.kind, first.parent, first.actor, first.channel
+        self.to = getattr(first, "to", None)
+        self.text, self.time, self.pieces = text, time, pieces
+
+
+def _ends_in_verb(text):
+    """R13a (a): (letters, quote) when the text ends with `method` and `:` or `=`, or `.open(`, then a quote and one to
+    five letters that begin a verb without completing it. Read backwards from the end, character by character."""
+    tail = text[-64:]
+    k = len(tail)
+    while k > 0 and tail[k - 1].isascii() and tail[k - 1].isalpha():
+        k -= 1
+    letters = tail[k:].upper()
+    if not 1 <= len(letters) <= 5 or k == 0 or tail[k - 1] not in _QUOTES:
+        return None
+    if not any(v != letters and v.startswith(letters) for v in _FULL_VERBS):
+        return None
+    quote = tail[k - 1]
+    before = tail[:k - 1].rstrip()
+    if before.endswith("("):
+        ok = before[:-1].rstrip().endswith(".open")
+    elif before.endswith((":", "=")):
+        word = before[:-1].rstrip()
+        ok = word.endswith("method") and not (len(word) > 6 and (word[-7].isalnum() or word[-7] == "_"))
+    else:
+        ok = False
+    return (letters, quote) if ok else None
+
+
+def _begins_with_rest(text, letters, quote):
+    """R13a (b): the text begins with the letters a verb still misses, then the same quote."""
+    for v in _FULL_VERBS:
+        if v != letters and v.startswith(letters):
+            rest = v[len(letters):]
+            if text[:len(rest)].upper() == rest and text[len(rest):len(rest) + 1] == quote:
+                return True
+    return False
+
+
+def _may_follow(first, nxt, pack):
+    """R13a (c)."""
+    if not (is_action(first, pack) and is_action(nxt, pack)) or first.kind != nxt.kind:
+        return False
+    if getattr(first, "to", None) or getattr(nxt, "to", None):
+        return False
+    if (first.actor or "") != (nxt.actor or "") or (first.channel or "") != (nxt.channel or ""):
+        return False
+    return not nxt.parent or nxt.parent in (first.id, first.parent)
+
+
+def join(events, pack, rec):
+    """R13a: (records, rec for them, {first id: [ids joined into it]}). With nothing to join, the inputs themselves.
+    A joined record takes its tokens from its pieces (the first piece's first) and the first time any piece has."""
+    out, pieces_of = [], {}
+    pos, n = 0, len(events)
+    while pos < n:
+        first = events[pos]
+        text, nxt = None, pos + 1
+        while nxt < n:
+            cut = _ends_in_verb(first.text if text is None else text)
+            if cut is None or not _may_follow(first, events[nxt], pack) or not _begins_with_rest(events[nxt].text, *cut):
+                break
+            text = (first.text if text is None else text) + events[nxt].text
+            nxt += 1
+        if text is None:
+            out.append(first)
+        else:
+            rest = events[pos + 1:nxt]
+            own_time = first.time or next((x.time for x in rest if x.time), None)
+            out.append(Joined(first, text, own_time, [first.id] + [x.id for x in rest]))
+            pieces_of[first.id] = [x.id for x in rest]
+        pos = nxt
+    if not pieces_of:
+        return events, rec, {}
+    ids, times = dict(rec["_ids"]), dict(rec["_times"])
+    for first, rest in pieces_of.items():
+        toks = []
+        for rid in [first] + rest:
+            for t in rec["_ids"].get(rid, ()):
+                if t not in toks:
+                    toks.append(t)
+        ids[first] = toks
+        for rid in [first] + rest:
+            if rec["_times"].get(rid) is not None:
+                times[first] = rec["_times"][rid]
+                break
+    return out, dict(rec, _ids=ids, _times=times), pieces_of
+
+
 # ------------------------------------------------------------------ comments (R3)
 
 def commented(text, pos):
@@ -971,13 +1076,15 @@ def _own_tokens(e, ids, shared):
     return [t for t in ids.get(e.id, ()) if t not in shared]
 
 
-def actors(events, pack, rec, res):
-    """record id -> (actor, kind, the record's non-shared tokens)."""
+def actors(events, pack, rec, res, voters=None):
+    """record id -> (actor, kind, the record's non-shared tokens). voters: (records, their tokens) whose tokens count
+    in each thread for step 4 of R21; with joined records (R13a) these are the original records."""
     shared = set(pack.raw.get("shared_identities", []))
     ids, root = rec["_ids"], res["_root"]
     per_thread = defaultdict(Counter)
-    for e in events:
-        for t in _own_tokens(e, ids, shared):
+    vote_events, vote_ids = voters if voters else (events, ids)
+    for e in vote_events:
+        for t in _own_tokens(e, vote_ids, shared):
             per_thread[root[e.id]][t] += 1
     thread_tok = {r: c.most_common(1)[0][0] for r, c in per_thread.items()}
     out = {}
@@ -1071,6 +1178,111 @@ def _short(key):
     return re.split(r"[~/:#]", key)[-1]
 
 
+# ------------------------------------------------------------------ a tool call that names its place (R18a)
+
+_ASCII_LOWER, _ASCII_UPPER = "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def tool_words(name):
+    """R18a: the words of a tool's name, lower-cased: cut at every character that is not a letter and before a
+    capital that follows a lower-case letter (read_file, readFile -> read, file)."""
+    words, cur, prev = [], "", ""
+    for ch in name:
+        if ch in _ASCII_LOWER or ch in _ASCII_UPPER:
+            if cur and ch in _ASCII_UPPER and prev in _ASCII_LOWER:
+                words.append(cur.lower())
+                cur = ""
+            cur += ch
+        elif cur:
+            words.append(cur.lower())
+            cur = ""
+        prev = ch
+    if cur:
+        words.append(cur.lower())
+    return words
+
+
+def tool_verb(name, cfg):
+    """R18a: write when a word of the tool's name is a write word, else read when one is a read word, else None."""
+    words = set(tool_words(name))
+    if words & {str(w).lower() for w in cfg.get("write_words", ())}:
+        return "write"
+    if words & {str(w).lower() for w in cfg.get("read_words", ())}:
+        return "read"
+    return None
+
+
+def json_strings(text):
+    """R18a, R38b: the strings of the first JSON object in the text that are not keys, as (key, raw, lo, hi): key is
+    the key the string is the value of, or None for a string in a list; raw is the string as written; lo and hi
+    bound it together with its key, from the quote that opens the key (the string itself, in a list) to the quote
+    that closes the value. The object is walked without decoding it, so one that is cut is read as far as it goes."""
+    out = []
+    i, n = text.find("{"), len(text)
+    if i < 0:
+        return out
+    stack, key, want_key = [], None, False
+    while i < n:
+        c = text[i]
+        if c == '"':
+            j = i + 1
+            while j < n and text[j] != '"':
+                j += 2 if text[j] == "\\" else 1
+            if j >= n:
+                break                                   # cut inside a string
+            if stack and stack[-1] == "{":
+                if want_key:
+                    key, want_key = (text[i + 1:j], i), False
+                elif key is not None:
+                    out.append((key[0], text[i + 1:j], key[1], j + 1))
+                    key = None
+            elif stack:
+                out.append((None, text[i + 1:j], i, j + 1))
+            i = j + 1
+            continue
+        if c == "{":
+            stack.append(c)
+            key, want_key = None, True
+        elif c == "[":
+            stack.append(c)
+            key = None
+        elif c == "}" or c == "]":
+            if stack:
+                stack.pop()
+            if not stack:
+                break                                   # the first object is closed
+            key, want_key = None, False
+        elif c == ",":
+            key = None
+            want_key = bool(stack) and stack[-1] == "{"
+        i += 1
+    return out
+
+
+def _decoded(raw):
+    if "\\" not in raw:
+        return raw
+    try:
+        value = json.loads('"' + raw + '"')
+    except ValueError:
+        return raw
+    return value if isinstance(value, str) else raw
+
+
+def named_places(text, keys):
+    """R18a: [(place name, lo, hi)] for the strings that are the value of one of the place keys (letter case
+    ignored), 1 to 300 characters, without the spaces at their ends."""
+    wanted = {str(k).lower() for k in keys}
+    out = []
+    for key, raw, lo, hi in json_strings(text):
+        if key is None or key.lower() not in wanted or not 1 <= len(raw) <= 300:
+            continue
+        value = _decoded(raw).strip()
+        if value:
+            out.append((value, lo, hi))
+    return out
+
+
 def operations(events, pack, rec, res, who=None):
     """Every operation in the trace (R1 to R21a), direct messages left out."""
     who = who or actors(events, pack, rec, res)
@@ -1085,6 +1297,9 @@ def operations(events, pack, rec, res, who=None):
                 by_short[_short(e.channel)].add(e.channel)
     ops = []
     lfs_facts = LfsFacts(events)
+    tool_cfg = pack.raw.get("tool_places")
+    if not isinstance(tool_cfg, dict) or not tool_cfg.get("keys"):
+        tool_cfg = None
     for idx, e in enumerate(events):
         if not is_action(e, pack):                                                   # R2
             continue
@@ -1123,6 +1338,14 @@ def operations(events, pack, rec, res, who=None):
             for place, v in here.items():
                 if found.get(place, ("",))[0] != "write":
                     found[place] = v
+        if tool_cfg and getattr(e, "tool", None):                                    # R18a
+            verb = tool_verb(e.tool, tool_cfg)
+            if verb:
+                taken = [(x.start(), x.end()) for _n, r2, _w, _r in chans for x in r2.finditer(e.text) if x.group(1)]
+                for value, lo, hi in named_places(e.text, tool_cfg["keys"]):
+                    if any(a < hi and lo < b for a, b in taken):
+                        continue                                                     # a channel of the pack reads this argument
+                    found.setdefault("tool:" + value, (verb, "call", None))
         for place, (op, how, seg) in found.items():
             a = actor
             if kind == "token" and len(own) > 1 and seg is not None:                 # R21a
@@ -1222,6 +1445,7 @@ def link(ops, texts=None, program=None, full_body=False, coarse=None, estimated=
         by_place[o.place].append(o)
     deliveries, overwrites = [], []
     order_unknown = repeats = same_program = 0
+    added_lines = {}                          # (place, record) -> the lines that post added, for R38b
     for place in sorted(by_place):
         lst = by_place[place]
         writes = [o for o in lst if o.op in ("write", "post")]
@@ -1233,6 +1457,7 @@ def link(ops, texts=None, program=None, full_body=False, coarse=None, estimated=
             for o in posts:
                 now = _lines(texts.get(o.rid, ""))
                 added[o.rid] = now - seen
+                added_lines[(place, o.rid)] = added[o.rid]
                 seen = now
         dated_writes = sorted((w for w in writes if w.time is not None), key=lambda w: (w.time, w.idx))
         done = set()
@@ -1267,7 +1492,7 @@ def link(ops, texts=None, program=None, full_body=False, coarse=None, estimated=
             d["grade"] = _grade(d, w, r, coarse, estimated)
             deliveries.append(d)
     return {"deliveries": deliveries, "overwrites": overwrites, "order_unknown": order_unknown,
-            "repeat_reads": repeats, "same_program": same_program}
+            "repeat_reads": repeats, "same_program": same_program, "added_lines": added_lines}
 
 
 def _grade(d, w, r, coarse, estimated):
@@ -1297,24 +1522,173 @@ def terms(text):
     return {t for t in _TERM.findall(text) if len(t) >= 8 and not t.startswith("[CREDENTIAL")}
 
 
-def content_test(deliveries, events, full_body_overlap=None):
-    """Marks each delivery with uses_content and shared_terms (up to three). A delivery passes when the writer's and the
-    reader's records share at least one term, leaving out the place's own address, that is found in at most 5 records
-    of the trace. A logged direct message passes as it stands; a wiki edit whose read kept lines the writer added
-    passes by R29 (full_body_overlap: the set of (write, read) record ids that did). Returns the number that pass."""
+# R38b: the reader's later output holds a distinctive term the writer wrote
+
+_MARKER_TERM = re.compile(r"\[[A-Za-z][A-Za-z :_]*[ :][0-9]+\]")
+_RUN_TERM = re.compile(r"[A-Za-z0-9_.\-/]{5,}")
+_STARTS_WITH_DATE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
+NUMBER_DIGITS = 5
+RUN_LENGTH = 8
+_EDGE = ".-/"
+
+
+def held_terms(text):
+    """R38b: the markers and runs of a text. Markers are taken first; the runs (letters, digits and _ . - /) come
+    from the rest, without the dots, hyphens and slashes at their ends; runs shorter than 5 characters hold nothing."""
+    marks = _MARKER_TERM.findall(text) if "[" in text else []
+    if marks:
+        text = _MARKER_TERM.sub(" ", text)
+    out = set(marks)
+    for run in set(_RUN_TERM.findall(text)):
+        if run[0] in _EDGE or run[-1] in _EDGE:
+            run = run.strip(_EDGE)
+            if len(run) < 5:
+                continue
+        out.add(run)
+    return out
+
+
+def distinctive(term):
+    """R38b: a numbered redaction marker that is not a credential; a number of 5 or more digits; a run of 8 or more
+    characters with a digit, an underscore or a capital after its first character that does not begin with a date."""
+    if term.startswith("["):
+        return not term.startswith("[CREDENTIAL")
+    if all(c in "0123456789" for c in term):
+        return len(term) >= NUMBER_DIGITS
+    if len(term) < RUN_LENGTH or _STARTS_WITH_DATE.match(term):
+        return False
+    return any(c in "0123456789_" or c in _ASCII_UPPER for c in term[1:])
+
+
+def written_text(text, pack, patterns=True):
+    """R38b: the write record without the place's address: every match of a channel pattern of the pack and every
+    place argument of R18a is taken out. patterns=False takes out the place arguments only (R38a)."""
+    cuts = [(m.start(), m.end()) for _n, rx, _w, _r in _channels(pack) for m in rx.finditer(text)] if patterns else []
+    cfg = pack.raw.get("tool_places")
+    if isinstance(cfg, dict) and cfg.get("keys"):
+        cuts += [(lo, hi) for _v, lo, hi in named_places(text, cfg["keys"])]
+    if not cuts:
+        return text
+    out, at = [], 0
+    for lo, hi in sorted(cuts):
+        if lo >= at:
+            out.append(text[at:lo])
+        at = max(at, hi)
+    out.append(text[at:])
+    return " ".join(out)
+
+
+def tool_call_content(text, pack):
+    """R38b: what a tool call wrote: the strings that are values in the first JSON object of its text, decoded, one
+    per line, without the values of the place keys. Keys and the tool's name are left out."""
+    cfg = pack.raw.get("tool_places")
+    places = {str(k).lower() for k in cfg["keys"]} if isinstance(cfg, dict) and cfg.get("keys") else set()
+    return "\n".join(_decoded(raw) for key, raw, _lo, _hi in json_strings(text)
+                     if not (key is not None and key.lower() in places and 1 <= len(raw) <= 300))
+
+
+def record_content(text, tool, pack, patterns=True):
+    """R38: the content of a record: of a tool call whose text holds a JSON object, the values of its arguments; of
+    any other record, its text. Place arguments are taken out, and with patterns=True (R38b) the matches of the pack's
+    channel patterns too."""
+    if tool and "{" in text:
+        text = tool_call_content(text, pack)
+        return written_text(text, pack) if patterns else text
+    return written_text(text, pack, patterns)
+
+
+def later_output(deliveries, events, pack, who, times, added_lines=None):
+    """R38b for the deliveries that are not settled otherwise: {index in deliveries: [(term, the reader's record)]},
+    the terms a later record of the reader holds, the one found first first.
+
+    who: record id -> (actor, kind, tokens); times: record id -> time; added_lines: (place, record) -> the lines a
+    full-body post added (then only these are what was written)."""
+    added_lines = added_lines or {}
+    by_id = {e.id: e for e in events}
+    order = {e.id: n for n, e in enumerate(events)}
+    before_all = float("-inf")
+
+    def when(rid):
+        t = times.get(rid)
+        return (before_all if t is None else t, order[rid])
+    wanted = {}                                   # index -> the distinctive terms of what its write record wrote
+    for n, d in enumerate(deliveries):
+        if d["write_id"] not in by_id or d["read_id"] not in by_id:
+            continue
+        lines = added_lines.get((d["place"], d["write_id"]))
+        write = by_id[d["write_id"]]
+        tools = {getattr(write, "tool", None), getattr(by_id[d["read_id"]], "tool", None)}
+        text = "\n".join(sorted(lines)) if lines is not None else record_content(write.text, getattr(write, "tool", None), pack)
+        terms = {t for t in held_terms(text) if distinctive(t) and t not in tools}
+        if terms:
+            wanted[n] = terms
+    every = set().union(*wanted.values()) if wanted else set()
+    if not every:
+        return {}
+    readers = {deliveries[n]["to"] for n in wanted}
+    holders = defaultdict(list)                   # term -> [(when, actor)] of every record that holds it
+    records_of = defaultdict(list)                # reader -> [(when, record, terms held)]
+    for e in events:
+        held = every & held_terms(e.text)
+        if not held:
+            continue
+        actor, at = who[e.id][0], when(e.id)
+        for t in held:
+            holders[t].append((at, actor))
+        if actor in readers:
+            records_of[actor].append((at, e, held))
+    out = {}
+    for n, terms in wanted.items():
+        d = deliveries[n]
+        write_at, read_at = when(d["write_id"]), when(d["read_id"])
+        read = by_id[d["read_id"]]
+        terms = terms - held_terms(read.text)                                        # guard 2: the read record holds it
+        terms = {t for t in terms                                                    # guard 1: new at the write
+                 if not any(at < write_at and actor != d["from"] for at, actor in holders[t])}
+        mine = sorted(records_of.get(d["to"], ()), key=lambda x: x[0])
+        for at, e, held in mine:                                                     # guard 2: the reader had it before the read
+            if e.id != read.id and at < read_at:
+                terms = terms - held
+        found = {}
+        for at, e, held in mine:
+            if e.id == read.id or at <= read_at or e.parent == read.id or not is_action(e, pack):
+                continue
+            for t in held & terms:
+                found.setdefault(t, (at, e.id))
+        if found:
+            out[n] = [(t, found[t][1]) for t in sorted(found, key=lambda t: (found[t][0], -len(t), t))]
+    return out
+
+
+def content_test(deliveries, events, full_body_overlap=None, later=None):
+    """Marks each delivery with uses_content and shared_terms (up to three). A logged direct message passes as it
+    stands; a wiki edit whose read kept lines the writer added passes by R29 (full_body_overlap: the set of (write,
+    read) record ids that did). Any other delivery passes by R38a, when the writer's and the reader's records share at
+    least one term, leaving out the place's own address, that is found in at most 5 records of the trace; or by R38b,
+    when a later record of the reader holds a distinctive term the writer wrote (later: the keyword arguments of
+    later_output after `events`; without it only R38a is tried). Returns the number that pass."""
     by_id = {e.id: e for e in events}
     cache, df = {}, None
+    pack = later.get("pack") if later else None
 
     def of(rid):
         if rid not in cache:
-            cache[rid] = terms(by_id[rid].text) if rid in by_id else set()
+            text = by_id[rid].text if rid in by_id else ""
+            if pack is not None:
+                tool = getattr(by_id.get(rid), "tool", None)
+                # of a tool call only the argument values are content; a place argument is an address (R38)
+                text = record_content(text, tool, pack, patterns=False)
+                cache[rid] = terms(text) - {tool}
+            else:
+                cache[rid] = terms(text)
         return cache[rid]
     passed = 0
-    for d in deliveries:
+    open_ = []
+    for n, d in enumerate(deliveries):
         if d.get("grade") == "direct" and d["place"].startswith("inbox:"):
             d["uses_content"], d["shared_terms"] = True, []
         elif full_body_overlap and (d["write_id"], d["read_id"]) in full_body_overlap:
-            d["uses_content"], d["shared_terms"] = True, []
+            d["uses_content"], d["shared_terms"], d["content_how"] = True, [], "kept lines"
         else:
             shared = of(d["write_id"]) & of(d["read_id"])
             if shared:
@@ -1326,27 +1700,35 @@ def content_test(deliveries, events, full_body_overlap=None):
                 shared = {t for t in shared if t not in own and not any(t in o or o in t for o in own)}
             rare = sorted((t for t in shared if df[t] <= RARE), key=lambda t: (df[t], -len(t), t))
             d["uses_content"], d["shared_terms"] = bool(rare), rare[:3]
+            if rare:
+                d["content_how"] = "quoted in the read"                              # R38a
+            else:
+                open_.append(n)
         passed += bool(d["uses_content"])
+    if later is not None and open_:                                                  # R38b
+        got = later_output([deliveries[n] for n in open_], events, **later)
+        for k, hits in got.items():
+            d = deliveries[open_[k]]
+            d["uses_content"], d["shared_terms"] = True, [t for t, _rid in hits[:3]]
+            d["content_how"], d["used_in"] = "in the reader's later output", hits[0][1]
+            passed += 1
     return passed
 
 
 def count(events, pack, rec, res):
     """The whole count for a loaded trace. Returns deliveries (pattern places, structural places and dated direct
     messages), overwrites, and the counters of R25, R27 and R28."""
-    who = actors(events, pack, rec, res)
-    ops = operations(events, pack, rec, res, who)
+    records, rec_j, joined = join(events, pack, rec)                                 # R13a, before everything else
+    who = actors(records, pack, rec_j, res, (events, rec["_ids"]) if joined else None)
+    ops = operations(records, pack, rec_j, res, who)
     full_body = bool(pack.raw.get("full_body_posts"))
-    texts = {e.id: e.text for e in events}
-    program = {}
-    for rid in {o.rid for o in ops}:
-        program[rid] = None
-    by_id = {e.id: e for e in events}
-    for rid in program:
-        program[rid] = _program_key(by_id[rid].text)
+    by_id = {e.id: e for e in records}
+    texts = {rid: e.text for rid, e in by_id.items()}
+    program = {rid: _program_key(texts[rid]) for rid in {o.rid for o in ops}}
     coarse = [re.compile(p) for p in pack.raw.get("coarse_channels", [])]
-    estimated = lambda rid: rid in by_id and not by_id[rid].time and rid in rec["_times"]
+    estimated = lambda rid: rid in by_id and not by_id[rid].time and rid in rec_j["_times"]
     out = link(ops, texts, program, full_body, coarse, estimated)
-    dm = direct(events, pack, rec, res, who)
+    dm = direct(events, pack, rec, res, None if joined else who)                     # R20 reads the records as they stand
     out["deliveries"] = out["deliveries"] + [d for d in dm if d["write_time"] is not None]
     out["direct_undated"] = sum(1 for d in dm if d["write_time"] is None)
     out["operations"] = len(ops) + sum(2 if d["read_id"] != d["write_id"] else 1 for d in dm)
@@ -1354,7 +1736,10 @@ def count(events, pack, rec, res):
     out["named"] = len(named)
     out["named_pairs"] = len({(d["from"], d["to"]) for d in named})
     out["_ops"] = ops
+    out["joined"] = joined
     overlap = {(d["write_id"], d["read_id"]) for d in out["deliveries"] if d.get("overlap")}
     out["deliveries_write_then_read"] = len(out["deliveries"])
-    out["deliveries_reader_uses_content"] = content_test(out["deliveries"], events, overlap)
+    out["deliveries_reader_uses_content"] = content_test(
+        out["deliveries"], records, overlap,
+        later={"pack": pack, "who": who, "times": rec_j["_times"], "added_lines": out.pop("added_lines", None)})
     return out

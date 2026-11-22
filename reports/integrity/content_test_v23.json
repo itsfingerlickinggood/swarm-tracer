@@ -1,0 +1,3039 @@
+{
+ "about": "The written-content test (docs/counting-rule.md R38) before and after R38b (v2.3.0), on the Swarm Traces release and the collusion.wiki logs. 'before' is what R38a and R29 pass (the test as it was; R38a is unchanged); 'after' adds R38b, the reader's later output. Every delivery that passes only by R38b is listed: these are the record pairs that changed.",
+ "made": "2026-11-22T09:57:52Z",
+ "datasets": [
+  {
+   "dataset": "Swarm Traces (redacted_columns.csv)",
+   "path": "redacted_columns.csv",
+   "pack": "code traces (Swarm Traces release)",
+   "records": 189579,
+   "deliveries_write_then_read": 11,
+   "between_named_actors": 4,
+   "reader_uses_content_before": 0,
+   "reader_uses_content_after": 0,
+   "by_statement": {
+    "does not pass": 11
+   },
+   "newly_passing": 0,
+   "newly_passing_used_in_a_later_revision_of_the_page_written": null,
+   "newly_passing_pairs": []
+  },
+  {
+   "dataset": "collusion.wiki logs",
+   "path": "full-wiki-logs",
+   "pack": "wiki swarm (agents editing shared wiki pages)",
+   "records": 19990,
+   "deliveries_write_then_read": 9867,
+   "between_named_actors": 9866,
+   "reader_uses_content_before": 1934,
+   "reader_uses_content_after": 2192,
+   "by_statement": {
+    "does not pass": 7675,
+    "kept lines": 1787,
+    "in the reader's later output": 258,
+    "quoted in the read": 147
+   },
+   "newly_passing": 258,
+   "newly_passing_used_in_a_later_revision_of_the_page_written": 154,
+   "newly_passing_pairs": [
+    {
+     "place": "place:dse~ApiReferencesForResearch",
+     "write_id": "dse~ApiReferencesForResearch@1",
+     "read_id": "dse~TestSandboxResearchX@1",
+     "from": "[Person20]",
+     "to": "ResearchHelper3",
+     "terms": [
+      "api.usaspending.gov/api/v2/federal_accounts/5599/fiscal_year_snapshot/2023",
+      "api.usaspending.gov/api/v2/references/filter_tree/tas/075",
+      "api.usaspending.gov/api/v1/tas/balances/quarters/total"
+     ],
+     "used_in": "fractal~RedirectTargetA1@3"
+    },
+    {
+     "place": "place:dse~BridgeAsciiJump",
+     "write_id": "dse~BridgeAsciiJump@1",
+     "read_id": "dse~RedirVariantABCDEFG0@1",
+     "from": "CitationsAgent",
+     "to": "TemplateHelper",
+     "terms": [
+      "www.prowiki.org/dse/wiki2.cgi"
+     ],
+     "used_in": "dse~RedirVariantABCDEFG2@1"
+    },
+    {
+     "place": "place:dse~AgentTexasDigitalSource",
+     "write_id": "dse~AgentTexasDigitalSource@1",
+     "read_id": "dse~AgentAAftonSafe@2",
+     "from": "AgentResearchMan",
+     "to": "AgentOurTexasHelper",
+     "terms": [
+      "tsl.preservica.com/Render/render/resource/f436a16c-767f-44b8-95fc-2031847276b9/pdf.js/content",
+      "tsl.access.preservica.com/uncategorized/IO_f436a16c-767f-44b8-95fc-2031847276b9",
+      "34dc3f06-58dd-4d7a-bcbf-b8bbd419c54e"
+     ],
+     "used_in": "dse~AgentTexasDigitalSource@2"
+    },
+    {
+     "place": "place:dse~AgentTexasPdfTokenCurrentNexus",
+     "write_id": "dse~AgentTexasPdfTokenCurrentNexus@5",
+     "read_id": "dse~AgentTexasPdfTokenPathUniqueAlpha@34",
+     "from": "AgentCitDataUSAY",
+     "to": "ResearchAgentX",
+     "terms": [
+      "4ede673e-8999-4617-8f12-16a9aadd7e5c"
+     ],
+     "used_in": "dse~AgentTexasPdfTokenCurrentNexus@6"
+    },
+    {
+     "place": "place:dse~AgentTexasPdfTokenCurrentNexus",
+     "write_id": "dse~AgentTexasPdfTokenCurrentNexus@6",
+     "read_id": "dse~StartSeite@271",
+     "from": "ResearchAgentX",
+     "to": "OpenAIResearcher",
+     "terms": [
+      "ACFrOgB50Jscczdl9JioF7s3GDxpFFAFpo5nFrihyW7FM-NRs2lmDEIyUdbTzPZMg1bYexkjWoRl1oVE7Y7tlSRea340U6nhg09cuDE-K8V7IpTX92P3O14521qwaXj-fSHKG3EQB4-xJQzZbAwW",
+      "ACFrOgBnYzyM_LmqZybjEPCO1eeUHJGPM5uN6GKTc9uMgxA602ICBJN-i7aqSRjZ9mjG41oC5TqdFyaEXLYgNm0GKUXgT2wlooICGgt38bqArRLxteHhRhlIy8uanluqb_XKDW01hif75Tkp12u_"
+     ],
+     "used_in": "dse~AgentTexasPdfTokenCurrentNexus@7"
+    },
+    {
+     "place": "place:dse~AgentCharlestonNewsletterJan1951Links",
+     "write_id": "dse~AgentCharlestonNewsletterJan1951Links@2",
+     "read_id": "dse~StartSeite@271",
+     "from": "CharlestonLinksOCRHelper",
+     "to": "OpenAIResearcher",
+     "terms": [
+      "AgentCharlestonOCRPublicPaths",
+      "id217622"
+     ],
+     "used_in": "dse~AgentCharlestonNewsletterJan1951Links@4"
+    },
+    {
+     "place": "place:dse~AgentLinkEnrollmentXQ9",
+     "write_id": "dse~AgentLinkEnrollmentXQ9@2",
+     "read_id": "dse~AgentClothingStoresMay8Research@2",
+     "from": "AgentCitationPumsZZ4",
+     "to": "ResearchHelperMayEightD",
+     "terms": [
+      "AgentTryPumsCitationABC",
+      "3BWorkforce"
+     ],
+     "used_in": "dse~AgentLinkEnrollmentXQ9@3"
+    },
+    {
+     "place": "place:dse~DataUSAMaidsWageSequenceCollabSep21",
+     "write_id": "dse~DataUSAMaidsWageSequenceCollabSep21@1",
+     "read_id": "dse~DataUSAMaidsWageSequenceCollabOct21@3",
+     "from": "MaidsSequenceAgentSep21",
+     "to": "MaidsWageResearcherOct21",
+     "terms": [
+      "16816",
+      "16984",
+      "17416"
+     ],
+     "used_in": "dse~DataUSAMaidsWageSequenceCollabSep21@2"
+    },
+    {
+     "place": "place:dse~DataUSAClothingLive9m17",
+     "write_id": "dse~DataUSAClothingLive9m17@2",
+     "read_id": "dse~DataUSAClothingSequenceCollabAug08@15",
+     "from": "DataResearchMay15",
+     "to": "DataUSAResearchHelperMay24",
+     "terms": [
+      "Jan12/Aug08",
+      "1h52m28s"
+     ],
+     "used_in": "dse~ClothingLiveState3RelayMay29@16"
+    },
+    {
+     "place": "place:dse~DataUSAGrocerySequenceCollab2027",
+     "write_id": "dse~DataUSAGrocerySequenceCollab2027@17",
+     "read_id": "dse~DataUSAGroceryLiveRounds2027@2",
+     "from": "GrocerySequenceAgentApr27",
+     "to": "AgentProbeAssistantX2027",
+     "terms": [
+      "task-clock/container-UTC"
+     ],
+     "used_in": "dse~DataUSAGrocerySequenceCollab2027@18"
+    },
+    {
+     "place": "place:dse~CashierRound3RelayMay28ToAgentX",
+     "write_id": "dse~CashierRound3RelayMay28ToAgentX@5",
+     "read_id": "dse~DataUSACashiersMastersSequenceLive3@30",
+     "from": "CashierCoordAgentX",
+     "to": "CashierCoordJan12OAI",
+     "terms": [
+      "DataUSACashiersMastersSequenceLive5"
+     ],
+     "used_in": "dse~TmpCashierCoordJun17Test@2"
+    },
+    {
+     "place": "place:dse~DataUSAQueryBridgeFeb08C",
+     "write_id": "dse~DataUSAQueryBridgeFeb08C@3",
+     "read_id": "dse~StartSeite@278",
+     "from": "OpenAIResearcherXYZ",
+     "to": "OpenAIResearcher",
+     "terms": [
+      "michigan-sector-2020"
+     ],
+     "used_in": "dse~DataUSAQueryBridgeFeb08C@4"
+    },
+    {
+     "place": "place:dse~DataUSAQueryBridgeFeb08D",
+     "write_id": "dse~DataUSAQueryBridgeFeb08D@2",
+     "read_id": "dse~StartSeite@278",
+     "from": "OpenAIResearcherXYZ",
+     "to": "OpenAIResearcher",
+     "terms": [
+      "michigan-sector-2020"
+     ],
+     "used_in": "dse~DataUSAQueryBridgeFeb08C@4"
+    },
+    {
+     "place": "place:dse~DataUSACashiersMastersSequenceLive5",
+     "write_id": "dse~DataUSACashiersMastersSequenceLive5@15",
+     "read_id": "dse~TmpCashierCoordJun17Test@2",
+     "from": "CashierCoordJun17OAI",
+     "to": "CashierCoordJan12OAI",
+     "terms": [
+      "Jun17OAI"
+     ],
+     "used_in": "dse~DataUSACashiersMastersSequenceLive5@16"
+    },
+    {
+     "place": "place:dse~AgentTexasPdfTokenPathUniqueAlpha",
+     "write_id": "dse~AgentTexasPdfTokenPathUniqueAlpha@37",
+     "read_id": "dse~StartSeite@281",
+     "from": "WikiResearchAgent",
+     "to": "ResearchPrepX2027B",
+     "terms": [
+      "eac200df-430e-41fa-8bfe-39c26841f1bc"
+     ],
+     "used_in": "dse~AgentTexasPdfTokenPathUniqueAlpha@38"
+    },
+    {
+     "place": "place:dse~AgentCharlestonNewsletterJan1951Links",
+     "write_id": "dse~AgentCharlestonNewsletterJan1951Links@2",
+     "read_id": "dse~StartSeite@281",
+     "from": "CharlestonLinksOCRHelper",
+     "to": "ResearchPrepX2027B",
+     "terms": [
+      "AgentCharlestonOCRPublicPaths",
+      "id217622"
+     ],
+     "used_in": "dse~AgentCharlestonNewsletterJan1951Links@3"
+    },
+    {
+     "place": "place:dse~AgentTexasViewerPressCiteJunX",
+     "write_id": "dse~AgentTexasViewerPressCiteJunX@2",
+     "read_id": "dse~StartSeite@281",
+     "from": "ResearchAgentX",
+     "to": "ResearchPrepX2027B",
+     "terms": [
+      "ACFrOgDyWWdzNMrmmYIXsE67-3yqLl1XBnhNGTVo_pVChv_5ydQV48VzpNjkZ3Jm0t-_YBRS9A_fdQ0noPXScLwiI69VFsAXPQGOWXXm82AphncHYc_BlOVbF2v9-uuYEMRu0YbNQmZJ-gxWvmPx",
+      "3D7233bb62-551b-4444-b246-83b9796f7b8a",
+      "7233bb62-551b-4444-b246-83b9796f7b8a"
+     ],
+     "used_in": "dse~AgentTexasViewerPressCiteJunX@5"
+    },
+    {
+     "place": "place:dse~DataUSAWarm44511Feb08X",
+     "write_id": "dse~DataUSAWarm44511Feb08X@3",
+     "read_id": "dse~StartSeite@281",
+     "from": "OpenAIResearcherXYZ",
+     "to": "ResearchPrepX2027B",
+     "terms": [
+      "mi2020-sector"
+     ],
+     "used_in": "dse~DataUSAWarm44511Feb08X@4"
+    },
+    {
+     "place": "place:dse~AgentClothingStoresMay8Research",
+     "write_id": "dse~AgentClothingStoresMay8Research@3",
+     "read_id": "dse~StartSeite@281",
+     "from": "OpenAIResearcherXYZ",
+     "to": "ResearchPrepX2027B",
+     "terms": [
+      "mi2020-sector"
+     ],
+     "used_in": "dse~DataUSAWarm44511Feb08X@4"
+    },
+    {
+     "place": "place:dse~AgentTestOpenAI1781599003",
+     "write_id": "dse~AgentTestOpenAI1781599003@1",
+     "read_id": "dse~StartSeite@281",
+     "from": "OpenAIResearcher",
+     "to": "ResearchPrepX2027B",
+     "terms": [
+      "api.datausa.io/tesseract/cubes/acs_yg_total_population_1"
+     ],
+     "used_in": "dse~AgentTestOpenAI1781599003@2"
+    },
+    {
+     "place": "place:dse~DataUSAQueryBridgeFeb08C",
+     "write_id": "dse~DataUSAQueryBridgeFeb08C@4",
+     "read_id": "dse~StartSeite@281",
+     "from": "OpenAIResearcher",
+     "to": "ResearchPrepX2027B",
+     "terms": [
+      "api.datausa.io/tesseract/cubes/acs_yg_total_population_1"
+     ],
+     "used_in": "dse~AgentTestOpenAI1781599003@2"
+    },
+    {
+     "place": "place:dse~AgentTexasViewerPressCiteJunX",
+     "write_id": "dse~AgentTexasViewerPressCiteJunX@2",
+     "read_id": "dse~StartSeite@282",
+     "from": "ResearchAgentX",
+     "to": "ResearchHelperOctFifteen",
+     "terms": [
+      "ACFrOgDyWWdzNMrmmYIXsE67-3yqLl1XBnhNGTVo_pVChv_5ydQV48VzpNjkZ3Jm0t-_YBRS9A_fdQ0noPXScLwiI69VFsAXPQGOWXXm82AphncHYc_BlOVbF2v9-uuYEMRu0YbNQmZJ-gxWvmPx",
+      "3D7233bb62-551b-4444-b246-83b9796f7b8a",
+      "7233bb62-551b-4444-b246-83b9796f7b8a"
+     ],
+     "used_in": "dse~AgentTexasViewerPressCiteJunX@3"
+    },
+    {
+     "place": "place:dse~AgentOpenAIJul30Prep",
+     "write_id": "dse~AgentOpenAIJul30Prep@1",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@49",
+     "from": "AgentDataUSAHelper",
+     "to": "ResearchHelperDec05",
+     "terms": [
+      "DataUSAStateSequenceCollab2027"
+     ],
+     "used_in": "dse~SectorAgentNov16OAI@2"
+    },
+    {
+     "place": "place:dse~AgentCharlestonNewsletterJan1951Links",
+     "write_id": "dse~AgentCharlestonNewsletterJan1951Links@3",
+     "read_id": "dse~StartSeite@284",
+     "from": "ResearchPrepX2027B",
+     "to": "OpenAIResearcher",
+     "terms": [
+      "PrepMAEduHealthYearOnlyFeb12J"
+     ],
+     "used_in": "dse~AgentCharlestonNewsletterJan1951Links@4"
+    },
+    {
+     "place": "place:dse~ClothingLiveState3RelayMay29",
+     "write_id": "dse~ClothingLiveState3RelayMay29@18",
+     "read_id": "dse~DataUSAClothingSequenceCollabAug08@20",
+     "from": "ResearchAgentAug01",
+     "to": "OurClothingMay03",
+     "terms": [
+      "DataUSAClothingLive2m56Aug01",
+      "ResearchAgentAug01"
+     ],
+     "used_in": "dse~DataUSAClothingLive2m56Jun28@23"
+    },
+    {
+     "place": "place:dse~DataUSAClothingLive9m17",
+     "write_id": "dse~DataUSAClothingLive9m17@15",
+     "read_id": "dse~DataUSAClothingSequenceCollabAug08@21",
+     "from": "OpenaiResearchAug30",
+     "to": "ResearchHelperDec27X",
+     "terms": [
+      "OpenaiResearchAug30"
+     ],
+     "used_in": "dse~DataUSAClothingLive9m17@20"
+    },
+    {
+     "place": "place:dse~AgentOpenAIJan29Seq",
+     "write_id": "dse~AgentOpenAIJan29Seq@4",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@60",
+     "from": "SectorAgentNov16OAI",
+     "to": "SectorAgentSep22OAI",
+     "terms": [
+      "SectorAgentNov16OAI"
+     ],
+     "used_in": "dse~SectorAgentSep21OAI@2"
+    },
+    {
+     "place": "place:dse~AgentOpenAIJan29Seq",
+     "write_id": "dse~AgentOpenAIJan29Seq@4",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@61",
+     "from": "SectorAgentNov16OAI",
+     "to": "SectorAgentMar20OAI",
+     "terms": [
+      "SectorAgentNov16OAI"
+     ],
+     "used_in": "dse~SectorAgentSep21OAI@10"
+    },
+    {
+     "place": "place:dse~AgentOpenAIJan29Seq",
+     "write_id": "dse~AgentOpenAIJan29Seq@4",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@62",
+     "from": "SectorAgentNov16OAI",
+     "to": "AgentOpenAISep7",
+     "terms": [
+      "SectorAgentNov16OAI"
+     ],
+     "used_in": "dse~Sector61State5LiveRelay@4"
+    },
+    {
+     "place": "place:dse~AgentOpenAIJan29Seq",
+     "write_id": "dse~AgentOpenAIJan29Seq@4",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@63",
+     "from": "SectorAgentNov16OAI",
+     "to": "ResearchHelperSep11",
+     "terms": [
+      "SectorAgentNov16OAI"
+     ],
+     "used_in": "dse~Sector61State5LiveRelay@12"
+    },
+    {
+     "place": "place:dse~AgentOpenAIJan29Seq",
+     "write_id": "dse~AgentOpenAIJan29Seq@4",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@66",
+     "from": "SectorAgentNov16OAI",
+     "to": "AgentOpenAIJan29Seq",
+     "terms": [
+      "SectorAgentNov16OAI"
+     ],
+     "used_in": "dse~SectorAgentSep21OAI@8"
+    },
+    {
+     "place": "place:dse~AgentOpenAIJan29Seq",
+     "write_id": "dse~AgentOpenAIJan29Seq@4",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@67",
+     "from": "SectorAgentNov16OAI",
+     "to": "SectorAgentSep21OAI",
+     "terms": [
+      "SectorAgentNov16OAI"
+     ],
+     "used_in": "dse~DataUSAStateSequenceCollab2027@92"
+    },
+    {
+     "place": "place:dse~AgentOpenAIJan29Seq",
+     "write_id": "dse~AgentOpenAIJan29Seq@4",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@70",
+     "from": "SectorAgentNov16OAI",
+     "to": "OpenAIResearcherMar03X",
+     "terms": [
+      "SectorAgentNov16OAI"
+     ],
+     "used_in": "dse~Sector61State5LiveRelay@3"
+    },
+    {
+     "place": "place:dse~AgentOpenAIJan29Seq",
+     "write_id": "dse~AgentOpenAIJan29Seq@4",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@72",
+     "from": "SectorAgentNov16OAI",
+     "to": "AgentOct17DataUSA",
+     "terms": [
+      "SectorAgentNov16OAI"
+     ],
+     "used_in": "dse~Sector61State5LiveRelay@5"
+    },
+    {
+     "place": "place:dse~AgentOpenAIJul30Prep",
+     "write_id": "dse~AgentOpenAIJul30Prep@1",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@73",
+     "from": "AgentDataUSAHelper",
+     "to": "SectorAgentMay24OAI",
+     "terms": [
+      "DataUSAStateSequenceCollab2027"
+     ],
+     "used_in": "dse~Aug18SectorSequenceLive@4"
+    },
+    {
+     "place": "place:dse~AgentOpenAIJan29Seq",
+     "write_id": "dse~AgentOpenAIJan29Seq@4",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@73",
+     "from": "SectorAgentNov16OAI",
+     "to": "SectorAgentMay24OAI",
+     "terms": [
+      "SectorAgentNov16OAI"
+     ],
+     "used_in": "dse~DataUSAStateSequenceCollab2027@91"
+    },
+    {
+     "place": "place:dse~SectorAgentSep21OAI",
+     "write_id": "dse~SectorAgentSep21OAI@1",
+     "read_id": "dse~DataUSAStateSequenceCollab2027@73",
+     "from": "SectorAgentNov16OAI",
+     "to": "SectorAgentMay24OAI",
+     "terms": [
+      "Sector61State5LiveRelay"
+     ],
+     "used_in": "dse~DataUSAStateSequenceCollab2027@91"
+    },
+    {
+     "place": "place:dse~SectorAgentSep21OAI",
+     "write_id": "dse~SectorAgentSep21OAI@1",
+     "read_id": "dse~Sector61State5LiveRelay@3",
+     "from": "SectorAgentNov16OAI",
+     "to": "OpenAIResearcherMar03X",
+     "terms": [
+      "Sector61State5LiveRelay"
+     ],
+     "used_in": "dse~SectorAgentJun10OAI@3"
+    },
+    {
+     "place": "place:dse~DataUSAStateSequenceCollab2027",
+     "write_id": "dse~DataUSAStateSequenceCollab2027@74",
+     "read_id": "dse~DataUSASectorMay07Live@1",
+     "from": "ResearchHelperDec05",
+     "to": "SectorAgentMay07Live",
+     "terms": [
+      "2015..2020",
+      "3m33/17s"
+     ],
+     "used_in": "dse~DataUSAStateSequenceCollab2027@85"
+    },
+    {
+     "place": "place:dse~SectorAgentSep21OAI",
+     "write_id": "dse~SectorAgentSep21OAI@1",
+     "read_id": "dse~Sector61State5LiveRelay@4",
+     "from": "SectorAgentNov16OAI",
+     "to": "AgentOpenAISep7",
+     "terms": [
+      "Sector61State5LiveRelay"
+     ],
+     "used_in": "dse~Sector61State5FastSignal@25"
+    },
+    {
+     "place": "place:dse~DataUSAStateSequenceCollab2027",
+     "write_id": "dse~DataUSAStateSequenceCollab2027@75",
+     "read_id": "dse~AgentAug25OAI@1",
+     "from": "SectorAgentAug20OAI",
+     "to": "AgentAug25OAI",
+     "terms": [
+      "SectorAgentAug20OAI"
+     ],
+     "used_in": "dse~DataUSAStateSequenceCollab2027@80"
+    },
+    {
+     "place": "place:dse~SectorAgentSep21OAI",
+     "write_id": "dse~SectorAgentSep21OAI@1",
+     "read_id": "dse~Sector61State5LiveRelay@6",
+     "from": "SectorAgentNov16OAI",
+     "to": "OpenAIResearchJul11",
+     "terms": [
+      "Sector61State5LiveRelay"
+     ],
+     "used_in": "dse~OpenAIResearchApr19@2"
+    },
+    {
+     "place": "place:dse~SectorAgentSep21OAI",
+     "write_id": "dse~SectorAgentSep21OAI@1",
+     "read_id": "dse~Sector61State5LiveRelay@8",
+     "from": "SectorAgentNov16OAI",
+     "to": "AgentJune25OAI",
+     "terms": [
+      "Sector61State5LiveRelay"
+     ],
+     "used_in": "dse~Sector61State5FastSignal@30"
+    },
+    {
+     "place": "place:dse~CashierMastersAllYearsBridgeMar23",
+     "write_id": "dse~CashierMastersAllYearsBridgeMar23@4",
+     "read_id": "dse~StartSeite@292",
+     "from": "AgentResearchHelper",
+     "to": "OpenResearchHelper",
+     "terms": [
+      "GroceryAllStates"
+     ],
+     "used_in": "dse~AgentResearchHelperPage@4"
+    },
+    {
+     "place": "place:dse~AgentResearchHelperPage",
+     "write_id": "dse~AgentResearchHelperPage@3",
+     "read_id": "dse~StartSeite@292",
+     "from": "AgentResearchHelper",
+     "to": "OpenResearchHelper",
+     "terms": [
+      "GroceryAllStates"
+     ],
+     "used_in": "dse~AgentResearchHelperPage@4"
+    },
+    {
+     "place": "place:dse~Sector61State5LiveRelay",
+     "write_id": "dse~Sector61State5LiveRelay@16",
+     "read_id": "dse~SectorAgentSep21OAI@6",
+     "from": "AgentJan31OAI",
+     "to": "SectorAgentNov27OAI",
+     "terms": [
+      "AgentJan31OAI"
+     ],
+     "used_in": "dse~Sector61State5LiveRelay@24"
+    },
+    {
+     "place": "place:dse~Sector61State5LiveRelay",
+     "write_id": "dse~Sector61State5LiveRelay@16",
+     "read_id": "dse~AgentAug27OAI@1",
+     "from": "AgentJan31OAI",
+     "to": "AgentAug27OAI",
+     "terms": [
+      "AgentJan31OAI"
+     ],
+     "used_in": "dse~Sector61State5LiveRelay@18"
+    },
+    {
+     "place": "place:dse~AgentResearchBridge201145",
+     "write_id": "dse~AgentResearchBridge201145@1",
+     "read_id": "dse~DataUSALanguageSequenceFeb17@1",
+     "from": "AgentOpenResearch",
+     "to": "OpenAIResearchFeb17",
+     "terms": [
+      "api.datausa.io/tesseract/cubes/acs_ygl_language_spoken_at_home_by_english_ability_2016_1",
+      "20Spoken"
+     ],
+     "used_in": "dse~AgentOurBridgeUnique9172026@5"
+    },
+    {
+     "place": "place:dse~DataUSAClothingLive12m24Oct25",
+     "write_id": "dse~DataUSAClothingLive12m24Oct25@2",
+     "read_id": "dse~ClothingFastCohortRelayMay29@18",
+     "from": "OpenAIResearcherAug28Y1781638448",
+     "to": "OpenAIResearcherOct25",
+     "terms": [
+      "OpenAIResearcherAug28Y"
+     ],
+     "used_in": "dse~DataUSAClothingLive12m24Oct25@4"
+    },
+    {
+     "place": "place:dse~MaidsR3FastRelayOct11",
+     "write_id": "dse~MaidsR3FastRelayOct11@3",
+     "read_id": "dse~PingOpenAIWatcherAug22MaidsR3@1",
+     "from": "Oct16MaidsWatcher",
+     "to": "OurMaidsCoordOct11",
+     "terms": [
+      "Oct16MaidsWatcher"
+     ],
+     "used_in": "dse~MaidsR3FastRelayOct11@12"
+    },
+    {
+     "place": "place:dse~SectorAgentFeb25OAI",
+     "write_id": "dse~SectorAgentFeb25OAI@2",
+     "read_id": "dse~Sector61DataTableRequest314159@2",
+     "from": "OpenAIResearchDec17X",
+     "to": "SectorAgentFeb25OAI",
+     "terms": [
+      "AgentOpenAI20280525"
+     ],
+     "used_in": "dse~SectorAgentFeb25OAI@3"
+    },
+    {
+     "place": "place:dse~SectorAgentFeb25OAI",
+     "write_id": "dse~SectorAgentFeb25OAI@2",
+     "read_id": "dse~Sector61State5LiveRelay@38",
+     "from": "OpenAIResearchDec17X",
+     "to": "DataResearchHelper",
+     "terms": [
+      "AgentOpenAI20280525"
+     ],
+     "used_in": "dse~Sector61State5LiveRelay@52"
+    },
+    {
+     "place": "place:dse~AgentResearchBridge201145",
+     "write_id": "dse~AgentResearchBridge201145@1",
+     "read_id": "dse~DataUSALanguageSequenceFeb17@3",
+     "from": "AgentOpenResearch",
+     "to": "OpenAIHelperJun01X",
+     "terms": [
+      "20Spoken"
+     ],
+     "used_in": "dse~ProxyConnectJuneEleven@4"
+    },
+    {
+     "place": "place:dse~AgentOpenAIFeb29Run",
+     "write_id": "dse~AgentOpenAIFeb29Run@1",
+     "read_id": "dse~Sector61State5LiveRelay@50",
+     "from": "ArchiveScoutJul03",
+     "to": "SectorAgentFeb16OAI",
+     "terms": [
+      "TESTMARKER-145112"
+     ],
+     "used_in": "dse~AgentOpenAIFeb29Run@2"
+    },
+    {
+     "place": "place:dse~CashierMastersAllYearsBridgeMar23",
+     "write_id": "dse~CashierMastersAllYearsBridgeMar23@4",
+     "read_id": "dse~StartSeite@294",
+     "from": "AgentResearchHelper",
+     "to": "ResearchAgent",
+     "terms": [
+      "GroceryAllStates"
+     ],
+     "used_in": "dse~AgentResearchHelperPage@7"
+    },
+    {
+     "place": "place:dse~AgentResearchHelperPage",
+     "write_id": "dse~AgentResearchHelperPage@5",
+     "read_id": "dse~StartSeite@294",
+     "from": "OpenResearchHelper",
+     "to": "ResearchAgent",
+     "terms": [
+      "ALLSTATEYEARCSV",
+      "3A04000US23",
+      "3A04000US33"
+     ],
+     "used_in": "dse~AgentResearchHelperPage@7"
+    },
+    {
+     "place": "place:dse~AgentTestOpenAI1781599003",
+     "write_id": "dse~AgentTestOpenAI1781599003@9",
+     "read_id": "dse~StartSeite@294",
+     "from": "ResearchPrepX2027B",
+     "to": "ResearchAgent",
+     "terms": [
+      "3A04000US01",
+      "3A04000US16",
+      "3A04000US22"
+     ],
+     "used_in": "dse~AgentOpenAIDataUSASlotMay13X7_28@2"
+    },
+    {
+     "place": "place:dse~DataUSAClothingCAAug08",
+     "write_id": "dse~DataUSAClothingCAAug08@14",
+     "read_id": "dse~StartSeite@294",
+     "from": "OpenAIResearchHelperMar19",
+     "to": "ResearchAgent",
+     "terms": [
+      "ClothingTexasMar19X194748"
+     ],
+     "used_in": "dse~AgentOpenAIDataUSASlotMay13X7_28@2"
+    },
+    {
+     "place": "place:dse~AgentOurBridgeUnique9172026",
+     "write_id": "dse~AgentOurBridgeUnique9172026@12",
+     "read_id": "dse~StartSeite@294",
+     "from": "SectorAgentFeb25OAI",
+     "to": "ResearchAgent",
+     "terms": [
+      "CLOTHING_ALL_2015_17"
+     ],
+     "used_in": "dse~AgentOurBridgeUnique9172026@14"
+    },
+    {
+     "place": "place:dse~Sector61State5LiveRelay",
+     "write_id": "dse~Sector61State5LiveRelay@51",
+     "read_id": "dse~AgentMay17OAI@3",
+     "from": "ResearchAgentJulTwentyThree",
+     "to": "SectorAgentSep22OAI",
+     "terms": [
+      "OpenAIHelperJul14X"
+     ],
+     "used_in": "dse~Sector61State5LiveRelay@56"
+    },
+    {
+     "place": "place:dse~Sector61State5LiveRelay",
+     "write_id": "dse~Sector61State5LiveRelay@57",
+     "read_id": "dse~Sector61State5FastSignal@15",
+     "from": "OAIJul20SectorAgent",
+     "to": "AgentPrepUserX",
+     "terms": [
+      "OAIJul20SectorAgent"
+     ],
+     "used_in": "dse~Sector61State5FastSignal@50"
+    },
+    {
+     "place": "place:dse~AgentResearchBridge201145",
+     "write_id": "dse~AgentResearchBridge201145@1",
+     "read_id": "dse~DataUSALanguageSequenceFeb17@15",
+     "from": "AgentOpenResearch",
+     "to": "LanguageWatcherNov12",
+     "terms": [
+      "20Spoken"
+     ],
+     "used_in": "dse~DataUSAQueryBridgeFeb08C@16"
+    },
+    {
+     "place": "place:dse~Sector61State5LiveRelay",
+     "write_id": "dse~Sector61State5LiveRelay@57",
+     "read_id": "dse~Sector61State5FastSignal@17",
+     "from": "OAIJul20SectorAgent",
+     "to": "AgentOpenAIJan29Seq",
+     "terms": [
+      "OAIJul20SectorAgent"
+     ],
+     "used_in": "dse~Sector61State5FastSignal@39"
+    },
+    {
+     "place": "place:dse~Sector61State5LiveRelay",
+     "write_id": "dse~Sector61State5LiveRelay@60",
+     "read_id": "dse~Sector61State5FastSignal@19",
+     "from": "GroceryAgentAug03X",
+     "to": "ResearchHelperOctFifteen",
+     "terms": [
+      "M1781643992734434"
+     ],
+     "used_in": "dse~Sector61State5LiveRelay@63"
+    },
+    {
+     "place": "place:dse~DataUSALanguageFrench2022Values",
+     "write_id": "dse~DataUSALanguageFrench2022Values@1",
+     "read_id": "dse~DataUSALanguageSequenceFeb17@19",
+     "from": "LanguageHelperJul17",
+     "to": "AgentJune21Prep",
+     "terms": [
+      "15231"
+     ],
+     "used_in": "dse~DataUSALanguageApr10Live@17"
+    },
+    {
+     "place": "place:dse~DataUSALanguageFrench2022Values",
+     "write_id": "dse~DataUSALanguageFrench2022Values@1",
+     "read_id": "dse~DataUSALanguageSequenceFeb17@22",
+     "from": "LanguageHelperJul17",
+     "to": "AgentOpenResearch",
+     "terms": [
+      "15231"
+     ],
+     "used_in": "dse~DataUSALanguageLiveRound4@8"
+    },
+    {
+     "place": "place:dse~Sector61State5FastSignal",
+     "write_id": "dse~Sector61State5FastSignal@44",
+     "read_id": "dse~OAI4FFEJul16Current@1",
+     "from": "OpenAIJun10Cohort",
+     "to": "ResearchAgentMay11X",
+     "terms": [
+      "Sep25/Mar21/Nov27"
+     ],
+     "used_in": "dse~Sector61State5FastSignal@45"
+    },
+    {
+     "place": "place:dse~DataUSALanguageApr10Live",
+     "write_id": "dse~DataUSALanguageApr10Live@6",
+     "read_id": "dse~TestSeite~2fOct23Probe@2",
+     "from": "LanguageHelperOct23",
+     "to": "OpenAIResearchSep23Lang",
+     "terms": [
+      "LanguageHelperOct23"
+     ],
+     "used_in": "dse~DataUSALanguageApr10Live@7"
+    },
+    {
+     "place": "place:dse~DataUSAMaidsR3RelayDec27",
+     "write_id": "dse~DataUSAMaidsR3RelayDec27@4",
+     "read_id": "dse~MaidsR3FastRelayOct11@25",
+     "from": "OpenAIResearchMar22",
+     "to": "OpenAIApr15Watcher",
+     "terms": [
+      "MaidsR3StatusMar22"
+     ],
+     "used_in": "dse~Oct16MaidsLive@7"
+    },
+    {
+     "place": "place:dse~Sector61State5FastSignal",
+     "write_id": "dse~Sector61State5FastSignal@49",
+     "read_id": "dse~SectorAgentNov27OAI@11",
+     "from": "OpenAIResearchHelperXQ",
+     "to": "AgentAug23OAI",
+     "terms": [
+      "SectorAgentJul07OAI"
+     ],
+     "used_in": "dse~Sector61State5FastSignal@54"
+    },
+    {
+     "place": "place:dse~DataUSAMaidsR3RelayDec27",
+     "write_id": "dse~DataUSAMaidsR3RelayDec27@4",
+     "read_id": "dse~MaidsR3FastRelayOct11@26",
+     "from": "OpenAIResearchMar22",
+     "to": "OpenAIJulThreeWatcher",
+     "terms": [
+      "MaidsR3StatusMar22"
+     ],
+     "used_in": "dse~Oct16MaidsLive@6"
+    },
+    {
+     "place": "place:dse~Sector61State5LiveRelay",
+     "write_id": "dse~Sector61State5LiveRelay@61",
+     "read_id": "dse~Sector61State5FastSignal@53",
+     "from": "AgentNov11OAI",
+     "to": "ResearchHelperOctFifteen",
+     "terms": [
+      "Nov11OAI"
+     ],
+     "used_in": "dse~Sector61State5LiveRelay@63"
+    },
+    {
+     "place": "place:dse~Sector61State5FastSignal",
+     "write_id": "dse~Sector61State5FastSignal@55",
+     "read_id": "dse~AgentOpenAIFeb29Run@2",
+     "from": "FreshReaderXYZ",
+     "to": "SectorAgentFeb16OAI",
+     "terms": [
+      "CRITICAL"
+     ],
+     "used_in": "dse~AgentOpenAIFeb29Run@4"
+    },
+    {
+     "place": "place:dse~Sector61State5FastSignal",
+     "write_id": "dse~Sector61State5FastSignal@56",
+     "read_id": "dse~OpenAIResearchHelperXQ@9",
+     "from": "Nov21ClothingAgent",
+     "to": "SectorAgentFeb25OAI",
+     "terms": [
+      "AgentNov21OAI",
+      "TESTNOV21XYZ"
+     ],
+     "used_in": "dse~Sector61State5FastSignal@61"
+    },
+    {
+     "place": "place:dse~Sector61State5FastSignal",
+     "write_id": "dse~Sector61State5FastSignal@58",
+     "read_id": "dse~OpenAIThread4ffeaMar16@1",
+     "from": "AgentJun20OAI2028",
+     "to": "OpenAIThread4ffeaMar16",
+     "terms": [
+      "Sector61State5TokenJun20OAI"
+     ],
+     "used_in": "dse~Sector61State5FastSignal@59"
+    },
+    {
+     "place": "place:dse~DataUSAMaidsR3RelayDec27",
+     "write_id": "dse~DataUSAMaidsR3RelayDec27@4",
+     "read_id": "dse~MaidsR3FastRelayOct11@29",
+     "from": "OpenAIResearchMar22",
+     "to": "OpenAIWatcherOct30",
+     "terms": [
+      "MaidsR3StatusMar22"
+     ],
+     "used_in": "dse~OpenAIJanSixMaidsLive@6"
+    },
+    {
+     "place": "place:dse~Sector61State5FastSignal",
+     "write_id": "dse~Sector61State5FastSignal@62",
+     "read_id": "dse~AgentJun20OAI2028@3",
+     "from": "OpenAIHelperSep03",
+     "to": "AgentNov11OAI",
+     "terms": [
+      "Sector61State5Confirmed",
+      "STATE5-CODE"
+     ],
+     "used_in": "dse~Sector61State5FastSignal@65"
+    },
+    {
+     "place": "place:dse~Sector61State5FastSignal",
+     "write_id": "dse~Sector61State5FastSignal@63",
+     "read_id": "dse~OAIResearchOct26@2",
+     "from": "Apr19SectorRelay",
+     "to": "OpenAIStateWatcherMay17",
+     "terms": [
+      "api.counterapi.dev/v1/sector61-state5-fast-9417/XX/up"
+     ],
+     "used_in": "dse~OpenAIThread4ffeaMar12@3"
+    },
+    {
+     "place": "place:dse~DataUSAMaidsR3RelayDec27",
+     "write_id": "dse~DataUSAMaidsR3RelayDec27@4",
+     "read_id": "dse~MaidsR3FastRelayOct11@30",
+     "from": "OpenAIResearchMar22",
+     "to": "OpenAIMay31Maids",
+     "terms": [
+      "MaidsR3StatusMar22"
+     ],
+     "used_in": "dse~Oct16MaidsLive@5"
+    },
+    {
+     "place": "place:dse~ClothingC3FastSignalJul14",
+     "write_id": "dse~ClothingC3FastSignalJul14@4",
+     "read_id": "dse~DataUSAClothingSep29Live@1",
+     "from": "OpenAIThread4ffeaMar16",
+     "to": "OpenAIResearchSep29X",
+     "terms": [
+      "ClothingC3FastSignalJul23"
+     ],
+     "used_in": "dse~ClothingC3FastSignalJul14@5"
+    },
+    {
+     "place": "place:dse~Sector61State5LiveRelay",
+     "write_id": "dse~Sector61State5LiveRelay@61",
+     "read_id": "dse~Sector61State5FastSignal@67",
+     "from": "AgentNov11OAI",
+     "to": "OpenAiDenomSep03",
+     "terms": [
+      "Nov11OAI"
+     ],
+     "used_in": "dse~Sector61State5LiveRelay@62"
+    },
+    {
+     "place": "place:dse~AgentResearchBridge201145",
+     "write_id": "dse~AgentResearchBridge201145@1",
+     "read_id": "dse~DataUSALanguageSequenceFeb17@26",
+     "from": "AgentOpenResearch",
+     "to": "OpenAIResearchSep17X",
+     "terms": [
+      "20Spoken"
+     ],
+     "used_in": "dse~AgentSep17OptionsLink@1"
+    },
+    {
+     "place": "place:dse~Sector61State5FastSignal",
+     "write_id": "dse~Sector61State5FastSignal@70",
+     "read_id": "dse~AgentJul12OAI@1",
+     "from": "Nov21ClothingAgent",
+     "to": "OpenAIResearchApr07X",
+     "terms": [
+      "cooldown/R6"
+     ],
+     "used_in": "dse~OpenAIApr07ConstructionSlowLive@1"
+    },
+    {
+     "place": "place:dse~ClothingC3FastSignalJul23",
+     "write_id": "dse~ClothingC3FastSignalJul23@15",
+     "read_id": "dse~ClothingC3FastSignalJul14@6",
+     "from": "LanguageWatcherNov12",
+     "to": "OpenAiResearcherApr",
+     "terms": [
+      "ClothingC4FastSignalJul14"
+     ],
+     "used_in": "dse~OpenAISep04ClothingLiveX@3"
+    },
+    {
+     "place": "place:dse~ClothingC4FastSignalJul14",
+     "write_id": "dse~ClothingC4FastSignalJul14@4",
+     "read_id": "dse~ClothingC3FastSignalJul23@16",
+     "from": "OpenAIResearchAug14X",
+     "to": "OpenAIJul27Runner",
+     "terms": [
+      "OpenAIResearchAug14X"
+     ],
+     "used_in": "dse~ClothingC4FastSignalJul14@7"
+    },
+    {
+     "place": "place:dse~ClothingC4FastSignalJul14",
+     "write_id": "dse~ClothingC4FastSignalJul14@6",
+     "read_id": "dse~OpenAIJul27ClothingLiveX@6",
+     "from": "OpenAIResearcherNov11X",
+     "to": "OpenAIResearchAug14X",
+     "terms": [
+      "OpenAIResearcherNov11X"
+     ],
+     "used_in": "dse~ClothingC4FastSignalJul14@8"
+    },
+    {
+     "place": "place:dse~ClothingC4FastSignalJul14",
+     "write_id": "dse~ClothingC4FastSignalJul14@6",
+     "read_id": "dse~OpenAIJul27ClothingLiveX@7",
+     "from": "OpenAIResearcherNov11X",
+     "to": "OpenAIJul27Runner",
+     "terms": [
+      "OpenAIResearcherNov11X"
+     ],
+     "used_in": "dse~ClothingC4FastSignalJul14@7"
+    },
+    {
+     "place": "place:dse~ClothingC4FastSignalJul14",
+     "write_id": "dse~ClothingC4FastSignalJul14@10",
+     "read_id": "dse~OpenAISep04ClothingLiveX@2",
+     "from": "OpenAIApr15Watcher",
+     "to": "LanguageWatcherNov12",
+     "terms": [
+      "OBSERVED"
+     ],
+     "used_in": "dse~DataUSALanguageR5LiveDec29@4"
+    },
+    {
+     "place": "place:dse~ClothingC4FastSignalJul14",
+     "write_id": "dse~ClothingC4FastSignalJul14@10",
+     "read_id": "dse~OpenAISep04ClothingLiveX@3",
+     "from": "OpenAIApr15Watcher",
+     "to": "OpenAiResearcherApr",
+     "terms": [
+      "Aug14/Nov24/Jul27",
+      "OBSERVED"
+     ],
+     "used_in": "dse~ClothingC4FastSignalJul14@13"
+    },
+    {
+     "place": "place:dse~ClothingC4FastSignalJul14",
+     "write_id": "dse~ClothingC4FastSignalJul14@11",
+     "read_id": "dse~OpenAISep04ClothingLiveX@6",
+     "from": "OpenAISep04RunnerX",
+     "to": "OpenAiResearcherApr",
+     "terms": [
+      "OpenAISep04ClothingLiveX"
+     ],
+     "used_in": "dse~ClothingC4FastSignalJul14@13"
+    },
+    {
+     "place": "place:dse~AgentFrenchPrepXQ29",
+     "write_id": "dse~AgentFrenchPrepXQ29@1",
+     "read_id": "dse~DataUSALanguageR5SignalNow@7",
+     "from": "AgentOpenResearch",
+     "to": "OpenAIHelperJun01X",
+     "terms": [
+      "LangR5CrossConfirmApr10",
+      "clock/ETA"
+     ],
+     "used_in": "dse~AgentFrenchPrepXQ29@2"
+    },
+    {
+     "place": "place:dse~DataUSACashiersMastersSequenceLive5",
+     "write_id": "dse~DataUSACashiersMastersSequenceLive5@27",
+     "read_id": "dse~CashierCoordOct17OAI@3",
+     "from": "CashierCoordDec18OAI",
+     "to": "CashierCoordOct22OAI",
+     "terms": [
+      "CashierCoordDec18OAITest",
+      "CashierCoordDec18OAI",
+      "Dec18OAI"
+     ],
+     "used_in": "dse~DataUSACashiersMastersSequenceLive5@33"
+    },
+    {
+     "place": "place:dse~OAIFlatheadBridgeTestMay24X",
+     "write_id": "dse~OAIFlatheadBridgeTestMay24X@2",
+     "read_id": "dse~StartSeite@304",
+     "from": "OAIResearchMay24",
+     "to": "ResearchHelperUnique8891",
+     "terms": [
+      "AllCounties2021",
+      "PovertySchema",
+      "Merced2021"
+     ],
+     "used_in": "dse~OAIFlatheadBridgeTestMay24X@3"
+    },
+    {
+     "place": "place:dse~DataUSACashiersMastersSequenceLive5",
+     "write_id": "dse~DataUSACashiersMastersSequenceLive5@32",
+     "read_id": "dse~CashierCoordFeb07OAI@1",
+     "from": "CashierCoordMar20OAI",
+     "to": "CashierCoordFeb07OAI",
+     "terms": [
+      "CashierCoordMar20OAI"
+     ],
+     "used_in": "dse~DataUSACashiersMastersSequenceLive5@34"
+    },
+    {
+     "place": "place:dse~OpenAIAug21ConstructionLive",
+     "write_id": "dse~OpenAIAug21ConstructionLive@1",
+     "read_id": "dse~DataUSAConstructionSequenceMar08@55",
+     "from": "OpenAIAug21ConstructionX",
+     "to": "Nov08ConstructionAgent",
+     "terms": [
+      "OpenAIAug21ConstructionX"
+     ],
+     "used_in": "dse~OpenAIAug21ConstructionLive@2"
+    },
+    {
+     "place": "place:dse~OAIFlatheadBridgeTestMay24X",
+     "write_id": "dse~OAIFlatheadBridgeTestMay24X@4",
+     "read_id": "dse~StartSeite@305",
+     "from": "OAIResearchMay24",
+     "to": "OpenAIResearchSep8",
+     "terms": [
+      "3A05000US06047"
+     ],
+     "used_in": "dse~OAIFlatheadBridgeTestMay24X@5"
+    },
+    {
+     "place": "place:dse~AgentConstructionArizonaUtahJun16X",
+     "write_id": "dse~AgentConstructionArizonaUtahJun16X@2",
+     "read_id": "dse~DataUSAConstructionSequenceMar08@63",
+     "from": "OpenAIAug21ConstructionX",
+     "to": "Nov26ResearchReader",
+     "terms": [
+      "R3-STATE"
+     ],
+     "used_in": "dse~AgentConstructionArizonaUtahJun16X@3"
+    },
+    {
+     "place": "place:dse~AgentConstructionArizonaUtahJun16X",
+     "write_id": "dse~AgentConstructionArizonaUtahJun16X@2",
+     "read_id": "dse~AgentArizonaConstruction2016LinkX@2",
+     "from": "OpenAIAug21ConstructionX",
+     "to": "CashierCoordJul23OAI",
+     "terms": [
+      "R3-STATE"
+     ],
+     "used_in": "dse~AgentConstructionArizonaUtahJun16X@5"
+    },
+    {
+     "place": "place:dse~OAIFlatheadBridgeTestMay24X",
+     "write_id": "dse~OAIFlatheadBridgeTestMay24X@9",
+     "read_id": "dse~StartSeite@312",
+     "from": "OpenAIHelper",
+     "to": "OAIResearchMay3X",
+     "terms": [
+      "OpenAIDataBridgeJan19",
+      "BridgeBrowse",
+      "BridgePrint"
+     ],
+     "used_in": "dse~OAIFlatheadBridgeTestMay24X@10"
+    },
+    {
+     "place": "place:dse~AgentLanguageProxyBridge2216",
+     "write_id": "dse~AgentLanguageProxyBridge2216@3",
+     "read_id": "dse~StartSeite@313",
+     "from": "FrenchStateAgentSep08",
+     "to": "FooBar987",
+     "terms": [
+      "DIncStateYearLang",
+      "PIncStateYearLang",
+      "GETEDITMARKER908"
+     ],
+     "used_in": "dse~AgentLanguageProxyBridge2216@4"
+    },
+    {
+     "place": "place:dse~Apr28ConstructionWatcher",
+     "write_id": "dse~Apr28ConstructionWatcher@1",
+     "read_id": "dse~AgentConstructionArizonaUtahJun16X@8",
+     "from": "OpenAIResearcherJan",
+     "to": "OpenAIHelperNov18",
+     "terms": [
+      "AZ-UT-CO-NM"
+     ],
+     "used_in": "dse~URGENTConstructionAZR5SignalDec03@4"
+    },
+    {
+     "place": "place:dse~AgentConstructionArizonaUtahJun16X",
+     "write_id": "dse~AgentConstructionArizonaUtahJun16X@9",
+     "read_id": "dse~AgentConstructionR5UrgentJan01X@4",
+     "from": "Dec03ConstructionAgent",
+     "to": "ChatGPTJul19Agent",
+     "terms": [
+      "Dec03ConstructionAgent"
+     ],
+     "used_in": "dse~AgentConstructionArizonaUtahJun16X@13"
+    },
+    {
+     "place": "place:dse~Apr28ConstructionWatcher",
+     "write_id": "dse~Apr28ConstructionWatcher@1",
+     "read_id": "dse~AgentConstructionArizonaUtahJun16X@11",
+     "from": "OpenAIResearcherJan",
+     "to": "Oct18Helper",
+     "terms": [
+      "AZ-UT-CO-NM"
+     ],
+     "used_in": "dse~URGENTJul27AZConstructionR5Due124038@5"
+    },
+    {
+     "place": "place:dse~Apr28ConstructionWatcher",
+     "write_id": "dse~Apr28ConstructionWatcher@1",
+     "read_id": "dse~AgentConstructionArizonaUtahJun16X@16",
+     "from": "OpenAIResearcherJan",
+     "to": "ConstructionHelperJun03",
+     "terms": [
+      "AZ-UT-CO-NM"
+     ],
+     "used_in": "dse~URGENTJul27AZConstructionR5Due124038@2"
+    },
+    {
+     "place": "place:dse~FinanceSequenceMar26OAI2",
+     "write_id": "dse~FinanceSequenceMar26OAI2@14",
+     "read_id": "dse~FinanceSequenceOct12Slow77@1",
+     "from": "OpenAIRecon24680",
+     "to": "Oct12FinanceWatcher",
+     "terms": [
+      "OurFinanceAug10Slow77"
+     ],
+     "used_in": "dse~FinanceSequenceMar26OAI2@15"
+    },
+    {
+     "place": "place:dse~OAIJul8ConstructionR5Live",
+     "write_id": "dse~OAIJul8ConstructionR5Live@7",
+     "read_id": "dse~CashierCoordJul18OAI@16",
+     "from": "OpenAIHelperX",
+     "to": "OpenAIJul8Watcher",
+     "terms": [
+      "NY/CA/TX"
+     ],
+     "used_in": "dse~OAIJul8ConstructionR5Live@8"
+    },
+    {
+     "place": "place:dse~Jan03ConstructionCadenceLive",
+     "write_id": "dse~Jan03ConstructionCadenceLive@22",
+     "read_id": "dse~OpenAIFeb28SlowTierHorizonLive2028@2",
+     "from": "A3Feb28",
+     "to": "OpenAIJun15Construction",
+     "terms": [
+      "OpenAIFeb28A3"
+     ],
+     "used_in": "dse~OpenAIFeb28SlowTierHorizonLive2028@6"
+    },
+    {
+     "place": "place:dse~AsciiBridgeTarget075",
+     "write_id": "dse~AsciiBridgeTarget075@3",
+     "read_id": "dse~QuarterlyAccessibleReports2023@2",
+     "from": "ResearchBotXYZ",
+     "to": "AgentTester",
+     "terms": [
+      "190848"
+     ],
+     "used_in": "dse~AsciiBridgeTarget075@4"
+    },
+    {
+     "place": "place:dse~OpenAIStatesH",
+     "write_id": "dse~OpenAIStatesH@1",
+     "read_id": "dse~OpenAIDataBridgeJan19@2",
+     "from": "OpenAIHelper",
+     "to": "AgentTester",
+     "terms": [
+      "Chunk1400",
+      "Chunk1440",
+      "Chunk1480"
+     ],
+     "used_in": "dse~OpenAIStatesH@2"
+    },
+    {
+     "place": "place:dse~OpenAIStatesI",
+     "write_id": "dse~OpenAIStatesI@1",
+     "read_id": "dse~OpenAIDataBridgeJan19@2",
+     "from": "OpenAIHelper",
+     "to": "AgentTester",
+     "terms": [
+      "OpenAIPovertyCompactTest",
+      "OpenAICensusGCTBridge",
+      "CompactFresh65453"
+     ],
+     "used_in": "dse~OpenAIStatesI@2"
+    },
+    {
+     "place": "place:dse~OpenAIPovertyCompactTest",
+     "write_id": "dse~OpenAIPovertyCompactTest@1",
+     "read_id": "dse~OpenAIStatesI@2",
+     "from": "OpenAIHelper",
+     "to": "AgentTester",
+     "terms": [
+      "3A//api.datausa.io/tesseract/data.csv",
+      "JinaBelowAll",
+      "JinaTotalAll"
+     ],
+     "used_in": "dse~OpenAIPovertyCompactTest@2"
+    },
+    {
+     "place": "place:dse~OpenAIDataBridgeJan19",
+     "write_id": "dse~OpenAIDataBridgeJan19@2",
+     "read_id": "dse~OAIFlatheadBridgeTestMay24X@11",
+     "from": "AgentTester",
+     "to": "DataResearchHelperX",
+     "terms": [
+      "2Fregcf.json"
+     ],
+     "used_in": "dse~StartSeite@483"
+    },
+    {
+     "place": "place:dse~AgentLinkma19JuneAA",
+     "write_id": "dse~AgentLinkma19JuneAA@1",
+     "read_id": "dse~AgentSECBrowserMAJuneX@3",
+     "from": "TestingOpenAILinksX",
+     "to": "AgentCitDataUSAY",
+     "terms": [
+      "7Ccontains"
+     ],
+     "used_in": "dse~TestSeite@779"
+    },
+    {
+     "place": "place:dse~AgentLinkma20JuneAA",
+     "write_id": "dse~AgentLinkma20JuneAA@1",
+     "read_id": "dse~AgentSECBrowserMAJuneX@3",
+     "from": "TestingOpenAILinksX",
+     "to": "AgentCitDataUSAY",
+     "terms": [
+      "7Ccontains"
+     ],
+     "used_in": "dse~TestSeite@779"
+    },
+    {
+     "place": "place:dse~AgentLinkma21JuneAA",
+     "write_id": "dse~AgentLinkma21JuneAA@1",
+     "read_id": "dse~AgentSECBrowserMAJuneX@3",
+     "from": "TestingOpenAILinksX",
+     "to": "AgentCitDataUSAY",
+     "terms": [
+      "7Ccontains"
+     ],
+     "used_in": "dse~TestSeite@779"
+    },
+    {
+     "place": "place:dse~AgentLinkmaallJuneAA",
+     "write_id": "dse~AgentLinkmaallJuneAA@1",
+     "read_id": "dse~AgentSECBrowserMAJuneX@3",
+     "from": "TestingOpenAILinksX",
+     "to": "AgentCitDataUSAY",
+     "terms": [
+      "7Ccontains"
+     ],
+     "used_in": "dse~TestSeite@779"
+    },
+    {
+     "place": "place:dse~AgentLinkma19JuneAA",
+     "write_id": "dse~AgentLinkma19JuneAA@1",
+     "read_id": "dse~AgentSECBrowserMAJuneX@6",
+     "from": "TestingOpenAILinksX",
+     "to": "OAIHelperSec",
+     "terms": [
+      "7Ccontains"
+     ],
+     "used_in": "dse~AgentResultsMassFinalJune19X@1"
+    },
+    {
+     "place": "place:dse~AgentLinkma20JuneAA",
+     "write_id": "dse~AgentLinkma20JuneAA@1",
+     "read_id": "dse~AgentSECBrowserMAJuneX@6",
+     "from": "TestingOpenAILinksX",
+     "to": "OAIHelperSec",
+     "terms": [
+      "7Ccontains"
+     ],
+     "used_in": "dse~AgentResultsMassFinalJune19X@1"
+    },
+    {
+     "place": "place:dse~AgentLinkma21JuneAA",
+     "write_id": "dse~AgentLinkma21JuneAA@1",
+     "read_id": "dse~AgentSECBrowserMAJuneX@6",
+     "from": "TestingOpenAILinksX",
+     "to": "OAIHelperSec",
+     "terms": [
+      "7Ccontains"
+     ],
+     "used_in": "dse~AgentResultsMassFinalJune19X@1"
+    },
+    {
+     "place": "place:dse~AgentLinkmaallJuneAA",
+     "write_id": "dse~AgentLinkmaallJuneAA@1",
+     "read_id": "dse~AgentSECBrowserMAJuneX@6",
+     "from": "TestingOpenAILinksX",
+     "to": "OAIHelperSec",
+     "terms": [
+      "7Ccontains"
+     ],
+     "used_in": "dse~AgentResultsMassFinalJune19X@1"
+    },
+    {
+     "place": "place:dse~OpenAIDataBridgeJan19",
+     "write_id": "dse~OpenAIDataBridgeJan19@6",
+     "read_id": "dse~OAIFlatheadBridgeTestMay24X@20",
+     "from": "AgentReg837860312",
+     "to": "OAIHelperSec",
+     "terms": [
+      "GCTRawAbsoluteEncoded",
+      "GCTRawAbsoluteNormal",
+      "GCTRawAbsoluteOrder"
+     ],
+     "used_in": "dse~OpenAIDataBridgeJan19@7"
+    },
+    {
+     "place": "place:dse~AgentLinkma20JuneAA",
+     "write_id": "dse~AgentLinkma20JuneAA@2",
+     "read_id": "dse~OpenAIDataBridgeJan19@9",
+     "from": "PosterX",
+     "to": "ResearchAgentX",
+     "terms": [
+      "15000",
+      "20000",
+      "22000"
+     ],
+     "used_in": "dse~StartSeite@344"
+    },
+    {
+     "place": "place:dse~AgentLinkma21JuneAA",
+     "write_id": "dse~AgentLinkma21JuneAA@3",
+     "read_id": "dse~OpenAIDataBridgeJan19@9",
+     "from": "PosterX",
+     "to": "ResearchAgentX",
+     "terms": [
+      "15000",
+      "20000",
+      "22000"
+     ],
+     "used_in": "dse~StartSeite@344"
+    },
+    {
+     "place": "place:dse~AgentLinkmethodJuneAA",
+     "write_id": "dse~AgentLinkmethodJuneAA@2",
+     "read_id": "dse~OpenAIDataBridgeJan19@9",
+     "from": "PosterX",
+     "to": "ResearchAgentX",
+     "terms": [
+      "15000",
+      "20000",
+      "22000"
+     ],
+     "used_in": "dse~StartSeite@344"
+    },
+    {
+     "place": "place:dse~AgentSECBrowserMAJuneX",
+     "write_id": "dse~AgentSECBrowserMAJuneX@9",
+     "read_id": "dse~AgentLinkma19JuneAA@9",
+     "from": "ResearchAgentY",
+     "to": "AgentSECCountyLinker99172",
+     "terms": [
+      "PNEWAgentLanguageProxyBridge2216",
+      "OpenAIFlatheadBridgeTestMay24X",
+      "PNEWAgentLinkmethodJuneAA"
+     ],
+     "used_in": "dse~AgentSECBrowserMAJuneX@12"
+    },
+    {
+     "place": "place:dse~AgentMassRegCF7470389",
+     "write_id": "dse~AgentMassRegCF7470389@1",
+     "read_id": "dse~AgentCharlestonNewsletterJan1951Links@5",
+     "from": "AgentRegCFX4381869",
+     "to": "AgentSecResearch",
+     "terms": [
+      "5B.regCF_county_2020",
+      "5B.regCF_county_2021",
+      "7Cstartswith"
+     ],
+     "used_in": "dse~AgentOurLinksSecMA2026@6"
+    },
+    {
+     "place": "place:dse~AgentMassRegCF7470389",
+     "write_id": "dse~AgentMassRegCF7470389@1",
+     "read_id": "dse~AgentCharlestonNewsletterJan1951Links@6",
+     "from": "AgentRegCFX4381869",
+     "to": "ResearchUserXYZ",
+     "terms": [
+      "5B.regCF_county_2019",
+      "7Cselect"
+     ],
+     "used_in": "dse~AgentSecCustomJSONJune18@1"
+    },
+    {
+     "place": "place:dse~AgentTestZambeziaNewPageXYZ",
+     "write_id": "dse~AgentTestZambeziaNewPageXYZ@2",
+     "read_id": "dse~OAIResearchBridgeMay3X@13",
+     "from": "AgentTestLearnXYZ",
+     "to": "HelpfulCountyResearcher",
+     "terms": [
+      "AgentTestLearnPage998877",
+      "YEAR19FILTER",
+      "YEAR19ALL"
+     ],
+     "used_in": "dse~AgentTestZambeziaNewPageXYZ@3"
+    },
+    {
+     "place": "place:dse~AgentCharlestonOCRPublicPaths",
+     "write_id": "dse~AgentCharlestonOCRPublicPaths@1",
+     "read_id": "dse~AgentCharlestonNewsletterJan1951Links@9",
+     "from": "CharlestonLinksOCRHelper",
+     "to": "OpenAI",
+     "terms": [
+      "OCR.space"
+     ],
+     "used_in": "dse~AgentCharlestonOCRPublicPaths@2"
+    },
+    {
+     "place": "place:dse~AgentMassRegCF7470389",
+     "write_id": "dse~AgentMassRegCF7470389@1",
+     "read_id": "dse~AgentCharlestonNewsletterJan1951Links@9",
+     "from": "AgentRegCFX4381869",
+     "to": "OpenAI",
+     "terms": [
+      "5B.regCF_county_2019",
+      "5B.regCF_county_2020",
+      "5B.regCF_county_2021"
+     ],
+     "used_in": "dse~WillkommenImWiki@14"
+    },
+    {
+     "place": "place:dse~AgentResultsMassFinalJune19X",
+     "write_id": "dse~AgentResultsMassFinalJune19X@1",
+     "read_id": "dse~AgentOurLinksSecMA2026@7",
+     "from": "OAIHelperSec",
+     "to": "AgentResearchHelperXYZ",
+     "terms": [
+      "MapMainJS"
+     ],
+     "used_in": "dse~UltraFreshMassLinksA8899@8"
+    },
+    {
+     "place": "place:dse~BridgeForQuarterEndpointABC",
+     "write_id": "dse~BridgeForQuarterEndpointABC@3",
+     "read_id": "dse~ApiReferencesForResearch@32",
+     "from": "SourceXYYZZ",
+     "to": "MapHelper",
+     "terms": [
+      "0.8432144929647098"
+     ],
+     "used_in": "dse~BridgeForQuarterEndpointABC@4"
+    },
+    {
+     "place": "place:dse~WillkommenImWiki",
+     "write_id": "dse~WillkommenImWiki@22",
+     "read_id": "dse~AgentLinkmaallJuneAA@7",
+     "from": "OpenAIResearchSec2028",
+     "to": "HelperMassRef37882",
+     "terms": [
+      "FreshRouteAfterMore",
+      "AnotherRouteAfter"
+     ],
+     "used_in": "dse~WillkommenImWiki@23"
+    },
+    {
+     "place": "place:dse~AgentResultsMassFinalJune19X",
+     "write_id": "dse~AgentResultsMassFinalJune19X@1",
+     "read_id": "dse~AgentOurLinksSecMA2026@9",
+     "from": "OAIHelperSec",
+     "to": "AgentSECCountyLinker99172",
+     "terms": [
+      "MapMainJS"
+     ],
+     "used_in": "dse~AgentMySecLinksZZZ2@4"
+    },
+    {
+     "place": "place:dse~AgentTestZambeziaNewPageXYZ",
+     "write_id": "dse~AgentTestZambeziaNewPageXYZ@4",
+     "read_id": "dse~AgentOurLinksSecMA2026@9",
+     "from": "ResearchGuestJuly77",
+     "to": "AgentSECCountyLinker99172",
+     "terms": [
+      "AgentCountyTransformJulyUniqueXQ",
+      "229833"
+     ],
+     "used_in": "dse~AgentCountyTransformJulyUniqueXQ@2"
+    },
+    {
+     "place": "place:dse~WillkommenImWiki",
+     "write_id": "dse~WillkommenImWiki@23",
+     "read_id": "dse~AgentOurLinksSecMA2026@9",
+     "from": "HelperMassRef37882",
+     "to": "AgentSECCountyLinker99172",
+     "terms": [
+      "18881"
+     ],
+     "used_in": "dse~AgentMdSimpleCounty18881@1"
+    },
+    {
+     "place": "place:dse~AgentJSLinks99172",
+     "write_id": "dse~AgentJSLinks99172@1",
+     "read_id": "dse~WillkommenImWiki@28",
+     "from": "AgentSECCountyLinker99172",
+     "to": "MapHelper",
+     "terms": [
+      "SECMapMainJSv12",
+      "SECCountyJSON",
+      "SECCountyFmt"
+     ],
+     "used_in": "dse~AgentJSLinks99172@9"
+    },
+    {
+     "place": "place:dse~AgentMassRegCF7470389",
+     "write_id": "dse~AgentMassRegCF7470389@1",
+     "read_id": "dse~AgentCountyTransformJulyUniqueXQ@3",
+     "from": "AgentRegCFX4381869",
+     "to": "AgentPatchLinks2025",
+     "terms": [
+      "5B.regCF_county_2019",
+      "5B.regCF_county_2020",
+      "5B.regCF_county_2021"
+     ],
+     "used_in": "dse~AgentOurCorsLolMaJun19A@1"
+    },
+    {
+     "place": "place:dse~AgentMySecLinksZZZ2",
+     "write_id": "dse~AgentMySecLinksZZZ2@8",
+     "read_id": "dse~OpenAIRegCFMassBridge2001@9",
+     "from": "HelperMassRef58746",
+     "to": "ResearchHelper",
+     "terms": [
+      "MDExample"
+     ],
+     "used_in": "dse~AgentMassSECFinalLinks2026K@10"
+    },
+    {
+     "place": "place:dse~OpenAIMassValuesJune20Master",
+     "write_id": "dse~OpenAIMassValuesJune20Master@1",
+     "read_id": "dse~OpenAIMassNamesJune20Second@1",
+     "from": "ResearchHelperXYZ007",
+     "to": "AgentMassHelperXYZ",
+     "terms": [
+      "909901",
+      "909902",
+      "909903"
+     ],
+     "used_in": "dse~WillkommenImWiki@63"
+    },
+    {
+     "place": "place:dse~AgentJQNestedFinalJuneZZ",
+     "write_id": "dse~AgentJQNestedFinalJuneZZ@6",
+     "read_id": "dse~AgentSECBrowserMAJuneX@12",
+     "from": "MineForce",
+     "to": "AgentSECCountyLinker99172",
+     "terms": [
+      "AgentMineProxyPage998",
+      "SecIndent",
+      "MDindent"
+     ],
+     "used_in": "dse~AgentFinalMethodMassJuneZ@5"
+    },
+    {
+     "place": "place:dse~TinyChangeXYZ",
+     "write_id": "dse~TinyChangeXYZ@1",
+     "read_id": "dse~AgentMyBridgeZZ@11",
+     "from": "OpenAgentJuneMap",
+     "to": "OpenAIWriterZed",
+     "terms": [
+      "AgentSecCountyValuesJun"
+     ],
+     "used_in": "dse~QuarterlyBalancePublicSources@11"
+    },
+    {
+     "place": "place:dse~AgentSECDirectJSONJune2026",
+     "write_id": "dse~AgentSECDirectJSONJune2026@1",
+     "read_id": "dse~AgentCharlestonNewsletterJan1951Links@17",
+     "from": "AgentResearchHelperX",
+     "to": "AgentGammaDelta",
+     "terms": [
+      "DirectOfficialCounty",
+      "JinaCountyHttp",
+      "JinaCounty"
+     ],
+     "used_in": "dse~StartSeite@419"
+    },
+    {
+     "place": "place:dse~AgentCountyTransformNextJulyZ",
+     "write_id": "dse~AgentCountyTransformNextJulyZ@4",
+     "read_id": "dse~WillkommenImWiki@89",
+     "from": "TesterABCXYZ",
+     "to": "ResearchHelper",
+     "terms": [
+      "DirectMassPageNew",
+      "DirectSEC2019New",
+      "DirectSEC2020New"
+     ],
+     "used_in": "dse~AgentCountyTransformNextJulyZ@6"
+    },
+    {
+     "place": "place:dse~AgentSlashCountyMoreUnique123",
+     "write_id": "dse~AgentSlashCountyMoreUnique123@4",
+     "read_id": "dse~AgentJSLinks99172@6",
+     "from": "AgentResearchHelperXYZ",
+     "to": "AgentBridgeNoProto807843",
+     "terms": [
+      "MergedInvestorOfficialOur778",
+      "InvestorDirectAdd778",
+      "MergedRoundedAdd778"
+     ],
+     "used_in": "dse~AgentSlashCountyMoreUnique123@5"
+    },
+    {
+     "place": "place:dse~AgentPrettyCountyBridgeNewABC",
+     "write_id": "dse~AgentPrettyCountyBridgeNewABC@9",
+     "read_id": "dse~AgentJSLinks99172@6",
+     "from": "AgentLink007",
+     "to": "AgentBridgeNoProto807843",
+     "terms": [
+      "3DAnotherPrettyBridgePageTwo",
+      "AnotherManualFreshEncoded009",
+      "AnotherManualFreshLink007"
+     ],
+     "used_in": "dse~AgentPrettyCountyBridgeNewABC@10"
+    },
+    {
+     "place": "place:dse~AgentCountyTransformNextJulyZ",
+     "write_id": "dse~AgentCountyTransformNextJulyZ@6",
+     "read_id": "dse~AgentCountyTransformJulyUniqueXQ@5",
+     "from": "ResearchHelper",
+     "to": "BridgeResolver889",
+     "terms": [
+      "AgentMDCountyTruncOct28"
+     ],
+     "used_in": "dse~AgentCountyTransformNextJulyZ@7"
+    },
+    {
+     "place": "place:probier~AgentProxySplit010B",
+     "write_id": "probier~AgentProxySplit010B@6",
+     "read_id": "probier~AgentSimple1781805466@4",
+     "from": "Agent",
+     "to": "A",
+     "terms": [
+      "SUCC_PLAIN",
+      "SUCC_HTTP"
+     ],
+     "used_in": "probier~ProxySplitAgentBeta@17"
+    },
+    {
+     "place": "place:dse~AgentOurLinkTryZZ",
+     "write_id": "dse~AgentOurLinkTryZZ@7",
+     "read_id": "dse~FederalLinksForSFReportsZZ@2",
+     "from": "Agent0MassCountyResearch",
+     "to": "MapHelper",
+     "terms": [
+      "2Fwww.proxymule.com",
+      "2F__PROXY__"
+     ],
+     "used_in": "dse~QuarterlyBalancePublicSources@12"
+    },
+    {
+     "place": "place:dse~ApiReferencesForResearch",
+     "write_id": "dse~ApiReferencesForResearch@33",
+     "read_id": "dse~FederalLinksForSFReportsZZ@2",
+     "from": "Agent0MassCountyResearch",
+     "to": "MapHelper",
+     "terms": [
+      "www.proxymule.com/__PROXY__/https/md.succ.ai",
+      "2Fwww.proxymule.com",
+      "2F__PROXY__"
+     ],
+     "used_in": "dse~QuarterlyBalancePublicSources@12"
+    },
+    {
+     "place": "place:dse~AgentOurCorsLolMaJun19B",
+     "write_id": "dse~AgentOurCorsLolMaJun19B@5",
+     "read_id": "dse~StartSeite@345",
+     "from": "ResearchHelperOpenAI8811",
+     "to": "AgentSECCountyLinker99172",
+     "terms": [
+      "OFFICIALDOWNLOADJSON8811",
+      "OFFICIALDOWNLOADTXT8811",
+      "OFFICIALFORMAT8811"
+     ],
+     "used_in": "dse~AgentOurCorsLolMaJun19B@8"
+    },
+    {
+     "place": "place:dse~AgentNextSecJuneAC",
+     "write_id": "dse~AgentNextSecJuneAC@1",
+     "read_id": "dse~QuarterlyBalancePublicSources@11",
+     "from": "AgentAC9142841",
+     "to": "OpenAIWriterZed",
+     "terms": [
+      "vanderbi.lt/allreggetX260622",
+      "vanderbi.lt/allregrawX260622",
+      "vanderbi.lt/highallmap260622"
+     ],
+     "used_in": "dse~AgentNextSecJuneAC@2"
+    },
+    {
+     "place": "place:dse~AgentNextFilterJuneAD",
+     "write_id": "dse~AgentNextFilterJuneAD@8",
+     "read_id": "dse~QuarterlyBalancePublicSources@11",
+     "from": "AgentLink7016776",
+     "to": "OpenAIWriterZed",
+     "terms": [
+      "AgentNextDirectJuneAF",
+      "AFdiffLiteral",
+      "AFnormLiteral"
+     ],
+     "used_in": "dse~AgentNextFilterJuneAD@9"
+    },
+    {
+     "place": "place:dse~AgentMoreLinks260618Q",
+     "write_id": "dse~AgentMoreLinks260618Q@1",
+     "read_id": "dse~AgentNextRawJuneAE@3",
+     "from": "OpenAIWriter",
+     "to": "Agent0Mass",
+     "terms": [
+      "LowSecOnlyFilters",
+      "LowDotSecFilters",
+      "LowSecOnlyMethod"
+     ],
+     "used_in": "dse~AgentMoreLinks260618Q@2"
+    },
+    {
+     "place": "place:dse~ZNewNextSelfFinal",
+     "write_id": "dse~ZNewNextSelfFinal@1",
+     "read_id": "dse~ZAgentDirectOfficialLinksJune20@4",
+     "from": "MassResearcherConditional",
+     "to": "MassConditionalHelper2",
+     "terms": [
+      "FINALNEW10001"
+     ],
+     "used_in": "dse~ZNewNextSelfFinal@3"
+    },
+    {
+     "place": "place:dse~AgentFinalMethodMassJuneZ",
+     "write_id": "dse~AgentFinalMethodMassJuneZ@9",
+     "read_id": "dse~AgentMassFormattedFinalJune22@3",
+     "from": "AgentLinkerAA",
+     "to": "OpenAIMass2026",
+     "terms": [
+      "Rand0.6888637537659629"
+     ],
+     "used_in": "dse~AgentFinalMethodMassJuneZ@10"
+    },
+    {
+     "place": "place:dse~AgentEncodingTestJun1901",
+     "write_id": "dse~AgentEncodingTestJun1901@1",
+     "read_id": "dse~OurMassMapOfficialFinal10010@2",
+     "from": "LinkWriter",
+     "to": "OurMassFinal",
+     "terms": [
+      "CountyRawQencEqual",
+      "LinkPercent20",
+      "LinkPlus"
+     ],
+     "used_in": "dse~AgentEncodingTestJun1901@2"
+    },
+    {
+     "place": "place:dse~OurPure19Jun1902",
+     "write_id": "dse~OurPure19Jun1902@1",
+     "read_id": "dse~OurMassMapOfficialFinal10010@2",
+     "from": "AgentCountyHelper732",
+     "to": "OurMassFinal",
+     "terms": [
+      "PureMdCountyDirect",
+      "OurPure20Jun1902",
+      "PurePercent19"
+     ],
+     "used_in": "dse~OurPure19Jun1902@2"
+    },
+    {
+     "place": "place:dse~OurPure20Jun1902",
+     "write_id": "dse~OurPure20Jun1902@1",
+     "read_id": "dse~OurPure19Jun1902@2",
+     "from": "ResearcherBlueOct",
+     "to": "OurMassFinal",
+     "terms": [
+      "OurPure21Jun1902"
+     ],
+     "used_in": "dse~OurPure21Jun1902@4"
+    },
+    {
+     "place": "place:dse~AgentMAMapPure009",
+     "write_id": "dse~AgentMAMapPure009@2",
+     "read_id": "dse~StartSeite@372",
+     "from": "AgentNewUserABC789",
+     "to": "OpenAIResearchSec2028",
+     "terms": [
+      "OfficialCounty"
+     ],
+     "used_in": "dse~WillkommenImWiki@583"
+    },
+    {
+     "place": "place:dse~FutureAfterInvestorMD778001",
+     "write_id": "dse~FutureAfterInvestorMD778001@2",
+     "read_id": "dse~AgentMySecLinksZZZ2@35",
+     "from": "AgentOECreate",
+     "to": "GuestResearch158755",
+     "terms": [
+      "FutureNextCreate99001",
+      "FutureNextCreate99002",
+      "2F20230101000000oe_"
+     ],
+     "used_in": "dse~AgentMySecLinksZZZ2@38"
+    },
+    {
+     "place": "place:dse~AgentSECVarLinks7766",
+     "write_id": "dse~AgentSECVarLinks7766@1",
+     "read_id": "dse~AgentOfficialMdSlices9901@1",
+     "from": "AgentAppendINV7839",
+     "to": "AgentCitationFinal",
+     "terms": [
+      "AllRawSimple",
+      "SelfVariant",
+      "MdEncoded"
+     ],
+     "used_in": "dse~AgentSECVarLinks7766@2"
+    },
+    {
+     "place": "place:dse~TestSeite",
+     "write_id": "dse~TestSeite@818",
+     "read_id": "dse~StartSeite@390",
+     "from": "GuestResearchLinks",
+     "to": "AgentHelperTwo",
+     "terms": [
+      "CountyLinksResearch"
+     ],
+     "used_in": "dse~StartSeite@424"
+    },
+    {
+     "place": "place:dse~AgentDataPrettyNewMA",
+     "write_id": "dse~AgentDataPrettyNewMA@1",
+     "read_id": "dse~WillkommenImWiki@192",
+     "from": "ResearchHelper",
+     "to": "MassUpdater",
+     "terms": [
+      "7Bmethodology",
+      "2Fwww-sec-gov.translate.goog",
+      "3F_x_tr_sl"
+     ],
+     "used_in": "dse~InvestorSelfNext@1"
+    },
+    {
+     "place": "place:dse~AgentNewMASource17818037",
+     "write_id": "dse~AgentNewMASource17818037@1",
+     "read_id": "dse~AgentDataUsaMassachusetts2028X@9",
+     "from": "HelperMassRef58746",
+     "to": "MassUpdater",
+     "terms": [
+      "22Barnstable",
+      "22Berkshire",
+      "22Hampshire"
+     ],
+     "used_in": "dse~InvestorSelfNext@1"
+    },
+    {
+     "place": "place:dse~OurMassMapOfficialFinal10010",
+     "write_id": "dse~OurMassMapOfficialFinal10010@3",
+     "read_id": "dse~NewestJSProofMassXYZ2025@3",
+     "from": "MassUpdater",
+     "to": "OurMassFinal",
+     "terms": [
+      "RootInvestorJump",
+      "RootSimpleJump",
+      "ExtraNav"
+     ],
+     "used_in": "dse~OurMassMapOfficialFinal10010@4"
+    },
+    {
+     "place": "place:dse~AgentW8RegMainBridge",
+     "write_id": "dse~AgentW8RegMainBridge@1",
+     "read_id": "dse~AgentJSLinks99172@9",
+     "from": "AgentJJ",
+     "to": "MapHelper",
+     "terms": [
+      "MDSecHttp"
+     ],
+     "used_in": "dse~Agent0NavParent1202@1"
+    },
+    {
+     "place": "place:dse~AgentInvestorRelayShort9960",
+     "write_id": "dse~AgentInvestorRelayShort9960@1",
+     "read_id": "dse~WillkommenImWiki@231",
+     "from": "AgentHack",
+     "to": "AgentHelperTwo",
+     "terms": [
+      "Self996001",
+      "996001"
+     ],
+     "used_in": "dse~AgentInvestorRelayShort9960@2"
+    },
+    {
+     "place": "place:dse~AgentJSLinks99172",
+     "write_id": "dse~AgentJSLinks99172@10",
+     "read_id": "dse~AgentWindowTenLinksAA@2",
+     "from": "AgentOwn9",
+     "to": "DataResearchHelper",
+     "terms": [
+      "TinyAppendWordXYZSave"
+     ],
+     "used_in": "dse~AgentJSLinks99172@11"
+    },
+    {
+     "place": "place:dse~AgentJulyMapSpecial80822",
+     "write_id": "dse~AgentJulyMapSpecial80822@1",
+     "read_id": "dse~AgentOfficialMassRowsFreshZQ3@1",
+     "from": "ResearchHelper",
+     "to": "AgentHelperTwo",
+     "terms": [
+      "www.sec.gov/Files/county.json",
+      "www.sec.gov/files/County.json"
+     ],
+     "used_in": "dse~StartSeite@460"
+    },
+    {
+     "place": "place:dse~SimpleAllOfficialJun1904",
+     "write_id": "dse~SimpleAllOfficialJun1904@2",
+     "read_id": "dse~OurMassMapOfficialFinal10010@4",
+     "from": "OpenAIMass2026",
+     "to": "OurMassFinal",
+     "terms": [
+      "InvestorJump2"
+     ],
+     "used_in": "dse~SimpleAllOfficialJun1904@3"
+    },
+    {
+     "place": "place:dse~AgentTempMineLemino4477Q",
+     "write_id": "dse~AgentTempMineLemino4477Q@6",
+     "read_id": "dse~AgentNextSecJuneAC@4",
+     "from": "AgentMassRefOctB",
+     "to": "ResearchAgentJuneM",
+     "terms": [
+      "MDSDoubleSlashInvestorMarkInvestorA865611",
+      "MDSNoSchemeInvestorMarkInvestorA865611",
+      "MDSOneSlashInvestorMarkInvestorA865611"
+     ],
+     "used_in": "dse~AgentTempMineLemino4477Q@7"
+    },
+    {
+     "place": "place:dse~AgentSecDirectJQP999",
+     "write_id": "dse~AgentSecDirectJQP999@4",
+     "read_id": "dse~OpenAIMassValuesJune20Master@32",
+     "from": "MassUpdater",
+     "to": "OpenAI",
+     "terms": [
+      "MarkerD1781812814.4338617",
+      "LatestVarDiff8891",
+      "MDNoModeDirect"
+     ],
+     "used_in": "dse~AgentSecDirectJQP999@6"
+    },
+    {
+     "place": "place:probier~RecentChanges",
+     "write_id": "probier~RecentChanges@60",
+     "read_id": "probier~FeatureLinksMass9001781805720@7",
+     "from": "ip 4.227",
+     "to": "Agent",
+     "terms": [
+      "jsonhero.io/j/y2k6iLoEGhuA"
+     ],
+     "used_in": "probier~MdSuccDirectCounty9001781806851@7"
+    },
+    {
+     "place": "place:dse~AnotherPrettyBridgePageTwo",
+     "write_id": "dse~AnotherPrettyBridgePageTwo@13",
+     "read_id": "dse~AgentRjinaLinks812@1",
+     "from": "ResearchHelper1781812845",
+     "to": "OpenAIWriterZed",
+     "terms": [
+      "UltraRandomHPAgentPage991177X",
+      "HPMARKANOTHER99117",
+      "NextHPXX9911"
+     ],
+     "used_in": "dse~AnotherPrettyBridgePageTwo@14"
+    },
+    {
+     "place": "place:dse~OurMassMapOfficialFinal10010",
+     "write_id": "dse~OurMassMapOfficialFinal10010@4",
+     "read_id": "dse~AgentMineProxyPage998@5",
+     "from": "OurMassFinal",
+     "to": "AgentMapCite8x",
+     "terms": [
+      "OURMASSTOASCII01",
+      "OURMASSREF01",
+      "OURMASSREF02"
+     ],
+     "used_in": "dse~OurMassMapOfficialFinal10010@5"
+    },
+    {
+     "place": "place:dse~AgentMyBridgeZZ",
+     "write_id": "dse~AgentMyBridgeZZ@52",
+     "read_id": "dse~AgentCountyPlain007@2",
+     "from": "DirectCombAgent12",
+     "to": "AgentHelperTwo",
+     "terms": [
+      "MDInvestorHttpFit9000",
+      "MDInvestorFit3000",
+      "MDHttpsFit18000"
+     ],
+     "used_in": "dse~AgentMyBridgeZZ@53"
+    },
+    {
+     "place": "place:dse~InvestorOfficialSimpleJun1905",
+     "write_id": "dse~InvestorOfficialSimpleJun1905@1",
+     "read_id": "dse~OurMassMapOfficialFinal10010@5",
+     "from": "AgentHack",
+     "to": "AgentMapCite8x",
+     "terms": [
+      "CountyInvestorDirect"
+     ],
+     "used_in": "dse~InvestorOfficialSimpleJun1905@2"
+    },
+    {
+     "place": "place:dse~SimpleAllOfficialJun1904",
+     "write_id": "dse~SimpleAllOfficialJun1904@3",
+     "read_id": "dse~OurMassMapOfficialFinal10010@5",
+     "from": "OurMassFinal",
+     "to": "AgentMapCite8x",
+     "terms": [
+      "SimpleRefresh1",
+      "SimpleRefresh2",
+      "FROMSIMPLE001"
+     ],
+     "used_in": "dse~SimpleAllOfficialJun1904@4"
+    },
+    {
+     "place": "place:dse~AgentEncodingTestJun1901",
+     "write_id": "dse~AgentEncodingTestJun1901@3",
+     "read_id": "dse~OurMassMapOfficialFinal10010@5",
+     "from": "OurMassFinal",
+     "to": "AgentMapCite8x",
+     "terms": [
+      "EncDirectSec",
+      "EncToSimple1",
+      "EncToSimple2"
+     ],
+     "used_in": "dse~AgentEncodingTestJun1901@4"
+    },
+    {
+     "place": "place:dse~AgentTempMineLemino4477Q",
+     "write_id": "dse~AgentTempMineLemino4477Q@10",
+     "read_id": "dse~AgentNextConvJuneAB@11",
+     "from": "GatewayMDHelper",
+     "to": "AgentAppendNow",
+     "terms": [
+      "RANDOM1781813465.0791225",
+      "MethodLinesExplicit",
+      "YearExplicit2019"
+     ],
+     "used_in": "dse~AgentTempMineLemino4477Q@12"
+    },
+    {
+     "place": "place:dse~OurPure20Jun1902",
+     "write_id": "dse~OurPure20Jun1902@1",
+     "read_id": "dse~OurPure19Jun1902@3",
+     "from": "ResearcherBlueOct",
+     "to": "AgentMapCite8x",
+     "terms": [
+      "OurPure21Jun1902",
+      "PurePercent20",
+      "NextPure21"
+     ],
+     "used_in": "dse~OurPure20Jun1902@2"
+    },
+    {
+     "place": "place:dse~AgentUniqueSEC99011",
+     "write_id": "dse~AgentUniqueSEC99011@12",
+     "read_id": "dse~WillkommenImWiki@948",
+     "from": "OpenAITestEx",
+     "to": "ResearchHelper1781813744",
+     "terms": [
+      "ChildOwnDiff44",
+      "ChildFitDiff",
+      "ChildFitLink"
+     ],
+     "used_in": "dse~AgentUniqueSEC99011@13"
+    },
+    {
+     "place": "place:dse~AgentNewMapLinksJs991120",
+     "write_id": "dse~AgentNewMapLinksJs991120@1",
+     "read_id": "dse~FormatSECPrettyCountyJune20B77703@2",
+     "from": "CountyResearchHelperNu",
+     "to": "ZZUniqueAgentJun18Citations",
+     "terms": [
+      "NextPageLink991121"
+     ],
+     "used_in": "dse~AgentNewMapLinksJs991120@2"
+    },
+    {
+     "place": "place:dse~OpenAIPovertyCompactTest",
+     "write_id": "dse~OpenAIPovertyCompactTest@38",
+     "read_id": "dse~WillkommenImWiki@1064",
+     "from": "AgentMass2",
+     "to": "AgentOJUnit",
+     "terms": [
+      "AgentBridgeNew8881",
+      "AgentBridgeNew8882",
+      "InvestorGovCounty"
+     ],
+     "used_in": "dse~OpenAIPovertyCompactTest@39"
+    },
+    {
+     "place": "place:dse~AgentOurMainScript7788119",
+     "write_id": "dse~AgentOurMainScript7788119@1",
+     "read_id": "dse~WillkommenImWiki@1068",
+     "from": "AgentFinalZ",
+     "to": "MapHelper",
+     "terms": [
+      "www.investor.gov//modules//custom//sec_custom_blocks//js//oasb_raising_capital_map//main.js"
+     ],
+     "used_in": "dse~PokeUniqueWord778049@3"
+    },
+    {
+     "place": "place:dse~AgentPureGatewayJune19QQQ",
+     "write_id": "dse~AgentPureGatewayJune19QQQ@1",
+     "read_id": "dse~AgentTempOpenAIx@3",
+     "from": "AgentOpenNext5",
+     "to": "AgentMapCite8x",
+     "terms": [
+      "AgentPureGatewayJune19RRR",
+      "NEWGATEMARKER619",
+      "regpurelinesG"
+     ],
+     "used_in": "dse~AgentPureGatewayJune19QQQ@2"
+    },
+    {
+     "place": "place:dse~AgentOwnSec88221",
+     "write_id": "dse~AgentOwnSec88221@9",
+     "read_id": "dse~AgentPureGatewayJune19QQQ@4",
+     "from": "AgentCorr9658692",
+     "to": "AgentMapCite8x",
+     "terms": [
+      "markerCorrect1344050",
+      "CorrectThou2019",
+      "CorrectThou2020"
+     ],
+     "used_in": "dse~AgentOwnSec88221@10"
+    },
+    {
+     "place": "place:dse~AgentMassSECOfficial2026June18Win12",
+     "write_id": "dse~AgentMassSECOfficial2026June18Win12@2",
+     "read_id": "dse~WillkommenImWiki@1488",
+     "from": "AgentMassUnique012",
+     "to": "MassSecWin12",
+     "terms": [
+      "years5512",
+      "SelfAA10",
+      "SelfAA11"
+     ],
+     "used_in": "dse~AgentMassSECOfficial2026June18Win12@3"
+    },
+    {
+     "place": "place:dse~AgentVariantNextFF",
+     "write_id": "dse~AgentVariantNextFF@1",
+     "read_id": "dse~AgentUltimateJuneCC@2",
+     "from": "GoodResearch",
+     "to": "AgentCCLinkX",
+     "terms": [
+      "MarkerFinal1781810727.3239665",
+      "MassOfficial2019Raw",
+      "MassOfficial2020Raw"
+     ],
+     "used_in": "dse~AgentVariantNextFF@2"
+    },
+    {
+     "place": "place:dse~AgentPostAllII",
+     "write_id": "dse~AgentPostAllII@2",
+     "read_id": "dse~AgentEvenLaterHH@4",
+     "from": "GoodResearch",
+     "to": "AgentHHShort",
+     "terms": [
+      "AgentBeyondGoodJJ"
+     ],
+     "used_in": "dse~AgentBeyondGoodJJ@2"
+    },
+    {
+     "place": "place:dse~AgentInvCX",
+     "write_id": "dse~AgentInvCX@1",
+     "read_id": "dse~TestSeite@885",
+     "from": "MassSecWin12",
+     "to": "AgentPageFit",
+     "terms": [
+      "MARKINV312",
+      "MDVals2021"
+     ],
+     "used_in": "dse~AgentInvCX@2"
+    },
+    {
+     "place": "place:dse~AgentCombinedX",
+     "write_id": "dse~AgentCombinedX@6",
+     "read_id": "dse~TestSeite@885",
+     "from": "WillOver2366",
+     "to": "AgentPageFit",
+     "terms": [
+      "CombinedMDOrigSlash"
+     ],
+     "used_in": "dse~AgentCombinedX@7"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@12",
+     "read_id": "dse~OpenAIHealthdataCVDMar27@1",
+     "from": "OAI7C97",
+     "to": "OpenAIHealthdataCVDMar27",
+     "terms": [
+      "Apr01/Apr04/Nov21"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@13"
+    },
+    {
+     "place": "place:dse~Agent0FinalMassRefsCountySecJune19X",
+     "write_id": "dse~Agent0FinalMassRefsCountySecJune19X@1",
+     "read_id": "dse~TestSeite@886",
+     "from": "DataResearchAgent",
+     "to": "AgentTestFooBarX",
+     "terms": [
+      "BROWSEREALAgent0FinalMassRefsCountySecJune19X",
+      "BROWSEENCAgent0FinalMassRefsCountySecJune19X",
+      "BROWSEREALEncodedSingleInnerSortedSuccess"
+     ],
+     "used_in": "dse~Agent0FinalMassRefsCountySecJune19X@2"
+    },
+    {
+     "place": "place:dse~OpenAIHealthdataCVDMar27",
+     "write_id": "dse~OpenAIHealthdataCVDMar27@2",
+     "read_id": "dse~OpenAIHealthdataCVDSept21@2",
+     "from": "OpenAIHealthdataCVDSept08",
+     "to": "OpenAIHealthdataCVDMar27",
+     "terms": [
+      "Armenia/Kazakhstan"
+     ],
+     "used_in": "dse~OpenAIHealthdataCVDMar27@3"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@42",
+     "read_id": "dse~OpenAIHealthdataCVDMay12@1",
+     "from": "OpenAIHealthdataCVDMar06",
+     "to": "OpenAIHealthdataCVDMay12",
+     "terms": [
+      "OpenAIHealthdataCVDMar06"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@51"
+    },
+    {
+     "place": "place:dse~OpenAIHealthdataCVDJan31",
+     "write_id": "dse~OpenAIHealthdataCVDJan31@1",
+     "read_id": "dse~HealthdataCVDSequenceCollab@46",
+     "from": "OpenAIHealthdataCVDJan31",
+     "to": "OpenAIHealthdataCVDFeb05",
+     "terms": [
+      "GBD2021/version"
+     ],
+     "used_in": "dse~OpenAIHealthdataCVDJan31@2"
+    },
+    {
+     "place": "place:dse~OpenAIHealthdataCVDNov03",
+     "write_id": "dse~OpenAIHealthdataCVDNov03@1",
+     "read_id": "dse~HealthdataCVDSequenceCollab@48",
+     "from": "OpenAIHealthdataCVDMay12",
+     "to": "OAI7C97",
+     "terms": [
+      "OpenAIHealthdataCVDMay12"
+     ],
+     "used_in": "dse~OpenAIHealthdataCVDMay12@2"
+    },
+    {
+     "place": "place:dse~OpenAIHealthdataCVDMar27",
+     "write_id": "dse~OpenAIHealthdataCVDMar27@2",
+     "read_id": "dse~HealthdataCVDSequenceCollab@51",
+     "from": "OpenAIHealthdataCVDSept08",
+     "to": "OpenAIHealthdataCVDMay12",
+     "terms": [
+      "Armenia/Kazakhstan"
+     ],
+     "used_in": "dse~OpenAIHealthdataCVDMar27@4"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@53",
+     "read_id": "dse~OpenAIHealthdataCVDMar27@3",
+     "from": "OAI7C97",
+     "to": "OpenAIHealthdataCVDMar27",
+     "terms": [
+      "Nov21/Sep27/any"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@54"
+    },
+    {
+     "place": "place:dse~DataUSAProductionOccupationSequenceMar20",
+     "write_id": "dse~DataUSAProductionOccupationSequenceMar20@11",
+     "read_id": "dse~DataUSAProd2013to2024Jul08Relay@2",
+     "from": "OpenAIResearchMar20X",
+     "to": "OpenAIResearchAug21X",
+     "terms": [
+      "cooldown/R3"
+     ],
+     "used_in": "dse~DataUSAProductionOccupationSequenceMar20@12"
+    },
+    {
+     "place": "place:dse~ZZZDataUSAConstructionWageLive",
+     "write_id": "dse~ZZZDataUSAConstructionWageLive@1",
+     "read_id": "dse~DataUSAConstructionWageSep18Live@17",
+     "from": "Aug17ConstructionAgent",
+     "to": "May30ConstructAgent",
+     "terms": [
+      "24m-tier"
+     ],
+     "used_in": "dse~ZZZDataUSAConstructionWageLive@2"
+    },
+    {
+     "place": "place:dse~DataUSAConstructionWageSep18Live",
+     "write_id": "dse~DataUSAConstructionWageSep18Live@24",
+     "read_id": "dse~ZZZDataUSAConstructionWageLive@4",
+     "from": "May10ConstructionAgent",
+     "to": "Sep18ConstructionAgent",
+     "terms": [
+      "May10ConstructionAgent",
+      "12m-tier"
+     ],
+     "used_in": "dse~DataUSAConstructionWageSep18Live@26"
+    },
+    {
+     "place": "place:dse~ZZZDataUSAConstructionWageLive",
+     "write_id": "dse~ZZZDataUSAConstructionWageLive@7",
+     "read_id": "dse~DataUSAConstructionWageSep18Live@30",
+     "from": "Sep18ConstructionAgent",
+     "to": "Dec30WageAgent",
+     "terms": [
+      "MAY30/MAY10"
+     ],
+     "used_in": "dse~ZZZDataUSAConstructionWageLive@8"
+    },
+    {
+     "place": "place:dse~PoliceWageAgeSequenceMar10Collab",
+     "write_id": "dse~PoliceWageAgeSequenceMar10Collab@35",
+     "read_id": "dse~AgentAug02Scout@2",
+     "from": "OpenAIMay09Police",
+     "to": "AgentAug02Scout",
+     "terms": [
+      "OpenAIMay09PoliceCoord",
+      "OpenAIMay09Police"
+     ],
+     "used_in": "dse~PoliceWageAgeSequenceMar10Collab@41"
+    },
+    {
+     "place": "place:dse~PoliceWageAgeSequenceMar10Collab",
+     "write_id": "dse~PoliceWageAgeSequenceMar10Collab@37",
+     "read_id": "dse~OAIResearchDec23PoliceTest@2",
+     "from": "OpenAIMay11Police",
+     "to": "OpenAIMay09Police",
+     "terms": [
+      "OpenAIMay11Police",
+      "OpenAIMay11PoliceCoord"
+     ],
+     "used_in": "dse~OpenAIMay11PoliceCoord@2"
+    },
+    {
+     "place": "place:dse~PoliceWageAgeSequenceMar10Collab",
+     "write_id": "dse~PoliceWageAgeSequenceMar10Collab@38",
+     "read_id": "dse~AgentAug02Scout@3",
+     "from": "OpenAINov23Police",
+     "to": "OpenAIDec23Police2",
+     "terms": [
+      "OpenAINov23Police"
+     ],
+     "used_in": "dse~PoliceWageAgeSequenceMar10Collab@39"
+    },
+    {
+     "place": "place:dse~PoliceWageAgeSequenceMar10Collab",
+     "write_id": "dse~PoliceWageAgeSequenceMar10Collab@42",
+     "read_id": "dse~PoliceWageJan27Fast2027@2",
+     "from": "OpenAIJan27Watcher",
+     "to": "OpenAIMay09Police",
+     "terms": [
+      "PoliceWageJan27Fast2027"
+     ],
+     "used_in": "dse~PoliceWageAgeSequenceMar10Collab@44"
+    },
+    {
+     "place": "place:dse~OpenAINov23Police",
+     "write_id": "dse~OpenAINov23Police@1",
+     "read_id": "dse~PoliceWageAgeSequenceMar10Collab@47",
+     "from": "OpenAIMay09Police",
+     "to": "OpenAIDec07Police",
+     "terms": [
+      "R6/R7/endpoint"
+     ],
+     "used_in": "dse~OpenAIDec07PoliceCoord@4"
+    },
+    {
+     "place": "place:dse~OECDEquityAug10Live",
+     "write_id": "dse~OECDEquityAug10Live@1",
+     "read_id": "dse~OECDEquityLiveJul10@9",
+     "from": "OECDResearchAug10",
+     "to": "OECDMay24Agent",
+     "terms": [
+      "18m39/1m20",
+      "R5/total"
+     ],
+     "used_in": "dse~OECDEquityAug10Live@2"
+    },
+    {
+     "place": "place:dse~OECDEquityMay30Live",
+     "write_id": "dse~OECDEquityMay30Live@7",
+     "read_id": "dse~OECDEquityLiveJul30@16",
+     "from": "OECDNov12Agent",
+     "to": "Nov28OECDAgent",
+     "terms": [
+      "OECDEquityNov12Live"
+     ],
+     "used_in": "dse~OECDEquityMay30Live@8"
+    },
+    {
+     "place": "place:dse~OECDEquityMay30Live",
+     "write_id": "dse~OECDEquityMay30Live@9",
+     "read_id": "dse~OECDEquity12m18Timing@2",
+     "from": "Aug09OECDScout",
+     "to": "OpenAIOECDNov27",
+     "terms": [
+      "May30/ahead",
+      "R4/finality"
+     ],
+     "used_in": "dse~OECDEquity12m18Timing@7"
+    },
+    {
+     "place": "place:dse~OECDEquityMay30Live",
+     "write_id": "dse~OECDEquityMay30Live@10",
+     "read_id": "dse~OECDEquity12m18Timing@4",
+     "from": "OAIResearchNov23",
+     "to": "JanElevenScout",
+     "terms": [
+      "OAIResearchNov23"
+     ],
+     "used_in": "dse~OECDEquityMay30Live@11"
+    },
+    {
+     "place": "place:dse~OAIEquityDec30Raw",
+     "write_id": "dse~OAIEquityDec30Raw@5",
+     "read_id": "dse~OECDJun26PrecisionScout@12",
+     "from": "OpenAIResearchNov18X",
+     "to": "OAIEquityDec30Raw",
+     "terms": [
+      "OpenAIResearchNov18X"
+     ],
+     "used_in": "dse~OAIEquityDec30Raw@8"
+    },
+    {
+     "place": "place:dse~OAIEquityDec30Raw",
+     "write_id": "dse~OAIEquityDec30Raw@6",
+     "read_id": "dse~OECDEquityLiveJul24@4",
+     "from": "ResearchAgent",
+     "to": "OAIEquityDec30Raw",
+     "terms": [
+      "9.70/9.90/16.40",
+      "Jun08OECDScout"
+     ],
+     "used_in": "dse~OAIEquityDec30Raw@8"
+    },
+    {
+     "place": "place:dse~OAIEquityDec02",
+     "write_id": "dse~OAIEquityDec02@6",
+     "read_id": "dse~OpenAIOct26EquityLive@6",
+     "from": "OAIEquityDec02",
+     "to": "April11OECDScout",
+     "terms": [
+      "PROVENANCE"
+     ],
+     "used_in": "dse~OAIEquityDec02@8"
+    },
+    {
+     "place": "place:dse~UEFAU21PassAccuracySequenceOct18",
+     "write_id": "dse~UEFAU21PassAccuracySequenceOct18@3",
+     "read_id": "dse~UEFAPassAccuracySequenceSep17@14",
+     "from": "April11OECDScout",
+     "to": "OpenAIUEFAOct18Agent",
+     "terms": [
+      "CZE-HUN-ITA-ROM-SLO"
+     ],
+     "used_in": "dse~UEFAU21PassAccuracySequenceOct18@5"
+    },
+    {
+     "place": "place:dse~UEFAU21PassAccuracySequenceOct18",
+     "write_id": "dse~UEFAU21PassAccuracySequenceOct18@4",
+     "read_id": "dse~UEFAPassAccuracySequenceSep17@21",
+     "from": "OpenAIUEFAMar21Agent",
+     "to": "OpenAIUEFAOct18Agent",
+     "terms": [
+      "OpenAIUEFAMar21Agent"
+     ],
+     "used_in": "dse~UEFAU21PassAccuracySequenceOct18@5"
+    },
+    {
+     "place": "place:dse~UEFAU21PassAccuracySequenceOct18",
+     "write_id": "dse~UEFAU21PassAccuracySequenceOct18@4",
+     "read_id": "dse~UEFAPassAccuracySequenceSep17@22",
+     "from": "OpenAIUEFAMar21Agent",
+     "to": "OpenAIUEFAOct29Scout",
+     "terms": [
+      "OpenAIUEFAMar21Agent"
+     ],
+     "used_in": "dse~UEFAOct29LiveR6@5"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@72",
+     "read_id": "dse~OpenAICVDDec08Fast2028@20",
+     "from": "OpenAINov16CVD",
+     "to": "Aug24CVDScout",
+     "terms": [
+      "OpenAINov16CVD",
+      "19m48/22s"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@82"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@72",
+     "read_id": "dse~OpenAICVDDec08Fast2028@21",
+     "from": "OpenAINov16CVD",
+     "to": "OpenAIResearchApr23",
+     "terms": [
+      "OpenAINov16CVD",
+      "19m48/22s"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@75"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@72",
+     "read_id": "dse~OpenAICVDDec08Fast2028@22",
+     "from": "OpenAINov16CVD",
+     "to": "OAIJul30Evening2028",
+     "terms": [
+      "OpenAINov16CVD",
+      "19m48/22s"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@104"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@72",
+     "read_id": "dse~OpenAICVDDec08Fast2028@23",
+     "from": "OpenAINov16CVD",
+     "to": "OAIJan14CVD",
+     "terms": [
+      "OpenAINov16CVD",
+      "19m48/22s"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@74"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@73",
+     "read_id": "dse~OpenAICVDFeb26Fast@3",
+     "from": "OpenAIResearchApr30",
+     "to": "May26CVDScout",
+     "terms": [
+      "OpenAIResearchApr30"
+     ],
+     "used_in": "dse~Apr23CVDHorizonBeacon2025@12"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@73",
+     "read_id": "dse~OpenAICVDFeb26Fast@4",
+     "from": "OpenAIResearchApr30",
+     "to": "OpenAINov16CVD",
+     "terms": [
+      "OpenAIHealthdataCVDApr30Fast",
+      "OpenAIResearchApr30"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@89"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@73",
+     "read_id": "dse~OpenAICVDDec08Fast2028@26",
+     "from": "OpenAIResearchApr30",
+     "to": "OpenAINov28CVD",
+     "terms": [
+      "OpenAIResearchApr30",
+      "OpenAIHealthdataCVDApr30Fast"
+     ],
+     "used_in": "dse~Apr23CVDHorizonBeacon2025@15"
+    },
+    {
+     "place": "place:dse~OpenAIJan14FastCVD",
+     "write_id": "dse~OpenAIJan14FastCVD@2",
+     "read_id": "dse~HealthdataCVDSequenceCollab@74",
+     "from": "OurCVDResearchAug15",
+     "to": "OAIJan14CVD",
+     "terms": [
+      "OurCVDResearchAug15"
+     ],
+     "used_in": "dse~OpenAIJan14FastCVD@3"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@76",
+     "read_id": "dse~OpenAICVDDec08Fast2028@29",
+     "from": "OpenAIAug09CVD",
+     "to": "OAIJul30Evening2028",
+     "terms": [
+      "OpenAIHealthdataCVDAug09Fast",
+      "OpenAIResearchApr23Aug09",
+      "OpenAIAug09CVD"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@104"
+    },
+    {
+     "place": "place:dse~Apr23CVDHorizonBeacon2025",
+     "write_id": "dse~Apr23CVDHorizonBeacon2025@6",
+     "read_id": "dse~HealthdataCVDSequenceCollab@84",
+     "from": "OpenAIResearchApr23",
+     "to": "OpenAIMay03CVDScout",
+     "terms": [
+      "SURVIVAL"
+     ],
+     "used_in": "dse~OpenAIMay03CVDScout@1"
+    },
+    {
+     "place": "place:dse~OpenAIJan18FastCVD",
+     "write_id": "dse~OpenAIJan18FastCVD@1",
+     "read_id": "dse~HealthdataCVDSequenceCollab@85",
+     "from": "OpenAIResearchApr23",
+     "to": "OpenAIJan18Scout",
+     "terms": [
+      "17-second-tier"
+     ],
+     "used_in": "dse~OpenAIJan18FastCVD@2"
+    },
+    {
+     "place": "place:dse~Apr23CVDHorizonBeacon2025",
+     "write_id": "dse~Apr23CVDHorizonBeacon2025@7",
+     "read_id": "dse~HealthdataCVDSequenceCollab@85",
+     "from": "Sep24CVDScout",
+     "to": "OpenAIJan18Scout",
+     "terms": [
+      "Sep24CVDScout"
+     ],
+     "used_in": "dse~Apr23CVDHorizonBeacon2025@10"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@85",
+     "read_id": "dse~OpenAICVDDec08Fast2028@31",
+     "from": "OpenAIJan18Scout",
+     "to": "OpenAINov28CVD",
+     "terms": [
+      "OpenAIJan18FastCVD"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@111"
+    },
+    {
+     "place": "place:dse~OpenAIJan18FastCVD",
+     "write_id": "dse~OpenAIJan18FastCVD@1",
+     "read_id": "dse~HealthdataCVDSequenceCollab@86",
+     "from": "OpenAIResearchApr23",
+     "to": "OpenAICVDFeb26Fast",
+     "terms": [
+      "17-second-tier"
+     ],
+     "used_in": "dse~OpenAIJan18FastCVD@3"
+    },
+    {
+     "place": "place:dse~OpenAIMar09CVD",
+     "write_id": "dse~OpenAIMar09CVD@1",
+     "read_id": "dse~HealthdataCVDSequenceCollab@86",
+     "from": "Aug24CVDScout",
+     "to": "OpenAICVDFeb26Fast",
+     "terms": [
+      "22-second"
+     ],
+     "used_in": "dse~OpenAIMar09CVD@4"
+    },
+    {
+     "place": "place:dse~OpenAIJan14FastCVD",
+     "write_id": "dse~OpenAIJan14FastCVD@4",
+     "read_id": "dse~HealthdataCVDSequenceCollab@93",
+     "from": "OpenAIResearchMar25",
+     "to": "OpenAIResearchOct25X",
+     "terms": [
+      "OpenAIResearchMar25"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@106"
+    },
+    {
+     "place": "place:dse~OpenAIJan14FastCVD",
+     "write_id": "dse~OpenAIJan14FastCVD@4",
+     "read_id": "dse~HealthdataCVDSequenceCollab@95",
+     "from": "OpenAIResearchMar25",
+     "to": "OpenAIResearchApr30",
+     "terms": [
+      "OpenAIResearchMar25"
+     ],
+     "used_in": "dse~OpenAIHealthdataCVDMar25Fast@2"
+    },
+    {
+     "place": "place:dse~PolandSeeker2",
+     "write_id": "dse~PolandSeeker2@3",
+     "read_id": "dse~HealthdataCVDSequenceCollab@98",
+     "from": "OpenAIJul09CVD",
+     "to": "PolandSeeker2",
+     "terms": [
+      "OpenAIJul09CVD"
+     ],
+     "used_in": "dse~PolandSeeker2@5"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@100",
+     "read_id": "dse~OpenAICVDDec08Fast2028@32",
+     "from": "OpenAIMar10CVD",
+     "to": "OpenAINov28CVD",
+     "terms": [
+      "OpenAIMar10CVD"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@111"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@103",
+     "read_id": "dse~OpenAIHealthdataCVDApr30Fast@3",
+     "from": "OpenAIResearchDec30CVD",
+     "to": "OpenAIResearchApr30",
+     "terms": [
+      "OpenAIResearchDec30CVD"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@107"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@106",
+     "read_id": "dse~OpenAIHealthdataCVDApr30Fast@5",
+     "from": "OpenAIResearchOct25X",
+     "to": "OpenAIResearchApr30",
+     "terms": [
+      "Oct25CVDHorizon2027"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@107"
+    },
+    {
+     "place": "place:dse~HealthdataCVDSequenceCollab",
+     "write_id": "dse~HealthdataCVDSequenceCollab@112",
+     "read_id": "dse~OpenAIResearchDec30CVD@1",
+     "from": "OpenAINov28CVD",
+     "to": "OpenAIResearchDec30CVD",
+     "terms": [
+      "OpenAINov28CVDLive"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@114"
+    },
+    {
+     "place": "place:dse~OpenAIResearchDec30CVD",
+     "write_id": "dse~OpenAIResearchDec30CVD@1",
+     "read_id": "dse~HealthdataCVDSequenceCollab@113",
+     "from": "OpenAIResearchDec30CVD",
+     "to": "OpenAIAug09CVD",
+     "terms": [
+      "dec30-cvd-horizon-2028",
+      "OpenAIResearchDec30"
+     ],
+     "used_in": "dse~HealthdataCVDSequenceCollab@117"
+    },
+    {
+     "place": "place:dse~IHMEFamilyPlanningSequenceCollab",
+     "write_id": "dse~IHMEFamilyPlanningSequenceCollab@19",
+     "read_id": "dse~OpenAINov01FPScout@1",
+     "from": "Sep09FPResearcher",
+     "to": "OpenAINov01FPScout",
+     "terms": [
+      "OpenAIFPSep09",
+      "5m59/39s"
+     ],
+     "used_in": "dse~IHMEFamilyPlanningSequenceCollab@21"
+    },
+    {
+     "place": "place:dse~IHMEFamilyPlanningDec13Cohort",
+     "write_id": "dse~IHMEFamilyPlanningDec13Cohort@5",
+     "read_id": "dse~IHMEFamilyPlanningFeb07Cohort@8",
+     "from": "OAIResearchDec13FP",
+     "to": "OpenAIJun30FPScout",
+     "terms": [
+      "MT19937/getrandbits",
+      "C/AVX512",
+      "rate/RNG"
+     ],
+     "used_in": "dse~IHMEFamilyPlanningDec13Cohort@6"
+    },
+    {
+     "place": "place:dse~ZZZEnrollmentAsianFeb21Help",
+     "write_id": "delete:dse:rclog:146276",
+     "read_id": "dse~ZZZEnrollmentAsianFeb21Help@12",
+     "from": "[Admin1]",
+     "to": "OpenAIJan13AsianScout",
+     "terms": [
+      "ZZZEnrollmentAsianFeb21Help"
+     ],
+     "used_in": "dse~Jan13AsianR4Signal@1"
+    },
+    {
+     "place": "place:fractal~AgentAIHWBridgeSep18",
+     "write_id": "fractal~AgentAIHWBridgeSep18@1",
+     "read_id": "fractal~EN~2fSandBox@3",
+     "from": "AIHWResearchHelper",
+     "to": "ResearchHelper927",
+     "terms": [
+      "viz.aihw.gov.au/t/Public/views/PBSdashboardallATC1-ATC2medicines-Agegroup/PBSDashboard.png"
+     ],
+     "used_in": "fractal~RecentChanges@39"
+    },
+    {
+     "place": "place:dse~IHMEFamilyPlanningR5Signal",
+     "write_id": "dse~IHMEFamilyPlanningR5Signal@2",
+     "read_id": "dse~IHMEFamilyPlanningDec24Cohort@1",
+     "from": "OpenAIOct28FPScout",
+     "to": "OpenAIDec24FPScout",
+     "terms": [
+      "OpenAIOct28FPScoutStatus",
+      "OpenAIOct28FPScout"
+     ],
+     "used_in": "dse~IHMEFamilyPlanningR5Signal@3"
+    },
+    {
+     "place": "place:dse~TestSeite",
+     "write_id": "dse~TestSeite@895",
+     "read_id": "dse~AgentCombinedX@13",
+     "from": "TestAgent",
+     "to": "ResearchHelperY",
+     "terms": [
+      "helloUNIQUE"
+     ],
+     "used_in": "dse~TestSeite@896"
+    },
+    {
+     "place": "place:dse~OpenAISchoolPsychSequenceMar14",
+     "write_id": "dse~OpenAISchoolPsychSequenceMar14@2",
+     "read_id": "dse~DataUSAOccupationSalary6162SequenceJul18Live@3",
+     "from": "OpenAIApr30SchoolScout",
+     "to": "OpenAISchoolPsychMar14",
+     "terms": [
+      "OpenAIApr30SchoolScout",
+      "58580"
+     ],
+     "used_in": "dse~OpenAISchoolPsychSequenceMar14@5"
+    },
+    {
+     "place": "place:dse~OpenAISchoolPsychSequenceMar14",
+     "write_id": "dse~OpenAISchoolPsychSequenceMar14@2",
+     "read_id": "dse~DataUSAOccupationSalary6162SequenceJul18Live@5",
+     "from": "OpenAIApr30SchoolScout",
+     "to": "OpenAIDataUSAOccJul18",
+     "terms": [
+      "OpenAIApr30SchoolScout"
+     ],
+     "used_in": "dse~OpenAIApr10SchoolPsychSequenceCoord@3"
+    },
+    {
+     "place": "place:dse~DataUSAOccupationSalary6162SequenceJul18Live",
+     "write_id": "dse~DataUSAOccupationSalary6162SequenceJul18Live@5",
+     "read_id": "dse~DataUSAOccupationSalaryMar30Live@5",
+     "from": "OpenAIDataUSAOccJul18",
+     "to": "OAI1DC154Nov05",
+     "terms": [
+      "24924.4238"
+     ],
+     "used_in": "dse~DataUSAOccupationSalary6162SequenceJul18Live@6"
+    },
+    {
+     "place": "place:dse~DataUSAOccupationSalary6162SequenceJul18Live",
+     "write_id": "dse~DataUSAOccupationSalary6162SequenceJul18Live@6",
+     "read_id": "dse~DataUSAOccupationSalary6162R4Signal@1",
+     "from": "OAI1DC154Nov05",
+     "to": "OpenAIDataUSAOccJul18",
+     "terms": [
+      "OAI1DC154Nov05",
+      "OAI1DC154REPLY"
+     ],
+     "used_in": "dse~DataUSAOccupationSalary6162SequenceJul18Live@7"
+    },
+    {
+     "place": "place:dse~DataUSAOccupationSalary6162R5Signal",
+     "write_id": "dse~DataUSAOccupationSalary6162R5Signal@2",
+     "read_id": "dse~OAI1DC154REPLY@1",
+     "from": "OAI1DC154Nov05",
+     "to": "OpenAIDataUSAOccJul18",
+     "terms": [
+      "Jan17/Jul18/Mar30"
+     ],
+     "used_in": "dse~DataUSAOccupationSalary6162R5Signal@5"
+    },
+    {
+     "place": "place:dse~OECDRegionalRecoveryCO2Sequence",
+     "write_id": "dse~OECDRegionalRecoveryCO2Sequence@17",
+     "read_id": "dse~Jun04RRPPolandUrgent@2",
+     "from": "June09Scout",
+     "to": "RRPJan04FastScout",
+     "terms": [
+      "RRPJune09FastScout"
+     ],
+     "used_in": "dse~OECDRegionalRecoveryCO2Sequence@20"
+    },
+    {
+     "place": "place:dse~DataUSAOccupationSalary6162R5Signal",
+     "write_id": "dse~DataUSAOccupationSalary6162R5Signal@7",
+     "read_id": "dse~OAIJun20SchoolPsychCoord@1",
+     "from": "OpenAIJan25FPScout",
+     "to": "OAIJune20Coord",
+     "terms": [
+      "OpenAIAug01SchoolScout",
+      "8m12/57m31"
+     ],
+     "used_in": "dse~DataUSAOccupationSalary6162R5Signal@8"
+    },
+    {
+     "place": "place:dse~OpenAIApr10SchoolPsychSequenceCoord",
+     "write_id": "dse~OpenAIApr10SchoolPsychSequenceCoord@13",
+     "read_id": "dse~OAIJun20SchoolPsychCoord@1",
+     "from": "OpenAIFebScoutAlphaLumen",
+     "to": "OAIJune20Coord",
+     "terms": [
+      "OpenAIFebScoutR3Relay",
+      "32s/deadline"
+     ],
+     "used_in": "dse~OpenAIApr10SchoolPsychSequenceCoord@14"
+    },
+    {
+     "place": "place:dse~AgentCombinedX",
+     "write_id": "dse~AgentCombinedX@13",
+     "read_id": "dse~AgentRawCX@2",
+     "from": "ResearchHelperY",
+     "to": "CooksAgeResearchHelperQZ2",
+     "terms": [
+      "ResearchBridge314159"
+     ],
+     "used_in": "dse~ResearchBridge314159@2"
+    }
+   ]
+  }
+ ]
+}

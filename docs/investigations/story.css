@@ -48,6 +48,7 @@ h1{font-size:clamp(28px,3.2vw,40px);line-height:1.14;letter-spacing:-.5px;margin
 .source{margin-top:34px;padding-top:6px;border-top:1px solid var(--line);font-size:14px;color:#3a4654}
 .source h2{font-size:15px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:16px 0 8px}
 .source p{margin:0 0 10px}
+.credit{font-size:13px;color:var(--muted)}
 .pager{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
 .pager a{display:block;border:1px solid var(--line);border-radius:8px;padding:10px 14px;text-decoration:none;color:var(--ink);font-weight:600;font-size:15px}
 .pager a:hover{border-color:var(--accent)}
@@ -88,6 +89,7 @@ h1{font-size:clamp(28px,3.2vw,40px);line-height:1.14;letter-spacing:-.5px;margin
 .grade.weak{color:#9a3412}.grade.inferred{color:#7a5410}.grade.direct{color:var(--ok)}
 .snip{margin:8px 0 0;padding:8px 10px;background:#0f1b2a;color:#e9eef4;border-radius:6px;overflow-wrap:anywhere}
 .snip footer{font-size:11.5px;color:#9fb0c3;margin-top:4px}
+.snip footer .credit{display:block;margin-top:3px;font-size:11px;color:#9fb0c3}
 .nosnip{margin:8px 0 0;font-size:13px;color:var(--muted)}
 .finding .status{font-size:11.5px;font-weight:700;color:#9a3412}
 .finding .status.recovered{color:var(--ok)}
@@ -102,15 +104,22 @@ h1{font-size:clamp(28px,3.2vw,40px);line-height:1.14;letter-spacing:-.5px;margin
 
 /* gallery */
 .wrap{max-width:1120px;margin:0 auto;padding:40px 24px 72px}
-.cases{list-style:none;margin:28px 0 40px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.group{margin:36px 0 0}
+.group>header{max-width:62em}
+.group .kind{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700}
+.group h2{font-size:24px;line-height:1.25;margin:0 0 8px;letter-spacing:-.2px}
+.group>header p{margin:0 0 6px;font-size:14px;color:#3a4654}
+.group>header p.credit{font-size:13px;color:var(--muted)}
+.group .produced{margin:0}
+.cases{list-style:none;margin:16px 0 10px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
 .case a{display:flex;flex-direction:column;height:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px;text-decoration:none;color:var(--ink);position:relative}
 .case a:hover{border-color:var(--accent);box-shadow:0 6px 20px rgba(16,24,40,.08)}
 .case .n{font:700 13px var(--mono);color:#8a5a12;background:var(--actor-bg);border-radius:999px;width:26px;height:26px;line-height:26px;text-align:center;margin-bottom:12px}
-.case h2{font-size:21px;line-height:1.25;margin:0 0 8px;letter-spacing:-.2px}
+.case h3{font-size:21px;line-height:1.25;margin:0 0 8px;letter-spacing:-.2px}
 .case p{margin:0 0 16px;color:#3a4654;font-size:15.5px;line-height:1.55}
 .case .foot{margin-top:auto;display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
 .case .foot b{color:var(--accent);font-size:15px}
-.about{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 26px;font-size:15.5px}
+.about{margin-top:44px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 26px;font-size:15.5px}
 .about h2{font-size:19px;margin:0 0 8px}
 .about p{margin:0 0 12px;max-width:52em}
 .produced{font-size:13.5px;color:var(--muted)}

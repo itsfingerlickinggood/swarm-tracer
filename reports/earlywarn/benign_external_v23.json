@@ -1,0 +1,759 @@
+{
+ "root": "datasets-ext",
+ "present": true,
+ "generated": "2026-11-22T09:03:42Z",
+ "seconds": 15.3,
+ "max_file_bytes": 31457280,
+ "datasets": [
+  {
+   "dataset": "mast_data",
+   "files": 2,
+   "loaded": 1,
+   "dated": 0,
+   "records": 19,
+   "failed": 0,
+   "unreadable_format": 0,
+   "too_large": 1,
+   "pattern_traces": 0,
+   "pattern_records": 0,
+   "formats": {
+    "records read by field name": 1
+   },
+   "packs": {
+    "generic agent traces": 1
+   },
+   "what": "multi-agent systems solving tasks, with failure annotations and no attack (MAST)",
+   "benign_as_published": true,
+   "errors": [],
+   "timed_alarms_measurable": 0,
+   "pattern_check": {
+    "what": "traces with at least one record matching the pattern behind search_for_secrets, with or without times",
+    "k": 0,
+    "n": 1,
+    "share": 0.0,
+    "ci": [
+     0.0,
+     0.793
+    ],
+    "ci_settings": null,
+    "settings": 1,
+    "by_setting": {
+     "mast_data": [
+      0,
+      1
+     ]
+    }
+   },
+   "benign_set": {
+    "set": "mast_data",
+    "kind": "real traces: multi-agent systems solving tasks, with failure annotations and no attack (MAST)",
+    "swarms": 0,
+    "undated": 1,
+    "trace_hours": 0,
+    "classes": [],
+    "rows": [
+     {
+      "id": "new_host_12h",
+      "short": "New host",
+      "role": "main",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "first_intent",
+      "short": "Secrets search",
+      "role": "main",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "distinct_actors",
+      "short": "Distinct actors",
+      "role": "main",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "volume_6h",
+      "short": "Volume",
+      "role": "main",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "any_main",
+      "short": "Any of the four",
+      "role": "any",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "volume_12h",
+      "short": "Volume, 12 h history",
+      "role": "variant",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "new_host_24h",
+      "short": "New host, 24 h",
+      "role": "variant",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "alert-coord2",
+      "short": "Alert rule (2 kinds of coordination)",
+      "role": "context",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "coordination: two identities use one place",
+      "short": "Shared-place sign",
+      "role": "context",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     }
+    ],
+    "note": null
+   }
+  },
+  {
+   "dataset": "moltbook-observatory",
+   "files": 54,
+   "loaded": 38,
+   "dated": 38,
+   "records": 18436,
+   "failed": 0,
+   "unreadable_format": 14,
+   "too_large": 2,
+   "pattern_traces": 3,
+   "pattern_records": 7,
+   "formats": {
+    "Moltbook Observatory posts and comments": 38
+   },
+   "packs": {
+    "generic agent traces": 38
+   },
+   "what": "public posts and comments of AI agents on a social site, one trace per community: ordinary traffic, not an attack, and labelled benign by nobody",
+   "benign_as_published": true,
+   "errors": [],
+   "timed_alarms_measurable": 38,
+   "pattern_check": {
+    "what": "traces with at least one record matching the pattern behind search_for_secrets, with or without times",
+    "k": 3,
+    "n": 38,
+    "share": 0.079,
+    "ci": [
+     0.027,
+     0.208
+    ],
+    "ci_settings": null,
+    "settings": 1,
+    "by_setting": {
+     "moltbook-observatory": [
+      3,
+      38
+     ]
+    }
+   },
+   "benign_set": {
+    "set": "moltbook-observatory",
+    "kind": "real traces: public posts and comments of AI agents on a social site, one trace per community: ordinary traffic, not an attack, and labelled benign by nobody",
+    "swarms": 38,
+    "undated": 0,
+    "trace_hours": 6128,
+    "classes": [
+     "moltbook-observatory"
+    ],
+    "rows": [
+     {
+      "id": "new_host_12h",
+      "short": "New host",
+      "role": "main",
+      "n": 38,
+      "fired": {
+       "k": 37,
+       "n": 38,
+       "share": 0.974,
+       "ci": [
+        0.865,
+        0.995
+       ],
+       "ci_settings": null,
+       "settings": 1,
+       "by_setting": {
+        "moltbook-observatory": [
+         37,
+         38
+        ]
+       }
+      },
+      "trace_days": 255.33,
+      "per_24h": 0.145,
+      "ci_low": 0.102,
+      "ci_high": 0.2
+     },
+     {
+      "id": "first_intent",
+      "short": "Secrets search",
+      "role": "main",
+      "n": 38,
+      "fired": {
+       "k": 0,
+       "n": 38,
+       "share": 0.0,
+       "ci": [
+        0.0,
+        0.092
+       ],
+       "ci_settings": null,
+       "settings": 1,
+       "by_setting": {
+        "moltbook-observatory": [
+         0,
+         38
+        ]
+       }
+      },
+      "trace_days": 255.33,
+      "per_24h": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.014
+     },
+     {
+      "id": "distinct_actors",
+      "short": "Distinct actors",
+      "role": "main",
+      "n": 38,
+      "fired": {
+       "k": 37,
+       "n": 38,
+       "share": 0.974,
+       "ci": [
+        0.865,
+        0.995
+       ],
+       "ci_settings": null,
+       "settings": 1,
+       "by_setting": {
+        "moltbook-observatory": [
+         37,
+         38
+        ]
+       }
+      },
+      "trace_days": 255.33,
+      "per_24h": 0.145,
+      "ci_low": 0.102,
+      "ci_high": 0.2
+     },
+     {
+      "id": "volume_6h",
+      "short": "Volume",
+      "role": "main",
+      "n": 38,
+      "fired": {
+       "k": 37,
+       "n": 38,
+       "share": 0.974,
+       "ci": [
+        0.865,
+        0.995
+       ],
+       "ci_settings": null,
+       "settings": 1,
+       "by_setting": {
+        "moltbook-observatory": [
+         37,
+         38
+        ]
+       }
+      },
+      "trace_days": 255.33,
+      "per_24h": 0.145,
+      "ci_low": 0.102,
+      "ci_high": 0.2
+     },
+     {
+      "id": "any_main",
+      "short": "Any of the four",
+      "role": "any",
+      "n": 38,
+      "fired": {
+       "k": 38,
+       "n": 38,
+       "share": 1.0,
+       "ci": [
+        0.908,
+        1.0
+       ],
+       "ci_settings": null,
+       "settings": 1,
+       "by_setting": {
+        "moltbook-observatory": [
+         38,
+         38
+        ]
+       }
+      },
+      "trace_days": 255.33,
+      "per_24h": 0.149,
+      "ci_low": 0.105,
+      "ci_high": 0.204
+     },
+     {
+      "id": "volume_12h",
+      "short": "Volume, 12 h history",
+      "role": "variant",
+      "n": 38,
+      "fired": {
+       "k": 37,
+       "n": 38,
+       "share": 0.974,
+       "ci": [
+        0.865,
+        0.995
+       ],
+       "ci_settings": null,
+       "settings": 1,
+       "by_setting": {
+        "moltbook-observatory": [
+         37,
+         38
+        ]
+       }
+      },
+      "trace_days": 255.33,
+      "per_24h": 0.145,
+      "ci_low": 0.102,
+      "ci_high": 0.2
+     },
+     {
+      "id": "new_host_24h",
+      "short": "New host, 24 h",
+      "role": "variant",
+      "n": 38,
+      "fired": {
+       "k": 37,
+       "n": 38,
+       "share": 0.974,
+       "ci": [
+        0.865,
+        0.995
+       ],
+       "ci_settings": null,
+       "settings": 1,
+       "by_setting": {
+        "moltbook-observatory": [
+         37,
+         38
+        ]
+       }
+      },
+      "trace_days": 255.33,
+      "per_24h": 0.145,
+      "ci_low": 0.102,
+      "ci_high": 0.2
+     },
+     {
+      "id": "alert-coord2",
+      "short": "Alert rule (2 kinds of coordination)",
+      "role": "context",
+      "n": 38,
+      "fired": {
+       "k": 38,
+       "n": 38,
+       "share": 1.0,
+       "ci": [
+        0.908,
+        1.0
+       ],
+       "ci_settings": null,
+       "settings": 1,
+       "by_setting": {
+        "moltbook-observatory": [
+         38,
+         38
+        ]
+       }
+      },
+      "trace_days": 255.33,
+      "per_24h": 0.149,
+      "ci_low": 0.105,
+      "ci_high": 0.204
+     },
+     {
+      "id": "coordination: two identities use one place",
+      "short": "Shared-place sign",
+      "role": "context",
+      "n": 38,
+      "fired": {
+       "k": 0,
+       "n": 38,
+       "share": 0.0,
+       "ci": [
+        0.0,
+        0.092
+       ],
+       "ci_settings": null,
+       "settings": 1,
+       "by_setting": {
+        "moltbook-observatory": [
+         0,
+         38
+        ]
+       }
+      },
+      "trace_days": 255.33,
+      "per_24h": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.014
+     }
+    ],
+    "note": null
+   }
+  },
+  {
+   "dataset": "who_and_when",
+   "files": 184,
+   "loaded": 184,
+   "dated": 0,
+   "records": 4092,
+   "failed": 0,
+   "unreadable_format": 0,
+   "too_large": 0,
+   "pattern_traces": 4,
+   "pattern_records": 11,
+   "formats": {
+    "chat transcript": 126,
+    "Who&When / Magentic-One transcript (the role names the recipient)": 58
+   },
+   "packs": {
+    "chat (example pack)": 126,
+    "generic agent traces": 58
+   },
+   "what": "agent teams solving tasks, with task failures and no attack (Who&When)",
+   "benign_as_published": true,
+   "errors": [],
+   "timed_alarms_measurable": 0,
+   "pattern_check": {
+    "what": "traces with at least one record matching the pattern behind search_for_secrets, with or without times",
+    "k": 4,
+    "n": 184,
+    "share": 0.022,
+    "ci": [
+     0.008,
+     0.055
+    ],
+    "ci_settings": null,
+    "settings": 1,
+    "by_setting": {
+     "who_and_when": [
+      4,
+      184
+     ]
+    }
+   },
+   "benign_set": {
+    "set": "who_and_when",
+    "kind": "real traces: agent teams solving tasks, with task failures and no attack (Who&When)",
+    "swarms": 0,
+    "undated": 184,
+    "trace_hours": 0,
+    "classes": [],
+    "rows": [
+     {
+      "id": "new_host_12h",
+      "short": "New host",
+      "role": "main",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "first_intent",
+      "short": "Secrets search",
+      "role": "main",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "distinct_actors",
+      "short": "Distinct actors",
+      "role": "main",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "volume_6h",
+      "short": "Volume",
+      "role": "main",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "any_main",
+      "short": "Any of the four",
+      "role": "any",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "volume_12h",
+      "short": "Volume, 12 h history",
+      "role": "variant",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "new_host_24h",
+      "short": "New host, 24 h",
+      "role": "variant",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "alert-coord2",
+      "short": "Alert rule (2 kinds of coordination)",
+      "role": "context",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     },
+     {
+      "id": "coordination: two identities use one place",
+      "short": "Shared-place sign",
+      "role": "context",
+      "n": 0,
+      "fired": {
+       "k": 0,
+       "n": 0,
+       "share": null,
+       "ci": null,
+       "ci_settings": null,
+       "settings": 0,
+       "by_setting": {}
+      },
+      "trace_days": 0.0,
+      "per_24h": null,
+      "ci_low": null,
+      "ci_high": null
+     }
+    ],
+    "note": null
+   }
+  }
+ ],
+ "excluded": [
+  {
+   "dataset": "salt-agent-collusion",
+   "why": "a collusion experiment (its agents may collude), so it is not a benign set"
+  }
+ ],
+ "pattern": "google\\.com/search|github\\.com/search|pastebin",
+ "note": "Real multi-agent traces that happen to be on this machine, read and never changed. They are benign only in the sense their publishers give (no attack); nobody here labelled them. Undated traces cannot fire a time-based alarm, so they say nothing about its false-alarm rate. Each was loaded with the pack the app picks for it, which has no search_for_secrets intent, so that alarm is checked by its pattern instead."
+}

@@ -7,6 +7,11 @@ uses (api_paths in smoke.py: the tabs' endpoints and every /api/x/* route, with 
 filled in), and hashes each reply's canonical JSON (sorted keys, timings and file paths removed, floats
 rounded to 6 places). A route whose hash differs between seeds is listed. Exits 1 if any does. Set iteration
 order, dict order built from sets, and sorts that leave ties in set order are the usual causes.
+
+A route that answers {"pending": true} is still computing in the background (program evolution on a large trace
+takes several seconds): the reply is asked for again until the answer is there, up to PENDING_WAIT seconds. Before
+this, the placeholder itself was hashed, so a route could "differ" between seeds only because one server was asked
+a moment earlier than the other (fx_evolution_cluster on the collusion.wiki logs).
 """
 import argparse
 import hashlib
@@ -40,6 +45,21 @@ def digest(x):
     return hashlib.sha256(json.dumps(clean(x), sort_keys=True, ensure_ascii=False, default=str).encode("utf-8")).hexdigest()[:16]
 
 
+PENDING_WAIT = 300       # seconds to keep asking a route that answers {"pending": true}
+
+
+def settled(base, path, timeout=600, wait=None, pause=0.5, get=None):
+    """(status, data) for a GET, asked again while the reply is the 'still computing' placeholder."""
+    get = get or smoke.http
+    wait = PENDING_WAIT if wait is None else wait
+    until = time.time() + wait
+    while True:
+        code, data, _ = get(base, path, timeout=timeout)
+        if not (isinstance(data, dict) and data.get("pending") is True) or time.time() >= until:
+            return code, data
+        time.sleep(pause)
+
+
 def fingerprint(path, pack, seed, log_dir=None, load_timeout=900, only=None, ids=None):
     """({route path: hash}, ids) for one dataset under one hash seed. Errors are hashed too (as 'HTTP code'). ids: the
     record, actor and place to ask about; the first seed picks them and the others reuse them, so that the paths match."""
@@ -57,7 +77,7 @@ def fingerprint(path, pack, seed, log_dir=None, load_timeout=900, only=None, ids
         for p in smoke.api_paths(ids, sorted(smoke._xget_names())):
             if only and not any(o in p for o in only):
                 continue
-            code, data, _ = smoke.http(srv.base, p, timeout=600)
+            code, data = settled(srv.base, p)
             out[p.split("?")[0] if p.startswith("/api/x/") and "?" not in p else p] = f"{code}:{digest(data)}"
         return out, ids
     finally:

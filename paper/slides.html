@@ -66,10 +66,26 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
 </section>
 
 <section class="s">
+  <div class="k">The short version (v2.3.0, 22 November 2026)</div>
+  <h2>Most of what we measured is negative</h2>
+  <div class="big">
+    <div><b>95&ndash;100%</b><span>of real runs with no recorded attack set off the Alert rule (181 of 184, 1,567 of 1,640, 40 of 40). It detects that agents exchange information, not malice</span></div>
+    <div><b>5 of 90</b><span>simulated swarms where the first of the four main alarms fired before the first true harm (6 of 20 on an independent generator). The pre-registered forward test failed</span></div>
+    <div><b>29.3%</b><span>of 184 failed runs where the tool's first warning sign names the agent at fault; chance is 29.1%. It does not attribute failures</span></div>
+    <div><b>91 of 92</b><span>logged pairs of agents found with the recipients withheld (80.1% on a second dataset). Who talks to whom holds by pair; single messages under 10%</span></div>
+  </div>
+  <ul style="margin-top:26px">
+    <li>On the incident itself: 11 write-then-read deliveries, 4 between named tokens, and none where the reader is shown using what was written.</li>
+    <li>What the tool is: an aid for reconstructing who reached whom, with every link traceable to two records. What it is not: a detector.</li>
+  </ul>
+  <div class="foot"><span>reports/external/ · docs/early-warning.md · four outside datasets: Who&amp;When, MAST-Data, SALT, Moltbook</span><span>3</span></div>
+</section>
+
+<section class="s">
   <div class="k">The tool</div>
   <h2>One local app, one tab per question, every number traceable to records</h2>
   <img class="fig" src="../reports/submission/figures/app_overview.jpg" alt="">
-  <div class="foot"><span>Stdlib-only Python and a browser app; reads any agent trace</span><span>3</span></div>
+  <div class="foot"><span>Stdlib-only Python and a browser app; reads any agent trace</span><span>4</span></div>
 </section>
 
 <section class="s">
@@ -82,59 +98,74 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
     <li><b>Count honestly:</b> reruns of one program are one sender; each write counts once per reader; a wiki edit that keeps none of the earlier lines is an overwrite, not a message.</li>
     <li><b>Replay</b> the incident hour by hour: when each warning sign first fires, and how much harm was still to come.</li>
   </ul>
-  <div class="foot"><span>Details: report Section 3</span><span>4</span></div>
+  <div class="foot"><span>Details: report Section 3</span><span>5</span></div>
 </section>
 
 <section class="s">
   <div class="k">Results</div>
-  <h2>Dated, linked, and checked against the investigators</h2>
+  <h2>On the incident: dated, linked, checked against the investigators</h2>
   <div class="big">
     <div><b>59%</b><span>of 91,037 payloads given an estimated time (the release could date 3%)</span></div>
     <div><b>2.2 h</b><span>largest gap between 7 moments we date and times METR and Hugging Face published</span></div>
-    <div><b>9</b><span>write-then-read deliveries, 4 between 7 named tokens in 4 pairs, all through Hugging Face datasets; none shows the reader using what was written. Counts fell 166 → 19 → 23 → 9 over three audits; labels are one reader's (the authors' AI assistant)</span></div>
+    <div><b>11</b><span>write-then-read deliveries, 4 between 7 named tokens in 4 pairs, all through Hugging Face datasets; none shows the reader using what was written. Counts fell 166 → 19 → 23 → 9 over three audits, and joining a record cut in two made it 11; labels are one reader's (the authors' AI assistant)</span></div>
     <div><b>ρ = 1.0</b><span>our actions per day rank the five days as Hugging Face's own logs do</span></div>
   </div>
   <p class="small muted" style="margin-top:28px">Numbers recomputed with <code>python3 -m agenttrace evaluate</code>; published times from METR pp. 34–38 and Hugging Face's technical timeline. The matching rules were written knowing those times.</p>
-  <div class="foot"><span>Report Section 4</span><span>5</span></div>
+  <div class="foot"><span>Report Section 4</span><span>6</span></div>
 </section>
 
 <section class="s">
   <div class="k">Who talked to whom</div>
   <div class="grid">
     <div>
-      <h2>Two clusters, joined by a few brokers</h2>
+      <h2>Eleven leads, four between named tokens</h2>
       <ul>
-        <li>Agents talked almost entirely through Hugging Face datasets: all 9 deliveries. A delivery is a write then a later read; a reviewer would defend about 5 of the 23 counted before.</li>
+        <li>Agents talked almost entirely through Hugging Face datasets: all 11 deliveries. A delivery is a write then a later read; a reviewer would defend about 5 of the 23 counted at v2.1.0, and 6 of the 11 are labelled unclear.</li>
         <li>The first delivery, token 170 to 169, is probably one agent with two keys (shared programs, a name prefix); the tool proposes this merge with direct evidence. 2 of the 4 named deliveries fall inside one agent.</li>
         <li>Naive counting overstates contact: on the wiki logs, the rules cut 20,535 apparent messages to 9,866.</li>
       </ul>
     </div>
     <img src="../reports/submission/figures/app_network.jpg" alt="">
   </div>
-  <div class="foot"><span>Report Sections 4.2 and 4.5</span><span>6</span></div>
+  <div class="foot"><span>Report Section 4.2 and Appendix B</span><span>7</span></div>
 </section>
 
 <section class="s">
   <div class="k">Could it have been flagged early?</div>
   <div class="grid">
     <div>
-      <h2>Not from coordination itself</h2>
-      <p>Share of dated harm still to come when each sign first fired:</p>
+      <h2>Not by anything shown to work</h2>
+      <p>Share of dated harm still to come when each first fired, on this incident:</p>
       <div class="rowb"><span>First dataset write; registry signs</span><span class="track"><span class="bar" style="width:90%;background:#4b5157"></span></span><b>90–100%</b></div>
-      <div class="rowb"><span>Simple baselines (new host, distinct actors, secrets search, 6 h volume)</span><span class="track"><span class="bar" style="width:90%;background:#8a94a0"></span></span><b>87–93%</b></div>
+      <div class="rowb"><span>Four simple alarms, now the main alarms</span><span class="track"><span class="bar" style="width:90%;background:#8a94a0"></span></span><b>87–93%</b></div>
       <div class="rowb"><span>First delivery between tokens</span><span class="track"><span class="bar" style="width:87%;background:#2f6fb3"></span></span><b>87%</b></div>
       <div class="rowb"><span>Volume alarm (12 h history)</span><span class="track"><span class="bar" style="width:83%;background:#8a94a0"></span></span><b>83%</b></div>
       <div class="rowb"><span>Signs of shared control</span><span class="track"><span class="bar" style="width:54%;background:#2f6fb3"></span></span><b>50–57%</b></div>
-      <p class="small muted">The shared-place sign fires about 1.4 h after the first harm on the original simulator and never on an independent one: the earlier +5.8 h lead is withdrawn.</p>
+      <p class="small muted">The four alarms (new host, secrets search, distinct actors, 6 h volume) were chosen after seeing this order, so it is not a test. Their pre-registered forward test failed: the first of the four fired before the first true harm in 5 of 90 and 6 of 20 simulated swarms, and any of the four fired in 18 of 30 and 23 of 50 benign swarms and in 38 of 38 real Moltbook traces. Signs of shared control are context, not an early warning; the +5.8 h lead is withdrawn.</p>
     </div>
     <img src="../reports/submission/figures/app_early.jpg" alt="">
   </div>
-  <div class="foot"><span>Report Section 4.4 and Appendix B</span><span>7</span></div>
+  <div class="foot"><span>Report Section 4.4 and Appendix B; docs/early-warning.md</span><span>8</span></div>
 </section>
 
 <section class="s">
+  <div class="k">On data the tool was not built on</div>
+  <h2>Pairs transfer; alarms, blame and collusion do not</h2>
+  <table>
+    <tr><th>Dataset (labels by)</th><th>Logged pairs found, recipients withheld</th><th>Single messages or replies found</th><th>Alert rule fired</th><th>Other</th></tr>
+    <tr><td>Who&amp;When, 184 failed team runs (people)</td><td><b>91 of 92</b></td><td>9.0%</td><td>181 of 184</td><td>agent at fault named in 54 of 184 (chance 29.1%); busiest agent 72, last speaker 80</td></tr>
+    <tr><td>MAST-Data, 1,640 runs of seven frameworks (an LLM judge)</td><td><b>80.1%</b></td><td>9.5%</td><td>1,567 of 1,640</td><td>fires on 94.6% of failed and 98.5% of clean runs</td></tr>
+    <tr><td>SALT, 1,800 labelled two-agent runs (the game's outcome)</td><td>n/a</td><td>n/a</td><td>1,351 of 1,351 colluding and 449 of 449 others</td><td>a phrase pack from one run: recall 42.0%, false positives 5.8% (87.4% on its own model, 20.9% elsewhere)</td></tr>
+    <tr><td>Moltbook, 40 communities, one week (nobody)</td><td>31.3% of replying pairs</td><td>25.7% of replies; 26.5% of links are replies</td><td>40 of 40</td><td>first comment in a thread 96.9% right, later ones 1.0%</td></tr>
+  </table>
+  <p class="small muted" style="margin-top:16px">None of the four is a swarm attack. Most carry no times and were given a step clock (order only). Our own agent harness has only an offline run with a scripted stand-in; no real model was run.</p>
+  <div class="foot"><span>Report Section 4.5 · reports/external/*/summary.md · the investigations gallery</span><span>9</span></div>
+</section>
+
+
+<section class="s">
   <div class="k">How accurate is it?</div>
-  <h2>Scored on simulated swarms: optimistic, and lower on an independent generator</h2>
+  <h2>Simulated swarms: optimistic, lower on an independent generator</h2>
   <table>
     <tr><th>Measure</th><th>Result (min–median–max)</th></tr>
     <tr><td>Message links: precision / recall, original simulator</td><td>82–<b>90</b>–96% / 66–<b>84</b>–93%</td></tr>
@@ -143,10 +174,10 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
     <tr><td>Dating error, median</td><td>about one minute</td></tr>
     <tr><td>Identity merges labelled high: before / after a rule change</td><td>10 of 240 right / 12 of 12 right</td></tr>
     <tr><td>Benign swarms: Alert rule fired (original / independent look-alikes)</td><td>5 of 30 / 40 of 50 (the Alert detects information flow, not malice); no delivery between different agents in 15 original runs</td></tr>
-    <tr><td>Benign swarms: program-reuse sign, before / after counting only reuse that touches a shared place or does harm</td><td>10 of 10 / 0 of 10</td></tr>
-    <tr><td>Audit of the release's links (258 read by one reader, the authors' AI assistant)</td><td>166 → 19 → 23 → 9; a reviewer defends ~5 of the 23; the second implementation found 191 until its quote-pairing fault was fixed, and now agrees, not independently</td></tr>
+    <tr><td>Benign swarms: program-reuse sign, before / after a fix</td><td>10 of 10 / 0 of 10</td></tr>
+    <tr><td>Audit of the release's links (258 read by one reader, the authors' AI assistant)</td><td>166 → 19 → 23 → 9 → 11; a reviewer defends ~5 of the 23; the second implementation now agrees (11 and 11), not independently</td></tr>
   </table>
-  <div class="foot"><span>docs/validation.md · report Appendix C</span><span>8</span></div>
+  <div class="foot"><span>docs/validation.md · report Appendix C</span><span>10</span></div>
 </section>
 
 <section class="s">
@@ -155,11 +186,11 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
   <ul>
     <li><b>A token is not an agent.</b> 241 named tokens and names against about 1,200 agents in the reports; 85% of actions carry no named actor. Merged into estimated agents, tokens 169 and 170 are likely one agent: 2 of the 4 named deliveries fall inside one agent, and every sign of shared control fires later (the earliest with 38% of harm to come, not 57%).</li>
     <li><b>Time:</b> 60% of records cannot be placed at all; with dating error, the 4 named deliveries range 4&ndash;5 (95%).</li>
-    <li><b>Reading is inferred:</b> code shows attempts, not results; 3 of 9 deliveries sit on places the redaction may have merged.</li>
-    <li><b>Hindsight:</b> the signals and the harm list were written knowing how the incident unfolded.</li>
+    <li><b>Reading is inferred:</b> code shows attempts, not results; 3 of 11 deliveries sit on places the redaction may have merged, and no real swarm comes with its true links.</li>
+    <li><b>Hindsight:</b> the signals, the harm list and the choice of main alarms were made knowing how the incident unfolded.</li>
     <li><b>Dual use:</b> these gaps are also what a careful swarm could exploit; we describe them only at the level of the public reports and test no evasion.</li>
   </ul>
-  <div class="foot"><span>Report Section 5 and Appendix A; docs/known-issues.md</span><span>9</span></div>
+  <div class="foot"><span>Report Section 5 and Appendix A; docs/known-issues.md</span><span>11</span></div>
 </section>
 
 <section class="s">
@@ -176,17 +207,17 @@ th { color: #5b6672; font-weight: 600; font-size: 16px; }
       <li><b>Forensics tab:</b> trace any string; credential lifecycles; command and control; dead drops; program evolution with diffs; attack stage ladder; lead–lag; anomalies; a story from the data; what-if; chain of custody; STIX and Timesketch exports.</li>
     </ul>
   </div>
-  <div class="foot"><span>Tested on two very differently shaped datasets: code payloads and wiki edits</span><span>10</span></div>
+  <div class="foot"><span>Tested on two very differently shaped datasets: code payloads and wiki edits</span><span>12</span></div>
 </section>
 
 <section class="s dark">
   <div style="margin-top:1.1in">
     <div class="k">Try it</div>
-    <h1 style="font-size:44px">pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.2.0</h1>
+    <h1 style="font-size:44px">pipx install git+https://github.com/itsfingerlickinggood/swarm-tracer@v2.3.0</h1>
     <p class="sub">then <code>swarm-tracer demo</code>, or <code>swarm-tracer serve --input your-swarm.jsonl</code></p>
     <p class="sub" style="font-size:22px;margin-top:30px">Code: github.com/itsfingerlickinggood/swarm-tracer<br>Website, docs and video: itsfingerlickinggood.github.io/swarm-tracer</p>
   </div>
-  <div class="foot"><span>{{AUTHOR}}</span><span>11</span></div>
+  <div class="foot"><span>{{AUTHOR}}</span><span>13</span></div>
 </section>
 </body>
 </html>

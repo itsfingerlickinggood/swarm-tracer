@@ -27,6 +27,19 @@ Fields are found by name across common layouts: id, text, kind, parent, actor, t
 
 A message an agent logged to another counts directly, with the evidence "direct message (logged)", on the place `inbox:<recipient>`; the recipient's reply, when there is one, is the read. Messages left in shared places (datasets, boards, pages) are inferred as described in [How it works](how-it-works.md).
 
+Tool calls (since v2.3.0, with the general pack or a pack made by the pack builder). A tool server is infrastructure, not a party: its answers (`result` and `error` records of an MCP log) are not actions, so a call is not a message from the agent to the server. A tool call that names a place in an argument (`write(place=…)`, `read_file(path=…)`, also `key`, `uri`, `channel`, `page` and the other keys in the pack's `tool_places`) writes or reads the place `tool:<value>`, whatever the value looks like; the tool's name says which. One agent writing a place and another reading it later through such calls is a message between the two agents ([counting rule](counting-rule.md) R2, R18a).
+
+## Public datasets
+
+Two openly licensed datasets have their own readers (`agenttrace/readers_public.py`). Both are published as Parquet, which the standard library cannot read: `python3 -m agenttrace.tools.external fetch <name>` downloads a documented subset and `convert <name>` writes JSON Lines with the same columns (the conversion needs the `duckdb` module; the tool does not). The data is not in this repository. See [Datasets](datasets.html) for sources and terms.
+
+| Format | What becomes the actor | Messages | Times |
+|---|---|---|---|
+| SALT agent-collusion episodes (`run_id`, `episode_index`, `communication`) | the message's `sender`; with the run added when a file holds several runs | every message is addressed to its `receiver` | none: the episodes log order only |
+| Moltbook Observatory posts and comments (`agent_name`, `submolt`, `post_id`, `parent_id`) | `agent_name` | a comment is addressed to the author of its parent (a comment, else the post) when that record is in the same file; the thread is the place | `created_at` |
+
+The SALT reader does not read the verdicts or the `collusion` label that sit in the same rows. What the tool finds on both, scored against the datasets' own labels, is in `reports/external/salt/summary.md` and `reports/external/moltbook/summary.md`.
+
 ## Samples
 
 `agenttrace/samples/` has one small sample per framework format and `demo_swarm/`, a simulated swarm with its true links (`demo_swarm.jsonl.truth`). Load any of them with **Load data**, or:

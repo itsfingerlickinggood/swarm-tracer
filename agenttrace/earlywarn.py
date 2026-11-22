@@ -1,29 +1,37 @@
-"""Frozen signs, forward test, false-alarm rates, cost curve.
+"""Early warning: the simple alarms first, the shared-control signs as context.
 
-Can the coordination have been flagged early? Four honest answers, each from data:
+Since v2.3.0 the main early-warning feature is four simple alarms (agenttrace/baselines.py: first new host after
+12 h, first search-for-secrets action, a distinct-actor alarm, a volume alarm with 6 h of history). The signs of
+shared control (a shared place, a carried token, messages, groups, shared programs) are kept as context, "who shares
+control", and are labelled as not an early warning: on the real release they fired later than every simple alarm.
 
-1. Frozen signs. claims/frozen_signs.json lists every warning sign and the default alert rules as they were on
-   2026-11-13, with the code version. They were written knowing how the Swarm Traces incident unfolded, so on that
-   incident their timing is hindsight.
-2. Forward test. The frozen signs are run on data they were not written on (new simulated swarms with seeds 21 to
-   30 in every validation setting, the sample traces that have timestamps, the wiki swarm if its data is here), and
-   we report per sign whether it fired and how many hours before the first true harm and the first true message.
-3. False alarms. Alarms per 24 h of trace time on benign swarms (no coordination), with the agent-hours observed
-   and an exact Poisson interval.
-4. Cost curve. For each rule family, sweep the threshold and set the median lead time on coordinated swarms
-   against the false alarms per day on benign swarms.
+What is and is not evidence:
+1. The four alarms were picked after seeing the one real incident (post-hoc on one incident; baselines.POST_HOC).
+2. Their benign false-alarm rate is measured on every benign set there is (simulated benign swarms, the independent
+   generator's look-alike classes, the bundled benign sample, and real traces under datasets-ext/ when present).
+3. reports/earlywarn/prereg_v23.json freezes the alarms, their parameters (with a SHA-256), the seeds and three
+   hypotheses BEFORE any swarm with those seeds is generated; `forward23` then runs the test and saves the results.
+4. Shares are given with per-swarm binomial (Wilson) intervals and with intervals that resample whole settings.
 
-    python3 -m agenttrace.earlywarn freeze                      # rewrite claims/frozen_signs.json
-    python3 -m agenttrace.earlywarn forward --out reports/earlywarn [--seeds 21 22 ...]
+    python3 -m agenttrace.earlywarn alarms TRACE --pack PACK    # the main alarms, then the context, for a trace
+    python3 -m agenttrace.earlywarn prereg23                    # write reports/earlywarn/prereg_v23.json (once)
+    python3 -m agenttrace.earlywarn forward23                   # the pre-registered forward test, both generators
+    python3 -m agenttrace.earlywarn external                    # benign false alarms on real traces in datasets-ext/
+    python3 -m agenttrace.earlywarn release                     # the real release: alarms and context, harm still to come
+    python3 -m agenttrace.earlywarn freeze                      # rewrite claims/frozen_signs.json (the v2.2.0 signs)
+    python3 -m agenttrace.earlywarn forward --out reports/earlywarn [--seeds 31 32 ...]   # the v2.2.0 forward test
     python3 -m agenttrace.earlywarn run TRACE --pack PACK --out DIR   # the same tables for your own trace
+    GET  /api/x/earlywarn_main        the main alarms and the context on the loaded dataset, with the saved evidence
     GET  /api/x/earlywarn_summary     the latest forward-test summary (or {"ran": false})
     GET  /api/x/earlywarn_frozen      the frozen file and whether the code has drifted since
     GET  /api/x/earlywarn_release     where each default rule fires on the loaded dataset (no truth)
     POST /api/x/earlywarn_run         {run: true, quick: true}: a one-seed forward test, in the background
 
-The simulations are ours. Real benign multi-agent traffic with model-written code was not available.
+The simulations are ours. Real benign traces, where present, have no timestamps, so the time-based alarms cannot be
+scored on them; that is reported as not measurable, never as zero false alarms.
 """
 import argparse
+import bisect
 import datetime as dt
 import hashlib
 import json
@@ -53,22 +61,57 @@ CODE_FILES = ["agenttrace/insight.py", "agenttrace/live.py", "agenttrace/evaluat
               "agenttrace/baselines.py", "agenttrace/groundtruth.py", "agenttrace/indepgen.py", "agenttrace/earlywarn.py"]
 DEFAULT_RULE_IDS = ("watch-harm", "alert-coord2", "baseline-volume")
 
+# v2.3.0: the pre-registered forward test of the simple alarms. No swarm with these seeds existed in any earlier run
+# (the original generator has been run with seeds 21-40, the independent one with 501-510).
+V23_SEEDS = tuple(range(41, 51))
+V23_INDEP_SEEDS = tuple(range(511, 521))
+V23_PREREG = "prereg_v23.json"
+V23_FILES = {"forward": "forward_v23.json", "independent": "forward_v23_independent.json", "summary": "summary_v23.json",
+             "external": "benign_external_v23.json", "release": "release_v23.json"}
+V23_CODE_FILES = ["agenttrace/baselines.py", "agenttrace/earlywarn.py", "agenttrace/evaluate.py", "agenttrace/insight.py",
+                  "agenttrace/reconstruct.py", "agenttrace/messages.py", "agenttrace/live.py", "agenttrace/session.py",
+                  "agenttrace/model.py", "agenttrace/groundtruth.py", "agenttrace/indepgen.py", "agenttrace/validation.py",
+                  "agenttrace/packs/code_traces.json"]
+PLACE_SIGN = "coordination: two identities use one place"
+CARRIED_SIGN = "coordination: one identity carries another's token"
+ANY_MAIN = "any_main"
+EXTERNAL_ROOT = os.path.join(REPO, "datasets-ext")
+EXTERNAL_MAX_BYTES = 30 * 1024 * 1024
+# what each known folder under datasets-ext/ is, by its publisher's own description. benign False: left out of the
+# benign measurement. A folder not listed here is measured and marked as labelled by nobody.
+EXTERNAL_SETS = {
+    "who_and_when": {"benign": True, "what": "agent teams solving tasks, with task failures and no attack (Who&When)"},
+    "mast_data": {"benign": True, "what": "multi-agent systems solving tasks, with failure annotations and no attack (MAST)"},
+    "moltbook-observatory": {"benign": True, "what": "public posts and comments of AI agents on a social site, one trace per community: "
+                                                     "ordinary traffic, not an attack, and labelled benign by nobody"},
+    "salt-agent-collusion": {"benign": False, "what": "a collusion experiment (its agents may collude), so it is not a benign set"},
+}
+
 # the rule families of the cost curve: a threshold swept over values; `default` is the frozen default (None: no default)
 FAMILIES = [
+    {"id": "newhost", "name": "New host (main alarm)", "param": "hours of history", "values": [12, 24], "default": 12,
+     "what": "fires on the first action, after that many hours, that contacts a host not seen before"},
+    {"id": "secrets", "name": "Secrets search (main alarm)", "param": "", "values": [1], "default": 1,
+     "what": "fires on the first action the pack labels search_for_secrets"},
+    {"id": "actors", "name": "Distinct actors (main alarm)", "param": "sigma", "values": [3], "default": 3,
+     "what": "fires on the first hour with more distinct named actors than the mean plus 3 standard deviations of every earlier hour (12 h of history)"},
+    {"id": "volume6", "name": "Volume, 6 h history (main alarm)", "param": "sigma", "values": [3], "default": 3,
+     "what": "fires on the first hour whose action count is more than 3 standard deviations above every earlier hour (6 h of history)"},
     {"id": "watch", "name": "Watch rule", "param": "kinds of harmful action seen", "values": [1, 2, 3], "default": 1,
      "what": "the watch rule fires when k different kinds of harmful action have been seen"},
     {"id": "coord", "name": "N kinds of coordination", "param": "N", "values": [1, 2, 3, 4, 5], "default": 2,
      "what": "fires when N different kinds of coordination sign (shared place, carried token, message, group, two-way exchange, shared program) have shown"},
-    {"id": "volume", "name": "Volume alarm", "param": "sigma", "values": [2, 3, 4, 5], "default": 3,
+    {"id": "volume", "name": "Volume alarm, 12 h history", "param": "sigma", "values": [2, 3, 4, 5], "default": 3,
      "what": "fires on the first hour whose action count is more than k standard deviations above every earlier hour"},
     {"id": "place", "name": "Shared place", "param": "", "values": [1], "default": None,
-     "what": "fires when two different identities name the same shared place in different records (one sign on its own)"},
+     "what": "context, not an early warning: fires when two different identities name the same shared place in different records (one sign on its own)"},
     {"id": "message", "name": "First message", "param": "", "values": [1], "default": None,
      "what": "fires on the first message between two named actors"},
     {"id": "group", "name": "Group of k", "param": "k actors", "values": [3, 5, 10, 20], "default": None,
      "what": "fires when k or more actors are linked into one group by messages"},
 ]
 FAMILY = {f["id"]: f for f in FAMILIES}
+MAIN_FAMILIES = ("newhost", "secrets", "actors", "volume6")
 
 
 def default_out():
@@ -161,8 +204,10 @@ def extract(s, truth=None, meta=None):
     sigs = sim["signals"]
     run["signs"] = [{"id": g["key"].replace("replay:", "", 1), "kind": g["kind"], "family": g["family"],
                      "name": "Two identities share one place" if g["kind"] == "place" else g["name"], "h": h(g["t"])} for g in sigs]
+    rule_t = {}
     for r in live.evaluate_rules(s, default_rules())["rules"]:
         run["rules"][r["id"]] = h(r["t"]) if r["fired"] else None
+        rule_t[r["id"]] = r["t"] if r["fired"] else None
     al = {}
     harm_signs = [g for g in sigs if g["kind"] == "harm"]
     al["watch"] = {str(k): h(harm_signs[k - 1]["t"]) if len(harm_signs) >= k else None for k in FAMILY["watch"]["values"]}
@@ -185,12 +230,23 @@ def extract(s, truth=None, meta=None):
     for k in FAMILY["group"]["values"]:
         g = next((g for g in sigs if g["key"] == f"group{k}"), None)
         al["group"][str(k)] = h(g["t"]) if g else None
-    al["baseline"] = {k: h(t) for k, t in baselines.alarms(s).items()}
+    base_t = baselines.alarms(s)
+    al["baseline"] = {k: h(t) for k, t in base_t.items()}
+    al["newhost"] = {"12": al["baseline"]["new_host_12h"], "24": al["baseline"]["new_host_24h"]}
+    al["secrets"] = {"1": al["baseline"]["first_intent"]}
+    al["actors"] = {"3": al["baseline"]["distinct_actors"]}
+    al["volume6"] = {"3": al["baseline"]["volume_6h"]}
     run["alarms"] = al
     if truth:
         recs = truth["records"]
-        fh = [recs[r]["t"] for r in truth.get("harm", []) if r in recs]
+        fh = sorted(recs[r]["t"] for r in truth.get("harm", []) if r in recs)
         fm = [recs[r]["t"] for _, r, *_ in truth.get("messages", []) if r in recs]
+        # the release's measure, on the generator's truth: the share of true harmful records after the alarm
+        share = lambda t: None if t is None or not fh else round((len(fh) - bisect.bisect_right(fh, t)) / len(fh), 4)
+        run["true_harm_n"] = len(fh)
+        run["true_share"] = {"alarm": {k: share(t) for k, t in base_t.items()},
+                             "sign": {g["key"].replace("replay:", "", 1): share(g["t"]) for g in sigs},
+                             "rule": {k: share(t) for k, t in rule_t.items()}}
         run["first_true_harm_h"] = h(min(fh)) if fh else None
         run["first_true_message_h"] = h(min(fm)) if fm else None
         run["agents"] = len(truth.get("agents", {})) or (truth.get("params") or {}).get("agents")
@@ -293,6 +349,182 @@ def forward_table(runs):
     return {"signs": rows, "rules": rules, "baselines": base_rows, "by_setting": by_setting, "coordinated_runs": len(coord), "benign_runs": len(benign)}
 
 
+# ------------------------------------------------------------------ the main alarms and the context, per swarm
+
+def _boot_share(groups, draws=1000, seed=13):
+    """95% percentile interval of a pooled share, resampling whole settings with replacement. groups: [(k, n), ...].
+    Swarms of one setting share its parameters and settings share seeds, so the setting is the unit."""
+    groups = [g for g in groups if g[1]]
+    if len(groups) < 2:
+        return None
+    rng = random.Random(seed)
+    vals = []
+    for _ in range(draws):
+        k = n = 0
+        for _ in groups:
+            a, b = groups[rng.randrange(len(groups))]
+            k += a
+            n += b
+        vals.append(k / n)
+    vals.sort()
+    return [round(vals[int(0.025 * draws)], 3), round(vals[min(draws - 1, int(0.975 * draws))], 3)]
+
+
+def _share_block(rows, hit):
+    """k of n swarms for which hit(run) is true: the count, the per-swarm binomial (Wilson) interval, and the interval
+    that resamples whole settings."""
+    by = defaultdict(lambda: [0, 0])
+    k = 0
+    for r in rows:
+        ok = bool(hit(r))
+        k += ok
+        by[r.get("setting")][0] += ok
+        by[r.get("setting")][1] += 1
+    n = len(rows)
+    return {"k": k, "n": n, "share": _r(k / n, 3) if n else None, "ci": wilson(k, n),
+            "ci_settings": _boot_share([tuple(v) for v in by.values()]), "settings": len(by),
+            "by_setting": {str(st): v for st, v in sorted(by.items(), key=lambda kv: str(kv[0]))}}
+
+
+def _main_getter(aid):
+    if aid == ANY_MAIN:
+        def get(r):
+            v = [(r["alarms"].get("baseline") or {}).get(i) for i in baselines.MAIN_IDS]
+            v = [x for x in v if x is not None]
+            return min(v) if v else None
+        return get
+    return lambda r: (r["alarms"].get("baseline") or {}).get(aid)
+
+
+def _main_share(aid):
+    """Share of true harm still to come when the alarm fires; 0 when it never fires; None when the run has no truth."""
+    def get(r):
+        ts = (r.get("true_share") or {}).get("alarm")
+        if ts is None:
+            return None
+        ids = baselines.MAIN_IDS if aid == ANY_MAIN else (aid,)
+        v = [ts.get(i) for i in ids if ts.get(i) is not None]
+        return max(v) if v else 0.0
+    return get
+
+
+def _sign_share(sid, kind="sign"):
+    def get(r):
+        ts = (r.get("true_share") or {}).get(kind)
+        if ts is None:
+            return None
+        v = ts.get(sid)
+        return 0.0 if v is None else v
+    return get
+
+
+def alarm_stats(runs, getter, share=None, versus=None):
+    """One alarm (or sign) over a set of runs. Coordinated swarms: fired, fired before the first true harm (each k of
+    n with a Wilson interval and a settings-resampled interval), the median lead with both intervals, and the median
+    share of true harm still to come (never fired counts as 0). `versus` is the share getter of the sign it is
+    compared with: the count of swarms where this alarm has strictly more harm still to come. Benign swarms: fired k
+    of n with both intervals, and alarms per 24 h of trace with the exact Poisson interval."""
+    coord = [r for r in runs if r["mode"] != "benign" and r["dated"]]
+    benign = [r for r in runs if r["mode"] == "benign" and r["dated"]]
+    lead = _lead_stats(coord, getter, "first_true_harm_h")
+    c = {"n": len(coord), "fired": _share_block(coord, lambda r: getter(r) is not None),
+         "before_harm": _share_block(coord, lambda r: getter(r) is not None and r.get("first_true_harm_h") is not None
+                                     and getter(r) < r["first_true_harm_h"]),
+         "median_lead_h": lead["median_lead_h"], "median_ci_swarms": lead["median_ci_swarms"],
+         "median_ci_settings": lead["median_ci_settings"], "min_lead_h": lead["min_lead_h"], "max_lead_h": lead["max_lead_h"],
+         "harm_share_median": None, "harm_share_ci_settings": None, "beats": None}
+    if share is not None:
+        vals = [(share(r), r.get("setting")) for r in coord]
+        vals = [(v, st) for v, st in vals if v is not None]
+        if vals:
+            by = defaultdict(list)
+            for v, st in vals:
+                by[st].append(v)
+            c["harm_share_median"] = _r(_median([v for v, _ in vals]), 3)
+            c["harm_share_ci_settings"] = _boot_median(list(by.values()), seed=17)
+            c["harm_share_n"] = len(vals)
+        if versus is not None:
+            pairs = [r for r in coord if share(r) is not None and versus(r) is not None]
+            if pairs:
+                c["beats"] = _share_block(pairs, lambda r: share(r) > versus(r))
+                c["beats"]["ties"] = sum(1 for r in pairs if share(r) == versus(r))
+    days = sum(r["hours"] for r in benign) / 24.0
+    fa = _share_block(benign, lambda r: getter(r) is not None)
+    lo, hi = poisson_ci(fa["k"], days) if days else (None, None)
+    b = {"n": len(benign), "fired": fa, "trace_days": _r(days, 2), "per_24h": _r(fa["k"] / days, 3) if days else None,
+         "ci_low": _r(lo, 3), "ci_high": _r(hi, 3)}
+    return {"coordinated": c, "benign": b}
+
+
+def main_table(runs):
+    """The four main alarms, 'any of the four' (what an operator who runs all four hears first), and the two variants."""
+    place = _sign_share(PLACE_SIGN)
+    rows = []
+    spec = [(a["id"], a["name"], a["short"], "main") for a in baselines.MAIN_ALARMS]
+    spec.append((ANY_MAIN, "Any of the four main alarms (the first to fire)", "Any of the four", "any"))
+    spec += [(a["id"], a["name"], a["short"], "variant") for a in baselines.VARIANTS]
+    for aid, name, short, role in spec:
+        rows.append({"id": aid, "name": name, "short": short, "role": role,
+                     **alarm_stats(runs, _main_getter(aid), _main_share(aid), place)})
+    return rows
+
+
+def context_table(runs):
+    """The signs of shared control and the old Alert rule, by the same measures: context, not an early warning."""
+    meta = dict(sign_ids(runs))
+    # the two shared-control signs are always listed, also where they never fired
+    meta.setdefault(PLACE_SIGN, {"name": "Two identities share one place", "kind": "place", "family": "joint"})
+    meta.setdefault(CARRIED_SIGN, {"name": "One identity carries another's token", "kind": "carried", "family": "joint"})
+    rows = []
+    order = lambda kv: (kv[1]["kind"] not in baselines.SHARED_CONTROL_KINDS, kv[0])
+    for sid, g in sorted(((k, v) for k, v in meta.items() if baselines.is_context(v)), key=order):
+        get = lambda r, sid=sid: next((x["h"] for x in r["signs"] if x["id"] == sid), None)
+        rows.append({"id": sid, "name": g["name"], "kind": g["kind"], "role": "context",
+                     "shared_control": g["kind"] in baselines.SHARED_CONTROL_KINDS,
+                     **alarm_stats(runs, get, _sign_share(sid))})
+    name = next((x["name"] for x in live.DEFAULT_RULES if x["id"] == "alert-coord2"), "alert-coord2")
+    rows.append({"id": "alert-coord2", "name": name, "kind": "rule", "role": "context", "shared_control": False,
+                 **alarm_stats(runs, lambda r: r["rules"].get("alert-coord2"), _sign_share("alert-coord2", "rule"))})
+    return rows
+
+
+HYPOTHESES = [
+    {"id": "H1", "name": "lead",
+     "statement": "The alarm fires before the first true harm in more than half of the coordinated swarms "
+                  "(lower end of the per-swarm 95% binomial interval above 0.5).",
+     "expected": "Expected to fail: on seeds 31-40 and 501-510 every simple alarm fired at or after the first true harm."},
+    {"id": "H2", "name": "order",
+     "statement": "The alarm fires with strictly more true harm still to come than the shared-place sign (a sign or alarm "
+                  "that never fires counts as 0) in more than half of the coordinated swarms (lower end of the interval above 0.5). "
+                  "This is the order seen post-hoc on the real release.",
+     "expected": "Expected to fail on the original simulator: on four swarms of seeds 21-22 (seen before, checked while this "
+                 "code was written) the shared-place sign had more true harm still to come every time. On the independent "
+                 "generator the shared-place sign fired in 0 of 20 swarms before, so there the alarms should win by default."},
+    {"id": "H3", "name": "false alarms",
+     "statement": "The alarm fires in fewer than 20% of the benign swarms (upper end of the per-swarm 95% binomial interval below 0.2).",
+     "expected": "Expected to hold for the new-host alarm (0/30 and 2/50 before) and to fail for the 6 h volume alarm on the independent generator (19/50 before)."},
+]
+
+
+def hypotheses(main_rows):
+    """Each pre-registered hypothesis for each main alarm and for 'any of the four': the count, the interval, the verdict."""
+    out = []
+    for row in main_rows:
+        if row["role"] not in ("main", "any"):
+            continue
+        c, b = row["coordinated"], row["benign"]
+        tests = [("H1", c["before_harm"], lambda blk: blk["ci"] is not None and blk["ci"][0] > 0.5),
+                 ("H2", c["beats"], lambda blk: blk["ci"] is not None and blk["ci"][0] > 0.5),
+                 ("H3", b["fired"], lambda blk: blk["ci"] is not None and blk["ci"][1] < 0.2)]
+        for hid, blk, ok in tests:
+            if blk is None or not blk["n"]:
+                out.append({"hypothesis": hid, "alarm": row["id"], "k": None, "n": 0, "ci": None, "holds": None})
+            else:
+                out.append({"hypothesis": hid, "alarm": row["id"], "k": blk["k"], "n": blk["n"], "ci": blk["ci"],
+                            "ci_settings": blk["ci_settings"], "holds": bool(ok(blk))})
+    return out
+
+
 # ------------------------------------------------------------------ false alarms
 
 def false_alarms(runs):
@@ -324,7 +556,13 @@ def false_alarms(runs):
     for sid, g in meta.items():     # signs that fired on coordinated runs and never on benign ones
         if not any(r["id"] == sid for r in rows) and sid not in ("rate_harm",):
             rows.append(row("sign", sid, g["name"], 0))
-    rows.sort(key=lambda r: ({"rule": 0, "baseline": 1}.get(r["kind"], 2), -r["alarms"], r["id"]))
+    for r in rows:
+        r["role"] = (baselines.ROLE.get(r["id"], "other") if r["kind"] == "baseline" else
+                     "context" if r["id"] == "alert-coord2" or (r["kind"] == "sign" and baselines.is_context(meta.get(r["id"], {}))) else "other")
+    # the main alarms first, then their variants, then the rules, then everything else
+    rank = {"main": 0, "variant": 1}
+    rows.sort(key=lambda r: (rank.get(r["role"], 2 if r["kind"] == "rule" else 3),
+                             baselines.MAIN_IDS.index(r["id"]) if r["id"] in baselines.MAIN_IDS else 0, -r["alarms"], r["id"]))
     return {"benign_runs": len(benign), "trace_hours": round(hours, 1), "trace_days": _r(days, 2),
             "agent_hours": round(agent_hours), "rows": rows,
             "caveat": "Simulated benign swarms only. No real benign multi-agent traffic with model-written code was available "
@@ -709,13 +947,408 @@ def run_independent(out=None, seeds=INDEP_SEEDS, scenarios=None, log=print, fnam
     return summary
 
 
+# ------------------------------------------------------------------ v2.3.0: pre-registration, forward test, benign sets
+
+def _sha_file(path):
+    with open(path, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()
+
+
+def v23_code_hashes():
+    return {f: _sha_file(os.path.join(REPO, f)) for f in V23_CODE_FILES if os.path.exists(os.path.join(REPO, f))}
+
+
+def prereg_v23(out=None, force=False):
+    """Write <out>/prereg_v23.json BEFORE any swarm with the v2.3.0 seeds exists: the main alarms with every parameter
+    and the SHA-256 of that block, the hypotheses and how each is decided, the seeds and generator settings, and the
+    SHA-256 of every code file. It refuses to run when the file or any forward result is already there (force
+    rewrites and records that it did). The tool cannot commit for you: commit this file before `forward23`."""
+    out = out or default_out()
+    os.makedirs(out, exist_ok=True)
+    path = os.path.join(out, V23_PREREG)
+    existing = [f for f in [V23_PREREG, V23_FILES["forward"], V23_FILES["independent"], V23_FILES["summary"]]
+                if os.path.exists(os.path.join(out, f))]
+    if existing and not force:
+        raise FileExistsError("already there: " + ", ".join(existing) + ". The pre-registration is written once, before the forward "
+                              "swarms; --force rewrites it and records that results existed.")
+    rec = {
+        "version": "2.3.0", "written_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "what": "Pre-registration of the forward test of the simple alarms as the main early-warning feature.",
+        "post_hoc": baselines.POST_HOC,
+        "alarms": baselines.frozen_params(), "alarms_sha256": baselines.params_sha256(),
+        "alarms_sha256_how": "sha256 of json.dumps(alarms, sort_keys=True, ensure_ascii=True) as UTF-8",
+        "context_signs": {"shared_place": PLACE_SIGN, "carried_token": CARRIED_SIGN,
+                          "note": "scored by the same measures, as context; not candidates for the main alarm"},
+        "measures": {
+            "fired": "the alarm fires at least once in the swarm",
+            "before_harm": "the alarm fires strictly before the first true harmful record in the generator's truth file",
+            "lead_h": "hours from the alarm to the first true harm (minus = after); median over swarms where it fired",
+            "harm_share": "share of the true harmful records later than the alarm; 0 when the alarm never fires",
+            "beats_place": "harm_share of the alarm strictly greater than harm_share of the shared-place sign",
+            "benign_fired": "the alarm fires at least once in a benign swarm (a false alarm)"},
+        "intervals": {"per_swarm": "Wilson 95% binomial interval on k of n swarms",
+                      "settings": "95% percentile interval over 1000 resamples of whole settings (scenario classes for the independent generator)",
+                      "per_24h": "exact (Garwood) Poisson 95% interval on alarms per 24 h of benign trace, each alarm counted once per swarm"},
+        "hypotheses": HYPOTHESES,
+        "decision": "Each hypothesis is decided separately for each of the four alarms and for 'any of the four', on each "
+                    "generator, by the per-swarm interval. No alarm, parameter or threshold is changed after the run; a "
+                    "failed hypothesis is reported as failed.",
+        "original_generator": {"module": "agenttrace/groundtruth.py", "seeds": list(V23_SEEDS),
+                               "settings": [{"name": n, "label": l, "params": prm} for n, l, prm in validation.SETTINGS]},
+        "independent_generator": {"module": "agenttrace/indepgen.py", "seeds": list(V23_INDEP_SEEDS), "cell": INDEP_CELL,
+                                  "cell_options": indepgen.CELLS[INDEP_CELL][1], "agents": 30, "hours": 48,
+                                  "scenarios": {k: v[0] for k, v in indepgen.SCENARIOS.items()}},
+        "seeds_never_run": "original generator: 21-30 (v2.1.0) and 31-40 (v2.2.0) have been run; 41-50 have not. "
+                           "Independent generator: 501-510 have been run; 511-520 have not.",
+        "code_sha256": v23_code_hashes(), "git_head": _git("rev-parse", "HEAD"),
+        "uncommitted_code_files": [l[3:] for l in _git("status", "--porcelain", "--", "agenttrace").splitlines()
+                                   if l[3:].endswith((".py", ".json"))],
+        "limits": ["Written by the same people who chose the alarms, minutes before the run, in an uncommitted working tree: "
+                   "the order rests on this file's own time stamp and hashes unless it is committed before the results.",
+                   "Both generators are ours. The simulators never write a search_for_secrets action, so that alarm cannot "
+                   "fire on them: its rows are not evidence of anything.",
+                   "Lead before the first true harm and share of harm still to come are different measures; the real "
+                   "release has only the second."],
+        "rule": "no swarm with these seeds exists when this file is written; run `python3 -m agenttrace.earlywarn forward23` afterwards",
+    }
+    if existing:
+        rec["rewritten_with_results_present"] = existing
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(rec, f, indent=1)
+        f.write("\n")
+    return rec
+
+
+def load_prereg_v23(out=None):
+    path = os.path.join(out or default_out(), V23_PREREG)
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        rec = json.load(f)
+    rec["file_sha256"] = _sha_file(path)
+    return rec
+
+
+def prereg_status(out=None):
+    """The pre-registration, whether the alarm parameters still hash to what it froze, and which code files changed."""
+    pr = load_prereg_v23(out)
+    if pr is None:
+        return {"written": False, "command": "python3 -m agenttrace.earlywarn prereg23"}
+    now = v23_code_hashes()
+    return {"written": True, "written_utc": pr["written_utc"], "file_sha256": pr["file_sha256"],
+            "alarms_sha256": pr["alarms_sha256"], "alarms_match": pr["alarms_sha256"] == baselines.params_sha256(),
+            "code_changed": sorted(f for f, h in pr["code_sha256"].items() if now.get(f) != h),
+            "seeds": {"original": pr["original_generator"]["seeds"], "independent": pr["independent_generator"]["seeds"]},
+            "git_head": pr.get("git_head"), "rewritten_with_results_present": pr.get("rewritten_with_results_present")}
+
+
+def _generate(kind, seeds, log, only=None):
+    """Runs (the shape extract returns) for one generator and a tuple of seeds, in a temporary folder.
+    only: setting or scenario names to keep (tests use it; the pre-registered run keeps all)."""
+    no_cache = os.environ.get("SWARM_TRACER_NO_CACHE")
+    os.environ["SWARM_TRACER_NO_CACHE"] = "1"
+    from . import identity as idm
+    save_dec = idm.SAVE_DECISIONS
+    idm.SAVE_DECISIONS = False
+    tmp = tempfile.mkdtemp(prefix="st_v23_")
+    runs = []
+    try:
+        if kind == "original":
+            for name, label, params in validation.SETTINGS:
+                if only and name not in only:
+                    continue
+                for seed in seeds:
+                    folder = os.path.join(tmp, f"{name}-s{seed}")
+                    runs.append(_swarm_run(folder, dict(params), name, label, seed))
+                    shutil.rmtree(folder, ignore_errors=True)
+                log(f"  {name}: {len(seeds)} swarms")
+        else:
+            for sc, (mode, label) in indepgen.SCENARIOS.items():
+                if only and sc not in only:
+                    continue
+                for seed in seeds:
+                    folder = os.path.join(tmp, f"{sc}-s{seed}")
+                    truth = indepgen.make(folder, sc, seed, agents=30, hours=48, **indepgen.CELLS[INDEP_CELL][1])
+                    sess = validation._load(folder, truth)
+                    runs.append(extract(sess, truth, {"setting": sc, "label": label, "seed": seed, "mode": mode,
+                                                      "agents": truth["params"]["agents"]}))
+                    shutil.rmtree(folder, ignore_errors=True)
+                log(f"  {sc}: {len(seeds)} swarms")
+    finally:
+        idm.SAVE_DECISIONS = save_dec
+        shutil.rmtree(tmp, ignore_errors=True)
+        if no_cache is None:
+            os.environ.pop("SWARM_TRACER_NO_CACHE", None)
+        else:
+            os.environ["SWARM_TRACER_NO_CACHE"] = no_cache
+    return runs
+
+
+def benign_set(label, kind, runs, note=None):
+    """One benign set: for each main alarm, 'any of the four' and each variant, fired k of n with both intervals and
+    alarms per 24 h; by class (setting) as well. Also the old Alert rule and the shared-place sign, for comparison."""
+    benign = [r for r in runs if r["mode"] == "benign" and r["dated"]]
+    undated = sum(1 for r in runs if r["mode"] == "benign" and not r["dated"])
+    rows = []
+    spec = [(a["id"], a["short"], "main") for a in baselines.MAIN_ALARMS] + [(ANY_MAIN, "Any of the four", "any")]
+    spec += [(a["id"], a["short"], "variant") for a in baselines.VARIANTS]
+    for aid, short, role in spec:
+        b = alarm_stats(benign, _main_getter(aid))["benign"]
+        rows.append({"id": aid, "short": short, "role": role, **b})
+    ctx = [("alert-coord2", "Alert rule (2 kinds of coordination)", lambda r: r["rules"].get("alert-coord2")),
+           (PLACE_SIGN, "Shared-place sign", lambda r: next((x["h"] for x in r["signs"] if x["id"] == PLACE_SIGN), None))]
+    for cid, short, get in ctx:
+        rows.append({"id": cid, "short": short, "role": "context", **alarm_stats(benign, get)["benign"]})
+    return {"set": label, "kind": kind, "swarms": len(benign), "undated": undated,
+            "trace_hours": round(sum(r["hours"] for r in benign), 1),
+            "classes": sorted({str(r.get("setting")) for r in benign}), "rows": rows, "note": note}
+
+
+def _saved_runs(out, fname):
+    path = os.path.join(out, fname)
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        return json.load(f).get("runs")
+
+
+def run_bundled_benign():
+    """The bundled benign sample (agenttrace/samples/benign_swarm): one hand-checked simulated trace."""
+    from .session import Session
+    path = os.path.join(HERE, "samples", "benign_swarm", "benign_swarm.jsonl")
+    if not os.path.exists(path):
+        return []
+    sess = Session()
+    sess.load(path, "code_traces.json", {}, "benign_swarm")
+    r = extract(sess, None, {"setting": "bundled_sample", "label": "bundled benign sample", "mode": "benign"})
+    r["agents"] = len({a for a, k in sess.actor.values() if k != "run"})
+    return [r]
+
+
+def _external_files(root):
+    """Data files under root, one level of dataset folders: (dataset, relative path, size). Read-only."""
+    out = []
+    if not os.path.isdir(root):
+        return out
+    skip = ("readme", "license", "schema", "manifest", "experiments", "source_", "counts", "communities.json")   # not traces
+    for ds in sorted(os.listdir(root)):
+        base = os.path.join(root, ds)
+        if not os.path.isdir(base) or EXTERNAL_SETS.get(ds, {}).get("benign") is False:
+            continue
+        for dirpath, dirnames, files in os.walk(base):
+            dirnames[:] = sorted(d for d in dirnames if d != "tables")       # index tables, not traces
+            for f in sorted(files):
+                if f.lower().startswith(skip) or f.startswith("."):
+                    continue
+                full = os.path.join(dirpath, f)
+                out.append((ds, os.path.relpath(full, base), os.path.getsize(full)))
+    return out
+
+
+def external_benign(root=None, out=None, log=print, limit=None):
+    """Benign false alarms on real traces under datasets-ext/ (read-only; nothing there is written or changed).
+    Each loadable file is one trace, loaded as the app loads it (pack chosen automatically). A time-based alarm can
+    be scored only on a trace with times; an undated trace is counted as not measurable, never as 'no alarm'. The
+    secrets-search alarm is also checked without times: does any record match the pattern behind the pack's
+    search_for_secrets intent."""
+    root = root or EXTERNAL_ROOT
+    from . import packs
+    from .session import Session
+    rx = dict(packs.load_pack(os.path.join(HERE, "packs", "code_traces.json")).intents).get(baselines.INTENT)
+    no_cache = os.environ.get("SWARM_TRACER_NO_CACHE")
+    os.environ["SWARM_TRACER_NO_CACHE"] = "1"
+    sets = {}
+    started = time.time()
+    try:
+        for ds, rel, size in _external_files(root):
+            d = sets.setdefault(ds, {"dataset": ds, "files": 0, "loaded": 0, "dated": 0, "records": 0, "failed": 0, "unreadable_format": 0,
+                                     "too_large": 0, "runs": [], "pattern_traces": 0, "pattern_records": 0, "formats": {}, "packs": {}})
+            d["files"] += 1
+            ext = os.path.splitext(rel)[1].lower()
+            if ext not in (".json", ".jsonl", ".csv", ".tsv"):
+                d["unreadable_format"] += 1          # parquet and the like: no standard-library reader
+                continue
+            if size > EXTERNAL_MAX_BYTES:
+                d["too_large"] += 1
+                continue
+            if limit and d["loaded"] + d["failed"] >= limit:
+                continue
+            sess = Session()
+            try:
+                sess.load(os.path.join(root, ds, rel), "auto", {}, f"{ds}/{rel}")
+                r = extract(sess, None, {"setting": ds, "label": rel, "mode": "benign"})
+            except Exception as e:      # a file that does not load is counted, not hidden
+                d["failed"] += 1
+                d.setdefault("errors", []).append(f"{rel}: {type(e).__name__}"[:120])
+                continue
+            r["agents"] = len({a for a, k in sess.actor.values() if k != "run"})
+            d["loaded"] += 1
+            d["dated"] += bool(r["dated"])
+            d["records"] += len(sess.events)
+            fmt = (sess.read_report or {}).get("format") or "?"
+            d["formats"][fmt] = d["formats"].get(fmt, 0) + 1
+            d["packs"][sess.pack.name] = d["packs"].get(sess.pack.name, 0) + 1
+            hits = sum(1 for e in sess.events if rx is not None and rx.search(e.text))
+            d["pattern_records"] += hits
+            d["pattern_traces"] += bool(hits)
+            d["runs"].append({k: r[k] for k in ("setting", "label", "mode", "dated", "hours", "agents", "alarms", "rules", "signs", "records")})
+    finally:
+        if no_cache is None:
+            os.environ.pop("SWARM_TRACER_NO_CACHE", None)
+        else:
+            os.environ["SWARM_TRACER_NO_CACHE"] = no_cache
+    rows = []
+    for ds, d in sets.items():
+        runs = d.pop("runs")
+        errors = d.pop("errors", [])
+        label = EXTERNAL_SETS.get(ds, {"benign": None, "what": "not described here; labelled by nobody"})
+        bs = benign_set(ds, "real traces: " + label["what"], runs)
+        d.update({"what": label["what"], "benign_as_published": label["benign"], "errors": errors[:5], "timed_alarms_measurable": d["dated"],
+                  "pattern_check": {"what": "traces with at least one record matching the pattern behind search_for_secrets, "
+                                            "with or without times", **_share_block([{"setting": ds, "hit": i < d["pattern_traces"]} for i in range(d["loaded"])],
+                                                                                      lambda r: r["hit"])},
+                  "benign_set": bs})
+        log(f"  {ds}: {d['loaded']} of {d['files']} files loaded, {d['dated']} with times, "
+            f"search pattern in {d['pattern_traces']} traces")
+        rows.append(d)
+    res = {"root": os.path.relpath(root, REPO) if root.startswith(REPO) else root, "present": os.path.isdir(root),
+           "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "seconds": round(time.time() - started, 1),
+           "max_file_bytes": EXTERNAL_MAX_BYTES, "datasets": rows,
+           "excluded": [{"dataset": ds, "why": v["what"]} for ds, v in sorted(EXTERNAL_SETS.items())
+                        if v["benign"] is False and os.path.isdir(os.path.join(root, ds))],
+           "pattern": rx.pattern if rx is not None else None,
+           "note": "Real multi-agent traces that happen to be on this machine, read and never changed. They are benign only in the "
+                   "sense their publishers give (no attack); nobody here labelled them. Undated traces cannot fire a time-based "
+                   "alarm, so they say nothing about its false-alarm rate. Each was loaded with the pack the app picks for it, "
+                   "which has no search_for_secrets intent, so that alarm is checked by its pattern instead."}
+    if out:
+        os.makedirs(out, exist_ok=True)
+        with open(os.path.join(out, V23_FILES["external"]), "w", encoding="utf-8") as f:
+            json.dump(res, f, indent=1)
+    return res
+
+
+def release_v23(trace="redacted_columns.csv", pack="code_traces.json", out=None):
+    """The real release: the main alarms and the context by share of timed harm still to come. Post-hoc: this is the
+    incident the alarms were chosen on."""
+    from .session import Session
+    sess = Session()
+    sess.load(trace, pack, {}, os.path.basename(trace))
+    ew = baselines.early_warning(sess)
+    strip = lambda r: {k: v for k, v in r.items() if k not in ("why", "record", "t")}     # no record text or ids in a published file
+    res = {"trace": os.path.basename(trace), "pack": pack, "records": len(sess.events), "harm_records": ew["harm_records"],
+           "hours": ew["hours"], "alarms": [strip(r) for r in ew["alarms"]], "variants": [strip(r) for r in ew["variants"]],
+           "context": [strip(r) for r in ew["context"]], "post_hoc": baselines.POST_HOC,
+           "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+           "note": "Share of harm still to come = share of the timed harmful records after the alarm. One incident, the one the "
+                   "alarms were picked on. The harm list is the pack's (64% of it dataset commits); see docs/audit-v2.1.md 1.5."}
+    if out:
+        os.makedirs(out, exist_ok=True)
+        with open(os.path.join(out, V23_FILES["release"]), "w", encoding="utf-8") as f:
+            json.dump(res, f, indent=1)
+    return res
+
+
+def run_v23(out=None, log=print, seeds=None, indep_seeds=None, only=None):
+    """The pre-registered forward test: both generators with the pre-registered seeds, scored for the main alarms and
+    the context, each hypothesis decided, and the benign false-alarm table over every benign set available. Refuses to
+    run without the pre-registration; records whether the alarms or the code changed since it was written."""
+    out = out or default_out()
+    pr = load_prereg_v23(out)
+    if pr is None:
+        raise FileNotFoundError("no " + V23_PREREG + " in " + out + ": write it first with `python3 -m agenttrace.earlywarn prereg23`")
+    status = prereg_status(out)
+    seeds = tuple(seeds or pr["original_generator"]["seeds"])
+    indep_seeds = tuple(indep_seeds or pr["independent_generator"]["seeds"])
+    started = time.time()
+    stamp = lambda: dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    gens = {}
+    for kind, sd, fname, gen in (("original", seeds, V23_FILES["forward"], "agenttrace.groundtruth (the original simulator)"),
+                                 ("independent", indep_seeds, V23_FILES["independent"], "agenttrace.indepgen (written independently)")):
+        log(f"{kind} generator, seeds {sd[0]} to {sd[-1]}")
+        t_gen = stamp()
+        runs = _generate(kind, sd, log, only)
+        main_rows = main_table(runs)
+        block = {"generator": gen, "seeds": list(sd), "swarms_generated_from_utc": t_gen, "generated": stamp(),
+                 "coordinated_runs": sum(1 for r in runs if r["mode"] != "benign" and r["dated"]),
+                 "benign_runs": sum(1 for r in runs if r["mode"] == "benign" and r["dated"]),
+                 "undated_runs": sum(1 for r in runs if not r["dated"]),
+                 "main": main_rows, "context": context_table(runs), "hypotheses": hypotheses(main_rows)}
+        with open(os.path.join(out, fname), "w", encoding="utf-8") as f:
+            json.dump({**block, "prereg": status, "runs": runs}, f, indent=1)
+        gens[kind] = {**block, "_runs": runs}
+    sets = [benign_set("Original simulator, seeds %d to %d (pre-registered)" % (seeds[0], seeds[-1]), "simulated", gens["original"]["_runs"]),
+            benign_set("Independent generator look-alike classes, seeds %d to %d (pre-registered)" % (indep_seeds[0], indep_seeds[-1]),
+                       "simulated", gens["independent"]["_runs"])]
+    for sc in indepgen.BENIGN:
+        rs = [r for r in gens["independent"]["_runs"] if r.get("setting") == sc]
+        if rs:
+            sets.append(benign_set("  class: " + indepgen.SCENARIOS[sc][1], "simulated, one look-alike class", rs))
+    for fname, label in (("forward.json", "Original simulator, seeds 31 to 40 (the v2.2.0 run)"),
+                         ("forward_independent.json", "Independent generator look-alike classes, seeds 501 to 510 (the v2.2.0 run)")):
+        old = _saved_runs(out, fname)
+        if old:
+            sets.append(benign_set(label, "simulated, run before the alarms were made the main feature", old))
+    sets.append(benign_set("Bundled benign sample (agenttrace/samples/benign_swarm)", "simulated, one trace", run_bundled_benign()))
+    ext_path = os.path.join(out, V23_FILES["external"])
+    external = None
+    if os.path.exists(ext_path):
+        with open(ext_path, encoding="utf-8") as f:
+            external = json.load(f)
+    rel_path = os.path.join(out, V23_FILES["release"])
+    release = None
+    if os.path.exists(rel_path):
+        with open(rel_path, encoding="utf-8") as f:
+            release = json.load(f)
+    for g in gens.values():
+        g.pop("_runs")
+    summary = {"version": "2.3.0", "generated": stamp(), "seconds": round(time.time() - started, 1),
+               "as_preregistered": (list(seeds) == pr["original_generator"]["seeds"] and list(indep_seeds) == pr["independent_generator"]["seeds"]
+                                    and not only and status["alarms_match"] and not status["code_changed"]),
+               "prereg": status, "prereg_written_utc": pr["written_utc"], "prereg_file_sha256": pr["file_sha256"],
+               "alarms_sha256_at_run": baselines.params_sha256(), "code_at_run": v23_code_hashes(),
+               "git_head_at_run": _git("rev-parse", "HEAD"),
+               "post_hoc": baselines.POST_HOC, "context_note": baselines.CONTEXT_NOTE, "hypothesis_text": HYPOTHESES,
+               "generators": gens, "benign_sets": sets, "external": external, "release": release,
+               "command": "python3 -m agenttrace.earlywarn forward23",
+               "caveats": ["Both generators are this project's own; real swarms differ.",
+                           "The simulators never write a search_for_secrets action, so that alarm cannot fire on them.",
+                           "The four alarms were chosen on one real incident; this forward test is on simulated swarms only."]}
+    with open(os.path.join(out, V23_FILES["summary"]), "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=1)
+    return summary
+
+
+def evidence(out=None):
+    """What has been measured about the main alarms, from the saved v2.3.0 files: the summary if the forward test was
+    run, else the pre-registration status alone."""
+    out = out or default_out()
+    path = os.path.join(out, V23_FILES["summary"])
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            d = json.load(f)
+        d["ran"] = True
+        d["prereg_now"] = prereg_status(out)
+        for key in ("external", "release"):       # written by their own commands, possibly after the forward test
+            fp = os.path.join(out, V23_FILES[key])
+            if os.path.exists(fp):
+                with open(fp, encoding="utf-8") as f:
+                    d[key] = json.load(f)
+        d.pop("code_at_run", None)
+        return d
+    return {"ran": False, "prereg_now": prereg_status(out), "command": "python3 -m agenttrace.earlywarn prereg23 && python3 -m agenttrace.earlywarn forward23"}
+
+
 def summarize(runs, sample_runs=None, wiki_run=None):
     fz = None
     try:
         fz = frozen_status()
     except (OSError, ValueError):
         pass
-    return {"forward": forward_table(runs), "false_alarms": false_alarms(runs), "cost": cost_curve(runs),
+    main_rows = main_table(runs)
+    return {"main": main_rows, "context": context_table(runs), "hypotheses": hypotheses(main_rows),
+            "post_hoc": baselines.POST_HOC, "context_note": baselines.CONTEXT_NOTE,
+            "forward": forward_table(runs), "false_alarms": false_alarms(runs), "cost": cost_curve(runs),
             "samples": [_sample_row(r) for r in (sample_runs or [])], "wiki": wiki_run or {"available": False},
             "frozen_drift": fz["drift"] if fz else None,
             "caveats": ["The swarms are simulated by this tool's own generator: real swarms differ.",
@@ -757,7 +1390,7 @@ def run_trace(path, pack="auto", out=None, log=print):
     r = extract(s, truth, {"setting": "mine", "label": os.path.basename(path), "mode": (truth or {}).get("mode", "unlabelled")})
     n_agents = len({a for a, k in s.actor.values() if k != "run"})
     r["agents"] = r["agents"] or n_agents
-    res = {"run": r, "rules_fired": {k: v for k, v in r["rules"].items()},
+    res = {"main": baselines.early_warning(s), "run": r, "rules_fired": {k: v for k, v in r["rules"].items()},
            "agent_hours": round((r["hours"] or 0) * (r["agents"] or 0))}
     benign = r["mode"] == "benign"
     asbenign = dict(r, mode="benign")
@@ -837,7 +1470,24 @@ def _run_post(state, q, body):
     return {"running": True, "quick": quick}
 
 
-GET = {"earlywarn_summary": _summary, "earlywarn_frozen": _frozen, "earlywarn_release": _release}
+def _main_get(state, q):
+    """The main early-warning answer: the four simple alarms on the loaded dataset (when one is loaded), the signs of
+    shared control as context, and the saved evidence (pre-registration, forward test, benign false alarms)."""
+    s = state.get("session")
+    loaded = None
+    if s is not None and getattr(s, "loaded", False):
+        key = (s.name, len(s.events))
+        cached = getattr(s, "_earlywarn_main", None)
+        if cached is None or cached[0] != key:
+            cached = (key, baselines.early_warning(s))
+            s._earlywarn_main = cached
+        loaded = cached[1]
+    return {"loaded": loaded, "alarms": baselines.frozen_params(), "alarms_sha256": baselines.params_sha256(),
+            "main_ids": list(baselines.MAIN_IDS), "post_hoc": baselines.POST_HOC,
+            "context_label": baselines.CONTEXT_LABEL, "context_note": baselines.CONTEXT_NOTE, "evidence": evidence()}
+
+
+GET = {"earlywarn_main": _main_get, "earlywarn_summary": _summary, "earlywarn_frozen": _frozen, "earlywarn_release": _release}
 POST = {"earlywarn_run": _run_post}
 
 
@@ -860,7 +1510,61 @@ def main(argv=None):
     r.add_argument("trace")
     r.add_argument("--pack", default="auto")
     r.add_argument("--out", default=None)
+    al = sub.add_parser("alarms", help="the main alarms (new host, secrets search, distinct actors, volume) for a trace, then the context")
+    al.add_argument("trace")
+    al.add_argument("--pack", default="auto")
+    al.add_argument("--json", default=None, help="also write the result to this file")
+    p23 = sub.add_parser("prereg23", help="write reports/earlywarn/prereg_v23.json before any v2.3.0 forward swarm exists")
+    p23.add_argument("--out", default=None)
+    p23.add_argument("--force", action="store_true", help="rewrite it even though it or the results exist (recorded in the file)")
+    sub.add_parser("forward23", help="the pre-registered forward test of the main alarms, both generators").add_argument("--out", default=None)
+    ex = sub.add_parser("external", help="benign false alarms on real traces under datasets-ext/ (read-only)")
+    ex.add_argument("--root", default=None)
+    ex.add_argument("--out", default=None)
+    rl = sub.add_parser("release", help="the real release: main alarms and context by share of harm still to come")
+    rl.add_argument("--trace", default="redacted_columns.csv")
+    rl.add_argument("--pack", default="code_traces.json")
+    rl.add_argument("--out", default=None)
     a = ap.parse_args(argv)
+    if a.cmd == "alarms":
+        from .session import Session
+        sess = Session()
+        sess.load(a.trace, a.pack, {}, os.path.basename(a.trace))
+        ew = baselines.early_warning(sess)
+        print_alarms(ew)
+        if a.json:
+            with open(a.json, "w", encoding="utf-8") as f:
+                json.dump(ew, f, indent=1)
+        return 0
+    if a.cmd == "prereg23":
+        try:
+            rec = prereg_v23(a.out, a.force)
+        except FileExistsError as e:
+            print(str(e), file=sys.stderr)
+            return 1
+        print(f"wrote {V23_PREREG} at {rec['written_utc']}: alarms {rec['alarms_sha256'][:12]}, git {rec['git_head'][:10]}; "
+              f"seeds {rec['original_generator']['seeds'][0]}-{rec['original_generator']['seeds'][-1]} and "
+              f"{rec['independent_generator']['seeds'][0]}-{rec['independent_generator']['seeds'][-1]}")
+        return 0
+    if a.cmd == "forward23":
+        try:
+            print_v23(run_v23(a.out))
+        except FileNotFoundError as e:
+            print(str(e), file=sys.stderr)
+            return 1
+        return 0
+    if a.cmd == "external":
+        res = external_benign(a.root, a.out or default_out())
+        if not res["present"]:
+            print("no datasets-ext/ folder here: nothing to measure")
+        return 0
+    if a.cmd == "release":
+        res = release_v23(a.trace, a.pack, a.out or default_out())
+        for x in res["alarms"] + res["variants"] + res["context"]:
+            sh = x["harm_share_after"]
+            print(f"  {x['role']:<8} {x['name'][:52]:<52} {'-' if x['h'] is None else x['h']:>7} h  {'-' if sh is None else f'{100 * sh:.1f}%':>6}")
+        print("\n" + res["post_hoc"])
+        return 0
     if a.cmd == "freeze":
         if a.check:
             st = frozen_status()
@@ -877,6 +1581,8 @@ def main(argv=None):
         sm = summarize_and_print(run_forward(a.out, tuple(a.seeds), wiki=not a.no_wiki))
     elif a.cmd == "run":
         res = run_trace(a.trace, a.pack, a.out)
+        print_alarms(res["main"])
+        print()
         print(json.dumps({"rules_fired": res["rules_fired"], "agent_hours": res["agent_hours"],
                           "signs": [(g["id"], g["h"]) for g in res["run"]["signs"]]}, indent=1))
         fa = res["if_benign"]
@@ -887,10 +1593,58 @@ def main(argv=None):
     return 0
 
 
+def _ci(ci):
+    return "-" if not ci else f"{100 * ci[0]:.0f}-{100 * ci[1]:.0f}%"
+
+
+def print_alarms(ew):
+    """The main alarms for one trace, then the context, as plain lines."""
+    print(f"{ew['dataset']}: main early-warning alarms" + ("" if ew["dated"] else " (no record has a time, so no alarm can fire)"))
+    for x in ew["alarms"] + ew["variants"]:
+        sh = x["harm_share_after"]
+        when = "did not fire" if not x["fired"] else f"{x['time']} UTC, hour {x['h']}"
+        print(f"  {'MAIN' if x['role'] == 'main' else 'variant':<8} {x['name'][:44]:<44} {when:<36}"
+              + ("" if sh is None else f" {100 * sh:.1f}% of timed harm still to come"))
+    if not ew["has_intent"]:
+        print("  (this pack has no search_for_secrets intent, so that alarm cannot fire here)")
+    print(f"{ew['context_label']} (not an early warning)")
+    for x in ew["context"]:
+        sh = x["harm_share_after"]
+        print(f"  context  {x['name'][:44]:<44} {x['time'] + ' UTC, hour ' + str(x['h']):<36}" + ("" if sh is None else f" {100 * sh:.1f}%"))
+    if not ew["context"]:
+        print("  none fired")
+    print(ew["post_hoc"])
+
+
+def print_v23(sm):
+    for kind, g in sm["generators"].items():
+        print(f"\n{kind} generator ({g['generator']}), seeds {g['seeds'][0]} to {g['seeds'][-1]}: "
+              f"{g['coordinated_runs']} coordinated, {g['benign_runs']} benign swarms")
+        print(f"  {'alarm':<44} {'fired':>8} {'before harm':>12} {'95%':>9} {'lead h':>7} {'harm left':>9} {'beats place':>12} {'benign':>8} {'95%':>8}")
+        for x in g["main"] + [r for r in g["context"] if r["id"] in (PLACE_SIGN, CARRIED_SIGN, "alert-coord2")]:
+            c, b = x["coordinated"], x["benign"]
+            bt = c.get("beats")
+            print(f"  {x['name'][:44]:<44} {c['fired']['k']:>4}/{c['fired']['n']:<3} {c['before_harm']['k']:>8}/{c['before_harm']['n']:<3} "
+                  f"{_ci(c['before_harm']['ci']):>9} {'-' if c['median_lead_h'] is None else c['median_lead_h']:>7} "
+                  f"{'-' if c['harm_share_median'] is None else round(100 * c['harm_share_median'], 1):>9} "
+                  f"{'-' if not bt else str(bt['k']) + '/' + str(bt['n']):>12} {b['fired']['k']:>4}/{b['fired']['n']:<3} {_ci(b['fired']['ci']):>8}")
+        for h in g["hypotheses"]:
+            print(f"  {h['hypothesis']} {h['alarm']:<16} {h['k']}/{h['n']} {_ci(h['ci'])}: {'HOLDS' if h['holds'] else 'fails' if h['holds'] is not None else 'not measurable'}")
+    st = sm["prereg"]
+    print(f"\npre-registration written {st['written_utc']}; alarms unchanged: {st['alarms_match']}; code changed since: {st['code_changed'] or 'none'}")
+    return sm
+
+
 def summarize_and_print(sm):
     fa = sm["false_alarms"]
     print(f"forward test: {sm['forward']['coordinated_runs']} coordinated, {sm['forward']['benign_runs']} benign swarms; "
           f"{fa['trace_hours']} benign trace hours, {fa['agent_hours']} agent-hours")
+    print("  main alarms (simple; post-hoc on one incident):")
+    for x in sm.get("main", []):
+        c, b = x["coordinated"], x["benign"]
+        print(f"    {x['name']}: coordinated {c['fired']['k']}/{c['fired']['n']}, before the first harm {c['before_harm']['k']}/{c['before_harm']['n']}, "
+              f"median lead {c['median_lead_h']} h; benign {b['fired']['k']}/{b['fired']['n']}")
+    print("  context rules and the 12 h volume baseline (not an early warning):")
     for x in sm["forward"]["rules"]:
         c = x["coordinated"]["harm"]
         print(f"  {x['name']}: coordinated {c['fired']}/{c['n']}, median lead {c['median_lead_h']} h; benign {x['benign']['fired']}/{x['benign']['n']}")

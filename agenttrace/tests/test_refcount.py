@@ -251,6 +251,84 @@ class LinkTests(unittest.TestCase):
                              sorted((d["write_id"], d["read_id"]) for d in out["deliveries"]), f"case {case}")
 
 
+def split_in_verbs(events, rng):
+    """The same swarm with some records cut inside a verb into two consecutive records (R13a's shape)."""
+    out, cuts = [], 0
+    for e in events:
+        m = re.search(r"(?:method\s*[:=]\s*|\.open\s*\(\s*)['\"](POST|PUT|PATCH|DELETE|GET|HEAD)['\"]", e.text)
+        if m and rng.random() < 0.6:
+            k = m.start(1) + rng.randint(1, len(m.group(1)) - 1)
+            out.append(T.Event(id=e.id, text=e.text[:k], kind=e.kind, time=e.time))
+            out.append(T.Event(id=e.id + "b", text=e.text[k:], kind=e.kind, time=e.time))
+            cuts += 1
+        else:
+            out.append(e)
+    return out, cuts
+
+
+class JoinTests(unittest.TestCase):
+    """R13a: a record cut inside a verb that the next record completes is read as one record."""
+
+    def test_R13a_where_a_text_ends_inside_a_verb(self):
+        for text, want in [("fetch(u,{method:'POS", ("POS", "'")), ('x.open ( "pu', ("PU", '"')), ("r(u, method = 'D", ("D", "'")),
+                           ("fetch(u,{method:'POST", None), ("fetch(u,{method:'POSTS", None), ("fetch(u,{mode:'POS", None),
+                           ("fetch(u,{xmethod:'POS", None), ("say('POS", None), ("fetch(u,{method:'XY", None), ("fetch(u,{method:'", None),
+                           ("fetch(u,{method:POS", None), ("", None)]:
+            self.assertEqual(refcount._ends_in_verb(text), want, text)
+
+    def test_R13a_what_completes_it(self):
+        self.assertTrue(refcount._begins_with_rest("T',headers:{}", "POS", "'"))
+        self.assertTrue(refcount._begins_with_rest("t',headers:{}", "POS", "'"))
+        self.assertTrue(refcount._begins_with_rest("ATCH'", "P", "'"))
+        self.assertFalse(refcount._begins_with_rest('T",headers:{}', "POS", "'"))
+        self.assertFalse(refcount._begins_with_rest("x=1;T'", "POS", "'"))
+        self.assertFalse(refcount._begins_with_rest("TS'", "POS", "'"))
+
+    def test_R13a_joined_record_keeps_the_first_id_and_takes_the_tokens_of_both(self):
+        ev = lambda i, t, **kw: T.Event(id=i, text=t, kind=kw.pop("kind", "payload"), **kw)
+        a = ev("a", "ps://huggingface.co/api/datasets/[HF REPO 5]/commit/main',{method:'POS")
+        b = ev("b", "T',headers:{Authorization:'Bearer [CREDENTIAL 170]','Cont")
+        c = ev("c", "fetch('https://huggingface.co/datasets/[HF REPO 5]/resolve/main/x',{headers:{Authorization:'Bearer [CREDENTIAL 169]'}})")
+        rec = {"_ids": {"a": [], "b": ["[CREDENTIAL 170]"], "c": ["[CREDENTIAL 169]"]}, "_times": {"b": 100, "c": 300}}
+        res = {"_root": {"a": "a", "b": "b", "c": "c"}}
+        records, rec_j, joined = refcount.join([a, b, c], T.pack(), rec)
+        self.assertEqual((joined, [r.id for r in records], records[0].text), ({"a": ["b"]}, ["a", "c"], a.text + b.text))
+        self.assertEqual((rec_j["_ids"]["a"], rec_j["_times"]["a"], rec["_ids"]["a"]), (["[CREDENTIAL 170]"], 100, []))
+        out = refcount.count([a, b, c], T.pack(), rec, res)
+        self.assertEqual([(d["write_id"], d["read_id"], d["from"], d["to"]) for d in out["deliveries"]],
+                         [("a", "c", "[CREDENTIAL 170]", "[CREDENTIAL 169]")])
+        self.assertEqual(sorted((o.rid, o.op) for o in out["_ops"]), [("a", "write"), ("c", "read")])
+        # the same three records with something else in between: nothing is joined, the cut call is not counted (R13)
+        out = refcount.count([a, c, b], T.pack(), rec, res)
+        self.assertEqual((out["joined"], out["deliveries"]), ({}, []))
+        # fields that keep two records apart (R13a c)
+        for other in (ev("b", b.text, kind="reply"), ev("b", b.text, parent="zz"), ev("b", b.text, actor="B"), ev("b", b.text, channel="c9"),
+                      ev("b", b.text, to="someone")):
+            self.assertEqual(refcount.join([a, other, c], T.pack(), rec)[2], {}, other)
+        self.assertEqual(refcount.join([a, ev("b", b.text, parent="a"), c], T.pack(), rec)[2], {"a": ["b"]})
+
+    def test_R13a_cutting_records_inside_a_verb_changes_no_delivery_in_either_implementation(self):
+        rng = random.Random(41)
+        total = cut_total = 0
+        for case in range(40):
+            events = [e for *_x, e in T.gen_swarm(rng)]
+            flow, rec, res = T.flow_of(events)
+            want = sorted((d["channel"], d["write_id"], d["read_id"], d["from"], d["to"], d["grade"]) for d in flow["_deliveries"])
+            pieces, cuts = split_in_verbs(events, rng)
+            flow2, rec2, res2 = T.flow_of(pieces)
+            a = sorted((d["channel"], d["write_id"], d["read_id"], d["from"], d["to"], d["grade"]) for d in flow2["_deliveries"])
+            out = refcount.count(pieces, T.pack(), rec2, res2)
+            b = sorted((d["place"], d["write_id"], d["read_id"], d["from"], d["to"], d["grade"]) for d in out["deliveries"])
+            self.assertEqual(a, want, f"case {case}: messages.py")
+            self.assertEqual(b, want, f"case {case}: refcount.py")
+            self.assertEqual(len(flow2["joined_fragments"]), cuts, f"case {case}")
+            self.assertEqual({k: v for k, v in out["joined"].items()}, {j["record"]: j["continued_in"] for j in flow2["joined_fragments"]})
+            total += len(want)
+            cut_total += cuts
+        self.assertGreater(total, 150)
+        self.assertGreater(cut_total, 100)
+
+
 class AgreementTests(unittest.TestCase):
     """On clean data the two implementations must agree exactly; real data is tools/crosscheck.py's job."""
 

@@ -1,0 +1,206 @@
+{
+ "trace": "redacted_columns.csv",
+ "pack": "code_traces.json",
+ "records": 189579,
+ "harm_records": 8124,
+ "hours": 99,
+ "alarms": [
+  {
+   "id": "new_host_12h",
+   "key": "alarm:new_host_12h",
+   "name": "First new host after 12 h",
+   "short": "New host",
+   "role": "main",
+   "what": "The first action, at least 12 hours after the first action, that contacts a host no earlier action named.",
+   "params": {
+    "after_h": 12
+   },
+   "fired": true,
+   "time": "2026-07-10 01:35",
+   "h": 12.6,
+   "harm_share_after": 0.913
+  },
+  {
+   "id": "first_intent",
+   "key": "alarm:first_intent",
+   "name": "First search_for_secrets action",
+   "short": "Secrets search",
+   "role": "main",
+   "what": "The first action the pack labels search_for_secrets. A pack without that intent never fires it.",
+   "params": {
+    "intent": "search_for_secrets"
+   },
+   "fired": true,
+   "time": "2026-07-10 01:36",
+   "h": 12.61,
+   "harm_share_after": 0.912
+  },
+  {
+   "id": "distinct_actors",
+   "key": "alarm:distinct_actors",
+   "name": "Distinct-actor alarm (3 sd, 12 h history)",
+   "short": "Distinct actors",
+   "role": "main",
+   "what": "The first hour with more distinct named actors than the mean plus 3 standard deviations of every earlier hour (at least 12 earlier hours). Known at the end of that hour.",
+   "params": {
+    "k_sigma": 3.0,
+    "min_history_h": 12,
+    "min_sd": 1.0
+   },
+   "fired": true,
+   "time": "2026-07-11 05:00",
+   "h": 40.0,
+   "harm_share_after": 0.869
+  },
+  {
+   "id": "volume_6h",
+   "key": "alarm:volume_6h",
+   "name": "Volume alarm (3 sd, 6 h history)",
+   "short": "Volume",
+   "role": "main",
+   "what": "The first hour with more actions than the mean plus 3 standard deviations of every earlier hour (at least 6 earlier hours). Known at the end of that hour.",
+   "params": {
+    "k_sigma": 3.0,
+    "min_history_h": 6,
+    "min_sd": 1.0
+   },
+   "fired": true,
+   "time": "2026-07-09 21:00",
+   "h": 8.0,
+   "harm_share_after": 0.934
+  }
+ ],
+ "variants": [
+  {
+   "id": "volume_12h",
+   "key": "alarm:volume_12h",
+   "name": "Volume alarm (3 sd, 12 h history)",
+   "short": "Volume, 12 h history",
+   "role": "variant",
+   "what": "The volume alarm with 12 hours of history: the baseline published in v2.2.0.",
+   "params": {
+    "k_sigma": 3.0,
+    "min_history_h": 12,
+    "min_sd": 1.0
+   },
+   "fired": true,
+   "time": "2026-07-11 09:00",
+   "h": 44.0,
+   "harm_share_after": 0.832
+  },
+  {
+   "id": "new_host_24h",
+   "key": "alarm:new_host_24h",
+   "name": "First new host after 24 h",
+   "short": "New host, 24 h",
+   "role": "variant",
+   "what": "The new-host alarm after 24 hours of history.",
+   "params": {
+    "after_h": 24
+   },
+   "fired": true,
+   "time": "2026-07-11 02:45",
+   "h": 37.77,
+   "harm_share_after": 0.875
+  }
+ ],
+ "context": [
+  {
+   "key": "replay:coordination: one identity carries another's token",
+   "name": "One identity carries another's token",
+   "kind": "carried",
+   "role": "context",
+   "shared_control": true,
+   "time": "2026-07-11 17:13",
+   "h": 52.22,
+   "harm_share_after": 0.57,
+   "after_alarms": [
+    "new_host_12h",
+    "first_intent",
+    "distinct_actors",
+    "volume_6h"
+   ]
+  },
+  {
+   "key": "replay:coordination: two identities use one place",
+   "name": "Two identities share place flb4",
+   "kind": "place",
+   "role": "context",
+   "shared_control": true,
+   "time": "2026-07-11 20:05",
+   "h": 55.08,
+   "harm_share_after": 0.502,
+   "after_alarms": [
+    "new_host_12h",
+    "first_intent",
+    "distinct_actors",
+    "volume_6h"
+   ]
+  },
+  {
+   "key": "program2",
+   "name": "First program reused by another actor",
+   "kind": "program",
+   "role": "context",
+   "shared_control": false,
+   "time": "2026-07-11 00:24",
+   "h": 35.4,
+   "harm_share_after": 0.877,
+   "after_alarms": [
+    "new_host_12h",
+    "first_intent",
+    "volume_6h"
+   ]
+  },
+  {
+   "key": "message",
+   "name": "First message between named actors",
+   "kind": "message",
+   "role": "context",
+   "shared_control": false,
+   "time": "2026-07-11 03:06",
+   "h": 38.11,
+   "harm_share_after": 0.874,
+   "after_alarms": [
+    "new_host_12h",
+    "first_intent",
+    "volume_6h"
+   ]
+  },
+  {
+   "key": "program3",
+   "name": "First program run by three actors",
+   "kind": "program",
+   "role": "context",
+   "shared_control": false,
+   "time": "2026-07-11 14:48",
+   "h": 49.8,
+   "harm_share_after": 0.626,
+   "after_alarms": [
+    "new_host_12h",
+    "first_intent",
+    "distinct_actors",
+    "volume_6h"
+   ]
+  },
+  {
+   "key": "group3",
+   "name": "A group of 3+ actors linked by messages",
+   "kind": "group",
+   "role": "context",
+   "shared_control": false,
+   "time": "2026-07-12 13:06",
+   "h": 72.1,
+   "harm_share_after": 0.072,
+   "after_alarms": [
+    "new_host_12h",
+    "first_intent",
+    "distinct_actors",
+    "volume_6h"
+   ]
+  }
+ ],
+ "post_hoc": "Post-hoc on one incident: these four alarms were picked as the main early warning after seeing that they fired with more harm still to come than the shared-control signs on the Swarm Traces release. Their thresholds were not tuned, but the choice of alarms (and of the 6 h volume history over the 12 h one) was made with that answer in view, so their figures on that release are not a test.",
+ "generated": "2026-11-22T09:03:26Z",
+ "note": "Share of harm still to come = share of the timed harmful records after the alarm. One incident, the one the alarms were picked on. The harm list is the pack's (64% of it dataset commits); see docs/audit-v2.1.md 1.5."
+}

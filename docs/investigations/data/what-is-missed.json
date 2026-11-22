@@ -1,19 +1,26 @@
 {
  "schema": 1,
  "story": "what-is-missed",
+ "dataset": "swarm_traces",
  "snippets": "off",
  "citation": {
-  "authors": "Forman, Kharlov, Tom et al.",
-  "title": "Revealing the details of how OpenAI agents hacked Hugging Face",
-  "site": "swarmtraces.org",
+  "dataset": "swarm_traces",
+  "name": "Swarm Traces",
+  "title": "Swarm Traces: the July 2026 Hugging Face intrusion",
+  "kind": "real incident",
+  "text": "Forman, Kharlov, Tom, Ladish, Kitts, Slade Byrd, McKenzie and Piecha, \"Revealing the details of how OpenAI agents hacked Hugging Face\", 25 September 2026, https://swarmtraces.org/ (our wording; the page gives no citation format)",
   "url": "https://swarmtraces.org/",
-  "date": "25 Sep 2026",
+  "licence": "no stated licence — ask the authors",
+  "attribution": "Record ids, times and tokens are from the Swarm Traces release: Forman, Kharlov, Tom et al., \"Revealing the details of how OpenAI agents hacked Hugging Face\", swarmtraces.org, 25 September 2026. The release states no licence, so no record text is reproduced here: each record links to the publisher's own viewer.",
+  "records": "viewer",
   "viewer": "https://swarmtraces.org/viewer/#/row/{id}",
-  "text": "Forman, Kharlov, Tom et al., \"Revealing the details of how OpenAI agents hacked Hugging Face\", swarmtraces.org, 25 Sep 2026"
+  "report": null,
+  "input": "redacted_columns.csv",
+  "pack": "code_traces.json"
  },
  "produced_by": {
   "tool": "Swarm Tracer",
-  "version": "2.1.0",
+  "version": "2.3.0",
   "pack": "code traces (Swarm Traces release)",
   "agent_rule": "estimate",
   "agent_rule_note": "estimated agents: tokens merged on direct evidence; change in Agents",

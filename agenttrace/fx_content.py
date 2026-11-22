@@ -8,7 +8,8 @@ shows the content was available, not that it was used. This module looks for the
              Distinctive = an identifier-like shape AND a low document frequency: held by at most
              MAX_NAMED named actors and MAX_ACTORS actors in all (anonymous runs included) and found
              in at most MAX_RECORDS records. Identity tokens ([CREDENTIAL n]) are left out: carried
-             tokens are a separate analysis. Each record is read up to TEXT_CAP characters.
+             tokens are a separate analysis. Each record is read up to TEXT_CAP characters. An actor with
+             no action record of its own (a tool server that only answers calls) is not counted as a holder.
   grades     per message: "used" when at least one distinctive item of the write record appears in a
              record of the reader at or after the read (not the read itself, not a response to it), and
              in no record of the reader before the read, and not in the read record (a reader that
@@ -168,10 +169,14 @@ def build(s):
             if count[it] <= OCC_CAP:
                 occ[it].append(e.id)
     actor = s.actor
+    # an actor with no action record of its own (a tool server, which only answers calls) is infrastructure: its
+    # answers repeat what a caller fetched, so it is not counted as a holder of the item
+    acting = {actor[e.id][0] for e in s.events if reconstruct.is_action(e, s.pack)}
     info = {}                     # item -> {"named": n, "actors": n, "records": n} for distinctive items
     for it, ids in occ.items():
         if count[it] > MAX_RECORDS:
             continue
+        ids = [r for r in ids if actor[r][0] in acting]
         holders = {actor[r][0] for r in ids}
         named = {actor[r][0] for r in ids if actor[r][1] != "run"}
         if len(named) <= MAX_NAMED and len(holders) <= MAX_ACTORS:

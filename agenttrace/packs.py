@@ -21,6 +21,13 @@ Reconstruction (all optional; the tool skips what a pack does not define):
                                                  infer time from unix seconds written in the text,
                                                  per contiguous block of one record kind
 
+Tool-call logs (optional; the general pack has both, see docs/counting-rule.md R2 and R18a):
+  reply_kinds: [kind]                            record kinds that are a tool server's answer to a call (result,
+                                                 error): never actions, so the server is no party to a message
+  tool_places: {keys, write_words, read_words}   a tool call that gives a string under one of `keys` (place, path,
+                                                 file, key ...) writes or reads the place tool:<value>; a word of the
+                                                 tool's name in write_words or read_words says which
+
 Patterns are Python regular expressions. Nothing is hard-coded to one dataset.
 """
 import json

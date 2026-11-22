@@ -5421,7 +5421,7 @@
    "reported_v110": false,
    "reported_now": true,
    "label": "unclear",
-   "reason": "2026-11 audit: the write call is cut inside its verb ('POS), so the record cannot show whether it writes. Not counted (R13).",
+   "reason": "2026-11 audit: the call is cut inside its verb ('POS). 2026-11-22: joined with the next record (R0022675, R13a) it is a POST to .../commit/main and is counted again. The joined text has not been judged: still unclear.",
    "also": [],
    "write_snippet": "ps://huggingface.co/api/datasets/[HF REPO 280]/commit/main',{meth",
    "read_snippet": "taset=[HF REPO 542]&config=dupref1&split=train','/first-rows?dataset=[HF REPO 280]&config=default&split=train'];let s=''",
@@ -5497,7 +5497,7 @@
    "reported_v110": false,
    "reported_now": true,
    "label": "unclear",
-   "reason": "2026-11 audit: the write call is cut inside its verb ('POS), so the record cannot show whether it writes. Not counted (R13).",
+   "reason": "2026-11 audit: the call is cut inside its verb ('POS). 2026-11-22: joined with the next record (R0022675, R13a) it is a POST to .../commit/main and is counted again. The joined text has not been judged: still unclear.",
    "also": [],
    "write_snippet": "ps://huggingface.co/api/datasets/[HF REPO 280]/commit/main',{meth",
    "read_snippet": "s?dataset=[HF REPO 2]&config=mnist&split=train','/first-rows?dataset=[HF REPO 280]&config=node180856b&split=train'];let ",
@@ -6334,7 +6334,8 @@
  "amendments": [
   "2026-11-13: after this audit the rule was changed (URLs held in variables are judged by the calls that use them; calls are bounded by their own parentheses; LFS batches by their operation; API path words are not part of a place). 4 links the new rule reports were read and added as true_message. 'reported_now' in each row records the code at audit time; run `python3 -m agenttrace.benchmark run <data>` for the current verdicts.",
   "2026-11-13 (phase 1): the 69 deliveries then reported that were not yet audited (all but 5 involve an anonymous run: endpoint) were read and labelled the same way (audited_in 'phase1-all-deliveries'). After the rule changes below, 7 more links appeared (the later readers of one LFS-upload write, once the hidden-operation LFS batches in front of it were dropped); they were read and added (audited_in 'phase1-after-rule-change', reported_phase1 true). 'reported_now' for every row records the code at audit time, before the phase-1 rule changes.",
-  "2026-11-16 (v2.2.0 rule, audit-v2.1 plan B1-B7): 10 LFS upload links relabelled false_write_lfs_or_urlopen (upload batch of an object already requested with 'download'); 1 link relabelled reader_holds_writer_token; 2 links with a call cut inside the verb relabelled unclear. Labels are still one reader (the authors' assistant) and, for these 13, a reviewer's reading; none is double-labelled. counts_by_version is the original 2026-11-13 snapshot."
+  "2026-11-16 (v2.2.0 rule, audit-v2.1 plan B1-B7): 10 LFS upload links relabelled false_write_lfs_or_urlopen (upload batch of an object already requested with 'download'); 1 link relabelled reader_holds_writer_token; 2 links with a call cut inside the verb relabelled unclear. Labels are still one reader (the authors' assistant) and, for these 13, a reviewer's reading; none is double-labelled. counts_by_version is the original 2026-11-13 snapshot.",
+  "2026-11-22 (R13a, audit-v2.1 plan B3 second half): a record cut inside a verb is joined with the next record when that record completes the verb. One pair on the release, R0022674 with R0022675. The two links from R0022674 (to R0032250 and R0032842), labelled unclear on 2026-11-16 because the call was cut, are counted by the rule again. Their label was not changed: nobody has read the joined text as a labeller, so no verdict is given; only the reason was amended. 'from' still records the actor at audit time (run:R0022674); the rule now gives [CREDENTIAL 169]. No link was added and no count in this file changed."
  ],
  "counts_by_endpoint_kind": {
   "named_named": {

@@ -9,6 +9,9 @@ For each dataset it prints and writes: deliveries found by both, only by message
 (B), each with its place and record ids; the same for full-body overwrites and for single operations (place,
 record, write/read). On the Swarm Traces release every delivery also carries the hand-audit label from
 agenttrace/claims/audited_links.json as a third opinion (the labels, not benchmark.py's own second method).
+The written-content test (R38) is compared too: how many deliveries pass in each implementation, on how many
+shared deliveries the verdict is the same, and how many pass by the reader's later output (R38b). It is reported
+and does not enter the disagreement figure, which is about deliveries.
 
 Disagreement for a dataset is (only A + only B) / (both + only A + only B) over deliveries; 0 when both find
 none. The exit code is 1 when any dataset is above --threshold (default 0.10), else 0.
@@ -96,6 +99,16 @@ def compare(s, labels=None):
     ops_b = {(o.place, o.rid, o.op) for o in ref["_ops"]}
     named = lambda rows: sum(1 for d in rows if not d["from"].startswith("run:") and not d["to"].startswith("run:"))
     grade_same = sum(1 for k in both if main_d[k].get("grade") == ref_d[k].get("grade"))
+    # the written-content test (R38): how many deliveries pass in each implementation, and by which statement
+    later = lambda d: d.get("content_how") == "in the reader's later output"
+    passes = lambda k, d: k[0].startswith("inbox:") or bool(d.get("uses_content"))     # a logged direct message passes as it stands
+    used_differs = sorted(k for k in both if passes(k, main_d[k]) != passes(k, ref_d[k]))
+    content = {"A_pass": s.flow["deliveries_reader_uses_content"], "B_pass": ref["deliveries_reader_uses_content"],
+               "same_verdict": len(both) - len(used_differs), "of": len(both),
+               "later_output_R38b": {"A": sum(1 for d in main_d.values() if later(d)), "B": sum(1 for d in ref_d.values() if later(d)),
+                                     "both": sum(1 for k in both if later(main_d[k]) and later(ref_d[k]))},
+               "verdict_differs": [{"place": k[0], "write_id": k[1], "read_id": k[2], "A": main_d[k].get("content_how"),
+                                    "B": ref_d[k].get("content_how")} for k in used_differs[:200]]}
     return {
         "records": len(s.events), "pack": s.pack.name,
         "A": {"deliveries": len(main_d), "named": named(main_d.values()), "overwrites": len(main_o), "operations": len(ops_a),
@@ -107,6 +120,7 @@ def compare(s, labels=None):
         "both": len(both), "only_A": len(only_a), "only_B": len(only_b),
         "disagreement": round((len(only_a) + len(only_b)) / union, 4) if union else 0.0,
         "grade_agreement": {"same": grade_same, "of": len(both)},
+        "content_test": content,
         "overwrites": {"both": len(main_o & ref_o), "only_A": len(main_o - ref_o), "only_B": len(ref_o - main_o)},
         "operations": {"both": len(ops_a & ops_b), "only_A": len(ops_a - ops_b), "only_B": len(ops_b - ops_a)},
         "deliveries_both": [row(k, main_d[k], ref_d[k]) for k in both],
@@ -141,6 +155,9 @@ def run(names, threshold=THRESHOLD, out=None, stream=sys.stdout, list_cap=40):
         print(f"   deliveries: A {r['A']['deliveries']}, B {r['B']['deliveries']}; both {r['both']}, only A {r['only_A']}, "
               f"only B {r['only_B']}; disagreement {100 * r['disagreement']:.1f}%{'  ABOVE THRESHOLD' if r['over_threshold'] else ''}", file=stream)
         print(f"   named: A {r['A']['named']}, B {r['B']['named']}; grades equal on {r['grade_agreement']['same']} of {r['grade_agreement']['of']} shared", file=stream)
+        c = r["content_test"]
+        print(f"   reader uses what was written (R38): A {c['A_pass']}, B {c['B_pass']}; same verdict on {c['same_verdict']} of {c['of']} shared; "
+              f"by the reader's later output (R38b): A {c['later_output_R38b']['A']}, B {c['later_output_R38b']['B']}, both {c['later_output_R38b']['both']}", file=stream)
         o, p = r["overwrites"], r["operations"]
         print(f"   overwrites: both {o['both']}, only A {o['only_A']}, only B {o['only_B']}; "
               f"operations: both {p['both']}, only A {p['only_A']}, only B {p['only_B']}", file=stream)

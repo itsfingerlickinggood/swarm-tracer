@@ -16,11 +16,13 @@ message (logged)" on the recipient's inbox place (inbox:<recipient>).
 Content spread uses near-duplicate families: the same program, with ids masked, sent by
 several actors. The first actor to send it is the source; later actors are adopters.
 """
+import copy
 import hashlib
+import json
 import re
 from collections import Counter, defaultdict
 
-from .reconstruct import iso, in_comment  # noqa: F401 (in_comment is part of this module's API)
+from .reconstruct import iso, in_comment, is_action  # noqa: F401 (in_comment is part of this module's API)
 
 TOKEN = re.compile(r"<[a-z][a-z_]*>|\w+|[^\w\s]")
 
@@ -41,9 +43,11 @@ def _thread_identity(rec, res, pack):
     return rec["_thread_ident"]
 
 
-def actor_of(e, rec, res, pack):
+def actor_of(e, rec, res, pack, ids=None):
+    """(actor, kind) of a record (R21). ids: the record's identity tokens when they are not rec["_ids"][e.id],
+    which is the case for a record joined from fragments (R13a)."""
     shared = set(pack.raw.get("shared_identities", []))
-    toks = [t for t in rec["_ids"][e.id] if t not in shared]
+    toks = [t for t in (rec["_ids"][e.id] if ids is None else ids) if t not in shared]
     if e.actor and e.actor in toks:
         return e.actor, "named"          # the record's own actor field
     if toks:
@@ -133,6 +137,102 @@ def _direct_perf(direct):
     return out
 
 
+# ------------------------------------------------------------------ fragments (R13a)
+
+VERBS = ("POST", "PUT", "PATCH", "DELETE", "GET", "HEAD")
+FRAGMENT_END = re.compile(r"(?:\bmethod\s*[:=]\s*|\.open\s*\(\s*)(['\"])([A-Za-z]{1,5})\Z")
+
+
+def _open_verb(text):
+    """(letters, quote) when the text ends inside the verb of a call (…{method:'POS, ….open('PU), else None."""
+    if not text or not text[-1].isalpha():
+        return None
+    m = FRAGMENT_END.search(text, max(0, len(text) - 48))
+    if not m:
+        return None
+    got = m.group(2).upper()
+    return (got, m.group(1)) if any(len(v) > len(got) and v.startswith(got) for v in VERBS) else None
+
+
+def _completes(cut, nxt_text):
+    """True when nxt_text begins with the missing letters of a verb cut as `cut` = (letters, quote), and the same
+    quote (T',headers:…)."""
+    got, quote = cut
+    for v in VERBS:
+        if len(v) > len(got) and v.startswith(got):
+            rest = v[len(got):]
+            if nxt_text[:len(rest)].upper() == rest and nxt_text[len(rest):len(rest) + 1] == quote:
+                return True
+    return False
+
+
+def _same_source(a, b):
+    """Nothing in the two records' own fields says they are separate: the same kind, actor and channel, neither
+    addressed to a recipient (a logged direct message is never joined), and b has no parent other than a or a's
+    parent."""
+    return (a.kind == b.kind and (a.actor or None) == (b.actor or None) and (a.channel or None) == (b.channel or None)
+            and not getattr(a, "to", None) and not getattr(b, "to", None)
+            and (not b.parent or b.parent == a.id or b.parent == a.parent))
+
+
+def join_fragments(events, pack):
+    """Records cut inside a verb that the next record completes, read as one record (docs/counting-rule.md R13a).
+
+    Returns (view, parts). view is [(index, record)] in input order: a joined record stands at the index of its
+    first fragment, keeps that fragment's id and fields, and has the texts of its fragments one after the other;
+    the records joined into it are left out. parts is {first id: [ids joined into it]}. The records of `events`
+    themselves are not changed."""
+    view, parts = [], {}
+    i, n = 0, len(events)
+    while i < n:
+        e = events[i]
+        j = i + 1
+        if j < n and is_action(e, pack):
+            text = None
+            while j < n:
+                head = e.text if text is None else text
+                cut = _open_verb(head)
+                if cut is None or not _same_source(e, events[j]):
+                    break
+                tail = events[j].text
+                if not _completes(cut, tail):
+                    break
+                text = head + tail
+                j += 1
+            if text is not None:
+                joined = copy.copy(e)
+                joined.text = text
+                if not joined.time:
+                    joined.time = next((x.time for x in events[i + 1:j] if x.time), None)
+                parts[e.id] = [x.id for x in events[i + 1:j]]
+                e = joined
+        view.append((i, e))
+        i = j
+    return view, parts
+
+
+def _joined_lookup(rec, parts):
+    """(ids_of, time_of) for the records of a view: a joined record has its fragments' identity tokens, the first
+    fragment's first, and the first fragment's time (a later fragment's when the first has none)."""
+    ids, times = rec["_ids"], rec["_times"]
+    if not parts:
+        return ids.__getitem__, times.get
+    ids_j, times_j = {}, {}
+    for first, rest in parts.items():
+        both = list(ids[first])
+        for rid in rest:
+            both += [tok for tok in ids[rid] if tok not in both]
+        ids_j[first] = both
+        times_j[first] = next((times[r] for r in [first] + rest if times.get(r) is not None), None)
+
+    def ids_of(rid):
+        return ids_j[rid] if rid in ids_j else ids[rid]
+
+    def time_of(rid):
+        return times_j[rid] if rid in times_j else times.get(rid)
+    return ids_of, time_of
+
+
 # ------------------------------------------------------------------ channels
 
 def compile_channels(pack):
@@ -145,6 +245,97 @@ def compile_channels(pack):
         out.append((c["name"], re.compile(c["pattern"], flags),
                     re.compile(c.get("write", pack.raw.get("write_pattern", r"(?!)")), re.I),
                     re.compile(c.get("read", pack.raw.get("read_pattern", r"(?!)")), re.I)))
+    return out
+
+
+# ------------------------------------------------------------------ tool places (R18a)
+
+TOOL_PREFIX = "tool"
+_HUMP = re.compile(r"(?<=[a-z])(?=[A-Z])")                    # readFile -> read File
+_LETTERS = re.compile(r"[A-Za-z]+")                            # read_file, READ-FILE -> read, file
+
+
+def compile_tool_places(pack):
+    """(argument pattern, write words, read words) from the pack's tool_places, or None when it has none.
+    The pattern matches one string argument of a tool call under one of the listed keys ("place": "pinboard");
+    group 1 is the value as written (JSON escapes included)."""
+    cfg = pack.raw.get("tool_places")
+    if not isinstance(cfg, dict) or not cfg.get("keys"):
+        return None
+    keys = "|".join(re.escape(str(k)) for k in sorted(cfg["keys"], key=lambda k: (-len(str(k)), str(k))))
+    return (re.compile(r'"(?:' + keys + r')"\s*:\s*"((?:[^"\\]|\\.){1,300})"', re.I),
+            frozenset(str(w).lower() for w in cfg.get("write_words", [])),
+            frozenset(str(w).lower() for w in cfg.get("read_words", [])))
+
+
+def tool_op(tool, tp):
+    """write, read or None for a tool by the words of its name (R18a). A name with both kinds of word writes."""
+    words = {w.lower() for w in _LETTERS.findall(_HUMP.sub(" ", tool or ""))}
+    if words & tp[1]:
+        return "write"
+    if words & tp[2]:
+        return "read"
+    return None
+
+
+def _first_object(text):
+    """(lo, hi) of the first JSON object in a text: from its first `{` to the `}` that closes it (strings are
+    skipped), or to the end of the text when the object is cut. None when the text has no `{`."""
+    lo = text.find("{")
+    if lo < 0:
+        return None
+    depth, i, n, quoted = 0, lo, len(text), False
+    while i < n:
+        c = text[i]
+        if quoted:
+            if c == "\\":
+                i += 1
+            elif c == '"':
+                quoted = False
+        elif c == '"':
+            quoted = True
+        elif c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return lo, i + 1
+        i += 1
+    return lo, n
+
+
+def _unescape(raw):
+    if "\\" not in raw:
+        return raw
+    try:
+        v = json.loads('"' + raw + '"')
+    except ValueError:
+        return raw
+    return v if isinstance(v, str) else raw
+
+
+def tool_places(e, tp, taken=()):
+    """[(place, op, start, end)] for a tool call that names its place in an argument (R18a): the record has a tool
+    field, the tool's name says write or read, and the first JSON object of its text gives a string under one of the
+    pack's place keys. taken: spans of the text that a channel pattern of the pack already reads as a place; an
+    argument that overlaps one is left to that channel."""
+    tool = getattr(e, "tool", None)
+    if tp is None or not tool:
+        return []
+    op = tool_op(tool, tp)
+    if op is None:
+        return []
+    span = _first_object(e.text)
+    if span is None:
+        return []
+    out, seen = [], set()
+    for m in tp[0].finditer(e.text, span[0], span[1]):
+        if any(a < m.end() and m.start() < b for a, b in taken):
+            continue
+        name = _unescape(m.group(1)).strip()
+        if name and name not in seen:
+            seen.add(name)
+            out.append((f"{TOOL_PREFIX}:{name}", op, m.start(), m.end()))
     return out
 
 
@@ -436,21 +627,23 @@ LFS_BATCH = re.compile(r"operation['\"]?\s*:\s*['\"](?:upload|download)['\"]")
 LFS_SENT = re.compile(r"lfsFile|\.open\(\s*['\"]PUT['\"]|method\s*:\s*['\"]PUT['\"]|method\s*=\s*['\"]PUT['\"]|upload_file|\buploadId\b")
 
 
-def _lfs_index(events, rec):
+def _lfs_index(events, rec, time_of=None):
     """Per object id of a Git LFS batch: when it was first asked for with operation 'download', and the records that
     later send the object (a commit that names it as an lfsFile, a PUT). An upload batch only announces an upload;
-    it is a write only when the object really goes up (R6b)."""
+    it is a write only when the object really goes up (R6b). With time_of, `events` is a view from join_fragments:
+    [(index, record)], and time_of gives each record's time."""
     if "_lfs" in rec:
         return rec["_lfs"]
-    times = rec["_times"]
+    times = rec["_times"] if time_of is None else None
     down, sent = {}, defaultdict(list)
-    for i, e in enumerate(events):
+    for i, e in (enumerate(events) if time_of is None else events):
         if "oid" not in e.text:
             continue
         oids = set(LFS_OID.findall(e.text))
         if not oids:
             continue
-        key = (times.get(e.id) if times.get(e.id) is not None else float("-inf"), i)
+        t = times.get(e.id) if time_of is None else time_of(e.id)
+        key = (t if t is not None else float("-inf"), i)
         if LFS_DOWNLOAD.search(e.text):
             for o in oids:
                 if o not in down or key < down[o]:
@@ -480,17 +673,19 @@ def channel_ops(events, pack, rec, res):
     - pattern channels (from the pack): a write or a read, judged from the code around the mention
     - structural channels (the record's own page, thread, room...): a post, which reads what is
       there and writes to it
-    - mentions: naming another structural channel in the text reads it"""
+    - mentions: naming another structural channel in the text reads it
+    - tool places (R18a): a tool call that names its place in an argument writes or reads it, by the tool's name"""
     chans = compile_channels(pack)
+    tplaces = compile_tool_places(pack)
     shared_ids = set(pack.raw.get("shared_identities", []))
-    times = rec["_times"]
+    view, parts = join_fragments(events, pack)      # R13a: before anything else, fragments become one record
+    ids_of, time_of = _joined_lookup(rec, parts)
     structural = pack.raw.get("structural_channels", True)
     mentions = pack.raw.get("mention_channels", False)
     midx = _mention_index(events) if mentions else {}
     ops = []  # (channel, op, actor, actor_kind, time, index, id)
     how_of = rec.setdefault("_op_how", {})   # (record id, channel) -> how the verb was found: call, inferred, default
-    from .reconstruct import is_action
-    for i, e in enumerate(events):
+    for i, e in view:
         if not is_action(e, pack):
             continue  # replies and recovered copies are not actions on a channel
         found = []
@@ -530,19 +725,23 @@ def channel_ops(events, pack, rec, res):
                 if op == "mention":
                     continue
                 if op == "write" and LFS_UPLOAD.search(e.text[slo:shi]) and "info/lfs" in e.text:
-                    tk = times.get(e.id)
+                    tk = time_of(e.id)
                     if not _lfs_upload_counts(e.text, e.text[slo:shi], (tk if tk is not None else float("-inf"), i),
-                                              _lfs_index(events, rec)):
+                                              _lfs_index(view, rec, time_of)):
                         continue                      # an upload batch for an object that already existed, or never went up (R6b)
                 if ops_here.get(key) != "write":
                     ops_here[key] = op
                     seg_of[key] = e.text[slo:shi]
                     how_of[(e.id, key)] = how
             found += list(ops_here.items())
+        # R18a: a tool call that names its place in an argument; the tool's own name is the verb
+        for key, op, _lo, _hi in tool_places(e, tplaces, spans):
+            found.append((key, op))
+            how_of[(e.id, key)] = "call"
         if not found:
             continue
-        a, ak = actor_of(e, rec, res, pack)
-        toks = [t for t in rec["_ids"][e.id] if t not in shared_ids] if ak == "token" else []
+        a, ak = actor_of(e, rec, res, pack, ids_of(e.id))
+        toks = [t for t in ids_of(e.id) if t not in shared_ids] if ak == "token" else []
         for ch, op in found:
             a2 = a
             if len(toks) > 1 and ch in seg_of:
@@ -550,7 +749,7 @@ def channel_ops(events, pack, rec, res):
                 here = [t for t in toks if t in seg_of[ch]]
                 if len(here) == 1:
                     a2 = here[0]
-            ops.append((ch, op, a2, ak, times.get(e.id), i, e.id))
+            ops.append((ch, op, a2, ak, time_of(e.id), i, e.id))
     # logged direct messages: the sender writes to the recipient's inbox, the recipient's reply reads it
     for d in direct_messages(events, pack, rec, res):
         ops.append((d["channel"], "write", d["from"], d["from_kind"], d["write_time"], d["_i"], d["write_id"]))
@@ -577,7 +776,7 @@ def _in_order(text, wanted, n=3, width=160):
 
 
 def _how(w, r):
-    if r[1] == "read":
+    if r[1] == "read":      # a read by a tool call (R18a) is a read in code: the verb is the call's own name
         return "read in code" if not w[0].startswith("place:") else "named the place"
     return "posted after it"
 
@@ -611,7 +810,7 @@ def _lists_token(text, actor):
     return re.search(r"(?<![\w])" + re.escape(actor) + r"(?![\w])", text) is not None
 
 
-def deliveries(ops, fam=None, texts=None, how=None, coarse=None, estimated=None, bodies=None):
+def deliveries(ops, fam=None, texts=None, how=None, coarse=None, estimated=None, bodies=None, added_out=None):
     """Link each read to the latest earlier write on the same channel by another actor.
     Order is by time when both records are dated; otherwise the pair is 'order unknown'.
 
@@ -621,7 +820,10 @@ def deliveries(ops, fam=None, texts=None, how=None, coarse=None, estimated=None,
     seeing it, so it is returned as an overwrite, not a delivery.
 
     bodies: record id -> text, given so that a read whose record lists the writer's own token (a loop over
-    a token list that contains it) is not taken as another actor reading the write (R23a)."""
+    a token list that contains it) is not taken as another actor reading the write (R23a).
+
+    added_out: a dict that is filled with {(channel, record id): the lines that post added}, when texts is given
+    (the written-content test reads them: what a full-body post wrote is what it added, R38b)."""
     by_ch = defaultdict(list)
     for o in ops:
         by_ch[o[0]].append(o)
@@ -644,6 +846,8 @@ def deliveries(ops, fam=None, texts=None, how=None, coarse=None, estimated=None,
                 now = _lines(texts.get(o[6], ""))
                 added[o[6]] = now - before
                 before = now
+            if added_out is not None:
+                added_out.update(((ch, rid), lines) for rid, lines in added.items())
         delivered = 0
         over_start = len(overwrites)
         latencies = []
@@ -723,26 +927,165 @@ def _terms(text, drop):
     return set(_TERM.findall(_CRED.sub(" ", text)))
 
 
-def written_content_test(events, pack, dels):
-    """For each delivery that is not a logged direct message: does the reader's record quote or use something the
-    writer's record wrote? A term counts when it appears in both records, is not part of the place's address and
-    is rare in the trace (found in at most CONTENT_DF_MAX records). A wiki edit that kept lines the writer added
-    counts as used. Adds d["uses_content"] and d["shared_terms"] (up to 3) to each delivery and returns how many
-    deliveries are checked and how many pass."""
+# R38b: a term of the write found in the reader's later output. The shapes that count as distinctive:
+LATER_NUMBER_MIN = 5    # a number of this many digits or more
+_DTERM = re.compile(r"\[[A-Za-z][A-Za-z _:]*[ :]\d+\]"                              # a numbered redaction marker
+                    r"|[A-Za-z0-9_](?:[A-Za-z0-9_.\-/]{3,}[A-Za-z0-9_])")             # a run, dots hyphens slashes at its ends left off
+_INVENTED = re.compile(r"[0-9_A-Z]")       # after the first character: a digit, an underscore or a capital
+_DATED = re.compile(r"\d{4}-\d\d-\d\d")    # 2026-05-26T13: a date says when, not what
+
+
+def _is_distinctive(term):
+    """A numbered redaction marker that is not a credential; a run of 8 or more characters that holds a digit, an
+    underscore or a capital letter after its first character and does not begin with a date; a number of
+    LATER_NUMBER_MIN or more digits. A plain word is not distinctive, however long, and neither is a compound of
+    plain words (field-value, post/share, example.com/hello)."""
+    if term[0] == "[":
+        return not term.startswith("[CREDENTIAL")
+    if term.isdigit():
+        return len(term) >= LATER_NUMBER_MIN
+    return len(term) >= CONTENT_MIN_LEN and _INVENTED.search(term, 1) is not None and not _DATED.match(term)
+
+
+def distinctive_terms(text, drop=()):
+    """The distinctive terms of a text (R38b). drop: patterns whose matches are left out first (the place's address)."""
+    for rx in drop:
+        text = rx.sub(" ", text)
+    return {t for t in _DTERM.findall(text) if _is_distinctive(t)}
+
+
+def _without_place_arguments(text, tp):
+    """The text with every place argument of its first JSON object blanked (R18a: "place": "pinboard"): the address
+    of a place is not content."""
+    span = _first_object(text) if tp else None
+    if span is None:
+        return text
+    return text[:span[0]] + tp[0].sub(" ", text[span[0]:span[1]]) + text[span[1]:]
+
+
+_JSON_STRING = re.compile(r'"((?:[^"\\]|\\.)*)"(\s*:)?')        # every string in turn; group 2 is set for a key
+
+
+def what_was_written(text, tool, tp):
+    """The content of a record (R38). For a tool call whose text holds a JSON object: the strings that are not keys in
+    its first JSON object, escapes decoded, without the place arguments. The tool's name and the names of its
+    arguments are the tool's vocabulary, the same in every call, so they are not what this actor wrote.
+    Any other record: its text, without the place arguments of its first JSON object."""
+    span = _first_object(text) if tool else None
+    if span is None:
+        return _without_place_arguments(text, tp)
+    body = text[span[0]:span[1]]
+    if tp:
+        body = tp[0].sub(" ", body)
+    return "\n".join(_unescape(v) for v, is_key in _JSON_STRING.findall(body) if not is_key)
+
+
+def _later_output_test(events, pack, todo, who, time_of):
+    """R38b for the deliveries in todo ({index: (delivery, distinctive terms of the write)}): {index: [(term, record)]},
+    the terms found in a later record of the reader and the first such record, for those that pass the guards.
+
+    later record of the reader   an action record (R2) whose actor (R21) is the reader, dated, after the read record
+                                 (a later time, or the same time and later in the input), whose parent is not the read
+                                 record (the answer to a read is what was fetched, not what the reader did with it)
+    guard 1, new at the write    no record before the write record by an actor other than the writer holds the term
+    guard 2, not the reader's    no record of the reader before the read holds it, and the read record does not
+    A record without a time counts as before."""
+    needed = set().union(*[terms for _d, terms in todo.values()]) if todo else set()
+    if not needed:
+        return {}
+    readers = {d["to"] for d, _t in todo.values()}
+    pos = {}
+    first = {}          # term -> {actor: its earliest record holding the term}, the two earliest actors only
+    mine = defaultdict(list)   # reader -> [(key, record id, terms held, is an action, parent)]
+    held_by = {}        # record id -> needed terms it holds (records of a delivery only)
+    wanted = {d["write_id"] for d, _t in todo.values()} | {d["read_id"] for d, _t in todo.values()}
+    never = float("-inf")
+    for i, e in enumerate(events):
+        if e.id in wanted:
+            pos[e.id] = i
+        if len(e.text) < LATER_NUMBER_MIN:
+            continue
+        held = needed.intersection(_DTERM.findall(e.text))
+        if not held:
+            continue
+        if e.id in wanted:
+            held_by[e.id] = held
+        t = time_of(e.id)
+        key = (never if t is None else t, i)
+        a = who(e)
+        for term in held:
+            f = first.setdefault(term, {})
+            if a in f:
+                if key < f[a]:
+                    f[a] = key
+            else:
+                f[a] = key
+                if len(f) > 2:
+                    del f[max(f, key=f.get)]
+        if a in readers:
+            mine[a].append((key, e.id, held, is_action(e, pack), e.parent))
+    out = {}
+    for n, (d, terms) in todo.items():
+        w, r = d["write_id"], d["read_id"]
+        if w not in pos or r not in pos:
+            continue
+        wkey, rkey = (d["write_time"], pos[w]), (d["read_time"], pos[r])
+        terms = terms - held_by.get(r, set())                                         # guard 2: the read names it already
+        terms = {x for x in terms                                                     # guard 1: new at the write
+                 if not any(k < wkey for a, k in first.get(x, {}).items() if a != d["from"])}
+        if not terms:
+            continue
+        had, later = set(), {}
+        for key, rid, held, act, parent in mine.get(d["to"], ()):
+            if rid == r:
+                continue
+            if key < rkey:
+                had |= held
+            elif act and parent != r:
+                for x in held & terms:
+                    if x not in later or key < later[x][0]:
+                        later[x] = (key, rid)
+        got = sorted(((x, later[x][1]) for x in later if x not in had), key=lambda xr: (later[xr[0]][0], -len(xr[0]), xr[0]))
+        if got:
+            out[n] = got
+    return out
+
+
+def written_content_test(events, pack, dels, who=None, time_of=None, added=None):
+    """For each delivery that is not a logged direct message: did the reader use something the writer wrote?
+
+    Of a tool call only the values of its arguments are content (what_was_written), in R38a and R38b alike.
+    R38a  the read record quotes it: a term that appears in both records, is not part of the place's address and is
+          rare in the trace (found in at most CONTENT_DF_MAX records)
+    R38b  the reader's later output holds it: a distinctive term of the write record found in a later record of the
+          reader, under the guards of _later_output_test (needs who: record -> actor, and time_of: record id -> time)
+    A wiki edit that kept lines the writer added counts as used (R29). Adds d["uses_content"], d["shared_terms"] (up to
+    3), and for a pass d["content_how"] (and d["used_in"], the reader's record, for R38b) to each delivery, and returns
+    how many deliveries are checked and how many pass. added: {(channel, write record id): lines the post added}
+    from deliveries(), for packs whose posts hold the whole place."""
     by_id = {e.id: e.text for e in events}
+    tool_of = {e.id: e.tool for e in events if getattr(e, "tool", None)}
+    added = added or {}
     drop = [rx for _n, rx, _w, _r in compile_channels(pack)]
-    cand = {}
+    tp = compile_tool_places(pack)
+    cand, todo = {}, {}
     needed = set()
-    for d in dels:
+    for n, d in enumerate(dels):
         if d.get("how") == DIRECT_HOW:
             continue
         if str(d.get("how", "")).startswith("kept "):
-            d["uses_content"], d["shared_terms"] = True, []
+            d["uses_content"], d["shared_terms"], d["content_how"] = True, [], "kept lines"
             continue
-        w, r = by_id.get(d["write_id"], ""), by_id.get(d["read_id"], "")
-        both = _terms(w, drop) & _terms(r, drop)
-        cand[(d["write_id"], d["read_id"])] = both
+        tools = {tool_of.get(d["write_id"]), tool_of.get(d["read_id"])}
+        w = what_was_written(by_id.get(d["write_id"], ""), tool_of.get(d["write_id"]), tp)
+        r = what_was_written(by_id.get(d["read_id"], ""), tool_of.get(d["read_id"]), tp)
+        both = (_terms(w, drop) & _terms(r, drop)) - tools
+        cand[n] = both
         needed |= both
+        if who is not None and time_of is not None:
+            # what the writer wrote: the lines it added when each post holds the whole place, else its record
+            new = added.get((d["channel"], d["write_id"]))
+            todo[n] = (d, distinctive_terms(w if new is None else "\n".join(sorted(new)), drop) - tools)
     df = Counter()
     if needed:
         for e in events:
@@ -750,18 +1093,24 @@ def written_content_test(events, pack, dels):
                 continue
             for x in needed.intersection(_TERM.findall(e.text)):
                 df[x] += 1
+    later = _later_output_test(events, pack, todo, who, time_of) if todo else {}
     checked = passed = 0
-    for d in dels:
-        k = (d["write_id"], d["read_id"])
-        if k not in cand:
+    for n, d in enumerate(dels):
+        if n not in cand:
             if d.get("uses_content"):
                 checked += 1
                 passed += 1
             continue
-        rare = sorted(x for x in cand[k] if df[x] <= CONTENT_DF_MAX)
-        d["uses_content"], d["shared_terms"] = bool(rare), rare[:3]
+        rare = sorted(x for x in cand[n] if df[x] <= CONTENT_DF_MAX)
+        if rare:
+            d["uses_content"], d["shared_terms"], d["content_how"] = True, rare[:3], "quoted in the read"
+        elif n in later:
+            d["uses_content"], d["shared_terms"] = True, [x for x, _rid in later[n][:3]]
+            d["content_how"], d["used_in"] = "in the reader's later output", later[n][0][1]
+        else:
+            d["uses_content"], d["shared_terms"] = False, []
         checked += 1
-        passed += 1 if rare else 0
+        passed += 1 if d["uses_content"] else 0
     return checked, passed
 
 
@@ -807,6 +1156,7 @@ def content_spread(events, pack, rec, res, kinds=None, written=None):
     a sign of shared control."""
     times = rec["_times"]
     chans = compile_channels(pack)
+    tplaces = compile_tool_places(pack)
     intents = rec.get("_intents", {})
     harm = set(getattr(pack, "harm", None) or [])
     by_id = {e.id: e for e in events}
@@ -825,6 +1175,9 @@ def content_spread(events, pack, rec, res, kinds=None, written=None):
                     return True
                 if written is None or f"{name}:{m.group(1)}" in written:
                     return True
+        for key, op, _lo, _hi in tool_places(e, tplaces):       # R18a places count like the pack's own
+            if op == "write" or written is None or key in written:
+                return True
         return False
     fam = families(events, kinds)
     groups = defaultdict(list)
@@ -864,17 +1217,25 @@ def _how_group(how):
 
 def message_flow(events, pack, rec, res):
     ops = channel_ops(events, pack, rec, res)
-    texts = {e.id: e.text for e in events} if pack.raw.get("full_body_posts") else None
+    # R13a: the rule reads fragments as one record, so everything below that reads a record's text (R23a, R27, R29,
+    # R38) reads the joined text; `records` leaves out the records joined into an earlier one
+    view, parts = join_fragments(events, pack)
+    records = [e for _i, e in view] if parts else events
+    bodies = {e.id: e.text for e in records}
+    texts = bodies if pack.raw.get("full_body_posts") else None
     inferred = [o for o in ops if not o[0].startswith(DIRECT_PREFIX + ":")]
     coarse = [re.compile(p) for p in pack.raw.get("coarse_channels", [])]
     is_coarse = lambda ch: any(r.search(ch) for r in coarse)
-    by_id = {e.id: e for e in events}
-    est = lambda rid: rid in by_id and not by_id[rid].time and rid in rec["_times"]
-    dels, perf, unknown, same_prog, overwrites, rereads = deliveries(inferred, program_prefix(events), texts,
-                                                                       rec.get("_op_how", {}), is_coarse, est,
-                                                                       {e.id: e.text for e in events})
+    by_id = {e.id: e for e in records}
+    time_of = _joined_lookup(rec, parts)[1]
+    est = lambda rid: rid in by_id and not by_id[rid].time and time_of(rid) is not None
+    added = {}
+    dels, perf, unknown, same_prog, overwrites, rereads = deliveries(inferred, program_prefix(records), texts,
+                                                                       rec.get("_op_how", {}), is_coarse, est, bodies, added)
     # the written-content test: does the reader quote or use what the writer wrote? (kept separate from the count)
-    content_checked, content_used = written_content_test(events, pack, dels)
+    ids_of = _joined_lookup(rec, parts)[0]
+    content_checked, content_used = written_content_test(records, pack, dels, lambda e: actor_of(e, rec, res, pack, ids_of(e.id))[0],
+                                                         time_of, added)
     # logged direct messages are deliveries as they stand: no inference needed
     direct = direct_messages(events, pack, rec, res)
     dels = dels + [{**{k: v for k, v in d.items() if not k.startswith("_")}, "grade": "direct"} for d in direct if d["write_time"] is not None]
@@ -958,6 +1319,8 @@ def message_flow(events, pack, rec, res):
         "deliveries_by_how": dict(Counter(_how_group(d["how"]) for d in dels)),
         "overwrites": len(overwrites),
         "repeat_reads": rereads,
+        # R13a: records cut inside a verb and completed by the next record, counted as one record under the first id
+        "joined_fragments": [{"record": first, "continued_in": rest} for first, rest in parts.items()],
         "top_overwrite_pairs": [{"from": a, "to": b, "overwrites": n} for (a, b), n in over_pairs.most_common(15)],
         "_deliveries": dels,
         "_overwrites": overwrites,

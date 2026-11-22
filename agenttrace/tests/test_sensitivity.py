@@ -59,6 +59,34 @@ class SensitivityTests(unittest.TestCase):
         base = g["scenarios"][0]["values"]["messages"]
         self.assertTrue(all(x["values"]["messages"] <= base for x in g["scenarios"]))
 
+    def test_the_order_of_the_deliveries_does_not_change_any_scenario(self):
+        import random
+        s = self.s
+        dels = list(s.flow["_deliveries"])
+        harm = sorted(s.rec["_times"][r] for r in s.harmful if r in s.rec["_times"])
+        want = sx._named_deliveries(sx._View(s, dels, harm), {}, "asis")[0]
+        self.assertGreater(len(want), 10)
+        rng = random.Random(3)
+        for _ in range(5):
+            mixed = dels[:]
+            rng.shuffle(mixed)
+            got = sx._named_deliveries(sx._View(s, mixed, harm), {}, "asis")[0]
+            self.assertEqual([(x[0], x[1]["write_id"], x[1]["read_id"]) for x in got], [(x[0], x[1]["write_id"], x[1]["read_id"]) for x in want])
+        # the failed-reads scenario drops messages by a seeded draw over that list: the same set of messages gives
+        # the same means, whatever order the deliveries arrived in
+        a = [x["values"] for x in sx._gap_success(s, sx._values(s, s.rec["_times"], dels=dels))[0]]
+        mixed = dels[:]
+        rng.shuffle(mixed)
+        b = [x["values"] for x in sx._gap_success(s, sx._values(s, s.rec["_times"], dels=mixed))[0]]
+        self.assertEqual(a, b)
+        self.assertEqual(len(a), len(sx.SUCCESS_P))
+
+    def test_mean_is_exact_and_order_free(self):
+        xs = [0.1] * 10 + [1e16, -1e16, 3.3]
+        self.assertEqual(sx._mean(xs, 6), sx._mean(list(reversed(xs)), 6))
+        self.assertEqual(sx._mean(xs, 6), round(4.3 / 13, 6))
+        self.assertIsNone(sx._mean([]))
+
     def test_insiders_not_applicable_here(self):
         self.assertFalse(sx.insiders(self.s)["available"])
 

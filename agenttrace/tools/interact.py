@@ -29,6 +29,16 @@ switch on every tab: ribbon and tab badges move in the direction /api/x/units_su
 agent-level counts never exceed token-level ones, a trace with no merges shows the same numbers either way, and
 switching back restores the first numbers.
 
+Keyboard access, once per dataset (also on its own: --keyboard, about 20 seconds on the demo swarm): with real key
+events only, one press of Tab lands on a record chip, an actor chip, a place chip, an agent chip, a glossary term
+and a clickable table row (each from the stop before it), and the focused element shows an outline; Enter or
+Space does what a click does (a chip opens in the Inspector and focus moves there, a row opens its record, an
+agent chip opens its card, a term opens the glossary); a focused chip shows the hover card a pointer would; the
+search box is reached with Tab, its results with the arrow keys (they are a listbox: the box keeps the focus and
+names the active result), Enter opens the active one, Escape or Tab closes the list; the Inspector's own controls,
+its back button included, are reached with Tab; Escape closes the hover card, the agent card and the glossary and
+the focus is not lost; a sweep of 40 Tab presses finds an outline on every stop.
+
 Nothing is written to the server under test: every request that is not a GET is answered inside the page (and
 counted as the control's effect), confirm() / prompt() decline, downloads and window.open are counted, not done.
 Native title tooltips cannot be seen in headless Chrome; for those the title text itself is checked.
@@ -43,7 +53,7 @@ import sys
 import time
 import urllib.parse
 
-from .smoke import BUSY_JS, PKG, ROOT, TABS, Browser, Server, free_port, http
+from .smoke import BUSY_JS, PKG, ROOT, TABS, Browser, Server, find_chrome, free_port, http  # noqa: F401 (find_chrome: for callers that skip without Chrome)
 
 BIG_DEFAULT = "http://127.0.0.1:8010"
 BLOCK_NOTE = "write blocked by the interaction test"
@@ -249,6 +259,52 @@ LIB_JS = r"""(() => {
 })()"""
 
 
+# Page-side helpers of the keyboard-access pass (window.__kb). Tab order is document order here: the app uses no
+# positive tabindex.
+KB_JS = r"""(() => {
+  if (window.__kb) return true;
+  const K = window.__kb = { t: null };
+  const vis = (e) => { const r = e.getBoundingClientRect(); if (!r.width && !r.height) return false; const cs = getComputedStyle(e); return cs.visibility !== 'hidden' && cs.display !== 'none' && !e.closest('[hidden],[inert]'); };
+  const STOPS = 'a[href],button,input,select,textarea,summary,[tabindex]';
+  K.stops = () => [...document.querySelectorAll(STOPS)].filter((e) => e.tabIndex >= 0 && !e.disabled && e.type !== 'hidden' && vis(e));
+  K.kind = (e) => !e || e === document.body ? null : e.matches('tr.click') ? 'row' : e.dataset.term != null ? 'term' : e.dataset.agent != null ? 'agent-chip'
+    : e.dataset.actor != null ? 'actor-chip' : e.dataset.place != null ? 'place-chip' : (e.dataset.id != null || e.dataset.ev != null) ? 'record-chip' : e.tagName.toLowerCase();
+  K.ring = (e) => { const cs = getComputedStyle(e); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || cs.boxShadow !== 'none'; };
+  K.find = (sel, root) => { const r = document.querySelector(root); return (r ? [...r.querySelectorAll(sel)] : []).find((e) => vis(e) && !e.closest('.hovercard,.oi') && e.dataset.noclick == null) || null; };
+  // put the focus on the stop before the first visible match, so that one real Tab press should land on the match
+  K.aim = (sel, root) => {
+    const t = K.t = K.find(sel, root);
+    if (!t) return { found: false };
+    t.scrollIntoView({ block: 'center', inline: 'nearest' });
+    const stops = K.stops(), i = stops.indexOf(t);
+    if (i > 0) stops[i - 1].focus({ preventScroll: true }); else if (document.activeElement) document.activeElement.blur();
+    return { found: true, stop: i >= 0, tabindex: t.getAttribute('tabindex'), role: t.getAttribute('role') || '', label: (t.innerText || t.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 50),
+      data: { id: t.dataset.id || t.dataset.ev || null, actor: t.dataset.actor || null, place: t.dataset.place || null, agent: t.dataset.agent || null, term: t.dataset.term || null } };
+  };
+  K.at = () => {
+    const e = document.activeElement, hc = document.querySelector('.hovercard'), ac = document.getElementById('agentcard'), g = document.getElementById('glossary'), out = document.getElementById('omniout');
+    const on = e && e !== document.body;
+    return { on: !!K.t && e === K.t, kind: K.kind(e), ring: on ? K.ring(e) : false, visible: on ? e.matches(':focus-visible') : false, id: on ? e.id : '', lost: !on,
+      inTrace: !!(on && e.closest('section.rtop')), card: hc && !hc.hidden ? (hc.innerText || '').trim().slice(0, 80) : null,
+      agentcard: !!ac && !ac.hidden, glossary: !!g && !g.hidden, omni: !!out && !out.hidden, traceid: (document.getElementById('traceid') || {}).innerText || '' };
+  };
+  K.omni = () => {
+    const box = document.getElementById('omni'), out = document.getElementById('omniout'), o = [...out.querySelectorAll('.oi')], on = o.filter((x) => x.classList.contains('on'));
+    const bg = (x) => getComputedStyle(x).backgroundColor, off = o.find((x) => !x.classList.contains('on'));
+    return { shown: !out.hidden, options: o.length, active: on.length, activeId: on[0] ? on[0].id : '', named: box.getAttribute('aria-activedescendant') || '', selected: on[0] ? on[0].getAttribute('aria-selected') : '',
+      marked: !!on[0] && (!off || bg(on[0]) !== bg(off)), role: on[0] ? on[0].getAttribute('role') : '', boxFocused: document.activeElement === box, expanded: box.getAttribute('aria-expanded'),
+      data: on[0] ? { id: on[0].dataset.id || null, actor: on[0].dataset.actor || null, place: on[0].dataset.place || null } : null };
+  };
+  return true;
+})()"""
+
+# what the keyboard pass looks for in the left pane: (name, selector, what Enter or Space should do)
+KB_TARGETS = (("a record chip", ".ent[data-id], .ent[data-ev]", "record"), ("an actor chip", ".ent[data-actor]:not([data-agent])", "actor"),
+              ("a place chip", ".ent[data-place]", "place"), ("an agent chip", ".ent[data-agent]", "agent"), ("a glossary term", "[data-term]", "term"),
+              ("a table row", "tr.click", "row"))
+KB_TABS = ("events", "overview", "network", "channels", "agents", "spread", "early", "timeline", "gaps")
+
+
 def _key(br, key, code=None, vk=0, text=None, modifiers=0):
     # no nativeVirtualKeyCode: on macOS a native code makes Chrome hold later mouse events for five seconds
     p = {"key": key, "code": code or key, "windowsVirtualKeyCode": vk, "modifiers": modifiers}
@@ -259,7 +315,7 @@ def _key(br, key, code=None, vk=0, text=None, modifiers=0):
     br.call("Input.dispatchKeyEvent", dict(p, type="keyUp"))
 
 
-KEYS = {"Escape": 27, "Enter": 13, "Tab": 9, "ArrowLeft": 37, "ArrowUp": 38, "ArrowRight": 39, "ArrowDown": 40, "Home": 36, "End": 35}
+KEYS = {"Escape": 27, "Enter": 13, "Tab": 9, "ArrowLeft": 37, "ArrowUp": 38, "ArrowRight": 39, "ArrowDown": 40, "Home": 36, "End": 35, "Space": 32}
 
 
 def diff_snap(a, b):
@@ -339,8 +395,11 @@ class Runner:
         self.br.call("Input.dispatchMouseEvent", {"type": "mousePressed", "x": x, "y": y, "button": "left", "buttons": 1, "clickCount": 1})
         self.br.call("Input.dispatchMouseEvent", {"type": "mouseReleased", "x": x, "y": y, "button": "left", "clickCount": 1})
 
-    def key(self, name):
-        _key(self.br, name, vk=KEYS.get(name, 0), text="\r" if name == "Enter" else None)
+    def key(self, name, shift=False):
+        if name == "Space":
+            _key(self.br, " ", code="Space", vk=32, text=" ")
+        else:
+            _key(self.br, name, vk=KEYS.get(name, 0), text="\r" if name == "Enter" else None, modifiers=8 if shift else 0)
 
     def locate(self, scope, item):
         """Scroll the element into view, let the scroll events pass (the app drops hover cards on scroll), then find
@@ -851,6 +910,192 @@ class Runner:
         errs = self.errors()
         self.check("no console errors during keyboard checks", not errs, " | ".join(errs[:3]))
 
+    # ---- keyboard access: everything below uses real key events only (no mouse, no element.click())
+    def kb(self):
+        self.js(KB_JS)
+        return self.js("__kb.at()")
+
+    def kb_tab_to(self, name, sel, root="#left"):
+        """One real Tab press from the stop before the first visible match must land on it, with a visible focus.
+        Returns (what was aimed at, where the focus is), or (None, None) when the page has no such element."""
+        self.js(KB_JS)
+        aim = self.js(f"__kb.aim({json.dumps(sel)}, {json.dumps(root)})")
+        if not aim.get("found"):
+            return None, None
+        self.br.pump(0.05)
+        self.key("Tab")
+        self.br.pump(0.08)
+        at = self.kb()
+        self.check(f"Tab reaches {name}", aim["stop"] and at["on"],
+                   f"{aim['label']!r}: tabindex={aim['tabindex']} role={aim['role']!r}; focus is on {at['kind']}" + ("" if aim["stop"] else " (not a tab stop)"))
+        self.check(f"{name} shows its focus", at["on"] and at["ring"] and at["visible"], f"outline or shadow={at['ring']} :focus-visible={at['visible']}")
+        return aim, at
+
+    def kb_where(self):
+        """{target name: tab} for the first tab whose left pane shows each kind of target."""
+        where = {}
+        for tab in KB_TABS:
+            if len(where) == len(KB_TARGETS):
+                break
+            self.goto(f"tab={tab}", hard=False)
+            self.js(KB_JS)
+            for name, sel, _what in KB_TARGETS:
+                if name not in where and self.js(f"!!__kb.find({json.dumps(sel)}, '#left')"):
+                    where[name] = tab
+        return where
+
+    def keyboard_access_checks(self):
+        br = self.br
+        self.goto("tab=overview")
+        br.mark()
+        where = self.kb_where()
+        missing = [n for n, _s, _w in KB_TARGETS if n not in where]
+        self.check("the keyboard pass found every kind of target", len(where) >= 4 and "a record chip" in where and "a table row" in where,
+                   "; ".join(f"{n}: {t}" for n, t in where.items()) + (f"; none on any tab: {', '.join(missing)}" if missing else ""))
+        for name, sel, what in KB_TARGETS:
+            if name not in where:
+                continue
+            self.goto(f"tab={where[name]}", hard=False)
+            self.settle()
+            aim, at = self.kb_tab_to(name, sel)
+            if not aim or not at["on"]:
+                continue
+            before = self.snap()
+            if what in ("record", "actor", "place"):
+                if what == "record":
+                    # the keyboard's hover card: the same card a pointer gets, while the chip has the focus
+                    card = br.wait_until("!!__kb.at().card", timeout=4 * self.slow)
+                    self.check("a focused chip shows its hover card", card, (self.kb()["card"] or "no card")[:60])
+                    self.key("Escape")
+                    br.pump(0.1)
+                    k = self.kb()
+                    self.check("Escape closes the hover card and the chip keeps the focus", not k["card"] and k["on"], f"card={bool(k['card'])} focus on {k['kind']}")
+                self.key("Space" if what == "actor" else "Enter")
+                want = aim["data"]["id"] if what == "record" else what       # the Inspector's heading: the record id, or ACTOR / PLACE
+                ok = br.wait_until(f"(document.getElementById('traceid').innerText || '').toLowerCase().includes({json.dumps(want.lower())})", timeout=10 * self.slow)
+                self.settle()
+                br.pump(0.15)
+                k = self.kb()
+                press = "Space" if what == "actor" else "Enter"
+                self.check(f"{press} on {name} opens it in the Inspector", ok, k["traceid"][:60])
+                self.check(f"after {press} on {name} the focus is in the Inspector", k["inTrace"], f"focus on {k['kind']}#{k['id']}")
+                if what == "record":
+                    self.key("Tab")
+                    br.pump(0.08)
+                    k2 = self.kb()
+                    self.check("Tab goes on inside the Inspector", k2["inTrace"] and k2["ring"], f"focus on {k2['kind']}#{k2['id']} in the Inspector={k2['inTrace']} outline={k2['ring']}")
+            elif what == "agent":
+                self.key("Enter")
+                opened = br.wait_until("__kb.at().agentcard", timeout=3)
+                self.key("Escape")
+                br.pump(0.1)
+                k = self.kb()
+                self.check("Enter on an agent chip opens its card; Escape closes it", opened and not k["agentcard"], f"opened={bool(opened)} still open={k['agentcard']}")
+                self.check("after Escape the agent chip still has the focus", k["on"], f"focus on {k['kind']}")
+            elif what == "term":
+                self.key("Enter")
+                opened = br.wait_until("__kb.at().glossary", timeout=3)
+                br.pump(0.15)
+                inside = self.js("!!document.activeElement.closest('#glossary')")
+                self.key("Escape")
+                br.pump(0.15)
+                k = self.kb()
+                self.check("Enter on a glossary term opens the glossary; Escape closes it", opened and not k["glossary"], f"opened={bool(opened)} still open={k['glossary']}")
+                self.check("the glossary takes the focus and gives it back to the term", inside and k["on"], f"focus went inside={inside}; after Escape on {k['kind']}#{k['id']}")
+            else:   # a clickable table row: the key must do what the click does
+                self.key("Enter")
+                _now, d = self.wait_change(before, timeout=3 * self.slow, ignore=("net", "scrolls"))
+                self.settle()
+                self.check("Enter on a table row does what a click does", bool(d), "changed: " + (",".join(d) or "nothing"))
+        # Shift+Tab goes back
+        self.goto(f"tab={where.get('a record chip', 'overview')}", hard=False)
+        aim, at = None, None
+        self.js(KB_JS)
+        aim = self.js("__kb.aim('.ent[data-id], .ent[data-ev]', '#left')")
+        if aim.get("found"):
+            self.key("Tab")
+            br.pump(0.05)
+            self.key("Tab")
+            br.pump(0.05)
+            self.key("Tab", shift=True)
+            br.pump(0.08)
+            self.check("Shift+Tab moves back to the stop before", self.kb()["on"], f"focus on {self.kb()['kind']}")
+        # the Inspector: its back button from the keyboard (two items so that there is one)
+        self.js(f"selectEvent({json.dumps(self.record_id)})")
+        br.wait_until(f"(document.getElementById('traceid').innerText || '').includes({json.dumps(self.record_id)})", timeout=10 * self.slow)
+        if self.actor_id:
+            self.js(f"inspectActor({json.dumps(self.actor_id)})")
+            br.wait_until("/actor/.test(document.getElementById('traceid').innerText)", timeout=10 * self.slow)
+            self.settle()
+            aim, at = self.kb_tab_to("the Inspector's back button", "#insBack", "section.rtop")
+            if aim and at["on"]:
+                self.key("Enter")
+                ok = br.wait_until(f"(document.getElementById('traceid').innerText || '').includes({json.dumps(self.record_id)})", timeout=10 * self.slow)
+                self.check("Enter on the Inspector's back button returns to the item before", ok, self.kb()["traceid"][:60])
+            elif not aim:
+                self.check("Tab reaches the Inspector's back button", False, "no #insBack with two items in the Inspector")
+        # the search box and its results (the Inspector shows an actor first, so that opening the record is a change)
+        self.goto("tab=overview", hard=False)
+        if self.actor_id:
+            self.js(f"inspectActor({json.dumps(self.actor_id)})")
+            br.wait_until("/actor/i.test(document.getElementById('traceid').innerText)", timeout=10 * self.slow)
+            self.settle()
+        aim, at = self.kb_tab_to("the search box", "#omni", "header.top")
+        if aim and at["on"]:
+            shown = lambda: br.wait_until("__kb.omni().shown && __kb.omni().options > 0", timeout=10 * self.slow)
+            br.call("Input.insertText", {"text": self.record_id})
+            listed = shown()
+            self.key("ArrowDown")
+            br.pump(0.08)
+            o = self.js("__kb.omni()")
+            self.check("ArrowDown reaches the search results", listed and o["active"] == 1 and o["boxFocused"],
+                       f"listed={bool(listed)} options={o['options']} active={o['active']} box keeps focus={o['boxFocused']}")
+            self.check("the active search result is marked and named to assistive technology",
+                       o["marked"] and o["named"] == o["activeId"] != "" and o["selected"] == "true" and o["role"] == "option" and o["expanded"] == "true",
+                       f"highlighted={o['marked']} aria-activedescendant={o['named']!r} aria-selected={o['selected']!r} role={o['role']!r} aria-expanded={o['expanded']!r}")
+            self.key("ArrowDown")
+            self.key("ArrowUp")
+            br.pump(0.08)
+            o2 = self.js("__kb.omni()")
+            self.check("ArrowUp moves back to the result before", o2["activeId"] == o["activeId"] and o2["active"] == 1, f"{o['activeId']} -> {o2['activeId']}")
+            want = (o2["data"] or {}).get("id") or ("actor" if (o2["data"] or {}).get("actor") else "place")
+            self.key("Enter")
+            ok = br.wait_until(f"(document.getElementById('traceid').innerText || '').toLowerCase().includes({json.dumps(want.lower())})", timeout=10 * self.slow)
+            br.pump(0.1)
+            still = self.js("__kb.omni().shown")
+            self.check("Enter opens the active search result in the Inspector", ok and not still,
+                       f"{self.kb()['traceid'][:40]!r}; results still shown={still}")
+            for press, why in (("Escape", "Escape closes the search results and the box keeps the focus"), ("Tab", "Tab leaves the search box and closes its results")):
+                self.js("(() => { const b = document.getElementById('omni'); b.value = ''; b.focus(); })()")
+                br.call("Input.insertText", {"text": self.record_id})
+                listed = shown()
+                self.key(press)
+                br.pump(0.12)
+                o = self.js("__kb.omni()")
+                good = listed and not o["shown"] and o["expanded"] == "false" and (o["boxFocused"] if press == "Escape" else not o["boxFocused"])
+                self.check(why, good, f"listed={bool(listed)} still shown={o['shown']} aria-expanded={o['expanded']!r} box focused={o['boxFocused']}")
+            self.js("(() => { const b = document.getElementById('omni'); b.value = ''; if (document.activeElement) document.activeElement.blur(); })()")
+        # a sweep: every stop the Tab key makes in the view shows where the focus is
+        self.goto("tab=overview", hard=False)
+        self.js(KB_JS)
+        self.js("document.querySelector('#tabs button.on').focus()")
+        stops, bare, kinds = 0, [], {}
+        for _ in range(40):
+            self.key("Tab")
+            br.pump(0.03)
+            k = self.kb()
+            if k["lost"]:
+                continue
+            stops += 1
+            kinds[k["kind"]] = kinds.get(k["kind"], 0) + 1
+            if not (k["ring"] and k["visible"]):
+                bare.append(f"{k['kind']}#{k['id']}")
+        self.key("Escape")
+        self.check("40 Tab presses: every stop shows a focus outline", stops >= 30 and not bare,
+                   f"{stops} stops ({', '.join(f'{n} {k}' for k, n in sorted(kinds.items()))})" + (f"; no outline on {', '.join(bare[:5])}" if bare else ""))
+        errs = self.errors()
+        self.check("no console errors during the keyboard-access pass", not errs, " | ".join(errs[:3]))
+
     def unit_checks(self, tabs):
         """The Count-by switch on every tab, against /api/x/units_map and /api/x/units_summary."""
         br = self.br
@@ -978,7 +1223,7 @@ MODES = {   # per_sig, per_kind, max_sigs: how many elements of each signature a
 UNIT_TABS_QUICK = ("overview", "network", "timeline", "spread", "early", "agents")
 
 
-def run_dataset(label, base, mode="sample", tabs=None, verbose=False, slow=1.0, scripted=True, budget=None):
+def run_dataset(label, base, mode="sample", tabs=None, verbose=False, slow=1.0, scripted=True, budget=None, keyboard_only=False):
     quick = mode == "quick"
     br = Browser(width=1440, height=900)
     t0 = time.time()
@@ -991,6 +1236,13 @@ def run_dataset(label, base, mode="sample", tabs=None, verbose=False, slow=1.0, 
             pass
         r = Runner(br, base, label, quick=quick, verbose=verbose, slow=slow)
         r.pick_ids()
+        if keyboard_only:
+            try:
+                r.keyboard_access_checks()
+            except Exception as e:
+                r.check("keyboard access checks ran", False, f"{type(e).__name__}: {e}")
+            return {"dataset": label, "base": base, "mode": "keyboard", "pages": [], "checks": r.checks, "seconds": round(time.time() - t0, 1),
+                    "console_lines_ignored_from_blocked_writes": r.ignored}
         pages = pages_for(r, tabs or (TABS + (["top", "inspector"] if quick else EXTRA)), sections=not quick)
         per_sig, per_kind, max_sigs = MODES[mode]
         for p in pages:
@@ -1003,7 +1255,7 @@ def run_dataset(label, base, mode="sample", tabs=None, verbose=False, slow=1.0, 
             sys.stdout.write(f"  {label}: {p.name:28} found {f:5}  exercised {e:3}  passed {ok:3}  failed {len(row['failed']):2}  skipped {len(row['skipped']):2}  ({row.get('seconds', 0)} s)\n")
             sys.stdout.flush()
         if scripted:
-            for name, fn in (("history", r.history_checks), ("keyboard", r.keyboard_checks),
+            for name, fn in (("history", r.history_checks), ("keyboard", r.keyboard_checks), ("keyboard access", r.keyboard_access_checks),
                              ("units", lambda: r.unit_checks([p for p in pages if p.scope == "left" and (not quick or p.name in UNIT_TABS_QUICK)]))):
                 try:
                     fn()
@@ -1072,6 +1324,7 @@ def main(argv=None):
     ap.add_argument("--only", choices=["demo", "big"], help="one dataset only")
     ap.add_argument("--tabs", nargs="*", help="pages to visit: tab names, forensics:<section>, top, inspector, 'live drawer', 'case file', glossary")
     ap.add_argument("--no-scripted", action="store_true", help="skip the history, keyboard and Count-by checks")
+    ap.add_argument("--keyboard", action="store_true", help="only the keyboard-access pass (Tab, Enter, Space, Escape, focus outline), on the demo swarm")
     ap.add_argument("--json", default=os.path.join(ROOT, "reports", "integrity", "interact.json"))
     ap.add_argument("-v", "--verbose", action="store_true", help="one line per element exercised")
     a = ap.parse_args(argv)
@@ -1086,8 +1339,8 @@ def main(argv=None):
                     sys.stdout.write("the demo server did not start: " + srv.output(400) + "\n")
                     return 1
                 base = srv.base
-            results.append(run_dataset("demo swarm", base, mode=mode, tabs=a.tabs, verbose=a.verbose, scripted=not a.no_scripted))
-        if a.only == "big" or (not a.quick and a.only != "demo"):
+            results.append(run_dataset("demo swarm", base, mode=mode, tabs=a.tabs, verbose=a.verbose, scripted=not a.no_scripted, keyboard_only=a.keyboard))
+        if not a.keyboard and (a.only == "big" or (not a.quick and a.only != "demo")):
             if reachable(a.big):
                 results.append(run_dataset("Swarm Traces release", a.big, mode=mode, tabs=a.tabs, verbose=a.verbose, slow=3.0, scripted=not a.no_scripted))
             else:
@@ -1097,6 +1350,8 @@ def main(argv=None):
         if srv:
             srv.stop()
     fails = print_report(results)
+    if a.keyboard and a.json == ap.get_default("json"):
+        a.json = None                    # a keyboard-only run does not replace the report of a whole run
     if a.json:
         os.makedirs(os.path.dirname(a.json), exist_ok=True)
         with open(a.json, "w") as f:

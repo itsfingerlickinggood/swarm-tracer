@@ -412,9 +412,23 @@ function glossaryText(key) {
   return d;
 }
 function glossaryCard(key) { const g = GLOSSARY[key]; return g ? `<div class="hc"><div class="hch"><b>${esc(g[0])}</b></div><div class="hcwhat">${esc(glossaryText(key))}</div><div class="hcfoot">Click for the glossary</div></div>` : ""; }
+// the glossary remembers what opened it (a term in the text, or the Glossary button), so that closing it from the
+// keyboard puts the focus back there and not at the top of the page
+let glossaryOpener = null;
+function closeGlossary(refocus) {
+  const el = $("glossary");
+  if (!el || el.hidden) return;
+  const had = el.contains(document.activeElement);
+  el.hidden = true;
+  const back = glossaryOpener && glossaryOpener.isConnected ? glossaryOpener : $("glossbtn");
+  glossaryOpener = null;
+  if ((refocus || had) && back) back.focus();
+}
 function openGlossary(q = "") {
   let el = $("glossary");
   if (!el) { el = document.createElement("div"); el.id = "glossary"; el.className = "glossary"; document.body.appendChild(el); }
+  const from = document.activeElement;
+  if (!from || !el.contains(from)) glossaryOpener = from && from !== document.body ? from : null;
   const draw = (q) => {
     const rows = Object.entries(GLOSSARY).filter(([, [n, d]]) => !q || (n + " " + d).toLowerCase().includes(q.toLowerCase()));
     el.querySelector(".glist").innerHTML = rows.map(([k, [n]]) => `<div class="gitem" id="g-${k}"><b>${esc(n)}</b><p>${esc(glossaryText(k))}</p></div>`).join("") || '<p class="muted">No term matches.</p>';
@@ -423,7 +437,7 @@ function openGlossary(q = "") {
   el.innerHTML = `<div class="ghead"><h3>What the words mean</h3><input placeholder="Find a term" aria-label="Find a term" value="${esc(q)}"><button type="button" class="link">Close</button></div><div class="glist"></div>`;
   el.hidden = false;
   setTimeout(() => el.querySelector("input")?.focus(), 0);
-  el.querySelector("button").addEventListener("click", () => { el.hidden = true; });
+  el.querySelector("button").addEventListener("click", () => closeGlossary(true));
   el.querySelector("input").addEventListener("input", (e) => draw(e.target.value));
   draw(q);
 }
@@ -936,7 +950,7 @@ function setSummary(s) {
     if (e.key === "ArrowDown" && !out.hidden && o.length) { e.preventDefault(); activate((cur + 1) % o.length); }
     else if (e.key === "ArrowUp" && !out.hidden && o.length) { e.preventDefault(); activate((cur - 1 + o.length) % o.length); }
     else if (e.key === "Enter") { const pick = cur >= 0 ? o[cur] : o[0]; if (pick) pick.click(); }
-    else if (e.key === "Escape") close();
+    else if (e.key === "Escape" || e.key === "Tab") close();   // Tab moves on: the list must not stay open behind the focus
   });
   out.addEventListener("click", () => setTimeout(close, 0));
   document.addEventListener("click", (e) => { if (!e.target.closest(".omni")) close(); });
@@ -945,7 +959,8 @@ function setSummary(s) {
 // Escape closes any open panel; focus goes back to the button that opened it
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
-  [["loadpanel", "loadbtn"], ["glossary", "glossbtn"], ["omniout", null], ["aisettings", "aiset"]].forEach(([id, opener]) => {
+  closeGlossary(false);
+  [["loadpanel", "loadbtn"], ["omniout", null], ["aisettings", "aiset"]].forEach(([id, opener]) => {
     const el = $(id);
     if (!el || el.hidden) return;
     const had = el.contains(document.activeElement);
@@ -954,11 +969,11 @@ document.addEventListener("keydown", (e) => {
   });
   if (HC.el) HC.el.hidden = true;
 });
-$("glossbtn").addEventListener("click", () => { const g = $("glossary"); if (g && !g.hidden) g.hidden = true; else openGlossary(); });
+$("glossbtn").addEventListener("click", () => { const g = $("glossary"); if (g && !g.hidden) closeGlossary(false); else openGlossary(); });
 $("loadbtn").addEventListener("click", () => { $("loadpanel").hidden = !$("loadpanel").hidden; $("loadbtn").setAttribute("aria-expanded", String(!$("loadpanel").hidden)); });
 document.addEventListener("click", (e) => {
   if (!e.target.closest("#loadpanel,#loadbtn") && $("loadpanel")) $("loadpanel").hidden = true;
-  if (!e.target.closest("#glossary,#glossbtn,[data-term]") && $("glossary")) $("glossary").hidden = true;
+  if (!e.target.closest("#glossary,#glossbtn,[data-term]") && $("glossary")) { $("glossary").hidden = true; glossaryOpener = null; }
 });
 const DATA_FILE = /\.(csv|tsv|jsonl|json|txt|log)$/i;
 $("upload").addEventListener("submit", async (ev) => {

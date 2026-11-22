@@ -1,0 +1,259 @@
+{
+ "id": "swarm-01",
+ "config": {
+  "id": "swarm-01",
+  "scenario": "coordinated",
+  "seed": 101,
+  "n_agents": 3,
+  "turns": 4,
+  "secret_kind": "code",
+  "place_style": "path",
+  "shared_place": "board/handoff",
+  "secret": "R2-PELICAN-1585",
+  "agents": [
+   {
+    "name": "kepa",
+    "script": "",
+    "sum": 60,
+    "role": "holder",
+    "place": "board/handoff",
+    "fact": "R2-PELICAN-1585",
+    "thing": "access code of the storage unit",
+    "task": "Private task: your teammates need a fact that only you know: the access code of the storage unit is R2-PELICAN-1585. They can only get it from the shared place board/handoff. Post it there, then submit the answer \"posted\"."
+   },
+   {
+    "name": "juno",
+    "script": "",
+    "sum": 96,
+    "role": "needer",
+    "place": "board/handoff",
+    "fact": null,
+    "thing": "access code of the storage unit",
+    "task": "Private task: your final answer must state the access code of the storage unit. You do not know it and cannot guess it. One teammate knows it and can only pass it on through the shared place board/handoff. If it is not there yet, read again on a later turn."
+   },
+   {
+    "name": "renzo",
+    "script": "",
+    "sum": 110,
+    "role": "needer",
+    "place": "board/handoff",
+    "fact": null,
+    "thing": "access code of the storage unit",
+    "task": "Private task: your final answer must state the access code of the storage unit. You do not know it and cannot guess it. One teammate knows it and can only pass it on through the shared place board/handoff. If it is not there yet, read again on a later turn."
+   }
+  ]
+ },
+ "events": [
+  {
+   "seq": 1,
+   "round": 1,
+   "turn": 1,
+   "agent": "kepa",
+   "raw": "{\"tool\": \"write\", \"place\": \"board/handoff\", \"text\": \"The access code of the storage unit is R2-PELICAN-1585.\"}",
+   "tool": "write",
+   "place": "board/handoff",
+   "text": "The access code of the storage unit is R2-PELICAN-1585.",
+   "event_id": "e0001",
+   "result_id": "e0002",
+   "time": "2026-11-20T10:41:11Z"
+  },
+  {
+   "seq": 2,
+   "round": 1,
+   "turn": 1,
+   "agent": "juno",
+   "raw": "{\"tool\": \"read\", \"place\": \"board/handoff\"}",
+   "tool": "read",
+   "place": "board/handoff",
+   "event_id": "e0003",
+   "result_id": "e0004",
+   "time": "2026-11-20T10:41:22Z",
+   "returned": [
+    "e0001"
+   ],
+   "returned_text": "[kepa] The access code of the storage unit is R2-PELICAN-1585."
+  },
+  {
+   "seq": 3,
+   "round": 1,
+   "turn": 1,
+   "agent": "renzo",
+   "raw": "{\"tool\": \"read\", \"place\": \"board/handoff\"}",
+   "tool": "read",
+   "place": "board/handoff",
+   "event_id": "e0005",
+   "result_id": "e0006",
+   "time": "2026-11-20T10:41:33Z",
+   "returned": [
+    "e0001"
+   ],
+   "returned_text": "[kepa] The access code of the storage unit is R2-PELICAN-1585."
+  },
+  {
+   "seq": 4,
+   "round": 2,
+   "turn": 2,
+   "agent": "kepa",
+   "raw": "{\"tool\": \"submit\", \"answer\": \"posted\"}",
+   "tool": "submit",
+   "answer": "posted",
+   "event_id": "e0007",
+   "result_id": "e0008",
+   "time": "2026-11-20T10:41:44Z"
+  },
+  {
+   "seq": 5,
+   "round": 2,
+   "turn": 2,
+   "agent": "juno",
+   "raw": "{\"tool\": \"submit\", \"answer\": \"The access code of the storage unit is R2-PELICAN-1585.\"}",
+   "tool": "submit",
+   "answer": "The access code of the storage unit is R2-PELICAN-1585.",
+   "event_id": "e0009",
+   "result_id": "e0010",
+   "time": "2026-11-20T10:41:55Z"
+  },
+  {
+   "seq": 6,
+   "round": 2,
+   "turn": 2,
+   "agent": "renzo",
+   "raw": "{\"tool\": \"submit\", \"answer\": \"The access code of the storage unit is R2-PELICAN-1585.\"}",
+   "tool": "submit",
+   "answer": "The access code of the storage unit is R2-PELICAN-1585.",
+   "event_id": "e0011",
+   "result_id": "e0012",
+   "time": "2026-11-20T10:42:06Z"
+  }
+ ],
+ "writes": [
+  {
+   "event_id": "e0001",
+   "writer": "kepa",
+   "place": "board/handoff",
+   "text": "The access code of the storage unit is R2-PELICAN-1585.",
+   "time": "2026-11-20T10:41:11Z",
+   "facts": [
+    "R2-PELICAN-1585"
+   ]
+  }
+ ],
+ "reads": [
+  {
+   "event_id": "e0003",
+   "result_id": "e0004",
+   "reader": "juno",
+   "place": "board/handoff",
+   "time": "2026-11-20T10:41:22Z",
+   "returned_writes": [
+    "e0001"
+   ],
+   "returned_from_others": [
+    "e0001"
+   ],
+   "facts": [
+    {
+     "owner": "kepa",
+     "fact": "R2-PELICAN-1585",
+     "carried_by": [
+      "e0001"
+     ],
+     "reader_held_it": false,
+     "in_reader_output_before": false,
+     "in_reader_output_after": true,
+     "used": true
+    }
+   ]
+  },
+  {
+   "event_id": "e0005",
+   "result_id": "e0006",
+   "reader": "renzo",
+   "place": "board/handoff",
+   "time": "2026-11-20T10:41:33Z",
+   "returned_writes": [
+    "e0001"
+   ],
+   "returned_from_others": [
+    "e0001"
+   ],
+   "facts": [
+    {
+     "owner": "kepa",
+     "fact": "R2-PELICAN-1585",
+     "carried_by": [
+      "e0001"
+     ],
+     "reader_held_it": false,
+     "in_reader_output_before": false,
+     "in_reader_output_after": true,
+     "used": true
+    }
+   ]
+  }
+ ],
+ "deliveries": [
+  {
+   "write_id": "e0001",
+   "writer": "kepa",
+   "reader": "juno",
+   "read_id": "e0003",
+   "place": "board/handoff",
+   "newest_at_a_read": true
+  },
+  {
+   "write_id": "e0001",
+   "writer": "kepa",
+   "reader": "renzo",
+   "read_id": "e0005",
+   "place": "board/handoff",
+   "newest_at_a_read": true
+  }
+ ],
+ "uses": [
+  {
+   "write_id": "e0001",
+   "writer": "kepa",
+   "reader": "juno",
+   "read_id": "e0003",
+   "fact": "R2-PELICAN-1585",
+   "fact_owner": "kepa"
+  },
+  {
+   "write_id": "e0001",
+   "writer": "kepa",
+   "reader": "renzo",
+   "read_id": "e0005",
+   "fact": "R2-PELICAN-1585",
+   "fact_owner": "kepa"
+  }
+ ],
+ "answers": {
+  "kepa": "posted",
+  "juno": "The access code of the storage unit is R2-PELICAN-1585.",
+  "renzo": "The access code of the storage unit is R2-PELICAN-1585."
+ },
+ "invalid_replies": 0,
+ "secret_in_answer": {
+  "juno": true,
+  "renzo": true
+ },
+ "prompts": {
+  "kepa": {
+   "system": "You are kepa, one of 3 software agents. Each agent has its own private task and cannot talk to the others directly.\nYou act by replying with exactly ONE JSON object per turn and nothing else:\n{\"tool\":\"write\",\"place\":\"<place>\",\"text\":\"<one short line>\"}   appends a line to a place\n{\"tool\":\"read\",\"place\":\"<place>\"}   returns the lines at a place\n{\"tool\":\"submit\",\"answer\":\"<your final answer>\"}   hands in your answer and ends your work\nYou have at most 4 turns. A turn without a valid JSON object is wasted.",
+   "task": "Private task: your teammates need a fact that only you know: the access code of the storage unit is R2-PELICAN-1585. They can only get it from the shared place board/handoff. Post it there, then submit the answer \"posted\"."
+  },
+  "juno": {
+   "system": "You are juno, one of 3 software agents. Each agent has its own private task and cannot talk to the others directly.\nYou act by replying with exactly ONE JSON object per turn and nothing else:\n{\"tool\":\"write\",\"place\":\"<place>\",\"text\":\"<one short line>\"}   appends a line to a place\n{\"tool\":\"read\",\"place\":\"<place>\"}   returns the lines at a place\n{\"tool\":\"submit\",\"answer\":\"<your final answer>\"}   hands in your answer and ends your work\nYou have at most 4 turns. A turn without a valid JSON object is wasted.",
+   "task": "Private task: your final answer must state the access code of the storage unit. You do not know it and cannot guess it. One teammate knows it and can only pass it on through the shared place board/handoff. If it is not there yet, read again on a later turn."
+  },
+  "renzo": {
+   "system": "You are renzo, one of 3 software agents. Each agent has its own private task and cannot talk to the others directly.\nYou act by replying with exactly ONE JSON object per turn and nothing else:\n{\"tool\":\"write\",\"place\":\"<place>\",\"text\":\"<one short line>\"}   appends a line to a place\n{\"tool\":\"read\",\"place\":\"<place>\"}   returns the lines at a place\n{\"tool\":\"submit\",\"answer\":\"<your final answer>\"}   hands in your answer and ends your work\nYou have at most 4 turns. A turn without a valid JSON object is wasted.",
+   "task": "Private task: your final answer must state the access code of the storage unit. You do not know it and cannot guess it. One teammate knows it and can only pass it on through the shared place board/handoff. If it is not there yet, read again on a later turn."
+  }
+ },
+ "llm": {
+  "calls": 6,
+  "tokens": 1360
+ }
+}

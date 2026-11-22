@@ -3,6 +3,8 @@
  "order": 2,
  "title": "The sign that looked early",
  "dek": "In our first simulated swarms one sign seemed to fire hours before the first harm: two identities using the same place. With place names in code comments ignored it fires after the first harm, on an independent generator it never fires, and on the real incident it came late. Here is what each result rests on.",
+ "dataset": "swarm_traces",
+ "kicker": "Swarm Traces incident, July 2026",
  "figures": {
   "sim_n": {
    "from": "/api/x/earlywarn_summary",

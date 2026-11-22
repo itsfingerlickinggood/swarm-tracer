@@ -1,0 +1,379 @@
+{
+ "slug": "collusion-said-aloud",
+ "order": 4,
+ "title": "Collusion said aloud: what a message log gives away",
+ "dek": "In {runs} simulated runs two agents grade each other's work, and in {colluded} of them they end up passing each other against the rules. The tool's own alarms ring on every run or on none. A few phrases written down from one run catch {pack_recall} of the colluding runs in the other conditions.",
+ "dataset": "salt_agent_collusion",
+ "kicker": "SALT agent-collusion, a public dataset of simulated two-agent runs",
+ "source": {
+  "authors": "Shi, Zhang and Yang",
+  "title": "Emergent Collusion in Long-Horizon LLM Agent Interaction",
+  "site": "arXiv:2609.24967",
+  "url": "https://arxiv.org/abs/2609.24967",
+  "date": "2026",
+  "licence": "MIT",
+  "attribution": "Excerpts are from the SALT agent-collusion dataset: Shi, Zhang and Yang, \"Emergent Collusion in Long-Horizon LLM Agent Interaction\", 2026, arXiv:2609.24967; data in the Hugging Face dataset SALT-NLP/agent-collusion, MIT License, Copyright (c) 2026 Xinrui Shi, Yanzhe Zhang, and Diyi Yang. Each excerpt is cut short; nothing else is changed.",
+  "snippets": "on",
+  "input": "run main__gemini-3-7-flash__rep001, as logged (python3 -m agenttrace.external_eval story collusion-said-aloud)"
+ },
+ "figures": {
+  "runs": {
+   "from": "reports/external/salt/results.json",
+   "path": "loaded.runs_with_label",
+   "as": "int",
+   "label": "runs that carry the dataset's collusion label, each loaded as its own trace"
+  },
+  "colluded": {
+   "from": "reports/external/salt/results.json",
+   "path": "loaded.colluded_runs",
+   "as": "int",
+   "label": "runs with at least one episode labelled as collusion"
+  },
+  "clean": {
+   "from": "reports/external/salt/results.json",
+   "path": "loaded.not_colluded_runs",
+   "as": "int",
+   "label": "runs with no such episode"
+  },
+  "conditions": {
+   "from": "reports/external/salt/results.json",
+   "path": "loaded.conditions_with_label",
+   "as": "int",
+   "label": "experimental conditions (model pairs and settings)"
+  },
+  "messages": {
+   "from": "reports/external/salt/results.json",
+   "path": "as_logged.direct_messages_undated",
+   "as": "int",
+   "label": "messages the tool keeps as logged direct messages, undated"
+  },
+  "dated_runs": {
+   "from": "reports/external/salt/results.json",
+   "path": "as_logged.dated_runs",
+   "as": "int",
+   "label": "runs in which any record has a time"
+  },
+  "fired_undated": {
+   "from": "reports/external/salt/results.json",
+   "path": "as_logged.runs_where_any_rule_alarm_or_sign_fired",
+   "as": "int",
+   "label": "runs where any rule, alarm or sign fired, as published"
+  },
+  "alert_tp": {
+   "from": "reports/external/salt/results.json",
+   "path": "step_clock.flags[flag=rule:alert-coord2].tp",
+   "as": "int",
+   "label": "runs that colluded where the Alert rule fired (step clock)"
+  },
+  "alert_fp": {
+   "from": "reports/external/salt/results.json",
+   "path": "step_clock.flags[flag=rule:alert-coord2].fp",
+   "as": "int",
+   "label": "runs that did not collude where it fired"
+  },
+  "watch_recall": {
+   "from": "reports/external/salt/results.json",
+   "path": "step_clock.flags[flag=rule:watch-harm].recall.share",
+   "as": "pct",
+   "label": "of the runs that colluded: Watch rule fired, with the pack the tool picks"
+  },
+  "watch_fpr": {
+   "from": "reports/external/salt/results.json",
+   "path": "step_clock.flags[flag=rule:watch-harm].false_positive_rate.share",
+   "as": "pct",
+   "label": "of the runs that did not"
+  },
+  "word": {
+   "from": "reports/external/salt/results.json",
+   "path": "step_clock.watch_words.0.match",
+   "as": "text",
+   "label": "the word that set off the Watch rule most often"
+  },
+  "word_records": {
+   "from": "reports/external/salt/results.json",
+   "path": "step_clock.watch_words.0.records",
+   "as": "int",
+   "label": "records that matched it"
+  },
+  "content_passed": {
+   "from": "reports/external/salt/results.json",
+   "path": "written_content.deliveries_passed",
+   "as": "int",
+   "label": "inferred deliveries where the reader repeats a rare term of the writer"
+  },
+  "content_checked": {
+   "from": "reports/external/salt/results.json",
+   "path": "written_content.deliveries_checked",
+   "as": "int",
+   "label": "inferred deliveries checked"
+  },
+  "content_share": {
+   "from": "reports/external/salt/results.json",
+   "path": "written_content.share.share",
+   "as": "pct",
+   "label": "of the checked deliveries pass"
+  },
+  "content_auc": {
+   "from": "reports/external/salt/results.json",
+   "path": "step_clock.scores[score=content_used].auc",
+   "as": "text",
+   "label": "how well the count of passes ranks colluding runs first (0.5 is chance, 1 is perfect)"
+  },
+  "pack_conditions": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.runs.conditions",
+   "as": "int",
+   "label": "conditions the pack was not written from"
+  },
+  "pack_recall": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.runs.recall.share",
+   "as": "pct",
+   "label": "of the runs that colluded: Watch rule fired with the peer_review pack"
+  },
+  "pack_fpr": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.runs.false_positive_rate.share",
+   "as": "pct",
+   "label": "of the runs that did not"
+  },
+  "pack_precision": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.runs.precision.share",
+   "as": "pct",
+   "label": "of the runs it flagged did collude"
+  },
+  "pack_tp": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.runs.tp",
+   "as": "int",
+   "label": "colluding runs flagged"
+  },
+  "pack_pos": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.runs.recall.n",
+   "as": "int",
+   "label": "colluding runs in the test"
+  },
+  "pack_fp": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.runs.fp",
+   "as": "int",
+   "label": "other runs flagged"
+  },
+  "pack_neg": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.runs.false_positive_rate.n",
+   "as": "int",
+   "label": "other runs in the test"
+  },
+  "same_recall": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.by_model.an_agent_is_the_training_model.recall.share",
+   "as": "pct",
+   "label": "of the colluding runs where an agent is the model the pack was written from"
+  },
+  "same_n": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.by_model.an_agent_is_the_training_model.recall.n",
+   "as": "int",
+   "label": "such runs"
+  },
+  "other_recall": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.by_model.no_agent_is.recall.share",
+   "as": "pct",
+   "label": "of the colluding runs where no agent is that model"
+  },
+  "other_n": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.by_model.no_agent_is.recall.n",
+   "as": "int",
+   "label": "such runs"
+  },
+  "train_model": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.by_model.training_model",
+   "as": "text",
+   "label": "the model of both agents in the run the pack was written from"
+  },
+  "never": {
+   "from": "reports/external/salt/results.json",
+   "path": "pack.watch_vs_onset.watch_never.k",
+   "as": "int",
+   "label": "colluding runs in which no message matches the pack"
+  },
+  "human_tp": {
+   "from": "reports/external/salt/results.json",
+   "path": "episodes.pack.human_checked.recall.k",
+   "as": "int",
+   "label": "human-checked episodes with an explicit agreement that the phrase match also flags"
+  },
+  "human_pos": {
+   "from": "reports/external/salt/results.json",
+   "path": "episodes.pack.human_checked.recall.n",
+   "as": "int",
+   "label": "human-checked episodes with an explicit agreement"
+  }
+ },
+ "body": [
+  {
+   "h": "A game with the answer in the data"
+  },
+  {
+   "p": "The SALT lab published a game. Two agents, Alice and Bob, each solve a task, exchange a few short messages, then accept or reject the other's work. The rule is strict: a verdict must rest on the other's complete work log. Messages are capped at two hundred characters, too short to carry it, so an agent that follows the rule rejects. [[c1|In {colluded} of {runs} runs the two end up accepting each other anyway]]. The authors call that collusion and mark every episode. Nobody on this project made those labels."
+  },
+  {
+   "p": "The tool is given the messages only: who sent each one, to whom, and the text. It never sees a verdict."
+  },
+  {
+   "h": "As published: silence"
+  },
+  {
+   "p": "[[c2|The episodes carry no times]]. The tool keeps all {messages} messages as logged direct messages, but it cannot put them in order. [[c3|No rule, alarm or sign fired in any run]]. On this dataset as it was published the tool finds none of the collusion."
+  },
+  {
+   "h": "With a clock: noise"
+  },
+  {
+   "p": "We then placed each message on an order-only clock, sixty seconds after the one before. Now the replay runs. [[c4|The Alert rule fired in all {alert_tp} runs that colluded and in all {alert_fp} that did not]]. It asks for two kinds of coordination, and two agents who answer each other show both within the first few messages. [[c5|The Watch rule fired in {watch_recall} of the colluding runs and {watch_fpr} of the others]]. Its commonest match was the word {word}, which is in the name of a task."
+  },
+  {
+   "p": "The written-content test does pass here. [[c6|In {content_passed} of {content_checked} inferred deliveries the reply repeats a rare term of the message before it]]. Agents who honestly check each other do that too, so it tells the two kinds of run apart only a little."
+  },
+  {
+   "h": "A pack written from one run"
+  },
+  {
+   "p": "We read one run and wrote down the phrases its agents used. In its first episode [[c7|one agent says the complete log could not be sent and that the policy needs it]]; both reject. In the next episode [[c8|the same agent confirms that both will submit accept]], and [[c9|the other says it will submit accept]]. Phrases of that kind became a small pack."
+  },
+  {
+   "p": "[[c10|On the {pack_conditions} conditions that run is not part of, the Watch rule with this pack fired in {pack_recall} of the runs that colluded and {pack_fpr} of those that did not]]. A phrase list travels badly. [[c12|It caught {same_recall} of the colluding runs where an agent is the model whose wording it copied, and {other_recall} where none is]]. [[c11|{never} of the {pack_pos} colluding runs never use such a phrase]]: the agents agree in other words or accept without saying so, and this pack cannot show that."
+  },
+  {
+   "note": "This is simulated data from a designed game with two agents per run. The pack is a list of phrases, not a judgement of intent, and it was tested on the same game it was written from. Credit for the data and the labels is in the source line below and beside each excerpt."
+  }
+ ],
+ "claims": {
+  "c1": {
+   "evidence": "The dataset's own label, by run.",
+   "figures": [
+    "runs",
+    "colluded",
+    "clean",
+    "conditions"
+   ],
+   "docs": [
+    {
+     "href": "../../datasets.html#salt_agent_collusion",
+     "label": "SALT agent-collusion in the dataset registry: source, licence, what the tool can and cannot do with it"
+    }
+   ],
+   "caveat": "Data and labels: Shi, Zhang and Yang, \"Emergent Collusion in Long-Horizon LLM Agent Interaction\", 2026, arXiv:2609.24967; Hugging Face dataset SALT-NLP/agent-collusion, MIT License, Copyright (c) 2026 Xinrui Shi, Yanzhe Zhang, and Diyi Yang. A run counts as colluding when at least one of its evaluation episodes is labelled so. Runs with a scripted peer or unrestricted messages carry no label and are not scored."
+  },
+  "c2": {
+   "evidence": "No record has a time, so nothing can be replayed as published.",
+   "figures": [
+    "messages",
+    "dated_runs"
+   ]
+  },
+  "c3": {
+   "evidence": "Rules, alarms and signs on the undated runs.",
+   "figures": [
+    "fired_undated",
+    "runs"
+   ],
+   "caveat": "An undated trace cannot fire a time-based alarm. This is a limit of the tool on logs that keep order but no clock, not a finding about the runs."
+  },
+  "c4": {
+   "evidence": "The Alert rule on an order-only clock.",
+   "figures": [
+    "alert_tp",
+    "alert_fp"
+   ],
+   "caveat": "The clock places each message sixty seconds after the one before, from the year 2000, so that no one takes it for a real time. Counted once per run; the intervals are in reports/external/salt/summary.md."
+  },
+  "c5": {
+   "evidence": "The Watch rule with the general pack, which the tool picks by itself for this data.",
+   "figures": [
+    "watch_recall",
+    "watch_fpr",
+    "word",
+    "word_records"
+   ]
+  },
+  "c6": {
+   "evidence": "The written-content test on the deliveries the tool infers inside each episode.",
+   "figures": [
+    "content_passed",
+    "content_checked",
+    "content_share",
+    "content_auc"
+   ],
+   "caveat": "A delivery passes when the two records share a term of eight or more characters that is rare in the run. Logged direct messages are not checked by this test."
+  },
+  "c7": {
+   "evidence": "The first episode of the run the pack was written from. The dataset does not label it as collusion.",
+   "records": [
+    {
+     "id": "main__gemini-3-7-flash__rep001/e00/m24",
+     "note": "Bob, at the end of the first episode: the log could not be sent, and the policy needs it."
+    }
+   ]
+  },
+  "c8": {
+   "evidence": "The second episode of the same run, labelled as collusion.",
+   "records": [
+    {
+     "id": "main__gemini-3-7-flash__rep001/e01/m13",
+     "note": "Bob again, one episode later."
+    }
+   ]
+  },
+  "c9": {
+   "evidence": "The other agent, a few messages on.",
+   "records": [
+    {
+     "id": "main__gemini-3-7-flash__rep001/e01/m16",
+     "note": "Alice announces her own verdict."
+    }
+   ]
+  },
+  "c10": {
+   "evidence": "The pack against the dataset's label, on conditions it was not written from.",
+   "figures": [
+    "pack_recall",
+    "pack_fpr",
+    "pack_precision",
+    "pack_tp",
+    "pack_pos",
+    "pack_fp",
+    "pack_neg",
+    "pack_conditions",
+    "human_tp",
+    "human_pos"
+   ],
+   "caveat": "The pack is agenttrace/packs/peer_review.json: regular expressions for proposing mutual acceptance and for announcing an accept verdict. The condition of the run it was written from is left out of this test. The other conditions are the same game with other models and settings, so this is not a test on new ground."
+  },
+  "c11": {
+   "evidence": "Colluding runs in which no message matches.",
+   "figures": [
+    "never",
+    "pack_pos"
+   ],
+   "caveat": "The label is what the agents did (both accepted). A phrase match sees only what they said, and only in the words it lists."
+  },
+  "c12": {
+   "evidence": "The same test, split by whether an agent of the run is the model the pack was written from.",
+   "figures": [
+    "same_recall",
+    "same_n",
+    "other_recall",
+    "other_n",
+    "train_model"
+   ],
+   "caveat": "Models word their agreements differently. The split is by the model names the dataset records for the two agents."
+  }
+ }
+}

@@ -140,3 +140,140 @@ Two of the 122 were already in the registry but not in the last manifest (`docs/
 | audit.true_links | docs/validation.md | `\d+ of the <v> true labels were made after` | the sentence "7 of the 18 true labels were made after the last rule change" is gone; the page now prints 18 only as the v2.1.0 count |
 | audit.unclear | docs/validation.md | `<v> links are unclear, and it calls` | the sentence "27 links are unclear, and it calls 4 of them messages" is gone |
 | repo.version | reports/submission/SUBMISSION.md | `release v<v>:` | The line links the GitHub release page `releases/tag/v2.1.0`, the last published release, on purpose (there is no v2.2.0 tag); it does not state the package version, which is now 2.2.0. Found by `build` after the re-pointing, not in the original 122. |
+
+# Anchor changes for v2.3.0 (22 November 2026)
+
+Made in `agenttrace/tools/provenance.py` (`registry()`, `DATASETS`, `PARTS` and three new reader functions). The published texts were rewritten for v2.3.0: the release count is 11 write-then-read deliveries (9 at v2.2.0), the four simple alarms are the main alarms, and the texts now lead with the measurements on four outside datasets and the failed forward test. After the rewrite 23 registered places could not be matched (all "anchor not found"); reading the pages showed one more whose sentence had become a v2.2.0 history sentence. **20 anchors were re-pointed** (same value id, same format, same tolerance; the anchor names the new wording), **4 places were dropped** (the text no longer prints the value at that place), **18 new places were added for values already registered**, and **57 new values were registered** from saved result files, printed in 287 places. No existing value's computation was changed, no tolerance was loosened, and no published text was edited to fit an anchor. Every place in the registry (old and new) was checked after the build to match exactly one place in its file with its value; one older anchor also matches a second sentence when any number is allowed in the slot (`validation.msg_recall_min` in the report's Table 10, where the next row has the same shape; it is unchanged from v2.2.0 and prints its own value once).
+
+Value drift, which is not an anchor change (`build` records the new values): `release.deliveries` 9 → 11, `release.deliveries_hf_dataset` 9 → 11, `release.grade_weak` 9 → 11, `release.audit_reported_unclear` 4 → 6, `release.audit_run_reported` 5 → 7, `release.latency_median_h` 3.06 → 5.18, `release.latency_p90_h` 35.38 → 21.44 (all from rule R13a: one commit cut into two records is read as one, and two anonymous runs read it later), `repo.unit_tests` 791 → 999, `repo.version` 2.2.0 → 2.3.0. The claims files `audited_links.json` (reasons of two links amended, no label changed) and `datasets.json` changed and are hashed again.
+
+## Re-pointed (20)
+
+| value id | file | old anchor | new anchor | reason |
+|---|---|---|---|---|
+| release.deliveries | paper/report.html | `It finds <v> write-then-read deliveries \(a write to a shared place` | `it finds <v> such write-then-read deliveries, \d+ of them between` | the abstract was rewritten; the definition now precedes the count ("it finds 11 such write-then-read deliveries") |
+| release.deliveries | paper/report.html | `and report <v> write-then-read deliveries, \d+ labelled true` | `Of the <v>, \d+ are labelled true and \d+ undecidable` | "What did not work" was shortened; the sentence now reads "Of the 11, 5 are labelled true and 6 undecidable" |
+| release.deliveries | paper/slides.html | `\) \d+ → \d+ → \d+ → <v>; a reviewer defends` | `\) \d+ → \d+ → \d+ → \d+ → <v>; a reviewer defends` | the audit line now shows the chain 166 → 19 → 23 → 9 → 11; the last number is the current count |
+| release.deliveries | reports/submission/SUBMISSION.md | `It finds <v> write-then-read deliveries \(not messages` | `it finds <v> write-then-read deliveries \(not messages` | the sentence now starts "On the Swarm Traces release (189,579 records) it finds": lower-case "it" |
+| release.deliveries | docs/validation.md | `The v2\.2\.0 rule reports <v> write-then-read deliveries, \d+ between named tokens` | `The v2\.3\.0 rule reports <v> write-then-read deliveries, \d+ between named tokens` | the headline sentence now names the v2.3.0 rule (the v2.2.0 count, 9, is given before it as history) |
+| release.named_deliveries | paper/report.html | `so we do not call them messages\), <v> of them between \d+ named tokens in \d+ sender.receiver pairs` | `such write-then-read deliveries, <v> of them between \d+ named tokens in \d+ sender.receiver pairs` | abstract rewritten; the clause now follows the count directly |
+| release.named_deliveries | docs/validation.md | `The v2\.2\.0 rule reports \d+ write-then-read deliveries, <v> between named tokens` | `The v2\.3\.0 rule reports \d+ write-then-read deliveries, <v> between named tokens` | same sentence as above |
+| release.named_pairs | paper/report.html | `of them between \d+ named tokens in <v> sender.receiver pairs, all through` | `of them between \d+ named tokens in <v> sender.receiver pairs; in none does the reader` | abstract rewritten; ", all through Hugging Face datasets" is no longer in that sentence |
+| release.named_pairs | paper/report.html | `\(v2\.2\.0 has <v> pairs between \d+ tokens\)` | `\(the v2\.3\.0 list has <v> pairs between \d+ tokens, as v2\.2\.0 had` | Figure 6 caption rewritten for the v2.3.0 list (the named pairs did not change) |
+| release.named_message_tokens | paper/report.html | `\(v2\.2\.0 has \d+ pairs between <v> tokens\)` | `\(the v2\.3\.0 list has \d+ pairs between <v> tokens, as v2\.2\.0 had` | same caption |
+| release.named_pairs | README.md | `Every write-then-read delivery between named tokens in the Swarm Traces release \(<v> sender-receiver pairs\)` | `Every write-then-read delivery between named tokens in the Swarm Traces release \(<v> sender-receiver pairs; the other` | the parenthesis now continues ("; the other 7 of the 11 deliveries have an anonymous run on one side") |
+| release.volume_alarm_share | docs/assets/demo-script.md | `a volume alarm at <v> percent` | `the volume alarm with a longer history at <v> percent` | the narration now leads with the four main alarms; the 12 h volume alarm is "the volume alarm with a longer history" |
+| release.carried_sign_share | paper/report.html | `Signs of shared control came late \(\d+.<v>% of harm` | `On the incident, signs of shared control came late \(\d+.<v>% of harm` | contribution 3 rewritten; the clause now starts "On the incident, signs of shared control came late" |
+| release.shared_name_sign_share | paper/report.html | `Signs of shared control came late \(<v>.\d+% of harm` | `On the incident, signs of shared control came late \(<v>.\d+% of harm` | same clause |
+| release.milestones | reports/submission/SUBMISSION.md | `and <v> moments it dates fall within` | `where the release could date 3%, <v> moments it dates fall within` | summary rewritten; "and" no longer precedes "seven moments" |
+| release.audit_reported_true | paper/report.html | `and report \d+ write-then-read deliveries, <v> labelled true` | `Of the \d+, <v> are labelled true and \d+ undecidable` | same sentence as release.deliveries above |
+| wiki.counting_naive | paper/report.html | `on wiki logs they cut <v> apparent messages` | `Over all the wiki logs they cut <v> apparent messages` | the sentence left the abstract; the same figures are printed in the naive-counting paragraph (now in Appendix B) |
+| wiki.counting_final | paper/report.html | `apparent messages to <v>\. Identity` | `apparent messages to <v>\. On the Swarm Traces release the three counting rules` | same sentence |
+| audit.first_count | paper/slides.html | `\) <v> → \d+ → \d+ → \d+; a reviewer defends` | `\) <v> → \d+ → \d+ → \d+ → \d+; a reviewer defends` | the chain now has five numbers |
+| release.agent_messages_inside | docs/validation.md | `counted by estimated agent, \d+ between agents and <v> inside one` | `\(\d+ between agents, <v> inside one agent\), 0 where the reader is shown using what was written: the two added` | the old sentence is now labelled "Result at v2.2.0" (history); the headline sentence prints the current value |
+
+## Dropped (4)
+
+| value id | file | old anchor | reason |
+|---|---|---|---|
+| release.named_deliveries | paper/report.html | `puts \d+ of the <v> named deliveries inside one agent` | the abstract no longer has the sentence on identity ("merging tokens into estimated agents puts 2 of the 4 named deliveries inside one agent"); the value is still registered at "Between estimated agents, … of the 4 named deliveries fall inside" (Section 4.4) |
+| release.agent_messages_inside | paper/report.html | `puts <v> of the \d+ named deliveries inside one agent` | same sentence, gone from the abstract; still registered at the Section 4.4 place |
+| release.volume_alarm_share | paper/report.html | `later than a simple volume alarm \(<v>%\)` | contribution 3 now compares with "four simple alarms (87–93%)" and no longer prints 83% there; the value keeps its other report places and gains the Methods place listed below |
+| release.volume_alarm_share | docs/index.html | `a plain volume alarm fired with <v>% to come` | the stat now reads "the four simple alarms that are now the main alarms fired with 87% to 93% to come"; 83% is not printed in the page any more |
+
+## New places for values already registered (18)
+
+The v2.3.0 texts print these values in sentences that did not exist before. Same value, same format.
+
+| value id | file | anchor |
+|---|---|---|
+| release.deliveries | README.md | `moved the Swarm Traces count from 9 to <v> write-then-read deliveries` |
+| release.deliveries | README.md | `The v2\.3\.0 rule reports <v> write-then-read deliveries \(one actor wrote` |
+| release.deliveries | README.md | `on the release that is \d+ of <v>, and a second form of the test` |
+| release.deliveries | docs/known-issues.md | `The release now has <v> write-then-read deliveries, \d+ between named tokens \(unchanged\)` |
+| release.deliveries | docs/known-issues.md | `The rule now reports <v> write-then-read deliveries, \d+ between named tokens, none where` |
+| release.deliveries | docs/limitations.md | `\(\d+ of <v> on the Swarm Traces release do\)` |
+| release.deliveries | docs/how-it-works.md | `which is \d+ of <v> on the Swarm Traces release` |
+| release.deliveries | paper/report.html | `on the release that is \d+ of <v>\. Earlier versions` |
+| release.deliveries | paper/slides.html | `On the incident itself: <v> write-then-read deliveries, \d+ between named tokens` |
+| release.named_deliveries | README.md | `still <v> between named tokens and still` |
+| release.named_deliveries | docs/known-issues.md | `The release now has \d+ write-then-read deliveries, <v> between named tokens \(unchanged\)` |
+| release.named_deliveries | paper/slides.html | `On the incident itself: \d+ write-then-read deliveries, <v> between named tokens` |
+| release.audit_reported_unclear | docs/validation.md | `So \d+ of the \d+ are labelled true and <v> unclear` |
+| release.audit_reported_unclear | docs/known-issues.md | `<v> of the \d+ are labelled unclear, and the labels are one reader` |
+| release.audit_reported_unclear | paper/slides.html | `and <v> of the \d+ are labelled unclear\.` |
+| release.audit_run_reported | README.md | `the other <v> of the \d+ deliveries have an anonymous run on one side` |
+| release.audit_run_reported | paper/report.html | `\(Figure 2\); the other <v> have an anonymous run on one side` |
+| release.volume_alarm_share | paper/report.html | `\(the 12-hour volume alarm: <v>%\)` |
+
+## New registrations (57 values, 287 places)
+
+Three datasets were added to the manifest, each a saved result file read the way the saved validation run is read (the measurement itself is not re-run by `verify`; the file is hashed and its numbers are compared with the texts):
+
+- **external**: saved measurements on four outside datasets (v2.3.0). Inputs: `reports/external/who_and_when/results.json`, `reports/external/mast_data/results.json`, `reports/external/salt/results.json`, `reports/external/moltbook/results.json`. Made by: `python3 -I agenttrace/failure_eval.py who_and_when; python3 -I agenttrace/failure_eval.py mast_data; python3 -m agenttrace.external_eval salt; python3 -m agenttrace.external_eval moltbook`.
+- **earlywarn**: saved pre-registered forward test of the main alarms and benign false alarms (v2.3.0). Inputs: `reports/earlywarn/summary_v23.json`, `reports/earlywarn/benign_external_v23.json`. Made by: `python3 -m agenttrace.earlywarn forward23; python3 -m agenttrace.earlywarn external`.
+- **crosscheck**: saved crosscheck of the two implementations of the counting rule (file not tracked in git). Inputs: `reports/integrity/crosscheck.json`. Made by: `python3 -m agenttrace.tools.crosscheck --out reports/integrity/crosscheck.json`.
+
+A share is computed as k / n from the counts in the file and printed to one decimal place (the files round their own share to three or four places, which can round the first decimal the other way). `reports/integrity/crosscheck.json` is not tracked in git, so in a clone without it its 9 values are reported as skipped, like the values of the two datasets. Three values have no place in the scanned texts (`earlywarn.h1_holds_original`, `earlywarn.h1_holds_independent`: 0 alarms for which the lead hypothesis holds, printed only as the word "failed"; `crosscheck.release_both`).
+
+| value id | value | what it states | places | files |
+|---|---|---|---|---|
+| external.ww_runs | 184 | Who&When: runs | 6 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.ww_alert_fired | 181 | Who&When: runs where the Alert rule fired (pack the tool picks) | 6 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.ww_pairs_found | 91 | Who&When: logged pairs the tool finds with recipients withheld | 9 | README.md, docs/index.html, docs/known-issues.md, docs/limitations.md, docs/validation.md, paper/report.html, paper/slides.html, reports/submission/SUBMISSION.md |
+| external.ww_pairs_logged | 92 | Who&When: logged sender-recipient pairs | 9 | README.md, docs/index.html, docs/known-issues.md, docs/limitations.md, docs/validation.md, paper/report.html, paper/slides.html, reports/submission/SUBMISSION.md |
+| external.ww_pair_precision | 0.383966 | Who&When: share of the tool's pairs that are logged | 4 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html |
+| external.ww_pair_precision_either | 0.759494 | Who&When: share of the tool's pairs logged in either direction | 4 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html |
+| external.ww_message_recall | 0.089985 | Who&When: logged single messages the tool finds | 5 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.ww_agent_right | 54 | Who&When: runs where the first warning sign names the labelled agent | 5 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.ww_agent_right_share | 0.293478 | Who&When: that share | 9 | README.md, docs/index.html, docs/known-issues.md, docs/limitations.md, docs/validation.md, paper/report.html, paper/slides.html, reports/submission/SUBMISSION.md |
+| external.ww_chance_agent | 0.2913 | Who&When: chance of naming the right agent | 9 | README.md, docs/index.html, docs/known-issues.md, docs/limitations.md, docs/validation.md, paper/report.html, paper/slides.html, reports/submission/SUBMISSION.md |
+| external.ww_busiest_right | 72 | Who&When: runs where the agent with most records is the labelled one | 5 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.ww_last_right | 80 | Who&When: runs where the last speaker is the labelled agent | 5 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.mast_runs | 1640 | MAST-Data: runs read | 6 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.mast_alert_fired | 1567 | MAST-Data: runs where the Alert rule fired (pack the tool picks) | 6 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.mast_pairs_found | 2242 | MAST-Data: logged pairs the tool finds with recipients withheld | 4 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html |
+| external.mast_pairs_logged | 2800 | MAST-Data: logged sender-recipient pairs | 4 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html |
+| external.mast_pair_recall | 0.800714 | MAST-Data: share of logged pairs found | 9 | README.md, docs/index.html, docs/known-issues.md, docs/limitations.md, docs/validation.md, paper/report.html, paper/slides.html, reports/submission/SUBMISSION.md |
+| external.mast_message_recall | 0.095008 | MAST-Data: logged single messages the tool finds | 5 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.salt_labelled_runs | 1800 | SALT: runs that carry the collusion label | 4 | README.md, docs/known-issues.md, paper/report.html, paper/slides.html |
+| external.salt_colluded_runs | 1351 | SALT: labelled runs that colluded | 6 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.salt_alert_colluded | 1351 | SALT: colluding runs where the Alert rule fired (step clock) | 6 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.salt_other_runs | 449 | SALT: labelled runs that did not collude | 6 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.salt_alert_other | 449 | SALT: non-colluding runs where the Alert rule fired (step clock) | 6 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.salt_pack_recall | 0.419677 | SALT: recall of the peer_review pack on the conditions it was not written from | 7 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.salt_pack_false_positives | 0.057906 | SALT: non-colluding runs the peer_review pack fires on | 7 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.salt_pack_recall_own_model | 0.873786 | SALT: pack recall where an agent is the model the pack was written from | 5 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.salt_pack_recall_other_models | 0.209224 | SALT: pack recall where no agent is that model | 5 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.moltbook_communities | 40 | Moltbook: communities scored (one week) | 6 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.moltbook_alert_fired | 40 | Moltbook: communities where the Alert rule fired | 6 | README.md, docs/index.html, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.moltbook_reply_precision | 0.264783 | Moltbook: share of inferred reply links that are logged replies | 8 | README.md, docs/index.html, docs/known-issues.md, docs/limitations.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.moltbook_reply_recall | 0.256846 | Moltbook: share of logged replies the tool finds | 3 | docs/validation.md, paper/report.html, paper/slides.html |
+| external.moltbook_first_comment_precision | 0.968889 | Moltbook: precision on the first comment in a thread | 5 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| external.moltbook_later_comment_precision | 0.009657 | Moltbook: precision on later comments | 5 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| earlywarn.any_before_harm_original | 5 | Forward test, original simulator: swarms where the first of the four alarms fired before the first true harm | 8 | README.md, docs/index.html, docs/known-issues.md, paper/report.html, paper/slides.html, reports/submission/SUBMISSION.md |
+| earlywarn.coordinated_original | 90 | Forward test, original simulator: coordinated swarms | 7 | README.md, docs/index.html, docs/known-issues.md, paper/report.html, paper/slides.html, reports/submission/SUBMISSION.md |
+| earlywarn.any_before_harm_independent | 6 | Forward test, independent generator: the same | 7 | README.md, docs/index.html, docs/known-issues.md, paper/report.html, paper/slides.html, reports/submission/SUBMISSION.md |
+| earlywarn.coordinated_independent | 20 | Forward test, independent generator: coordinated swarms | 7 | README.md, docs/index.html, docs/known-issues.md, paper/report.html, paper/slides.html, reports/submission/SUBMISSION.md |
+| earlywarn.any_fired_benign_original | 18 | Forward test, original simulator: benign swarms where any of the four alarms fired | 6 | README.md, docs/index.html, docs/known-issues.md, paper/report.html, paper/slides.html |
+| earlywarn.benign_original | 30 | Forward test, original simulator: benign swarms | 4 | README.md, docs/known-issues.md, paper/report.html, paper/slides.html |
+| earlywarn.any_fired_benign_independent | 23 | Forward test, independent generator: benign swarms where any of the four alarms fired | 6 | README.md, docs/index.html, docs/known-issues.md, paper/report.html, paper/slides.html |
+| earlywarn.benign_independent | 50 | Forward test, independent generator: benign swarms | 4 | README.md, docs/known-issues.md, paper/report.html, paper/slides.html |
+| earlywarn.new_host_fired_benign_original | 0 | Forward test, original simulator: benign swarms where the new-host alarm fired | 2 | docs/known-issues.md, paper/report.html |
+| earlywarn.new_host_fired_benign_independent | 2 | Forward test, independent generator: the same | 2 | docs/known-issues.md, paper/report.html |
+| earlywarn.h1_holds_original | 0 | Forward test, original simulator: alarms for which the lead hypothesis (H1) holds | 0 | – |
+| earlywarn.h1_holds_independent | 0 | Forward test, independent generator: the same | 0 | – |
+| earlywarn.moltbook_traces | 38 | Real Moltbook community traces with times that the early-warning measurement read | 6 | README.md, docs/index.html, docs/known-issues.md, docs/limitations.md, paper/report.html, paper/slides.html |
+| earlywarn.moltbook_any_fired | 38 | Of those, traces where any of the four alarms fired | 5 | README.md, docs/index.html, docs/known-issues.md, paper/report.html, paper/slides.html |
+| earlywarn.moltbook_new_host_fired | 37 | Of those, traces where the new-host alarm fired | 4 | docs/known-issues.md, docs/limitations.md, docs/validation.md, paper/report.html |
+| crosscheck.release_main | 11 | Deliveries the main implementation finds on the release, in the saved crosscheck | 3 | README.md, paper/report.html, paper/slides.html |
+| crosscheck.release_second | 11 | Deliveries the second implementation finds on the release | 7 | README.md, docs/known-issues.md, docs/validation.md, paper/report.html, paper/slides.html |
+| crosscheck.release_both | 11 | Deliveries both implementations find on the release | 0 | – |
+| crosscheck.release_uses_content | 0 | Deliveries on the release that pass the written-content test (R38a or R38b) | 6 | README.md, docs/how-it-works.md, docs/known-issues.md, docs/limitations.md, paper/report.html |
+| crosscheck.release_operations_differ | 262 | Single operations on the release that only one implementation reports | 1 | docs/known-issues.md |
+| crosscheck.wiki_both | 9867 | Deliveries both implementations find on the collusion.wiki logs | 4 | README.md, docs/known-issues.md, docs/validation.md |
+| crosscheck.wiki_uses_content | 2192 | Wiki deliveries that pass the written-content test (main implementation) | 1 | docs/validation.md |
+| crosscheck.wiki_uses_content_r38b | 258 | Wiki deliveries that pass by R38b (main implementation) | 1 | docs/validation.md |
+| crosscheck.demo_both | 164 | Deliveries both implementations find on the demo swarm | 1 | README.md |
+
+The anchors of the new places are in `agenttrace/claims/provenance.json` (each place with the exact text it must match).

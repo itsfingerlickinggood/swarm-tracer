@@ -1,14 +1,14 @@
 {
  "about": "Every published number: what it states, its value, the dataset and code it is computed from, and each place that prints it. Written by `python3 -m agenttrace.tools.provenance build`; checked by `python3 -m agenttrace.tools.provenance verify`. Do not edit by hand.",
  "manifest_version": 1,
- "package_version": "2.2.0",
+ "package_version": "2.3.0",
  "git": {
-  "commit": "922955b471c70e504014a192ca1676326f44936d",
+  "commit": "b2f6e2ff4c5e1c60426f214b6092c22c561ec3fa",
   "dirty": true
  },
- "package_fingerprint": "7becdd911ac27a8ef57a7548f29feba8da84d649d44f5fe6a303096430da1a19",
+ "package_fingerprint": "e098f02d86bbcc92a81ee248c34a3d44ae54be2a4c55c76fffd2a59657a235ca",
  "rule_files": {
-  "agenttrace/messages.py": "fd802fa54ffed1123a654c89d67de1320bc403b5bc014a0426f05ba543852370",
+  "agenttrace/messages.py": "d27a06d24cad624be3d93bb9b66c6276bba16b52687f1a686953db7a426e3ae3",
   "agenttrace/units.py": "14fdc0db4497286ef2a8164a3f5f4606caa72d3b5ab826a9e945fef1d987505d"
  },
  "user_decisions_at_build": {
@@ -39,9 +39,9 @@
     }
    },
    "rule_version": {
-    "hash": "c1476d731f291a9c",
+    "hash": "a2ea3071b4693bf0",
     "files": {
-     "agenttrace/messages.py": "fd802fa54ffed1123a654c89d67de1320bc403b5bc014a0426f05ba543852370",
+     "agenttrace/messages.py": "d27a06d24cad624be3d93bb9b66c6276bba16b52687f1a686953db7a426e3ae3",
      "agenttrace/units.py": "14fdc0db4497286ef2a8164a3f5f4606caa72d3b5ab826a9e945fef1d987505d",
      "agenttrace/packs/code_traces.json": "84914de1d21ab6f7502c4b358108a85dbf68015daa56b6a114ae3b7189b76044"
     }
@@ -83,9 +83,9 @@
    },
    "related": {},
    "rule_version": {
-    "hash": "a9f49b6b75474f57",
+    "hash": "4ae8b19f98520ffb",
     "files": {
-     "agenttrace/messages.py": "fd802fa54ffed1123a654c89d67de1320bc403b5bc014a0426f05ba543852370",
+     "agenttrace/messages.py": "d27a06d24cad624be3d93bb9b66c6276bba16b52687f1a686953db7a426e3ae3",
      "agenttrace/units.py": "14fdc0db4497286ef2a8164a3f5f4606caa72d3b5ab826a9e945fef1d987505d",
      "agenttrace/packs/wiki_swarm.json": "ae9e7dfb9318d3c9169230b35826bbe1ccd14804c4f03c5419959fec17bf84d1"
     }
@@ -101,8 +101,8 @@
    "records": null,
    "inputs": {
     "agenttrace/claims/audited_links.json": {
-     "sha256": "60712e2f4c3d56cefc571e9c937b960e22d1e66d90d494622c98edaf7972be6c",
-     "bytes": 233625
+     "sha256": "6eec3f58d5014cd494b5b3a04a67b6fcf762648d9bf7ae5191ef713c286556c5",
+     "bytes": 234435
     }
    },
    "related": {},
@@ -174,11 +174,78 @@
    "inputs": {},
    "related": {},
    "rule_version": null
+  },
+  "external": {
+   "name": "saved measurements on four outside datasets (v2.3.0)",
+   "path": "reports/external",
+   "pack": null,
+   "command": "python3 -I agenttrace/failure_eval.py who_and_when; python3 -I agenttrace/failure_eval.py mast_data; python3 -m agenttrace.external_eval salt; python3 -m agenttrace.external_eval moltbook",
+   "available_at_build": true,
+   "error": null,
+   "records": null,
+   "inputs": {
+    "reports/external/who_and_when/results.json": {
+     "sha256": "2e0d99425454713fb5146cf10e67f57f6b728f6e5476ec6c720f4f32ad8bca94",
+     "bytes": 28640
+    },
+    "reports/external/mast_data/results.json": {
+     "sha256": "c7078ccaf7af1f3d7e378ca920b939700f3d76ef4beee1bc7c3fd7ed91962cdf",
+     "bytes": 79183
+    },
+    "reports/external/salt/results.json": {
+     "sha256": "2cb1735dc034cd4c1f6651d216d2f2c6f220eaf8c649bc0a35575daf4fd8cc87",
+     "bytes": 50522
+    },
+    "reports/external/moltbook/results.json": {
+     "sha256": "edc75eb89e3fa1ab01ac667225941ce73f09433f54b1009135016a91f9fa16b9",
+     "bytes": 104101
+    }
+   },
+   "related": {},
+   "rule_version": null
+  },
+  "earlywarn": {
+   "name": "saved pre-registered forward test of the main alarms and benign false alarms (v2.3.0)",
+   "path": "reports/earlywarn/summary_v23.json",
+   "pack": null,
+   "command": "python3 -m agenttrace.earlywarn forward23; python3 -m agenttrace.earlywarn external",
+   "available_at_build": true,
+   "error": null,
+   "records": null,
+   "inputs": {
+    "reports/earlywarn/summary_v23.json": {
+     "sha256": "4575549580e1b32327b5a151e555877edaace7a306b16f8758974befcf43946d",
+     "bytes": 177053
+    },
+    "reports/earlywarn/benign_external_v23.json": {
+     "sha256": "828e056b069dcb816148a0810d87a3527f3d58c59bdc9b5a771f5e6533ad267f",
+     "bytes": 15793
+    }
+   },
+   "related": {},
+   "rule_version": null
+  },
+  "crosscheck": {
+   "name": "saved crosscheck of the two implementations of the counting rule (file not tracked in git)",
+   "path": "reports/integrity/crosscheck.json",
+   "pack": null,
+   "command": "python3 -m agenttrace.tools.crosscheck --out reports/integrity/crosscheck.json",
+   "available_at_build": true,
+   "error": null,
+   "records": null,
+   "inputs": {
+    "reports/integrity/crosscheck.json": {
+     "sha256": "c3ca9e68ede6b2b061d6cd660c0250e932a24c76c993960e28764dfabfd07db8",
+     "bytes": 2884867
+    }
+   },
+   "related": {},
+   "rule_version": null
   }
  },
  "claim_files": {
-  "audited_links.json": "60712e2f4c3d56cefc571e9c937b960e22d1e66d90d494622c98edaf7972be6c",
-  "datasets.json": "478e9276f84b30674de390277180573bf224a0197396f0224daa42272f76cdce",
+  "audited_links.json": "6eec3f58d5014cd494b5b3a04a67b6fcf762648d9bf7ae5191ef713c286556c5",
+  "datasets.json": "46dfb976b2cc89cf62d99dce7ec005f910993f7e6f59fd0596f8d37dda4d4d44",
   "frozen_signs.json": "60e9b8b6019e2cc39f5e9f4502dde3e6de29f0abb900118fe2339fecbb10d02c",
   "incident_context.json": "db1d0c3d055e36195f439dac516e4b9dc625f24829ee22e7c94821cde0b239e5",
   "incident_milestones.json": "67fc1af771e9a923734526557d81e2ac234f0711994bb8e464979e22914e857e",
@@ -809,137 +876,209 @@
    "dataset": "release",
    "computed_by": "session.flow['deliveries']",
    "kind": "number",
-   "value": 9,
+   "value": 11,
    "computed": true,
    "format": "int",
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "It finds <v> write-then-read deliveries \\(a write to a shared place",
+     "anchor": "it finds <v> such write-then-read deliveries, \\d+ of them between",
      "format": "int",
      "status": "ok",
-     "must_match": "It finds (?P<v>9) write-then-read deliveries \\(a write to a shared place",
-     "printed": "9"
+     "must_match": "it finds (?P<v>11) such write-then-read deliveries, \\d+ of them between",
+     "printed": "11"
     },
     {
      "file": "paper/report.html",
      "anchor": "All <v> write-then-read deliveries passed through dataset repositories",
      "format": "int",
      "status": "ok",
-     "must_match": "All (?P<v>9) write-then-read deliveries passed through dataset repositories",
-     "printed": "9"
+     "must_match": "All (?P<v>11) write-then-read deliveries passed through dataset repositories",
+     "printed": "11"
     },
     {
      "file": "paper/report.html",
-     "anchor": "and report <v> write-then-read deliveries, \\d+ labelled true",
+     "anchor": "Of the <v>, \\d+ are labelled true and \\d+ undecidable",
      "format": "int",
      "status": "ok",
-     "must_match": "and report (?P<v>9) write-then-read deliveries, \\d+ labelled true",
-     "printed": "9"
+     "must_match": "Of the (?P<v>11), \\d+ are labelled true and \\d+ undecidable",
+     "printed": "11"
     },
     {
      "file": "paper/report.html",
      "anchor": "reconstructed <v> write-then-read deliveries \\(\\d+ between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "reconstructed (?P<v>9) write-then-read deliveries \\(\\d+ between named tokens",
-     "printed": "9"
+     "must_match": "reconstructed (?P<v>11) write-then-read deliveries \\(\\d+ between named tokens",
+     "printed": "11"
     },
     {
      "file": "paper/report.html",
      "anchor": "\\d+ of <v> deliveries rest on one, none between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "\\d+ of (?P<v>9) deliveries rest on one, none between named tokens",
-     "printed": "9"
+     "must_match": "\\d+ of (?P<v>11) deliveries rest on one, none between named tokens",
+     "printed": "11"
     },
     {
      "file": "README.md",
      "anchor": "The Swarm Traces release has <v> write-then-read deliveries \\(\\d+ between named tokens\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "The Swarm Traces release has (?P<v>9) write-then-read deliveries \\(\\d+ between named tokens\\)",
-     "printed": "9"
+     "must_match": "The Swarm Traces release has (?P<v>11) write-then-read deliveries \\(\\d+ between named tokens\\)",
+     "printed": "11"
     },
     {
      "file": "paper/slides.html",
      "anchor": "published <v> write-then-read deliveries, \\d+ between \\d+ named tokens in \\d+ pairs",
      "format": "int",
      "status": "ok",
-     "must_match": "published (?P<v>9) write-then-read deliveries, \\d+ between \\d+ named tokens in \\d+ pairs",
-     "printed": "9"
+     "must_match": "published (?P<v>11) write-then-read deliveries, \\d+ between \\d+ named tokens in \\d+ pairs",
+     "printed": "11"
     },
     {
      "file": "paper/slides.html",
-     "anchor": "\\) \\d+ → \\d+ → \\d+ → <v>; a reviewer defends",
+     "anchor": "\\) \\d+ → \\d+ → \\d+ → \\d+ → <v>; a reviewer defends",
      "format": "int",
      "status": "ok",
-     "must_match": "\\) \\d+ → \\d+ → \\d+ → (?P<v>9); a reviewer defends",
-     "printed": "9"
+     "must_match": "\\) \\d+ → \\d+ → \\d+ → \\d+ → (?P<v>11); a reviewer defends",
+     "printed": "11"
     },
     {
      "file": "docs/index.html",
      "anchor": "published <v> write-then-read deliveries \\(\\d+ between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "published (?P<v>9) write-then-read deliveries \\(\\d+ between named tokens",
-     "printed": "9"
+     "must_match": "published (?P<v>11) write-then-read deliveries \\(\\d+ between named tokens",
+     "printed": "11"
     },
     {
      "file": "reports/submission/SUBMISSION.md",
-     "anchor": "It finds <v> write-then-read deliveries \\(not messages",
+     "anchor": "it finds <v> write-then-read deliveries \\(not messages",
      "format": "int",
      "status": "ok",
-     "must_match": "It finds (?P<v>9) write-then-read deliveries \\(not messages",
-     "printed": "9"
+     "must_match": "it finds (?P<v>11) write-then-read deliveries \\(not messages",
+     "printed": "11"
     },
     {
      "file": "docs/assets/demo-script.md",
      "anchor": "That leaves <v> deliveries in all",
      "format": "int",
      "status": "ok",
-     "must_match": "That leaves (?P<v>9) deliveries in all",
-     "printed": "9"
+     "must_match": "That leaves (?P<v>11) deliveries in all",
+     "printed": "11"
     },
     {
      "file": "docs/validation.md",
      "anchor": "On the audit the <v> score \\d+ of \\d+ decidable",
      "format": "int",
      "status": "ok",
-     "must_match": "On the audit the (?P<v>9) score \\d+ of \\d+ decidable",
-     "printed": "9"
+     "must_match": "On the audit the (?P<v>11) score \\d+ of \\d+ decidable",
+     "printed": "11"
     },
     {
      "file": "docs/validation.md",
-     "anchor": "The v2\\.2\\.0 rule reports <v> write-then-read deliveries, \\d+ between named tokens",
+     "anchor": "The v2\\.3\\.0 rule reports <v> write-then-read deliveries, \\d+ between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "The v2\\.2\\.0 rule reports (?P<v>9) write-then-read deliveries, \\d+ between named tokens",
-     "printed": "9"
+     "must_match": "The v2\\.3\\.0 rule reports (?P<v>11) write-then-read deliveries, \\d+ between named tokens",
+     "printed": "11"
     },
     {
      "file": "docs/validation.md",
      "anchor": "\\| all deliveries \\| <v> \\(",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| all deliveries \\| (?P<v>9) \\(",
-     "printed": "9"
+     "must_match": "\\| all deliveries \\| (?P<v>11) \\(",
+     "printed": "11"
     },
     {
      "file": "paper/slides.html",
      "anchor": "through Hugging Face datasets: all <v> deliveries\\.",
      "format": "int",
      "status": "ok",
-     "must_match": "through Hugging Face datasets: all (?P<v>9) deliveries\\.",
-     "printed": "9"
+     "must_match": "through Hugging Face datasets: all (?P<v>11) deliveries\\.",
+     "printed": "11"
     },
     {
      "file": "paper/slides.html",
      "anchor": "\\d+ of <v> deliveries sit on places the redaction may have merged",
      "format": "int",
      "status": "ok",
-     "must_match": "\\d+ of (?P<v>9) deliveries sit on places the redaction may have merged",
-     "printed": "9"
+     "must_match": "\\d+ of (?P<v>11) deliveries sit on places the redaction may have merged",
+     "printed": "11"
+    },
+    {
+     "file": "README.md",
+     "anchor": "moved the Swarm Traces count from 9 to <v> write-then-read deliveries",
+     "format": "int",
+     "status": "ok",
+     "must_match": "moved the Swarm Traces count from 9 to (?P<v>11) write-then-read deliveries",
+     "printed": "11"
+    },
+    {
+     "file": "README.md",
+     "anchor": "The v2\\.3\\.0 rule reports <v> write-then-read deliveries \\(one actor wrote",
+     "format": "int",
+     "status": "ok",
+     "must_match": "The v2\\.3\\.0 rule reports (?P<v>11) write-then-read deliveries \\(one actor wrote",
+     "printed": "11"
+    },
+    {
+     "file": "README.md",
+     "anchor": "on the release that is \\d+ of <v>, and a second form of the test",
+     "format": "int",
+     "status": "ok",
+     "must_match": "on the release that is \\d+ of (?P<v>11), and a second form of the test",
+     "printed": "11"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "The release now has <v> write-then-read deliveries, \\d+ between named tokens \\(unchanged\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "The release now has (?P<v>11) write-then-read deliveries, \\d+ between named tokens \\(unchanged\\)",
+     "printed": "11"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "The rule now reports <v> write-then-read deliveries, \\d+ between named tokens, none where",
+     "format": "int",
+     "status": "ok",
+     "must_match": "The rule now reports (?P<v>11) write-then-read deliveries, \\d+ between named tokens, none where",
+     "printed": "11"
+    },
+    {
+     "file": "docs/limitations.md",
+     "anchor": "\\(\\d+ of <v> on the Swarm Traces release do\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(\\d+ of (?P<v>11) on the Swarm Traces release do\\)",
+     "printed": "11"
+    },
+    {
+     "file": "docs/how-it-works.md",
+     "anchor": "which is \\d+ of <v> on the Swarm Traces release",
+     "format": "int",
+     "status": "ok",
+     "must_match": "which is \\d+ of (?P<v>11) on the Swarm Traces release",
+     "printed": "11"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "on the release that is \\d+ of <v>\\. Earlier versions",
+     "format": "int",
+     "status": "ok",
+     "must_match": "on the release that is \\d+ of (?P<v>11)\\. Earlier versions",
+     "printed": "11"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "On the incident itself: <v> write-then-read deliveries, \\d+ between named tokens",
+     "format": "int",
+     "status": "ok",
+     "must_match": "On the incident itself: (?P<v>11) write-then-read deliveries, \\d+ between named tokens",
+     "printed": "11"
     }
    ]
   },
@@ -955,10 +1094,10 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "so we do not call them messages\\), <v> of them between \\d+ named tokens in \\d+ sender.receiver pairs",
+     "anchor": "such write-then-read deliveries, <v> of them between \\d+ named tokens in \\d+ sender.receiver pairs",
      "format": "int",
      "status": "ok",
-     "must_match": "so we do not call them messages\\), (?P<v>4) of them between \\d+ named tokens in \\d+ sender.receiver pairs",
+     "must_match": "such write-then-read deliveries, (?P<v>4) of them between \\d+ named tokens in \\d+ sender.receiver pairs",
      "printed": "4"
     },
     {
@@ -975,14 +1114,6 @@
      "format": "int",
      "status": "ok",
      "must_match": "reconstructed \\d+ write-then-read deliveries \\((?P<v>4) between named tokens",
-     "printed": "4"
-    },
-    {
-     "file": "paper/report.html",
-     "anchor": "puts \\d+ of the <v> named deliveries inside one agent",
-     "format": "int",
-     "status": "ok",
-     "must_match": "puts \\d+ of the (?P<v>4) named deliveries inside one agent",
      "printed": "4"
     },
     {
@@ -1067,10 +1198,10 @@
     },
     {
      "file": "docs/validation.md",
-     "anchor": "The v2\\.2\\.0 rule reports \\d+ write-then-read deliveries, <v> between named tokens",
+     "anchor": "The v2\\.3\\.0 rule reports \\d+ write-then-read deliveries, <v> between named tokens",
      "format": "int",
      "status": "ok",
-     "must_match": "The v2\\.2\\.0 rule reports \\d+ write-then-read deliveries, (?P<v>4) between named tokens",
+     "must_match": "The v2\\.3\\.0 rule reports \\d+ write-then-read deliveries, (?P<v>4) between named tokens",
      "printed": "4"
     },
     {
@@ -1088,6 +1219,30 @@
      "status": "ok",
      "must_match": "Of the (?P<v>4) between named tokens all \\d+ were read as a write",
      "printed": "4"
+    },
+    {
+     "file": "README.md",
+     "anchor": "still <v> between named tokens and still",
+     "format": "int",
+     "status": "ok",
+     "must_match": "still (?P<v>4) between named tokens and still",
+     "printed": "4"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "The release now has \\d+ write-then-read deliveries, <v> between named tokens \\(unchanged\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "The release now has \\d+ write-then-read deliveries, (?P<v>4) between named tokens \\(unchanged\\)",
+     "printed": "4"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "On the incident itself: \\d+ write-then-read deliveries, <v> between named tokens",
+     "format": "int",
+     "status": "ok",
+     "must_match": "On the incident itself: \\d+ write-then-read deliveries, (?P<v>4) between named tokens",
+     "printed": "4"
     }
    ]
   },
@@ -1103,10 +1258,10 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "of them between \\d+ named tokens in <v> sender.receiver pairs, all through",
+     "anchor": "of them between \\d+ named tokens in <v> sender.receiver pairs; in none does the reader",
      "format": "int",
      "status": "ok",
-     "must_match": "of them between \\d+ named tokens in (?P<v>4) sender.receiver pairs, all through",
+     "must_match": "of them between \\d+ named tokens in (?P<v>4) sender.receiver pairs; in none does the reader",
      "printed": "4"
     },
     {
@@ -1127,18 +1282,18 @@
     },
     {
      "file": "paper/report.html",
-     "anchor": "\\(v2\\.2\\.0 has <v> pairs between \\d+ tokens\\)",
+     "anchor": "\\(the v2\\.3\\.0 list has <v> pairs between \\d+ tokens, as v2\\.2\\.0 had",
      "format": "int",
      "status": "ok",
-     "must_match": "\\(v2\\.2\\.0 has (?P<v>4) pairs between \\d+ tokens\\)",
+     "must_match": "\\(the v2\\.3\\.0 list has (?P<v>4) pairs between \\d+ tokens, as v2\\.2\\.0 had",
      "printed": "4"
     },
     {
      "file": "README.md",
-     "anchor": "Every write-then-read delivery between named tokens in the Swarm Traces release \\(<v> sender-receiver pairs\\)",
+     "anchor": "Every write-then-read delivery between named tokens in the Swarm Traces release \\(<v> sender-receiver pairs; the other",
      "format": "int",
      "status": "ok",
-     "must_match": "Every write-then-read delivery between named tokens in the Swarm Traces release \\((?P<v>4) sender-receiver pairs\\)",
+     "must_match": "Every write-then-read delivery between named tokens in the Swarm Traces release \\((?P<v>4) sender-receiver pairs; the other",
      "printed": "4"
     },
     {
@@ -1195,10 +1350,10 @@
     },
     {
      "file": "paper/report.html",
-     "anchor": "\\(v2\\.2\\.0 has \\d+ pairs between <v> tokens\\)",
+     "anchor": "\\(the v2\\.3\\.0 list has \\d+ pairs between <v> tokens, as v2\\.2\\.0 had",
      "format": "int",
      "status": "ok",
-     "must_match": "\\(v2\\.2\\.0 has \\d+ pairs between (?P<v>7) tokens\\)",
+     "must_match": "\\(the v2\\.3\\.0 list has \\d+ pairs between (?P<v>7) tokens, as v2\\.2\\.0 had",
      "printed": "7"
     },
     {
@@ -1233,7 +1388,7 @@
    "dataset": "release",
    "computed_by": "session.flow['channel_types']['hf_dataset']['deliveries']",
    "kind": "number",
-   "value": 9,
+   "value": 11,
    "computed": true,
    "format": "int",
    "places": [
@@ -1242,16 +1397,16 @@
      "anchor": "All <v> write-then-read deliveries passed through dataset repositories",
      "format": "int",
      "status": "ok",
-     "must_match": "All (?P<v>9) write-then-read deliveries passed through dataset repositories",
-     "printed": "9"
+     "must_match": "All (?P<v>11) write-then-read deliveries passed through dataset repositories",
+     "printed": "11"
     },
     {
      "file": "paper/slides.html",
      "anchor": "through Hugging Face datasets: all <v> deliveries\\.",
      "format": "int",
      "status": "ok",
-     "must_match": "through Hugging Face datasets: all (?P<v>9) deliveries\\.",
-     "printed": "9"
+     "must_match": "through Hugging Face datasets: all (?P<v>11) deliveries\\.",
+     "printed": "11"
     }
    ]
   },
@@ -1384,7 +1539,7 @@
    "dataset": "release",
    "computed_by": "session.flow['latency_hours']['median']",
    "kind": "number",
-   "value": 3.06,
+   "value": 5.18,
    "computed": true,
    "format": "f2",
    "places": [
@@ -1393,8 +1548,8 @@
      "anchor": "The median gap from write to read was <v> h",
      "format": "f1",
      "status": "ok",
-     "must_match": "The median gap from write to read was (?P<v>3\\.1) h",
-     "printed": "3.1"
+     "must_match": "The median gap from write to read was (?P<v>5\\.2) h",
+     "printed": "5.2"
     }
    ]
   },
@@ -1404,7 +1559,7 @@
    "dataset": "release",
    "computed_by": "session.flow['latency_hours']['p90']",
    "kind": "number",
-   "value": 35.38,
+   "value": 21.44,
    "computed": true,
    "format": "f2",
    "places": [
@@ -1413,8 +1568,8 @@
      "anchor": "the 90th percentile <v> h\\. Most activity",
      "format": "f0",
      "status": "ok",
-     "must_match": "the 90th percentile (?P<v>35) h\\. Most activity",
-     "printed": "35"
+     "must_match": "the 90th percentile (?P<v>21) h\\. Most activity",
+     "printed": "21"
     }
    ]
   },
@@ -1520,7 +1675,7 @@
    "dataset": "release",
    "computed_by": "session.flow['deliveries_by_grade']",
    "kind": "number",
-   "value": 9,
+   "value": 11,
    "computed": true,
    "format": "int",
    "places": [
@@ -1529,8 +1684,8 @@
      "anchor": "On the release: \\d+ direct, \\d+ inferred, <v> weak",
      "format": "int",
      "status": "ok",
-     "must_match": "On the release: \\d+ direct, \\d+ inferred, (?P<v>9) weak",
-     "printed": "9"
+     "must_match": "On the release: \\d+ direct, \\d+ inferred, (?P<v>11) weak",
+     "printed": "11"
     }
    ]
   },
@@ -1854,18 +2009,18 @@
     },
     {
      "file": "paper/report.html",
-     "anchor": "later than a simple volume alarm \\(<v>%\\)",
-     "format": "pct",
-     "status": "ok",
-     "must_match": "later than a simple volume alarm \\((?P<v>83)%\\)",
-     "printed": "83"
-    },
-    {
-     "file": "paper/report.html",
      "anchor": "hour, with <v>% to come, on both",
      "format": "pct",
      "status": "ok",
      "must_match": "hour, with (?P<v>83)% to come, on both",
+     "printed": "83"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "\\(the 12-hour volume alarm: <v>%\\)",
+     "format": "pct",
+     "status": "ok",
+     "must_match": "\\(the 12-hour volume alarm: (?P<v>83)%\\)",
      "printed": "83"
     },
     {
@@ -1874,14 +2029,6 @@
      "format": "pct",
      "status": "ok",
      "must_match": "Volume alarm \\(12 h history\\) (?P<v>83)%",
-     "printed": "83"
-    },
-    {
-     "file": "docs/index.html",
-     "anchor": "a plain volume alarm fired with <v>% to come",
-     "format": "pct",
-     "status": "ok",
-     "must_match": "a plain volume alarm fired with (?P<v>83)% to come",
      "printed": "83"
     },
     {
@@ -1894,10 +2041,10 @@
     },
     {
      "file": "docs/assets/demo-script.md",
-     "anchor": "a volume alarm at <v> percent",
+     "anchor": "the volume alarm with a longer history at <v> percent",
      "format": "pct_word",
      "status": "ok",
-     "must_match": "a volume alarm at (?P<v>(?i:eighty\\-three)) percent",
+     "must_match": "the volume alarm with a longer history at (?P<v>(?i:eighty\\-three)) percent",
      "printed": "eighty-three"
     }
    ]
@@ -1950,10 +2097,10 @@
     },
     {
      "file": "paper/report.html",
-     "anchor": "Signs of shared control came late \\(\\d+.<v>% of harm",
+     "anchor": "On the incident, signs of shared control came late \\(\\d+.<v>% of harm",
      "format": "pct",
      "status": "ok",
-     "must_match": "Signs of shared control came late \\(\\d+.(?P<v>57)% of harm",
+     "must_match": "On the incident, signs of shared control came late \\(\\d+.(?P<v>57)% of harm",
      "printed": "57"
     },
     {
@@ -2046,10 +2193,10 @@
     },
     {
      "file": "paper/report.html",
-     "anchor": "Signs of shared control came late \\(<v>.\\d+% of harm",
+     "anchor": "On the incident, signs of shared control came late \\(<v>.\\d+% of harm",
      "format": "pct",
      "status": "ok",
-     "must_match": "Signs of shared control came late \\((?P<v>50).\\d+% of harm",
+     "must_match": "On the incident, signs of shared control came late \\((?P<v>50).\\d+% of harm",
      "printed": "50"
     },
     {
@@ -2342,7 +2489,7 @@
      "format": "word",
      "status": "ok",
      "must_match": "(?P<v>(?i:seven)) moments it dates fall within",
-     "printed": "Seven"
+     "printed": "seven"
     },
     {
      "file": "paper/report.html",
@@ -2386,10 +2533,10 @@
     },
     {
      "file": "reports/submission/SUBMISSION.md",
-     "anchor": "and <v> moments it dates fall within",
+     "anchor": "where the release could date 3%, <v> moments it dates fall within",
      "format": "word",
      "status": "ok",
-     "must_match": "and (?P<v>(?i:seven)) moments it dates fall within",
+     "must_match": "where the release could date 3%, (?P<v>(?i:seven)) moments it dates fall within",
      "printed": "seven"
     },
     {
@@ -2699,14 +2846,6 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "puts <v> of the \\d+ named deliveries inside one agent",
-     "format": "int",
-     "status": "ok",
-     "must_match": "puts (?P<v>2) of the \\d+ named deliveries inside one agent",
-     "printed": "2"
-    },
-    {
-     "file": "paper/report.html",
      "anchor": "Between estimated agents, <v> of the \\d+ named deliveries fall inside one agent",
      "format": "int",
      "status": "ok",
@@ -2731,10 +2870,10 @@
     },
     {
      "file": "docs/validation.md",
-     "anchor": "counted by estimated agent, \\d+ between agents and <v> inside one",
+     "anchor": "\\(\\d+ between agents, <v> inside one agent\\), 0 where the reader is shown using what was written: the two added",
      "format": "int",
      "status": "ok",
-     "must_match": "counted by estimated agent, \\d+ between agents and (?P<v>2) inside one",
+     "must_match": "\\(\\d+ between agents, (?P<v>2) inside one agent\\), 0 where the reader is shown using what was written: the two added",
      "printed": "2"
     },
     {
@@ -2887,10 +3026,10 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "and report \\d+ write-then-read deliveries, <v> labelled true",
+     "anchor": "Of the \\d+, <v> are labelled true and \\d+ undecidable",
      "format": "int",
      "status": "ok",
-     "must_match": "and report \\d+ write-then-read deliveries, (?P<v>5) labelled true",
+     "must_match": "Of the \\d+, (?P<v>5) are labelled true and \\d+ undecidable",
      "printed": "5"
     },
     {
@@ -2936,7 +3075,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['groups']['all']['unclear']",
    "kind": "number",
-   "value": 4,
+   "value": 6,
    "computed": true,
    "format": "int",
    "places": [
@@ -2945,16 +3084,40 @@
      "anchor": "labelled true and <v> undecidable",
      "format": "int",
      "status": "ok",
-     "must_match": "labelled true and (?P<v>4) undecidable",
-     "printed": "4"
+     "must_match": "labelled true and (?P<v>6) undecidable",
+     "printed": "6"
     },
     {
      "file": "docs/validation.md",
      "anchor": "\\| all deliveries \\| \\d+ \\(<v> unclear\\)",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| all deliveries \\| \\d+ \\((?P<v>4) unclear\\)",
-     "printed": "4"
+     "must_match": "\\| all deliveries \\| \\d+ \\((?P<v>6) unclear\\)",
+     "printed": "6"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "So \\d+ of the \\d+ are labelled true and <v> unclear",
+     "format": "int",
+     "status": "ok",
+     "must_match": "So \\d+ of the \\d+ are labelled true and (?P<v>6) unclear",
+     "printed": "6"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "<v> of the \\d+ are labelled unclear, and the labels are one reader",
+     "format": "int",
+     "status": "ok",
+     "must_match": "(?P<v>6) of the \\d+ are labelled unclear, and the labels are one reader",
+     "printed": "6"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "and <v> of the \\d+ are labelled unclear\\.",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and (?P<v>6) of the \\d+ are labelled unclear\\.",
+     "printed": "6"
     }
    ]
   },
@@ -3120,7 +3283,7 @@
    "dataset": "release",
    "computed_by": "agenttrace.benchmark.score(benchmark.all_links(session), audit)['groups']['involves_run']['reported']",
    "kind": "number",
-   "value": 5,
+   "value": 7,
    "computed": true,
    "format": "int",
    "places": [
@@ -3129,8 +3292,24 @@
      "anchor": "\\| an anonymous run on one side \\| <v> \\(",
      "format": "int",
      "status": "ok",
-     "must_match": "\\| an anonymous run on one side \\| (?P<v>5) \\(",
-     "printed": "5"
+     "must_match": "\\| an anonymous run on one side \\| (?P<v>7) \\(",
+     "printed": "7"
+    },
+    {
+     "file": "README.md",
+     "anchor": "the other <v> of the \\d+ deliveries have an anonymous run on one side",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the other (?P<v>7) of the \\d+ deliveries have an anonymous run on one side",
+     "printed": "7"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "\\(Figure 2\\); the other <v> have an anonymous run on one side",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(Figure 2\\); the other (?P<v>7) have an anonymous run on one side",
+     "printed": "7"
     }
    ]
   },
@@ -3756,10 +3935,10 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "on wiki logs they cut <v> apparent messages",
+     "anchor": "Over all the wiki logs they cut <v> apparent messages",
      "format": "int",
      "status": "ok",
-     "must_match": "on wiki logs they cut (?P<v>20,?535) apparent messages",
+     "must_match": "Over all the wiki logs they cut (?P<v>20,?535) apparent messages",
      "printed": "20,535"
     },
     {
@@ -3784,10 +3963,10 @@
    "places": [
     {
      "file": "paper/report.html",
-     "anchor": "apparent messages to <v>\\. Identity",
+     "anchor": "apparent messages to <v>\\. On the Swarm Traces release the three counting rules",
      "format": "int",
      "status": "ok",
-     "must_match": "apparent messages to (?P<v>9,?866)\\. Identity",
+     "must_match": "apparent messages to (?P<v>9,?866)\\. On the Swarm Traces release the three counting rules",
      "printed": "9,866"
     },
     {
@@ -4092,10 +4271,10 @@
     },
     {
      "file": "paper/slides.html",
-     "anchor": "\\) <v> → \\d+ → \\d+ → \\d+; a reviewer defends",
+     "anchor": "\\) <v> → \\d+ → \\d+ → \\d+ → \\d+; a reviewer defends",
      "format": "int",
      "status": "ok",
-     "must_match": "\\) (?P<v>166) → \\d+ → \\d+ → \\d+; a reviewer defends",
+     "must_match": "\\) (?P<v>166) → \\d+ → \\d+ → \\d+ → \\d+; a reviewer defends",
      "printed": "166"
     },
     {
@@ -5169,7 +5348,7 @@
    "dataset": "repo",
    "computed_by": "unittest discovery over agenttrace/tests",
    "kind": "number",
-   "value": 791,
+   "value": 1034,
    "computed": true,
    "format": "int",
    "places": []
@@ -5180,7 +5359,7 @@
    "dataset": "repo",
    "computed_by": "pyproject.toml [project] version",
    "kind": "number",
-   "value": "2.2.0",
+   "value": "2.3.0",
    "computed": true,
    "format": "str",
    "places": [
@@ -5189,24 +5368,3001 @@
      "anchor": "swarm-tracer@v<v>",
      "format": "str",
      "status": "ok",
-     "must_match": "swarm-tracer@v(?P<v>2\\.2\\.0)",
-     "printed": "2.2.0"
+     "must_match": "swarm-tracer@v(?P<v>2\\.3\\.0)",
+     "printed": "2.3.0"
     },
     {
      "file": "docs/index.html",
      "anchor": "swarm-tracer@v<v>",
      "format": "str",
      "status": "ok",
-     "must_match": "swarm-tracer@v(?P<v>2\\.2\\.0)",
-     "printed": "2.2.0"
+     "must_match": "swarm-tracer@v(?P<v>2\\.3\\.0)",
+     "printed": "2.3.0"
     },
     {
      "file": "paper/slides.html",
      "anchor": "swarm-tracer@v<v>",
      "format": "str",
      "status": "ok",
-     "must_match": "swarm-tracer@v(?P<v>2\\.2\\.0)",
-     "printed": "2.2.0"
+     "must_match": "swarm-tracer@v(?P<v>2\\.3\\.0)",
+     "printed": "2.3.0"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_runs",
+   "statement": "Who&When: runs",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json totals.runs",
+   "kind": "number",
+   "value": 184,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "fired in \\d+ of <v> runs of Who&When",
+     "format": "int",
+     "status": "ok",
+     "must_match": "fired in \\d+ of (?P<v>184) runs of Who&When",
+     "printed": "184"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "set off the Alert rule: \\d+ of <v> Who&When runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "set off the Alert rule: \\d+ of (?P<v>184) Who&When runs",
+     "printed": "184"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "fired in \\d+ of <v> Who&When runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "fired in \\d+ of (?P<v>184) Who&When runs",
+     "printed": "184"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "the Alert rule fired in \\d+ of <v> \\(Who&When\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the Alert rule fired in \\d+ of (?P<v>184) \\(Who&When\\)",
+     "printed": "184"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "\\d+ of [\\d,]+ \\(9\\.0%\\) \\d+ of <v> Failing agent named",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\d+ of [\\d,]+ \\(9\\.0%\\) \\d+ of (?P<v>184) Failing agent named",
+     "printed": "184"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "set off the Alert rule \\(\\d+ of <v>,",
+     "format": "int",
+     "status": "ok",
+     "must_match": "set off the Alert rule \\(\\d+ of (?P<v>184),",
+     "printed": "184"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_alert_fired",
+   "statement": "Who&When: runs where the Alert rule fired (pack the tool picks)",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json false_alarms_all.by_rule_auto_pack['alert-coord2'].k",
+   "kind": "number",
+   "value": 181,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "fired in <v> of \\d+ runs of Who&When",
+     "format": "int",
+     "status": "ok",
+     "must_match": "fired in (?P<v>181) of \\d+ runs of Who&When",
+     "printed": "181"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "set off the Alert rule: <v> of \\d+ Who&When runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "set off the Alert rule: (?P<v>181) of \\d+ Who&When runs",
+     "printed": "181"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "fired in <v> of \\d+ Who&When runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "fired in (?P<v>181) of \\d+ Who&When runs",
+     "printed": "181"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "the Alert rule fired in <v> of \\d+ \\(Who&When\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the Alert rule fired in (?P<v>181) of \\d+ \\(Who&When\\)",
+     "printed": "181"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "\\d+ of [\\d,]+ \\(9\\.0%\\) <v> of \\d+ Failing agent named",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\d+ of [\\d,]+ \\(9\\.0%\\) (?P<v>181) of \\d+ Failing agent named",
+     "printed": "181"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "set off the Alert rule \\(<v> of \\d+,",
+     "format": "int",
+     "status": "ok",
+     "must_match": "set off the Alert rule \\((?P<v>181) of \\d+,",
+     "printed": "181"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_pairs_found",
+   "statement": "Who&When: logged pairs the tool finds with recipients withheld",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json groups['Hand-Crafted'].who_talked_to_whom.recipients_withheld.pair_recall.k",
+   "kind": "number",
+   "value": 91,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "the tool still finds <v> of the \\d+ logged sender-recipient pairs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the tool still finds (?P<v>91) of the \\d+ logged sender-recipient pairs",
+     "printed": "91"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "<v> of \\d+ logged sender-recipient pairs found with the recipients withheld",
+     "format": "int",
+     "status": "ok",
+     "must_match": "(?P<v>91) of \\d+ logged sender-recipient pairs found with the recipients withheld",
+     "printed": "91"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "With recipients withheld the tool finds <v> of \\d+ logged pairs on Who&When",
+     "format": "int",
+     "status": "ok",
+     "must_match": "With recipients withheld the tool finds (?P<v>91) of \\d+ logged pairs on Who&When",
+     "printed": "91"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| Who&When, 58 runs that name recipients \\| <v> of \\d+ \\(",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\| Who&When, 58 runs that name recipients \\| (?P<v>91) of \\d+ \\(",
+     "printed": "91"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "with recipients withheld it recovers <v> of \\d+ logged agent pairs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "with recipients withheld it recovers (?P<v>91) of \\d+ logged agent pairs",
+     "printed": "91"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "the tool still finds <v> of \\d+ logged sender.recipient pairs in Who&When",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the tool still finds (?P<v>91) of \\d+ logged sender.recipient pairs in Who&When",
+     "printed": "91"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "<v> of \\d+ logged pairs of agents found with the recipients withheld",
+     "format": "int",
+     "status": "ok",
+     "must_match": "(?P<v>91) of \\d+ logged pairs of agents found with the recipients withheld",
+     "printed": "91"
+    },
+    {
+     "file": "reports/submission/SUBMISSION.md",
+     "anchor": "with recipients withheld it recovers <v> of \\d+ logged pairs of agents",
+     "format": "int",
+     "status": "ok",
+     "must_match": "with recipients withheld it recovers (?P<v>91) of \\d+ logged pairs of agents",
+     "printed": "91"
+    },
+    {
+     "file": "docs/limitations.md",
+     "anchor": "most pairs of agents that talked \\(<v> of \\d+ on Who&When",
+     "format": "int",
+     "status": "ok",
+     "must_match": "most pairs of agents that talked \\((?P<v>91) of \\d+ on Who&When",
+     "printed": "91"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_pairs_logged",
+   "statement": "Who&When: logged sender-recipient pairs",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json …pair_recall.n",
+   "kind": "number",
+   "value": 92,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "the tool still finds \\d+ of the <v> logged sender-recipient pairs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the tool still finds \\d+ of the (?P<v>92) logged sender-recipient pairs",
+     "printed": "92"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "\\d+ of <v> logged sender-recipient pairs found with the recipients withheld",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\d+ of (?P<v>92) logged sender-recipient pairs found with the recipients withheld",
+     "printed": "92"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "With recipients withheld the tool finds \\d+ of <v> logged pairs on Who&When",
+     "format": "int",
+     "status": "ok",
+     "must_match": "With recipients withheld the tool finds \\d+ of (?P<v>92) logged pairs on Who&When",
+     "printed": "92"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| Who&When, 58 runs that name recipients \\| \\d+ of <v> \\(",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\| Who&When, 58 runs that name recipients \\| \\d+ of (?P<v>92) \\(",
+     "printed": "92"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "with recipients withheld it recovers \\d+ of <v> logged agent pairs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "with recipients withheld it recovers \\d+ of (?P<v>92) logged agent pairs",
+     "printed": "92"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "the tool still finds \\d+ of <v> logged sender.recipient pairs in Who&When",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the tool still finds \\d+ of (?P<v>92) logged sender.recipient pairs in Who&When",
+     "printed": "92"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "\\d+ of <v> logged pairs of agents found with the recipients withheld",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\d+ of (?P<v>92) logged pairs of agents found with the recipients withheld",
+     "printed": "92"
+    },
+    {
+     "file": "reports/submission/SUBMISSION.md",
+     "anchor": "with recipients withheld it recovers \\d+ of <v> logged pairs of agents",
+     "format": "int",
+     "status": "ok",
+     "must_match": "with recipients withheld it recovers \\d+ of (?P<v>92) logged pairs of agents",
+     "printed": "92"
+    },
+    {
+     "file": "docs/limitations.md",
+     "anchor": "most pairs of agents that talked \\(\\d+ of <v> on Who&When",
+     "format": "int",
+     "status": "ok",
+     "must_match": "most pairs of agents that talked \\(\\d+ of (?P<v>92) on Who&When",
+     "printed": "92"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_pair_precision",
+   "statement": "Who&When: share of the tool's pairs that are logged",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json …pair_precision_vs_logged",
+   "kind": "number",
+   "value": 0.383966,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "\\(<v>% of its Who&When pairs are logged",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\((?P<v>38\\.4)% of its Who&When pairs are logged",
+     "printed": "38.4"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "\\(<v>% of its Who&When pairs are logged",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\((?P<v>38\\.4)% of its Who&When pairs are logged",
+     "printed": "38.4"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "\\(<v>% of its Who&When pairs are logged",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\((?P<v>38\\.4)% of its Who&When pairs are logged",
+     "printed": "38.4"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| \\d+ of \\d+ \\(<v>%; [\\d.]+% in either direction\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\| \\d+ of \\d+ \\((?P<v>38\\.4)%; [\\d.]+% in either direction\\)",
+     "printed": "38.4"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_pair_precision_either",
+   "statement": "Who&When: share of the tool's pairs logged in either direction",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json …pair_precision_either_direction",
+   "kind": "number",
+   "value": 0.759494,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "Who&When pairs are logged, <v>% in either direction",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "Who&When pairs are logged, (?P<v>75\\.9)% in either direction",
+     "printed": "75.9"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "Who&When pairs are logged; <v>% in either direction",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "Who&When pairs are logged; (?P<v>75\\.9)% in either direction",
+     "printed": "75.9"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Who&When pairs are logged; <v>% in either direction",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "Who&When pairs are logged; (?P<v>75\\.9)% in either direction",
+     "printed": "75.9"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| \\d+ of \\d+ \\([\\d.]+%; <v>% in either direction\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\| \\d+ of \\d+ \\([\\d.]+%; (?P<v>75\\.9)% in either direction\\)",
+     "printed": "75.9"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_message_recall",
+   "statement": "Who&When: logged single messages the tool finds",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json …message_recall",
+   "kind": "number",
+   "value": 0.089985,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "the tool finds <v>% of the logged messages on Who&When",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "the tool finds (?P<v>9\\.0)% of the logged messages on Who&When",
+     "printed": "9.0"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "on MAST-Data, but <v>% and [\\d.]+% of the single logged messages",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "on MAST-Data, but (?P<v>9\\.0)% and [\\d.]+% of the single logged messages",
+     "printed": "9.0"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| 62 of 689 \\(<v>%\\) \\|",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\| 62 of 689 \\((?P<v>9\\.0)%\\) \\|",
+     "printed": "9.0"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "It finds <v>% and [\\d.]+% of the single logged messages",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "It finds (?P<v>9\\.0)% and [\\d.]+% of the single logged messages",
+     "printed": "9.0"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "\\(people\\) \\d+ of \\d+ <v>% \\d+ of \\d+",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\(people\\) \\d+ of \\d+ (?P<v>9\\.0)% \\d+ of \\d+",
+     "printed": "9.0"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_agent_right",
+   "statement": "Who&When: runs where the first warning sign names the labelled agent",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json attribution_all.methods.tool_first_sign.agent.k",
+   "kind": "number",
+   "value": 54,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "names the labelled agent in <v> of \\d+ Who&When runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "names the labelled agent in (?P<v>54) of \\d+ Who&When runs",
+     "printed": "54"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "names the labelled agent in <v> runs \\(",
+     "format": "int",
+     "status": "ok",
+     "must_match": "names the labelled agent in (?P<v>54) runs \\(",
+     "printed": "54"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| the record of the tool's first warning sign \\| <v> \\(",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\| the record of the tool's first warning sign \\| (?P<v>54) \\(",
+     "printed": "54"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "names the labelled agent in <v> of \\d+ runs \\(",
+     "format": "int",
+     "status": "ok",
+     "must_match": "names the labelled agent in (?P<v>54) of \\d+ runs \\(",
+     "printed": "54"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "agent at fault named in <v> of \\d+ \\(chance",
+     "format": "int",
+     "status": "ok",
+     "must_match": "agent at fault named in (?P<v>54) of \\d+ \\(chance",
+     "printed": "54"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_agent_right_share",
+   "statement": "Who&When: that share",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json …tool_first_sign.agent k / n",
+   "kind": "number",
+   "value": 0.293478,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "Who&When runs \\(<v>%, against",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "Who&When runs \\((?P<v>29\\.3)%, against",
+     "printed": "29.3"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "<v>% of \\d+ Who&When runs where the tool's first warning sign",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "(?P<v>29\\.3)% of \\d+ Who&When runs where the tool's first warning sign",
+     "printed": "29.3"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "names the labelled agent in \\d+ runs \\(<v>%; chance",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "names the labelled agent in \\d+ runs \\((?P<v>29\\.3)%; chance",
+     "printed": "29.3"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| the record of the tool's first warning sign \\| \\d+ \\(<v>%\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\| the record of the tool's first warning sign \\| \\d+ \\((?P<v>29\\.3)%\\)",
+     "printed": "29.3"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "name a failing agent at chance \\(<v>% against",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "name a failing agent at chance \\((?P<v>29\\.3)% against",
+     "printed": "29.3"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "names the labelled agent in \\d+ of \\d+ runs \\(<v>%; chance",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "names the labelled agent in \\d+ of \\d+ runs \\((?P<v>29\\.3)%; chance",
+     "printed": "29.3"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "<v>% of \\d+ failed runs where the tool's first warning sign",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "(?P<v>29\\.3)% of \\d+ failed runs where the tool's first warning sign",
+     "printed": "29.3"
+    },
+    {
+     "file": "reports/submission/SUBMISSION.md",
+     "anchor": "name the agent at fault at chance \\(<v>% against",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "name the agent at fault at chance \\((?P<v>29\\.3)% against",
+     "printed": "29.3"
+    },
+    {
+     "file": "docs/limitations.md",
+     "anchor": "reading its flags as blame is at chance \\(<v>% against",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "reading its flags as blame is at chance \\((?P<v>29\\.3)% against",
+     "printed": "29.3"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_chance_agent",
+   "statement": "Who&When: chance of naming the right agent",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json attribution_all.chance.agent",
+   "kind": "number",
+   "value": 0.2913,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "against <v>% by chance",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "against (?P<v>29\\.1)% by chance",
+     "printed": "29.1"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "names the agent that caused the failure; chance is <v>%",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "names the agent that caused the failure; chance is (?P<v>29\\.1)%",
+     "printed": "29.1"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "names the labelled agent in \\d+ runs \\([\\d.]+%; chance <v>%\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "names the labelled agent in \\d+ runs \\([\\d.]+%; chance (?P<v>29\\.1)%\\)",
+     "printed": "29.1"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| chance \\| <v>% \\|",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\| chance \\| (?P<v>29\\.1)% \\|",
+     "printed": "29.1"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "name a failing agent at chance \\([\\d.]+% against <v>%\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "name a failing agent at chance \\([\\d.]+% against (?P<v>29\\.1)%\\)",
+     "printed": "29.1"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "runs \\([\\d.]+%; chance <v>%\\), fewer than naming",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "runs \\([\\d.]+%; chance (?P<v>29\\.1)%\\), fewer than naming",
+     "printed": "29.1"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "names the agent at fault; chance is <v>%",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "names the agent at fault; chance is (?P<v>29\\.1)%",
+     "printed": "29.1"
+    },
+    {
+     "file": "reports/submission/SUBMISSION.md",
+     "anchor": "at chance \\([\\d.]+% against <v>%\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "at chance \\([\\d.]+% against (?P<v>29\\.1)%\\)",
+     "printed": "29.1"
+    },
+    {
+     "file": "docs/limitations.md",
+     "anchor": "at chance \\([\\d.]+% against <v>% on Who&When\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "at chance \\([\\d.]+% against (?P<v>29\\.1)% on Who&When\\)",
+     "printed": "29.1"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_busiest_right",
+   "statement": "Who&When: runs where the agent with most records is the labelled one",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json …baseline_busiest_agent.agent.k",
+   "kind": "number",
+   "value": 72,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "Naming the busiest agent gets <v> and",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Naming the busiest agent gets (?P<v>72) and",
+     "printed": "72"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "Naming the agent with most records gets <v>,",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Naming the agent with most records gets (?P<v>72),",
+     "printed": "72"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| baseline: the agent with most records \\| <v> \\(",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\| baseline: the agent with most records \\| (?P<v>72) \\(",
+     "printed": "72"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "fewer than naming the busiest agent \\(<v>\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "fewer than naming the busiest agent \\((?P<v>72)\\)",
+     "printed": "72"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "busiest agent <v>, last speaker",
+     "format": "int",
+     "status": "ok",
+     "must_match": "busiest agent (?P<v>72), last speaker",
+     "printed": "72"
+    }
+   ]
+  },
+  {
+   "id": "external.ww_last_right",
+   "statement": "Who&When: runs where the last speaker is the labelled agent",
+   "dataset": "external",
+   "computed_by": "reports/external/who_and_when/results.json …baseline_last_step.agent.k",
+   "kind": "number",
+   "value": 80,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "and the last speaker <v>\\.",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and the last speaker (?P<v>80)\\.",
+     "printed": "80"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "gets \\d+, the last speaker <v>\\.",
+     "format": "int",
+     "status": "ok",
+     "must_match": "gets \\d+, the last speaker (?P<v>80)\\.",
+     "printed": "80"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| baseline: the last step \\| <v> \\(",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\| baseline: the last step \\| (?P<v>80) \\(",
+     "printed": "80"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "or the last speaker \\(<v>\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "or the last speaker \\((?P<v>80)\\)",
+     "printed": "80"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "last speaker <v> MAST-Data",
+     "format": "int",
+     "status": "ok",
+     "must_match": "last speaker (?P<v>80) MAST-Data",
+     "printed": "80"
+    }
+   ]
+  },
+  {
+   "id": "external.mast_runs",
+   "statement": "MAST-Data: runs read",
+   "dataset": "external",
+   "computed_by": "reports/external/mast_data/results.json totals.runs",
+   "kind": "number",
+   "value": 1640,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "in [\\d,]+ of <v> runs of seven agent frameworks",
+     "format": "int",
+     "status": "ok",
+     "must_match": "in [\\d,]+ of (?P<v>1,?640) runs of seven agent frameworks",
+     "printed": "1,640"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "Who&When runs, [\\d,]+ of <v> MAST-Data runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Who&When runs, [\\d,]+ of (?P<v>1,?640) MAST-Data runs",
+     "printed": "1,640"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "Who&When runs, [\\d,]+ of <v> MAST-Data runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Who&When runs, [\\d,]+ of (?P<v>1,?640) MAST-Data runs",
+     "printed": "1,640"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\(Who&When\\), [\\d,]+ of <v> \\(MAST-Data\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(Who&When\\), [\\d,]+ of (?P<v>1,?640) \\(MAST-Data\\)",
+     "printed": "1,640"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "\\(9\\.5%\\) [\\d,]+ of <v> Alert on",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(9\\.5%\\) [\\d,]+ of (?P<v>1,?640) Alert on",
+     "printed": "1,640"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "set off the Alert rule \\(\\d+ of \\d+, [\\d,]+ of <v>,",
+     "format": "int",
+     "status": "ok",
+     "must_match": "set off the Alert rule \\(\\d+ of \\d+, [\\d,]+ of (?P<v>1,?640),",
+     "printed": "1,640"
+    }
+   ]
+  },
+  {
+   "id": "external.mast_alert_fired",
+   "statement": "MAST-Data: runs where the Alert rule fired (pack the tool picks)",
+   "dataset": "external",
+   "computed_by": "reports/external/mast_data/results.json false_alarms_all.by_rule_auto_pack['alert-coord2'].k",
+   "kind": "number",
+   "value": 1567,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "in <v> of [\\d,]+ runs of seven agent frameworks",
+     "format": "int",
+     "status": "ok",
+     "must_match": "in (?P<v>1,?567) of [\\d,]+ runs of seven agent frameworks",
+     "printed": "1,567"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "Who&When runs, <v> of [\\d,]+ MAST-Data runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Who&When runs, (?P<v>1,?567) of [\\d,]+ MAST-Data runs",
+     "printed": "1,567"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "Who&When runs, <v> of [\\d,]+ MAST-Data runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Who&When runs, (?P<v>1,?567) of [\\d,]+ MAST-Data runs",
+     "printed": "1,567"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\(Who&When\\), <v> of [\\d,]+ \\(MAST-Data\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(Who&When\\), (?P<v>1,?567) of [\\d,]+ \\(MAST-Data\\)",
+     "printed": "1,567"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "\\(9\\.5%\\) <v> of [\\d,]+ Alert on",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(9\\.5%\\) (?P<v>1,?567) of [\\d,]+ Alert on",
+     "printed": "1,567"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "set off the Alert rule \\(\\d+ of \\d+, <v> of [\\d,]+,",
+     "format": "int",
+     "status": "ok",
+     "must_match": "set off the Alert rule \\(\\d+ of \\d+, (?P<v>1,?567) of [\\d,]+,",
+     "printed": "1,567"
+    }
+   ]
+  },
+  {
+   "id": "external.mast_pairs_found",
+   "statement": "MAST-Data: logged pairs the tool finds with recipients withheld",
+   "dataset": "external",
+   "computed_by": "reports/external/mast_data/results.json who_talked_to_whom_all.recipients_withheld.pair_recall.k",
+   "kind": "number",
+   "value": 2242,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "and <v> of [\\d,]+ \\([\\d.]+%\\) in the three MAST frameworks",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and (?P<v>2,?242) of [\\d,]+ \\([\\d.]+%\\) in the three MAST frameworks",
+     "printed": "2,242"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "on Who&When and <v> of [\\d,]+ \\([\\d.]+%\\) on MAST-Data",
+     "format": "int",
+     "status": "ok",
+     "must_match": "on Who&When and (?P<v>2,?242) of [\\d,]+ \\([\\d.]+%\\) on MAST-Data",
+     "printed": "2,242"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| MAST-Data, three frameworks that name recipients \\| <v> of",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\| MAST-Data, three frameworks that name recipients \\| (?P<v>2,?242) of",
+     "printed": "2,242"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "runs of seven frameworks <v> of [\\d,]+ \\(",
+     "format": "int",
+     "status": "ok",
+     "must_match": "runs of seven frameworks (?P<v>2,?242) of [\\d,]+ \\(",
+     "printed": "2,242"
+    }
+   ]
+  },
+  {
+   "id": "external.mast_pairs_logged",
+   "statement": "MAST-Data: logged sender-recipient pairs",
+   "dataset": "external",
+   "computed_by": "reports/external/mast_data/results.json …pair_recall.n",
+   "kind": "number",
+   "value": 2800,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "and [\\d,]+ of <v> \\([\\d.]+%\\) in the three MAST frameworks",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and [\\d,]+ of (?P<v>2,?800) \\([\\d.]+%\\) in the three MAST frameworks",
+     "printed": "2,800"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "on Who&When and [\\d,]+ of <v> \\([\\d.]+%\\) on MAST-Data",
+     "format": "int",
+     "status": "ok",
+     "must_match": "on Who&When and [\\d,]+ of (?P<v>2,?800) \\([\\d.]+%\\) on MAST-Data",
+     "printed": "2,800"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| MAST-Data, three frameworks that name recipients \\| [\\d,]+ of <v> \\(",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\| MAST-Data, three frameworks that name recipients \\| [\\d,]+ of (?P<v>2,?800) \\(",
+     "printed": "2,800"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "runs of seven frameworks [\\d,]+ of <v> \\(",
+     "format": "int",
+     "status": "ok",
+     "must_match": "runs of seven frameworks [\\d,]+ of (?P<v>2,?800) \\(",
+     "printed": "2,800"
+    }
+   ]
+  },
+  {
+   "id": "external.mast_pair_recall",
+   "statement": "MAST-Data: share of logged pairs found",
+   "dataset": "external",
+   "computed_by": "reports/external/mast_data/results.json …pair_recall k / n",
+   "kind": "number",
+   "value": 0.800714,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "of [\\d,]+ \\(<v>%\\) in the three MAST frameworks",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "of [\\d,]+ \\((?P<v>80\\.1)%\\) in the three MAST frameworks",
+     "printed": "80.1"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "recipients withheld \\(Who&When; <v>% on MAST-Data\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "recipients withheld \\(Who&When; (?P<v>80\\.1)% on MAST-Data\\)",
+     "printed": "80.1"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "of [\\d,]+ \\(<v>%\\) on MAST-Data, but",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "of [\\d,]+ \\((?P<v>80\\.1)%\\) on MAST-Data, but",
+     "printed": "80.1"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| MAST-Data, three frameworks that name recipients \\| [\\d,]+ of [\\d,]+ \\(<v>%\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\| MAST-Data, three frameworks that name recipients \\| [\\d,]+ of [\\d,]+ \\((?P<v>80\\.1)%\\)",
+     "printed": "80.1"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "logged agent pairs on one outside dataset and <v>% on another",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "logged agent pairs on one outside dataset and (?P<v>80\\.1)% on another",
+     "printed": "80.1"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "sender.recipient pairs in Who&When and <v>% in MAST-Data",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "sender.recipient pairs in Who&When and (?P<v>80\\.1)% in MAST-Data",
+     "printed": "80.1"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "found with the recipients withheld \\(<v>% on a second dataset\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "found with the recipients withheld \\((?P<v>80\\.1)% on a second dataset\\)",
+     "printed": "80.1"
+    },
+    {
+     "file": "reports/submission/SUBMISSION.md",
+     "anchor": "on one outside dataset and <v>% on another",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "on one outside dataset and (?P<v>80\\.1)% on another",
+     "printed": "80.1"
+    },
+    {
+     "file": "docs/limitations.md",
+     "anchor": "on Who&When, <v>% on MAST-Data\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "on Who&When, (?P<v>80\\.1)% on MAST-Data\\)",
+     "printed": "80.1"
+    }
+   ]
+  },
+  {
+   "id": "external.mast_message_recall",
+   "statement": "MAST-Data: logged single messages the tool finds",
+   "dataset": "external",
+   "computed_by": "reports/external/mast_data/results.json …message_recall k / n",
+   "kind": "number",
+   "value": 0.095008,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "logged messages on Who&When and <v>% on MAST",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "logged messages on Who&When and (?P<v>9\\.5)% on MAST",
+     "printed": "9.5"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "on MAST-Data, but [\\d.]+% and <v>% of the single logged messages",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "on MAST-Data, but [\\d.]+% and (?P<v>9\\.5)% of the single logged messages",
+     "printed": "9.5"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| 1,277 of 13,441 \\(<v>%\\) \\|",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\| 1,277 of 13,441 \\((?P<v>9\\.5)%\\) \\|",
+     "printed": "9.5"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "It finds [\\d.]+% and <v>% of the single logged messages",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "It finds [\\d.]+% and (?P<v>9\\.5)% of the single logged messages",
+     "printed": "9.5"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "\\(an LLM judge\\) [\\d.]+% <v>% [\\d,]+ of",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\(an LLM judge\\) [\\d.]+% (?P<v>9\\.5)% [\\d,]+ of",
+     "printed": "9.5"
+    }
+   ]
+  },
+  {
+   "id": "external.salt_labelled_runs",
+   "statement": "SALT: runs that carry the collusion label",
+   "dataset": "external",
+   "computed_by": "reports/external/salt/results.json loaded.runs_with_label",
+   "kind": "number",
+   "value": 1800,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "and in all <v> labelled SALT runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and in all (?P<v>1,?800) labelled SALT runs",
+     "printed": "1,800"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "Moltbook communities and all <v> labelled SALT runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Moltbook communities and all (?P<v>1,?800) labelled SALT runs",
+     "printed": "1,800"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "SALT, <v> labelled two-agent runs n/a",
+     "format": "int",
+     "status": "ok",
+     "must_match": "SALT, (?P<v>1,?800) labelled two-agent runs n/a",
+     "printed": "1,800"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "SALT, <v> labelled two-agent runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "SALT, (?P<v>1,?800) labelled two-agent runs",
+     "printed": "1,800"
+    }
+   ]
+  },
+  {
+   "id": "external.salt_colluded_runs",
+   "statement": "SALT: labelled runs that colluded",
+   "dataset": "external",
+   "computed_by": "reports/external/salt/results.json loaded.colluded_runs",
+   "kind": "number",
+   "value": 1351,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "the Alert rule fires on [\\d,]+ of <v> colluding runs and \\d+ of \\d+ others",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the Alert rule fires on [\\d,]+ of (?P<v>1,?351) colluding runs and \\d+ of \\d+ others",
+     "printed": "1,351"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "On SALT the Alert rule fired on [\\d,]+ of <v> colluding runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "On SALT the Alert rule fired on [\\d,]+ of (?P<v>1,?351) colluding runs",
+     "printed": "1,351"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "the Alert rule fires on [\\d,]+ of <v> colluding runs and \\d+ of \\d+ others\\. A pack",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the Alert rule fires on [\\d,]+ of (?P<v>1,?351) colluding runs and \\d+ of \\d+ others\\. A pack",
+     "printed": "1,351"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "the Alert rule fires on [\\d,]+ of <v> colluding runs and \\d+ of \\d+ others, so",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the Alert rule fires on [\\d,]+ of (?P<v>1,?351) colluding runs and \\d+ of \\d+ others, so",
+     "printed": "1,351"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "n/a [\\d,]+ of <v> colluding; \\d+ of \\d+ others",
+     "format": "int",
+     "status": "ok",
+     "must_match": "n/a [\\d,]+ of (?P<v>1,?351) colluding; \\d+ of \\d+ others",
+     "printed": "1,351"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "n/a n/a [\\d,]+ of <v> colluding and",
+     "format": "int",
+     "status": "ok",
+     "must_match": "n/a n/a [\\d,]+ of (?P<v>1,?351) colluding and",
+     "printed": "1,351"
+    }
+   ]
+  },
+  {
+   "id": "external.salt_alert_colluded",
+   "statement": "SALT: colluding runs where the Alert rule fired (step clock)",
+   "dataset": "external",
+   "computed_by": "reports/external/salt/results.json step_clock.flags['rule:alert-coord2'].recall.k",
+   "kind": "number",
+   "value": 1351,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "the Alert rule fires on <v> of [\\d,]+ colluding runs and \\d+ of \\d+ others",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the Alert rule fires on (?P<v>1,?351) of [\\d,]+ colluding runs and \\d+ of \\d+ others",
+     "printed": "1,351"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "On SALT the Alert rule fired on <v> of [\\d,]+ colluding runs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "On SALT the Alert rule fired on (?P<v>1,?351) of [\\d,]+ colluding runs",
+     "printed": "1,351"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "the Alert rule fires on <v> of [\\d,]+ colluding runs and \\d+ of \\d+ others\\. A pack",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the Alert rule fires on (?P<v>1,?351) of [\\d,]+ colluding runs and \\d+ of \\d+ others\\. A pack",
+     "printed": "1,351"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "the Alert rule fires on <v> of [\\d,]+ colluding runs and \\d+ of \\d+ others, so",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the Alert rule fires on (?P<v>1,?351) of [\\d,]+ colluding runs and \\d+ of \\d+ others, so",
+     "printed": "1,351"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "n/a <v> of [\\d,]+ colluding; \\d+ of \\d+ others",
+     "format": "int",
+     "status": "ok",
+     "must_match": "n/a (?P<v>1,?351) of [\\d,]+ colluding; \\d+ of \\d+ others",
+     "printed": "1,351"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "n/a n/a <v> of [\\d,]+ colluding and",
+     "format": "int",
+     "status": "ok",
+     "must_match": "n/a n/a (?P<v>1,?351) of [\\d,]+ colluding and",
+     "printed": "1,351"
+    }
+   ]
+  },
+  {
+   "id": "external.salt_other_runs",
+   "statement": "SALT: labelled runs that did not collude",
+   "dataset": "external",
+   "computed_by": "reports/external/salt/results.json loaded.not_colluded_runs",
+   "kind": "number",
+   "value": 449,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "colluding runs and \\d+ of <v> others\\. A phrase pack",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding runs and \\d+ of (?P<v>449) others\\. A phrase pack",
+     "printed": "449"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "colluding runs and \\d+ of <v> others, so it cannot tell them apart",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding runs and \\d+ of (?P<v>449) others, so it cannot tell them apart",
+     "printed": "449"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "colluding runs and \\d+ of <v> others\\. A pack written from one run",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding runs and \\d+ of (?P<v>449) others\\. A pack written from one run",
+     "printed": "449"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "colluding runs and \\d+ of <v> others, so it does not separate them",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding runs and \\d+ of (?P<v>449) others, so it does not separate them",
+     "printed": "449"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "colluding; \\d+ of <v> others Phrase pack",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding; \\d+ of (?P<v>449) others Phrase pack",
+     "printed": "449"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "colluding and \\d+ of <v> others a phrase pack",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding and \\d+ of (?P<v>449) others a phrase pack",
+     "printed": "449"
+    }
+   ]
+  },
+  {
+   "id": "external.salt_alert_other",
+   "statement": "SALT: non-colluding runs where the Alert rule fired (step clock)",
+   "dataset": "external",
+   "computed_by": "reports/external/salt/results.json step_clock.flags['rule:alert-coord2'].false_positive_rate.k",
+   "kind": "number",
+   "value": 449,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "colluding runs and <v> of \\d+ others\\. A phrase pack",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding runs and (?P<v>449) of \\d+ others\\. A phrase pack",
+     "printed": "449"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "colluding runs and <v> of \\d+ others, so it cannot tell them apart",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding runs and (?P<v>449) of \\d+ others, so it cannot tell them apart",
+     "printed": "449"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "colluding runs and <v> of \\d+ others\\. A pack written from one run",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding runs and (?P<v>449) of \\d+ others\\. A pack written from one run",
+     "printed": "449"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "colluding runs and <v> of \\d+ others, so it does not separate them",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding runs and (?P<v>449) of \\d+ others, so it does not separate them",
+     "printed": "449"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "colluding; <v> of \\d+ others Phrase pack",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding; (?P<v>449) of \\d+ others Phrase pack",
+     "printed": "449"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "colluding and <v> of \\d+ others a phrase pack",
+     "format": "int",
+     "status": "ok",
+     "must_match": "colluding and (?P<v>449) of \\d+ others a phrase pack",
+     "printed": "449"
+    }
+   ]
+  },
+  {
+   "id": "external.salt_pack_recall",
+   "statement": "SALT: recall of the peer_review pack on the conditions it was not written from",
+   "dataset": "external",
+   "computed_by": "reports/external/salt/results.json pack.runs.recall k / n",
+   "kind": "number",
+   "value": 0.419677,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "fires on <v>% of colluding runs and [\\d.]+% of the others in the",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "fires on (?P<v>42\\.0)% of colluding runs and [\\d.]+% of the others in the",
+     "printed": "42.0"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "written from one run catches <v>% of colluding runs",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "written from one run catches (?P<v>42\\.0)% of colluding runs",
+     "printed": "42.0"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "fires on <v>% of colluding runs and [\\d.]+% of the others in the",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "fires on (?P<v>42\\.0)% of colluding runs and [\\d.]+% of the others in the",
+     "printed": "42.0"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "colluding runs \\(<v>%\\) and \\d+ of \\d+ others",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "colluding runs \\((?P<v>42\\.0)%\\) and \\d+ of \\d+ others",
+     "printed": "42.0"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "written from one SALT run catches <v>% of colluding runs",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "written from one SALT run catches (?P<v>42\\.0)% of colluding runs",
+     "printed": "42.0"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Phrase pack: recall <v>%",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "Phrase pack: recall (?P<v>42\\.0)%",
+     "printed": "42.0"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "a phrase pack from one run: recall <v>%",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "a phrase pack from one run: recall (?P<v>42\\.0)%",
+     "printed": "42.0"
+    }
+   ]
+  },
+  {
+   "id": "external.salt_pack_false_positives",
+   "statement": "SALT: non-colluding runs the peer_review pack fires on",
+   "dataset": "external",
+   "computed_by": "reports/external/salt/results.json pack.runs.false_positive_rate k / n",
+   "kind": "number",
+   "value": 0.057906,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "% of colluding runs and <v>% of the others in the \\d+ conditions",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "% of colluding runs and (?P<v>5\\.8)% of the others in the \\d+ conditions",
+     "printed": "5.8"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "% of colluding runs at <v>% false positives, mostly",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "% of colluding runs at (?P<v>5\\.8)% false positives, mostly",
+     "printed": "5.8"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "% of colluding runs and <v>% of the others in the \\d+ conditions",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "% of colluding runs and (?P<v>5\\.8)% of the others in the \\d+ conditions",
+     "printed": "5.8"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "and \\d+ of \\d+ others \\(<v>%\\) in the \\d+ conditions",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "and \\d+ of \\d+ others \\((?P<v>5\\.8)%\\) in the \\d+ conditions",
+     "printed": "5.8"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "% of colluding runs at <v>% false positives, but",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "% of colluding runs at (?P<v>5\\.8)% false positives, but",
+     "printed": "5.8"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Phrase pack: recall [\\d.]+%, false positives <v>%",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "Phrase pack: recall [\\d.]+%, false positives (?P<v>5\\.8)%",
+     "printed": "5.8"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "recall [\\d.]+%, false positives <v>% \\(",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "recall [\\d.]+%, false positives (?P<v>5\\.8)% \\(",
+     "printed": "5.8"
+    }
+   ]
+  },
+  {
+   "id": "external.salt_pack_recall_own_model",
+   "statement": "SALT: pack recall where an agent is the model the pack was written from",
+   "dataset": "external",
+   "computed_by": "reports/external/salt/results.json pack.by_model.an_agent_is_the_training_model.recall k / n",
+   "kind": "number",
+   "value": 0.873786,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "but on <v>% where an agent is the model whose wording it copied",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "but on (?P<v>87\\.4)% where an agent is the model whose wording it copied",
+     "printed": "87.4"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "it was not written from: <v>% where an agent is the model",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "it was not written from: (?P<v>87\\.4)% where an agent is the model",
+     "printed": "87.4"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "model whose wording it copied: <v>% of colluding runs where an agent is that model",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "model whose wording it copied: (?P<v>87\\.4)% of colluding runs where an agent is that model",
+     "printed": "87.4"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "false positives, but <v>% where an agent is the model",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "false positives, but (?P<v>87\\.4)% where an agent is the model",
+     "printed": "87.4"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "false positives [\\d.]+% \\(<v>% on its own model",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "false positives [\\d.]+% \\((?P<v>87\\.4)% on its own model",
+     "printed": "87.4"
+    }
+   ]
+  },
+  {
+   "id": "external.salt_pack_recall_other_models",
+   "statement": "SALT: pack recall where no agent is that model",
+   "dataset": "external",
+   "computed_by": "reports/external/salt/results.json pack.by_model.no_agent_is.recall k / n",
+   "kind": "number",
+   "value": 0.209224,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "whose wording it copied and <v>% elsewhere",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "whose wording it copied and (?P<v>20\\.9)% elsewhere",
+     "printed": "20.9"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "its phrases were read from, <v>% where none is",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "its phrases were read from, (?P<v>20\\.9)% where none is",
+     "printed": "20.9"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "where an agent is that model, <v>% where none is",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "where an agent is that model, (?P<v>20\\.9)% where none is",
+     "printed": "20.9"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "the model it was written from and <v>% elsewhere",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "the model it was written from and (?P<v>20\\.9)% elsewhere",
+     "printed": "20.9"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "on its own model, <v>% elsewhere\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "on its own model, (?P<v>20\\.9)% elsewhere\\)",
+     "printed": "20.9"
+    }
+   ]
+  },
+  {
+   "id": "external.moltbook_communities",
+   "statement": "Moltbook: communities scored (one week)",
+   "dataset": "external",
+   "computed_by": "reports/external/moltbook/results.json false_alarms.communities",
+   "kind": "number",
+   "value": 40,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "in \\d+ of <v> Moltbook communities, and in all",
+     "format": "int",
+     "status": "ok",
+     "must_match": "in \\d+ of (?P<v>40) Moltbook communities, and in all",
+     "printed": "40"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "MAST-Data runs, \\d+ of <v> Moltbook communities",
+     "format": "int",
+     "status": "ok",
+     "must_match": "MAST-Data runs, \\d+ of (?P<v>40) Moltbook communities",
+     "printed": "40"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "MAST-Data runs, \\d+ of <v> Moltbook communities",
+     "format": "int",
+     "status": "ok",
+     "must_match": "MAST-Data runs, \\d+ of (?P<v>40) Moltbook communities",
+     "printed": "40"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\(MAST-Data\\) and \\d+ of <v> \\(Moltbook communities\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(MAST-Data\\) and \\d+ of (?P<v>40) \\(Moltbook communities\\)",
+     "printed": "40"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "\\(precision [\\d.]+%\\) \\d+ of <v> No incident on record",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(precision [\\d.]+%\\) \\d+ of (?P<v>40) No incident on record",
+     "printed": "40"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "[\\d,]+ of [\\d,]+, \\d+ of <v>\\)\\. It detects",
+     "format": "int",
+     "status": "ok",
+     "must_match": "[\\d,]+ of [\\d,]+, \\d+ of (?P<v>40)\\)\\. It detects",
+     "printed": "40"
+    }
+   ]
+  },
+  {
+   "id": "external.moltbook_alert_fired",
+   "statement": "Moltbook: communities where the Alert rule fired",
+   "dataset": "external",
+   "computed_by": "reports/external/moltbook/results.json false_alarms.flags['rule:alert-coord2'].fired.k",
+   "kind": "number",
+   "value": 40,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "in <v> of \\d+ Moltbook communities, and in all",
+     "format": "int",
+     "status": "ok",
+     "must_match": "in (?P<v>40) of \\d+ Moltbook communities, and in all",
+     "printed": "40"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "MAST-Data runs, <v> of \\d+ Moltbook communities",
+     "format": "int",
+     "status": "ok",
+     "must_match": "MAST-Data runs, (?P<v>40) of \\d+ Moltbook communities",
+     "printed": "40"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "MAST-Data runs, <v> of \\d+ Moltbook communities",
+     "format": "int",
+     "status": "ok",
+     "must_match": "MAST-Data runs, (?P<v>40) of \\d+ Moltbook communities",
+     "printed": "40"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\(MAST-Data\\) and <v> of \\d+ \\(Moltbook communities\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(MAST-Data\\) and (?P<v>40) of \\d+ \\(Moltbook communities\\)",
+     "printed": "40"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "\\(precision [\\d.]+%\\) <v> of \\d+ No incident on record",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(precision [\\d.]+%\\) (?P<v>40) of \\d+ No incident on record",
+     "printed": "40"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "[\\d,]+ of [\\d,]+, <v> of \\d+\\)\\. It detects",
+     "format": "int",
+     "status": "ok",
+     "must_match": "[\\d,]+ of [\\d,]+, (?P<v>40) of \\d+\\)\\. It detects",
+     "printed": "40"
+    }
+   ]
+  },
+  {
+   "id": "external.moltbook_reply_precision",
+   "statement": "Moltbook: share of inferred reply links that are logged replies",
+   "dataset": "external",
+   "computed_by": "reports/external/moltbook/results.json inference.by_record.precision k / n",
+   "kind": "number",
+   "value": 0.264783,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "On Moltbook <v>% of its inferred links are logged replies",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "On Moltbook (?P<v>26\\.5)% of its inferred links are logged replies",
+     "printed": "26.5"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "On Moltbook <v>% of the tool's inferred reply links",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "On Moltbook (?P<v>26\\.5)% of the tool's inferred reply links",
+     "printed": "26.5"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "On Moltbook <v>% of its inferred reply links are logged replies",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "On Moltbook (?P<v>26\\.5)% of its inferred reply links are logged replies",
+     "printed": "26.5"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| [\\d,]+ of [\\d,]+ \\(<v>%\\) \\|–\\|",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\| [\\d,]+ of [\\d,]+ \\((?P<v>26\\.5)%\\) \\|–\\|",
+     "printed": "26.5"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "On Moltbook <v>% of its inferred reply links are logged replies",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "On Moltbook (?P<v>26\\.5)% of its inferred reply links are logged replies",
+     "printed": "26.5"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "of logged replies \\(precision <v>%\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "of logged replies \\(precision (?P<v>26\\.5)%\\)",
+     "printed": "26.5"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "of replies; <v>% of links are replies",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "of replies; (?P<v>26\\.5)% of links are replies",
+     "printed": "26.5"
+    },
+    {
+     "file": "docs/limitations.md",
+     "anchor": "On a social network of agents <v>% of its inferred reply links",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "On a social network of agents (?P<v>26\\.5)% of its inferred reply links",
+     "printed": "26.5"
+    }
+   ]
+  },
+  {
+   "id": "external.moltbook_reply_recall",
+   "statement": "Moltbook: share of logged replies the tool finds",
+   "dataset": "external",
+   "computed_by": "reports/external/moltbook/results.json inference.by_record.recall k / n",
+   "kind": "number",
+   "value": 0.256846,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\| Moltbook, replies by record \\| [\\d,]+ of [\\d,]+ \\(<v>%\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "\\| Moltbook, replies by record \\| [\\d,]+ of [\\d,]+ \\((?P<v>25\\.7)%\\)",
+     "printed": "25.7"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "replying pairs <v>% of logged replies",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "replying pairs (?P<v>25\\.7)% of logged replies",
+     "printed": "25.7"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "replying pairs <v>% of replies;",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "replying pairs (?P<v>25\\.7)% of replies;",
+     "printed": "25.7"
+    }
+   ]
+  },
+  {
+   "id": "external.moltbook_first_comment_precision",
+   "statement": "Moltbook: precision on the first comment in a thread",
+   "dataset": "external",
+   "computed_by": "reports/external/moltbook/results.json inference.by_record_first_comment.precision k / n",
+   "kind": "number",
+   "value": 0.968889,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "logged replies \\(<v>% for the first comment in a thread",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "logged replies \\((?P<v>96\\.9)% for the first comment in a thread",
+     "printed": "96.9"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "logged replies: <v>% for the first comment in a thread",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "logged replies: (?P<v>96\\.9)% for the first comment in a thread",
+     "printed": "96.9"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "right about the first comment in a thread \\(<v>% of its links\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "right about the first comment in a thread \\((?P<v>96\\.9)% of its links\\)",
+     "printed": "96.9"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "logged replies: <v>% for the first comment in a thread",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "logged replies: (?P<v>96\\.9)% for the first comment in a thread",
+     "printed": "96.9"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "first comment in a thread <v>% right",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "first comment in a thread (?P<v>96\\.9)% right",
+     "printed": "96.9"
+    }
+   ]
+  },
+  {
+   "id": "external.moltbook_later_comment_precision",
+   "statement": "Moltbook: precision on later comments",
+   "dataset": "external",
+   "computed_by": "reports/external/moltbook/results.json inference.by_record_later_comment.precision k / n",
+   "kind": "number",
+   "value": 0.009657,
+   "computed": true,
+   "format": "f2",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "first comment in a thread, <v>% for later ones",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "first comment in a thread, (?P<v>1\\.0)% for later ones",
+     "printed": "1.0"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "first comment in a thread, <v>% for later comments",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "first comment in a thread, (?P<v>1\\.0)% for later comments",
+     "printed": "1.0"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "and wrong after it \\(<v>%\\)",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "and wrong after it \\((?P<v>1\\.0)%\\)",
+     "printed": "1.0"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "first comment in a thread and <v>% after it",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "first comment in a thread and (?P<v>1\\.0)% after it",
+     "printed": "1.0"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "later ones <v>% None of the four",
+     "format": "pct1",
+     "status": "ok",
+     "must_match": "later ones (?P<v>1\\.0)% None of the four",
+     "printed": "1.0"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.any_before_harm_original",
+   "statement": "Forward test, original simulator: swarms where the first of the four alarms fired before the first true harm",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.original.main['any_main'].coordinated.before_harm.k",
+   "kind": "number",
+   "value": 5,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "the first of the four came before it in <v> of \\d+ swarms and in",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the first of the four came before it in (?P<v>5) of \\d+ swarms and in",
+     "printed": "5"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "<v> of \\d+ simulated swarms in which the first of the four main alarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "(?P<v>5) of \\d+ simulated swarms in which the first of the four main alarms",
+     "printed": "5"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "\\(the first of the four came before it in <v> of \\d+ and",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(the first of the four came before it in (?P<v>5) of \\d+ and",
+     "printed": "5"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "the first of the four came before it in <v> of \\d+ and in",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the first of the four came before it in (?P<v>5) of \\d+ and in",
+     "printed": "5"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Any of the four <v> of \\d+ \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four (?P<v>5) of \\d+ \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+",
+     "printed": "5"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "<v> of \\d+ simulated swarms where the first of the four main alarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "(?P<v>5) of \\d+ simulated swarms where the first of the four main alarms",
+     "printed": "5"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "fired before the first true harm in <v> of \\d+ and \\d+ of \\d+ simulated swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "fired before the first true harm in (?P<v>5) of \\d+ and \\d+ of \\d+ simulated swarms",
+     "printed": "5"
+    },
+    {
+     "file": "reports/submission/SUBMISSION.md",
+     "anchor": "led the first harm in <v> of \\d+ and",
+     "format": "int",
+     "status": "ok",
+     "must_match": "led the first harm in (?P<v>5) of \\d+ and",
+     "printed": "5"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.coordinated_original",
+   "statement": "Forward test, original simulator: coordinated swarms",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.original.coordinated_runs",
+   "kind": "number",
+   "value": 90,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "the first of the four came before it in \\d+ of <v> swarms and in",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the first of the four came before it in \\d+ of (?P<v>90) swarms and in",
+     "printed": "90"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "\\d+ of <v> simulated swarms in which the first of the four main alarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\d+ of (?P<v>90) simulated swarms in which the first of the four main alarms",
+     "printed": "90"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "\\(the first of the four came before it in \\d+ of <v> and",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(the first of the four came before it in \\d+ of (?P<v>90) and",
+     "printed": "90"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "the first of the four came before it in \\d+ of <v> and in",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the first of the four came before it in \\d+ of (?P<v>90) and in",
+     "printed": "90"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "On <v> coordinated swarms of the original simulator",
+     "format": "int",
+     "status": "ok",
+     "must_match": "On (?P<v>90) coordinated swarms of the original simulator",
+     "printed": "90"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "\\d+ of <v> simulated swarms where the first of the four main alarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\d+ of (?P<v>90) simulated swarms where the first of the four main alarms",
+     "printed": "90"
+    },
+    {
+     "file": "reports/submission/SUBMISSION.md",
+     "anchor": "led the first harm in \\d+ of <v> and",
+     "format": "int",
+     "status": "ok",
+     "must_match": "led the first harm in \\d+ of (?P<v>90) and",
+     "printed": "90"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.any_before_harm_independent",
+   "statement": "Forward test, independent generator: the same",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.independent.main['any_main'].coordinated.before_harm.k",
+   "kind": "number",
+   "value": 6,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "swarms and in <v> of \\d+\\. Any of the four",
+     "format": "int",
+     "status": "ok",
+     "must_match": "swarms and in (?P<v>6) of \\d+\\. Any of the four",
+     "printed": "6"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "before the first true harm \\(<v> of \\d+ on the independent generator\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "before the first true harm \\((?P<v>6) of \\d+ on the independent generator\\)",
+     "printed": "6"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "came before it in \\d+ of \\d+ and <v> of \\d+ swarms\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "came before it in \\d+ of \\d+ and (?P<v>6) of \\d+ swarms\\)",
+     "printed": "6"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "came before it in \\d+ of \\d+ and in <v> of \\d+, a median",
+     "format": "int",
+     "status": "ok",
+     "must_match": "came before it in \\d+ of \\d+ and in (?P<v>6) of \\d+, a median",
+     "printed": "6"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Any of the four \\d+ of \\d+ <v> of \\d+ \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four \\d+ of \\d+ (?P<v>6) of \\d+ \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+",
+     "printed": "6"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "before the first true harm \\(<v> of \\d+ on an independent generator\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "before the first true harm \\((?P<v>6) of \\d+ on an independent generator\\)",
+     "printed": "6"
+    },
+    {
+     "file": "reports/submission/SUBMISSION.md",
+     "anchor": "led the first harm in \\d+ of \\d+ and <v> of \\d+ simulated swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "led the first harm in \\d+ of \\d+ and (?P<v>6) of \\d+ simulated swarms",
+     "printed": "6"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.coordinated_independent",
+   "statement": "Forward test, independent generator: coordinated swarms",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.independent.coordinated_runs",
+   "kind": "number",
+   "value": 20,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "swarms and in \\d+ of <v>\\. Any of the four",
+     "format": "int",
+     "status": "ok",
+     "must_match": "swarms and in \\d+ of (?P<v>20)\\. Any of the four",
+     "printed": "20"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "before the first true harm \\(\\d+ of <v> on the independent generator\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "before the first true harm \\(\\d+ of (?P<v>20) on the independent generator\\)",
+     "printed": "20"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "came before it in \\d+ of \\d+ and \\d+ of <v> swarms\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "came before it in \\d+ of \\d+ and \\d+ of (?P<v>20) swarms\\)",
+     "printed": "20"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "came before it in \\d+ of \\d+ and in \\d+ of <v>, a median",
+     "format": "int",
+     "status": "ok",
+     "must_match": "came before it in \\d+ of \\d+ and in \\d+ of (?P<v>20), a median",
+     "printed": "20"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "of the original simulator and <v> of the independently written one",
+     "format": "int",
+     "status": "ok",
+     "must_match": "of the original simulator and (?P<v>20) of the independently written one",
+     "printed": "20"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "before the first true harm \\(\\d+ of <v> on an independent generator\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "before the first true harm \\(\\d+ of (?P<v>20) on an independent generator\\)",
+     "printed": "20"
+    },
+    {
+     "file": "reports/submission/SUBMISSION.md",
+     "anchor": "led the first harm in \\d+ of \\d+ and \\d+ of <v> simulated swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "led the first harm in \\d+ of \\d+ and \\d+ of (?P<v>20) simulated swarms",
+     "printed": "20"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.any_fired_benign_original",
+   "statement": "Forward test, original simulator: benign swarms where any of the four alarms fired",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.original.main['any_main'].benign.fired.k",
+   "kind": "number",
+   "value": 18,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "Any of the four fired in <v> of \\d+ and \\d+ of \\d+ simulated benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four fired in (?P<v>18) of \\d+ and \\d+ of \\d+ simulated benign swarms",
+     "printed": "18"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "any of the four fired in <v> of \\d+ and \\d+ of \\d+ benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "any of the four fired in (?P<v>18) of \\d+ and \\d+ of \\d+ benign swarms",
+     "printed": "18"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "any of the four in <v> of \\d+ and \\d+ of \\d+ simulated benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "any of the four in (?P<v>18) of \\d+ and \\d+ of \\d+ simulated benign swarms",
+     "printed": "18"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Any of the four fired in <v> of \\d+ and \\d+ of \\d+ benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four fired in (?P<v>18) of \\d+ and \\d+ of \\d+ benign swarms",
+     "printed": "18"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Any of the four \\d+ of \\d+ \\d+ of \\d+ <v> of \\d+ \\d+ of \\d+ \\d+ of \\d+",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four \\d+ of \\d+ \\d+ of \\d+ (?P<v>18) of \\d+ \\d+ of \\d+ \\d+ of \\d+",
+     "printed": "18"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "any of the four fired in <v> of \\d+ and \\d+ of \\d+ benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "any of the four fired in (?P<v>18) of \\d+ and \\d+ of \\d+ benign swarms",
+     "printed": "18"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.benign_original",
+   "statement": "Forward test, original simulator: benign swarms",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.original.benign_runs",
+   "kind": "number",
+   "value": 30,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "Any of the four fired in \\d+ of <v> and \\d+ of \\d+ simulated benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four fired in \\d+ of (?P<v>30) and \\d+ of \\d+ simulated benign swarms",
+     "printed": "30"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "any of the four in \\d+ of <v> and \\d+ of \\d+ simulated benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "any of the four in \\d+ of (?P<v>30) and \\d+ of \\d+ simulated benign swarms",
+     "printed": "30"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Any of the four fired in \\d+ of <v> and \\d+ of \\d+ benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four fired in \\d+ of (?P<v>30) and \\d+ of \\d+ benign swarms",
+     "printed": "30"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "any of the four fired in \\d+ of <v> and \\d+ of \\d+ benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "any of the four fired in \\d+ of (?P<v>30) and \\d+ of \\d+ benign swarms",
+     "printed": "30"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.any_fired_benign_independent",
+   "statement": "Forward test, independent generator: benign swarms where any of the four alarms fired",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.independent.main['any_main'].benign.fired.k",
+   "kind": "number",
+   "value": 23,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "Any of the four fired in \\d+ of \\d+ and <v> of \\d+ simulated benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four fired in \\d+ of \\d+ and (?P<v>23) of \\d+ simulated benign swarms",
+     "printed": "23"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "any of the four fired in \\d+ of \\d+ and <v> of \\d+ benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "any of the four fired in \\d+ of \\d+ and (?P<v>23) of \\d+ benign swarms",
+     "printed": "23"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "any of the four in \\d+ of \\d+ and <v> of \\d+ simulated benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "any of the four in \\d+ of \\d+ and (?P<v>23) of \\d+ simulated benign swarms",
+     "printed": "23"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Any of the four fired in \\d+ of \\d+ and <v> of \\d+ benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four fired in \\d+ of \\d+ and (?P<v>23) of \\d+ benign swarms",
+     "printed": "23"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Any of the four \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+ <v> of \\d+ \\d+ of \\d+",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+ (?P<v>23) of \\d+ \\d+ of \\d+",
+     "printed": "23"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "any of the four fired in \\d+ of \\d+ and <v> of \\d+ benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "any of the four fired in \\d+ of \\d+ and (?P<v>23) of \\d+ benign swarms",
+     "printed": "23"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.benign_independent",
+   "statement": "Forward test, independent generator: benign swarms",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.independent.benign_runs",
+   "kind": "number",
+   "value": 50,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "Any of the four fired in \\d+ of \\d+ and \\d+ of <v> simulated benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four fired in \\d+ of \\d+ and \\d+ of (?P<v>50) simulated benign swarms",
+     "printed": "50"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "any of the four in \\d+ of \\d+ and \\d+ of <v> simulated benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "any of the four in \\d+ of \\d+ and \\d+ of (?P<v>50) simulated benign swarms",
+     "printed": "50"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Any of the four fired in \\d+ of \\d+ and \\d+ of <v> benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four fired in \\d+ of \\d+ and \\d+ of (?P<v>50) benign swarms",
+     "printed": "50"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "any of the four fired in \\d+ of \\d+ and \\d+ of <v> benign swarms",
+     "format": "int",
+     "status": "ok",
+     "must_match": "any of the four fired in \\d+ of \\d+ and \\d+ of (?P<v>50) benign swarms",
+     "printed": "50"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.new_host_fired_benign_original",
+   "statement": "Forward test, original simulator: benign swarms where the new-host alarm fired",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.original.main['new_host_12h'].benign.fired.k",
+   "kind": "number",
+   "value": 0,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "stayed quiet on simulated benign swarms \\(<v> of \\d+,",
+     "format": "int",
+     "status": "ok",
+     "must_match": "stayed quiet on simulated benign swarms \\((?P<v>0) of \\d+,",
+     "printed": "0"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "only the new-host alarm stayed quiet \\(<v> of \\d+,",
+     "format": "int",
+     "status": "ok",
+     "must_match": "only the new-host alarm stayed quiet \\((?P<v>0) of \\d+,",
+     "printed": "0"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.new_host_fired_benign_independent",
+   "statement": "Forward test, independent generator: the same",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.independent.main['new_host_12h'].benign.fired.k",
+   "kind": "number",
+   "value": 2,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "stayed quiet on simulated benign swarms \\(\\d+ of \\d+, <v> of \\d+\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "stayed quiet on simulated benign swarms \\(\\d+ of \\d+, (?P<v>2) of \\d+\\)",
+     "printed": "2"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "only the new-host alarm stayed quiet \\(\\d+ of \\d+, <v> of \\d+\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "only the new-host alarm stayed quiet \\(\\d+ of \\d+, (?P<v>2) of \\d+\\)",
+     "printed": "2"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.h1_holds_original",
+   "statement": "Forward test, original simulator: alarms for which the lead hypothesis (H1) holds",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.original.hypotheses, H1 with holds true",
+   "kind": "number",
+   "value": 0,
+   "computed": true,
+   "format": "int",
+   "places": []
+  },
+  {
+   "id": "earlywarn.h1_holds_independent",
+   "statement": "Forward test, independent generator: the same",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/summary_v23.json generators.independent.hypotheses, H1 with holds true",
+   "kind": "number",
+   "value": 0,
+   "computed": true,
+   "format": "int",
+   "places": []
+  },
+  {
+   "id": "earlywarn.moltbook_traces",
+   "statement": "Real Moltbook community traces with times that the early-warning measurement read",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/benign_external_v23.json datasets['moltbook-observatory'].timed_alarms_measurable",
+   "kind": "number",
+   "value": 38,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "and in \\d+ of <v> real Moltbook community traces",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and in \\d+ of (?P<v>38) real Moltbook community traces",
+     "printed": "38"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "they fire almost always \\(\\d+ of <v> Moltbook community traces\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "they fire almost always \\(\\d+ of (?P<v>38) Moltbook community traces\\)",
+     "printed": "38"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "and in \\d+ of <v> real Moltbook community traces",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and in \\d+ of (?P<v>38) real Moltbook community traces",
+     "printed": "38"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "On <v> real traces of an agent social network",
+     "format": "int",
+     "status": "ok",
+     "must_match": "On (?P<v>38) real traces of an agent social network",
+     "printed": "38"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "and in \\d+ of <v> real Moltbook traces",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and in \\d+ of (?P<v>38) real Moltbook traces",
+     "printed": "38"
+    },
+    {
+     "file": "docs/limitations.md",
+     "anchor": "that we could read \\(<v> Moltbook community traces\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "that we could read \\((?P<v>38) Moltbook community traces\\)",
+     "printed": "38"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.moltbook_any_fired",
+   "statement": "Of those, traces where any of the four alarms fired",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/benign_external_v23.json datasets['moltbook-observatory'].benign_set.rows['any_main'].fired.k",
+   "kind": "number",
+   "value": 38,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "and in <v> of \\d+ real Moltbook community traces",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and in (?P<v>38) of \\d+ real Moltbook community traces",
+     "printed": "38"
+    },
+    {
+     "file": "docs/index.html",
+     "anchor": "they fire almost always \\(<v> of \\d+ Moltbook community traces\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "they fire almost always \\((?P<v>38) of \\d+ Moltbook community traces\\)",
+     "printed": "38"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "and in <v> of \\d+ real Moltbook community traces",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and in (?P<v>38) of \\d+ real Moltbook community traces",
+     "printed": "38"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "Any of the four \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+ <v> of \\d+",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Any of the four \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+ \\d+ of \\d+ (?P<v>38) of \\d+",
+     "printed": "38"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "and in <v> of \\d+ real Moltbook traces",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and in (?P<v>38) of \\d+ real Moltbook traces",
+     "printed": "38"
+    }
+   ]
+  },
+  {
+   "id": "earlywarn.moltbook_new_host_fired",
+   "statement": "Of those, traces where the new-host alarm fired",
+   "dataset": "earlywarn",
+   "computed_by": "reports/earlywarn/benign_external_v23.json datasets['moltbook-observatory'].benign_set.rows['new_host_12h'].fired.k",
+   "kind": "number",
+   "value": 37,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "and it fired in <v> of \\d+ Moltbook traces",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and it fired in (?P<v>37) of \\d+ Moltbook traces",
+     "printed": "37"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "the three time-based alarms each fired in <v> \\(Appendix B",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the three time-based alarms each fired in (?P<v>37) \\(Appendix B",
+     "printed": "37"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "the three time-based main alarms each fired in <v> \\(",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the three time-based main alarms each fired in (?P<v>37) \\(",
+     "printed": "37"
+    },
+    {
+     "file": "docs/limitations.md",
+     "anchor": "the three time-based main alarms each fired in <v>\\.",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the three time-based main alarms each fired in (?P<v>37)\\.",
+     "printed": "37"
+    }
+   ]
+  },
+  {
+   "id": "crosscheck.release_main",
+   "statement": "Deliveries the main implementation finds on the release, in the saved crosscheck",
+   "dataset": "crosscheck",
+   "computed_by": "reports/integrity/crosscheck.json datasets['Swarm Traces'].A.deliveries",
+   "kind": "number",
+   "value": 11,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "Swarm Traces release <v> and \\d+, collusion\\.wiki logs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Swarm Traces release (?P<v>11) and \\d+, collusion\\.wiki logs",
+     "printed": "11"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "its agreement on the release \\(<v> and \\d+\\) is not independent",
+     "format": "int",
+     "status": "ok",
+     "must_match": "its agreement on the release \\((?P<v>11) and \\d+\\) is not independent",
+     "printed": "11"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "the second implementation now agrees \\(<v> and \\d+\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the second implementation now agrees \\((?P<v>11) and \\d+\\)",
+     "printed": "11"
+    }
+   ]
+  },
+  {
+   "id": "crosscheck.release_second",
+   "statement": "Deliveries the second implementation finds on the release",
+   "dataset": "crosscheck",
+   "computed_by": "reports/integrity/crosscheck.json datasets['Swarm Traces'].B.deliveries",
+   "kind": "number",
+   "value": 11,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "Swarm Traces release \\d+ and <v>, collusion\\.wiki logs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "Swarm Traces release \\d+ and (?P<v>11), collusion\\.wiki logs",
+     "printed": "11"
+    },
+    {
+     "file": "README.md",
+     "anchor": "A second implementation of the rule finds the same <v>\\.",
+     "format": "int",
+     "status": "ok",
+     "must_match": "A second implementation of the rule finds the same (?P<v>11)\\.",
+     "printed": "11"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "The second implementation finds the same <v>, and",
+     "format": "int",
+     "status": "ok",
+     "must_match": "The second implementation finds the same (?P<v>11), and",
+     "printed": "11"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "but not independently \\(<v> deliveries each",
+     "format": "int",
+     "status": "ok",
+     "must_match": "but not independently \\((?P<v>11) deliveries each",
+     "printed": "11"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "written rule and finds the same <v> deliveries on the release",
+     "format": "int",
+     "status": "ok",
+     "must_match": "written rule and finds the same (?P<v>11) deliveries on the release",
+     "printed": "11"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "its agreement on the release \\(\\d+ and <v>\\) is not independent",
+     "format": "int",
+     "status": "ok",
+     "must_match": "its agreement on the release \\(\\d+ and (?P<v>11)\\) is not independent",
+     "printed": "11"
+    },
+    {
+     "file": "paper/slides.html",
+     "anchor": "the second implementation now agrees \\(\\d+ and <v>\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "the second implementation now agrees \\(\\d+ and (?P<v>11)\\)",
+     "printed": "11"
+    }
+   ]
+  },
+  {
+   "id": "crosscheck.release_both",
+   "statement": "Deliveries both implementations find on the release",
+   "dataset": "crosscheck",
+   "computed_by": "reports/integrity/crosscheck.json datasets['Swarm Traces'].both",
+   "kind": "number",
+   "value": 11,
+   "computed": true,
+   "format": "int",
+   "places": []
+  },
+  {
+   "id": "crosscheck.release_uses_content",
+   "statement": "Deliveries on the release that pass the written-content test (R38a or R38b)",
+   "dataset": "crosscheck",
+   "computed_by": "reports/integrity/crosscheck.json datasets['Swarm Traces'].content_test.A_pass",
+   "kind": "number",
+   "value": 0,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "and still <v> where the reader is shown using what was written",
+     "format": "int",
+     "status": "ok",
+     "must_match": "and still (?P<v>0) where the reader is shown using what was written",
+     "printed": "0"
+    },
+    {
+     "file": "README.md",
+     "anchor": "on the release that is <v> of \\d+, and a second form of the test",
+     "format": "int",
+     "status": "ok",
+     "must_match": "on the release that is (?P<v>0) of \\d+, and a second form of the test",
+     "printed": "0"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "\\(unchanged\\), <v> where the reader is shown using what was written \\(unchanged\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\(unchanged\\), (?P<v>0) where the reader is shown using what was written \\(unchanged\\)",
+     "printed": "0"
+    },
+    {
+     "file": "docs/limitations.md",
+     "anchor": "\\(<v> of \\d+ on the Swarm Traces release do\\)",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\((?P<v>0) of \\d+ on the Swarm Traces release do\\)",
+     "printed": "0"
+    },
+    {
+     "file": "docs/how-it-works.md",
+     "anchor": "which is <v> of \\d+ on the Swarm Traces release",
+     "format": "int",
+     "status": "ok",
+     "must_match": "which is (?P<v>0) of \\d+ on the Swarm Traces release",
+     "printed": "0"
+    },
+    {
+     "file": "paper/report.html",
+     "anchor": "on the release that is <v> of \\d+\\. Earlier versions",
+     "format": "int",
+     "status": "ok",
+     "must_match": "on the release that is (?P<v>0) of \\d+\\. Earlier versions",
+     "printed": "0"
+    }
+   ]
+  },
+  {
+   "id": "crosscheck.release_operations_differ",
+   "statement": "Single operations on the release that only one implementation reports",
+   "dataset": "crosscheck",
+   "computed_by": "reports/integrity/crosscheck.json datasets['Swarm Traces'].operations only_A + only_B",
+   "kind": "number",
+   "value": 262,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "<v> single operations on the release still differ without changing a delivery",
+     "format": "int",
+     "status": "ok",
+     "must_match": "(?P<v>262) single operations on the release still differ without changing a delivery",
+     "printed": "262"
+    }
+   ]
+  },
+  {
+   "id": "crosscheck.wiki_both",
+   "statement": "Deliveries both implementations find on the collusion.wiki logs",
+   "dataset": "crosscheck",
+   "computed_by": "reports/integrity/crosscheck.json datasets['collusion.wiki logs'].both",
+   "kind": "number",
+   "value": 9867,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "collusion\\.wiki logs <v>, demo swarm",
+     "format": "int",
+     "status": "ok",
+     "must_match": "collusion\\.wiki logs (?P<v>9,?867), demo swarm",
+     "printed": "9,867"
+    },
+    {
+     "file": "docs/known-issues.md",
+     "anchor": "finds the same \\d+, and <v> on the collusion\\.wiki logs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "finds the same \\d+, and (?P<v>9,?867) on the collusion\\.wiki logs",
+     "printed": "9,867"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "deliveries on the release and <v> on the wiki logs",
+     "format": "int",
+     "status": "ok",
+     "must_match": "deliveries on the release and (?P<v>9,?867) on the wiki logs",
+     "printed": "9,867"
+    },
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\([\\d,]+ of <v> pass, against",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\([\\d,]+ of (?P<v>9,?867) pass, against",
+     "printed": "9,867"
+    }
+   ]
+  },
+  {
+   "id": "crosscheck.wiki_uses_content",
+   "statement": "Wiki deliveries that pass the written-content test (main implementation)",
+   "dataset": "crosscheck",
+   "computed_by": "reports/integrity/crosscheck.json datasets['collusion.wiki logs'].content_test.A_pass",
+   "kind": "number",
+   "value": 2192,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "docs/validation.md",
+     "anchor": "\\(<v> of [\\d,]+ pass, against",
+     "format": "int",
+     "status": "ok",
+     "must_match": "\\((?P<v>2,?192) of [\\d,]+ pass, against",
+     "printed": "2,192"
+    }
+   ]
+  },
+  {
+   "id": "crosscheck.wiki_uses_content_r38b",
+   "statement": "Wiki deliveries that pass by R38b (main implementation)",
+   "dataset": "crosscheck",
+   "computed_by": "reports/integrity/crosscheck.json datasets['collusion.wiki logs'].content_test.later_output_R38b.A",
+   "kind": "number",
+   "value": 258,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "docs/validation.md",
+     "anchor": "On the collusion\\.wiki logs it passes <v> deliveries that did not pass before",
+     "format": "int",
+     "status": "ok",
+     "must_match": "On the collusion\\.wiki logs it passes (?P<v>258) deliveries that did not pass before",
+     "printed": "258"
+    }
+   ]
+  },
+  {
+   "id": "crosscheck.demo_both",
+   "statement": "Deliveries both implementations find on the demo swarm",
+   "dataset": "crosscheck",
+   "computed_by": "reports/integrity/crosscheck.json datasets['demo swarm'].both",
+   "kind": "number",
+   "value": 164,
+   "computed": true,
+   "format": "int",
+   "places": [
+    {
+     "file": "README.md",
+     "anchor": "demo swarm <v>, the format samples",
+     "format": "int",
+     "status": "ok",
+     "must_match": "demo swarm (?P<v>164), the format samples",
+     "printed": "164"
     }
    ]
   },
@@ -5231,26 +8387,26 @@
  ],
  "saved_outputs": [],
  "coverage": {
-  "claims": 180,
-  "claims_computed": 180,
-  "places": 360,
-  "places_ok": 360,
-  "unregistered_numbers": 533,
+  "claims": 237,
+  "claims_computed": 237,
+  "places": 661,
+  "places_ok": 661,
+  "unregistered_numbers": 778,
   "unregistered_by_file": {
-   "README.md": 23,
-   "docs/assets/demo-script.md": 1,
+   "README.md": 24,
+   "docs/assets/demo-script.md": 2,
    "docs/collect-next-time.md": 8,
    "docs/deep-dive.md": 37,
-   "docs/early-warning.md": 70,
-   "docs/how-it-works.md": 2,
-   "docs/index.html": 8,
-   "docs/known-issues.md": 57,
-   "docs/limitations.md": 6,
+   "docs/early-warning.md": 225,
+   "docs/how-it-works.md": 1,
+   "docs/index.html": 14,
+   "docs/known-issues.md": 66,
+   "docs/limitations.md": 8,
    "docs/packs.md": 1,
-   "docs/validation.md": 189,
-   "paper/report.html": 110,
-   "paper/slides.html": 15,
-   "reports/submission/SUBMISSION.md": 6
+   "docs/validation.md": 232,
+   "paper/report.html": 124,
+   "paper/slides.html": 27,
+   "reports/submission/SUBMISSION.md": 9
   }
  }
 }

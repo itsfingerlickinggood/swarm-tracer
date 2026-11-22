@@ -38,3 +38,11 @@
 .ew-def{font-size:10.5px;border-radius:8px;padding:0 6px;background:#e8f0fa;color:#2f6fb3}
 .ew-def2{font-weight:700;color:#1b2430}
 .ew-cav{margin-top:12px}
+/* v2.3.0: main alarms and context */
+.ew-posthoc{border-color:#e9c98a;background:#fffaf0}
+.ew-role{display:inline-block;font-size:10.5px;border-radius:8px;padding:0 6px;background:#f1f3f6;color:#4b5157;white-space:nowrap;font-weight:600}
+.ew-role.ew-main{background:#dff3f0;color:#0b5c55}
+.ew-role.ew-ctx{background:#eef0f3;color:#5b6672}
+.ew-ctxrow td{color:#5b6672;background:#fafbfc}
+.ew-sub2 td:first-child{padding-left:16px}
+.ew-hyp{margin-top:10px}

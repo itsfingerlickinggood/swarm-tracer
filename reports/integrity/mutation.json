@@ -1,29 +1,41 @@
 {
- "about": "mutation testing of the counting rule; see agenttrace/tools/mutate.py. The top-level numbers are the latest full run ('after'). A survivor is a change to the rule that no test noticed; each is marked equivalent (with the reason no input can tell it apart) or unjudged.",
- "made": "2026-11-15T09:42:43Z",
+ "about": "mutation testing of the counting rule; see agenttrace/tools/mutate.py. The top-level numbers are the latest full run ('after'), on agenttrace/messages.py as it stands for v2.3.0. A survivor is a change to the rule that no test noticed; each is marked equivalent (with the reason no input can tell it apart) or unjudged (with a note).",
+ "made": "2026-11-22T10:31:43Z",
  "targets": [
   "messages"
  ],
  "mode": "full",
  "tests": [
+  "agenttrace.tests.test_audit_rules",
   "agenttrace.tests.test_messages",
   "agenttrace.tests.test_mutants",
   "agenttrace.tests.test_properties",
-  "agenttrace.tests.test_refcount"
+  "agenttrace.tests.test_refcount",
+  "agenttrace.tests.test_tool_calls"
  ],
- "mutants_possible": 1173,
- "mutants_run": 1173,
- "killed": 1124,
- "killed_by_timeout": 1,
- "survived": 49,
- "kill_rate": 0.9582,
- "seconds": 78.4,
+ "mutants_possible": 1656,
+ "mutants_run": 1656,
+ "killed": 1570,
+ "killed_by_timeout": 3,
+ "survived": 86,
+ "kill_rate": 0.9481,
+ "seconds": 202.7,
  "seed": null,
  "by_function": {
+  "<module>": {
+   "mutants": 8,
+   "killed": 8,
+   "survived": 0
+  },
   "_call_end": {
    "mutants": 29,
    "killed": 28,
    "survived": 1
+  },
+  "_completes": {
+   "mutants": 13,
+   "killed": 13,
+   "survived": 0
   },
   "_descriptor_verb": {
    "mutants": 44,
@@ -33,6 +45,11 @@
   "_direct_perf": {
    "mutants": 6,
    "killed": 6,
+   "survived": 0
+  },
+  "_first_object": {
+   "mutants": 37,
+   "killed": 37,
    "survived": 0
   },
   "_helper_verb": {
@@ -60,9 +77,29 @@
    "killed": 20,
    "survived": 0
   },
+  "_is_distinctive": {
+   "mutants": 15,
+   "killed": 15,
+   "survived": 0
+  },
+  "_joined_lookup": {
+   "mutants": 5,
+   "killed": 4,
+   "survived": 1
+  },
+  "_joined_lookup.ids_of": {
+   "mutants": 3,
+   "killed": 3,
+   "survived": 0
+  },
+  "_joined_lookup.time_of": {
+   "mutants": 3,
+   "killed": 3,
+   "survived": 0
+  },
   "_judge": {
-   "mutants": 238,
-   "killed": 217,
+   "mutants": 247,
+   "killed": 226,
    "survived": 21
   },
   "_judge.nearest": {
@@ -70,9 +107,29 @@
    "killed": 7,
    "survived": 3
   },
+  "_later_output_test": {
+   "mutants": 75,
+   "killed": 57,
+   "survived": 18
+  },
+  "_lfs_index": {
+   "mutants": 34,
+   "killed": 29,
+   "survived": 5
+  },
+  "_lfs_upload_counts": {
+   "mutants": 12,
+   "killed": 12,
+   "survived": 0
+  },
   "_lines": {
    "mutants": 3,
    "killed": 3,
+   "survived": 0
+  },
+  "_lists_token": {
+   "mutants": 10,
+   "killed": 10,
    "survived": 0
   },
   "_mention_index": {
@@ -85,9 +142,19 @@
    "killed": 2,
    "survived": 0
   },
+  "_open_verb": {
+   "mutants": 23,
+   "killed": 19,
+   "survived": 4
+  },
   "_opts_write": {
    "mutants": 29,
    "killed": 29,
+   "survived": 0
+  },
+  "_same_source": {
+   "mutants": 19,
+   "killed": 19,
    "survived": 0
   },
   "_short": {
@@ -100,19 +167,34 @@
    "killed": 9,
    "survived": 3
   },
+  "_unescape": {
+   "mutants": 5,
+   "killed": 3,
+   "survived": 2
+  },
+  "_without_place_arguments": {
+   "mutants": 12,
+   "killed": 12,
+   "survived": 0
+  },
   "actor_of": {
-   "mutants": 16,
-   "killed": 15,
+   "mutants": 19,
+   "killed": 18,
    "survived": 1
   },
   "channel_ops": {
-   "mutants": 97,
-   "killed": 92,
+   "mutants": 111,
+   "killed": 106,
    "survived": 5
   },
   "compile_channels": {
    "mutants": 6,
    "killed": 6,
+   "survived": 0
+  },
+  "compile_tool_places": {
+   "mutants": 5,
+   "killed": 5,
    "survived": 0
   },
   "content_spread": {
@@ -121,13 +203,13 @@
    "survived": 1
   },
   "content_spread.touches": {
-   "mutants": 29,
-   "killed": 27,
+   "mutants": 38,
+   "killed": 36,
    "survived": 2
   },
   "deliveries": {
-   "mutants": 223,
-   "killed": 220,
+   "mutants": 239,
+   "killed": 236,
    "survived": 3
   },
   "direct_messages": {
@@ -150,6 +232,11 @@
    "killed": 39,
    "survived": 0
   },
+  "join_fragments": {
+   "mutants": 34,
+   "killed": 32,
+   "survived": 2
+  },
   "judge_how": {
    "mutants": 8,
    "killed": 8,
@@ -166,999 +253,1674 @@
    "survived": 0
   },
   "message_flow": {
-   "mutants": 106,
-   "killed": 104,
-   "survived": 2
+   "mutants": 118,
+   "killed": 115,
+   "survived": 3
   },
   "program_prefix": {
    "mutants": 11,
    "killed": 11,
    "survived": 0
+  },
+  "tool_op": {
+   "mutants": 11,
+   "killed": 11,
+   "survived": 0
+  },
+  "tool_places": {
+   "mutants": 27,
+   "killed": 27,
+   "survived": 0
+  },
+  "what_was_written": {
+   "mutants": 12,
+   "killed": 12,
+   "survived": 0
+  },
+  "written_content_test": {
+   "mutants": 57,
+   "killed": 53,
+   "survived": 4
   }
  },
  "by_operator": {
   "and/or": {
-   "mutants": 58,
-   "killed": 58,
+   "mutants": 99,
+   "killed": 99,
    "survived": 0
   },
   "drop break": {
-   "mutants": 2,
-   "killed": 2,
+   "mutants": 4,
+   "killed": 4,
    "survived": 0
   },
   "drop continue": {
-   "mutants": 14,
-   "killed": 13,
-   "survived": 1
+   "mutants": 28,
+   "killed": 20,
+   "survived": 8
   },
   "drop not": {
-   "mutants": 26,
-   "killed": 26,
+   "mutants": 51,
+   "killed": 51,
    "survived": 0
   },
   "flip comparison": {
-   "mutants": 132,
-   "killed": 126,
-   "survived": 6
+   "mutants": 223,
+   "killed": 212,
+   "survived": 11
   },
   "flip returned bool": {
-   "mutants": 10,
-   "killed": 9,
+   "mutants": 16,
+   "killed": 15,
    "survived": 1
   },
   "guard always false": {
-   "mutants": 150,
-   "killed": 148,
-   "survived": 2
+   "mutants": 242,
+   "killed": 228,
+   "survived": 14
   },
   "guard always true": {
-   "mutants": 150,
-   "killed": 143,
-   "survived": 7
+   "mutants": 242,
+   "killed": 227,
+   "survived": 15
   },
   "off by one": {
-   "mutants": 489,
-   "killed": 466,
-   "survived": 23
+   "mutants": 600,
+   "killed": 573,
+   "survived": 27
   },
   "swap write/read": {
-   "mutants": 40,
-   "killed": 40,
+   "mutants": 45,
+   "killed": 45,
    "survived": 0
   },
   "window size": {
-   "mutants": 102,
-   "killed": 93,
-   "survived": 9
+   "mutants": 106,
+   "killed": 96,
+   "survived": 10
   }
  },
  "survivors": [
   {
-   "id": "messages.py:33:1",
+   "id": "messages.py:35:1",
    "file": "agenttrace/messages.py",
    "function": "_thread_identity",
-   "line": 33,
+   "line": 35,
    "operator": "guard always true",
    "old": "\"_thread_ident\" not in rec",
    "new": "True",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -33 +33 @@\n-    if \"_thread_ident\" not in rec:\n+    if True:\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -35 +35 @@\n-    if \"_thread_ident\" not in rec:\n+    if True:\n",
    "judgement": "equivalent",
    "reason": "only a cache: computing the table again gives the same table"
   },
   {
-   "id": "messages.py:39:7",
+   "id": "messages.py:41:7",
    "file": "agenttrace/messages.py",
    "function": "_thread_identity",
-   "line": 39,
+   "line": 41,
    "operator": "off by one",
    "old": "1",
    "new": "2",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -39 +39 @@\n-                    votes[res[\"_root\"][rid]][t] += 1\n+                    votes[res[\"_root\"][rid]][t] += 2\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -41 +41 @@\n-                    votes[res[\"_root\"][rid]][t] += 1\n+                    votes[res[\"_root\"][rid]][t] += 2\n",
    "judgement": "equivalent",
    "reason": "every vote counts double, so the most used token is the same"
   },
   {
-   "id": "messages.py:40:9",
+   "id": "messages.py:42:9",
    "file": "agenttrace/messages.py",
    "function": "_thread_identity",
-   "line": 40,
+   "line": 42,
    "operator": "off by one",
    "old": "1",
    "new": "2",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -40 +40 @@\n-        rec[\"_thread_ident\"] = {root: c.most_common(1)[0][0] for root, c in votes.items()}\n+        rec[\"_thread_ident\"] = {root: c.most_common(2)[0][0] for root, c in votes.items()}\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -42 +42 @@\n-        rec[\"_thread_ident\"] = {root: c.most_common(1)[0][0] for root, c in votes.items()}\n+        rec[\"_thread_ident\"] = {root: c.most_common(2)[0][0] for root, c in votes.items()}\n",
    "judgement": "equivalent",
    "reason": "most_common(2)[0] is most_common(1)[0]"
   },
   {
-   "id": "messages.py:55:24",
+   "id": "messages.py:59:27",
    "file": "agenttrace/messages.py",
    "function": "actor_of",
-   "line": 55,
+   "line": 59,
    "operator": "off by one",
    "old": "1",
    "new": "0",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -55 +55 @@\n-            return family_of(m.group(1), pack), \"handle\"\n+            return family_of(m.group(0), pack), \"handle\"\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -59 +59 @@\n-            return family_of(m.group(1), pack), \"handle\"\n+            return family_of(m.group(0), pack), \"handle\"\n",
    "judgement": "equivalent",
    "reason": "packs.py builds the handle pattern as lookbehind + (group 1) + lookahead, so group(0) equals group(1)"
   },
   {
-   "id": "messages.py:82:34",
+   "id": "messages.py:86:37",
    "file": "agenttrace/messages.py",
    "function": "direct_messages",
-   "line": 82,
+   "line": 86,
    "operator": "guard always true",
    "old": "e.parent",
    "new": "True",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -82 +82 @@\n-            if e.parent:\n+            if True:\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -86 +86 @@\n-            if e.parent:\n+            if True:\n",
    "judgement": "equivalent",
    "reason": "children[None] is filled but never looked up (lookups use a record id)"
   },
   {
-   "id": "messages.py:90:37",
+   "id": "messages.py:94:40",
    "file": "agenttrace/messages.py",
    "function": "direct_messages.who",
-   "line": 90,
+   "line": 94,
    "operator": "guard always true",
    "old": "j not in memo",
    "new": "True",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -90 +90 @@\n-            if j not in memo:\n+            if True:\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -94 +94 @@\n-            if j not in memo:\n+            if True:\n",
    "judgement": "equivalent",
    "reason": "only a memo: actor_of gives the same answer again"
   },
   {
-   "id": "messages.py:104:57",
+   "id": "messages.py:108:60",
    "file": "agenttrace/messages.py",
    "function": "direct_messages",
-   "line": 104,
+   "line": 108,
    "operator": "off by one",
    "old": "1",
    "new": "0",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -104 +104 @@\n-                reply = next((j for j in lst[k + 1:k + 60] if ok(j)), None)\n+                reply = next((j for j in lst[k + 0:k + 60] if ok(j)), None)\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -108 +108 @@\n-                reply = next((j for j in lst[k + 1:k + 60] if ok(j)), None)\n+                reply = next((j for j in lst[k + 0:k + 60] if ok(j)), None)\n",
    "judgement": "equivalent",
    "reason": "the slice then starts at the message itself, which the reply test rejects (j != i)"
   },
   {
-   "id": "messages.py:106:67",
+   "id": "messages.py:110:70",
    "file": "agenttrace/messages.py",
    "function": "direct_messages",
-   "line": 106,
+   "line": 110,
    "operator": "guard always true",
    "old": "reply is not None",
    "new": "True",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -106 +106 @@\n-            rt = times.get(rid) if reply is not None else t\n+            rt = times.get(rid) if True else t\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -110 +110 @@\n-            rt = times.get(rid) if reply is not None else t\n+            rt = times.get(rid) if True else t\n",
    "judgement": "equivalent",
    "reason": "with no reply rid is the message's own id, and times.get of it is t"
   },
   {
-   "id": "messages.py:165:108",
+   "id": "messages.py:148:97",
    "file": "agenttrace/messages.py",
-   "function": "_call_end",
-   "line": 165,
+   "function": "_open_verb",
+   "line": 148,
+   "operator": "guard always false",
+   "old": "not text or not text[-1].isalpha()",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -148 +148 @@\n-    if not text or not text[-1].isalpha():\n+    if False:\n",
+   "judgement": "equivalent",
+   "reason": "only a shortcut: the pattern ends with a letter at the end of the text, so it finds nothing in an empty text or one that ends otherwise"
+  },
+  {
+   "id": "messages.py:150:104",
+   "file": "agenttrace/messages.py",
+   "function": "_open_verb",
+   "line": 150,
+   "operator": "off by one",
+   "old": "48",
+   "new": "47",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -150 +150 @@\n-    m = FRAGMENT_END.search(text, max(0, len(text) - 48))\n+    m = FRAGMENT_END.search(text, max(0, len(text) - 47))\n",
+   "judgement": "unjudged",
+   "note": "not equivalent. The 48-character look-back is a limit of the code that R13a does not state (it says spaces are allowed). The mutant differs only when the cut call is exactly 48 characters long, that is 37 spaces inside it. No test pins the limit: a test would defend the limit, not the rule."
+  },
+  {
+   "id": "messages.py:150:105",
+   "file": "agenttrace/messages.py",
+   "function": "_open_verb",
+   "line": 150,
+   "operator": "off by one",
+   "old": "48",
+   "new": "49",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -150 +150 @@\n-    m = FRAGMENT_END.search(text, max(0, len(text) - 48))\n+    m = FRAGMENT_END.search(text, max(0, len(text) - 49))\n",
+   "judgement": "unjudged",
+   "note": "not equivalent, as 150:104: differs only when the cut call is 49 characters long (38 spaces inside it). The mutant is the one that follows R13a as written."
+  },
+  {
+   "id": "messages.py:150:107",
+   "file": "agenttrace/messages.py",
+   "function": "_open_verb",
+   "line": 150,
+   "operator": "window size",
+   "old": "48",
+   "new": "192",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -150 +150 @@\n-    m = FRAGMENT_END.search(text, max(0, len(text) - 48))\n+    m = FRAGMENT_END.search(text, max(0, len(text) - 192))\n",
+   "judgement": "unjudged",
+   "note": "not equivalent, as 150:104: differs only when the cut call is 49 to 192 characters long. The mutant is the one that follows R13a as written."
+  },
+  {
+   "id": "messages.py:190:157",
+   "file": "agenttrace/messages.py",
+   "function": "join_fragments",
+   "line": 190,
+   "operator": "flip comparison",
+   "old": "<",
+   "new": "<=",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -190 +190 @@\n-        if j < n and is_action(e, pack):\n+        if j <= n and is_action(e, pack):\n",
+   "judgement": "equivalent",
+   "reason": "for the last record the inner loop does not run (j < n fails), so nothing is joined either way"
+  },
+  {
+   "id": "messages.py:206:181",
+   "file": "agenttrace/messages.py",
+   "function": "join_fragments",
+   "line": 206,
    "operator": "off by one",
    "old": "1",
    "new": "0",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -165 +165 @@\n-    nx = REQUEST_START.search(text, i + 1, end)      # redaction can swallow the closing parenthesis:\n+    nx = REQUEST_START.search(text, i + 0, end)      # redaction can swallow the closing parenthesis:\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -206 +206 @@\n-                    joined.time = next((x.time for x in events[i + 1:j] if x.time), None)\n+                    joined.time = next((x.time for x in events[i + 0:j] if x.time), None)\n",
+   "judgement": "equivalent",
+   "reason": "the slice then starts at the first fragment, which has no time here (that is the guard), so it is skipped"
+  },
+  {
+   "id": "messages.py:218:186",
+   "file": "agenttrace/messages.py",
+   "function": "_joined_lookup",
+   "line": 218,
+   "operator": "guard always false",
+   "old": "not parts",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -218 +218 @@\n-    if not parts:\n+    if False:\n",
+   "judgement": "equivalent",
+   "reason": "with nothing joined the two lookups built below give ids[rid] and times.get(rid), the same answers"
+  },
+  {
+   "id": "messages.py:308:255",
+   "file": "agenttrace/messages.py",
+   "function": "_unescape",
+   "line": 308,
+   "operator": "guard always false",
+   "old": "\"\\\\\" not in raw",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -308 +308 @@\n-    if \"\\\\\" not in raw:\n+    if False:\n",
+   "judgement": "equivalent",
+   "reason": "a string with no backslash has no escape: json.loads gives it back unchanged, or fails and the raw string is returned"
+  },
+  {
+   "id": "messages.py:314:259",
+   "file": "agenttrace/messages.py",
+   "function": "_unescape",
+   "line": 314,
+   "operator": "guard always true",
+   "old": "isinstance(v, str)",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -314 +314 @@\n-    return v if isinstance(v, str) else raw\n+    return v if True else raw\n",
+   "judgement": "equivalent",
+   "reason": "the text handed to json.loads begins with a quote, so what it returns is always a string"
+  },
+  {
+   "id": "messages.py:356:296",
+   "file": "agenttrace/messages.py",
+   "function": "_call_end",
+   "line": 356,
+   "operator": "off by one",
+   "old": "1",
+   "new": "0",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -356 +356 @@\n-    nx = REQUEST_START.search(text, i + 1, end)      # redaction can swallow the closing parenthesis:\n+    nx = REQUEST_START.search(text, i + 0, end)      # redaction can swallow the closing parenthesis:\n",
    "judgement": "equivalent",
    "reason": "no request-call pattern can match starting at the '(' itself"
   },
   {
-   "id": "messages.py:237:229",
+   "id": "messages.py:428:417",
    "file": "agenttrace/messages.py",
    "function": "_descriptor_verb",
-   "line": 237,
+   "line": 428,
    "operator": "flip comparison",
    "old": ">=",
    "new": ">",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -237 +237 @@\n-    obj = text[max(lo, pos - 600):(hi if hi >= 0 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n+    obj = text[max(lo, pos - 600):(hi if hi > 0 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -428 +428 @@\n-    obj = text[max(lo, pos - 600):(hi if hi >= 0 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n+    obj = text[max(lo, pos - 600):(hi if hi > 0 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n",
    "judgement": "equivalent",
    "reason": "hi is searched from pos and pos > 0 (the url key comes before it), so hi is -1 or greater than 0"
   },
   {
-   "id": "messages.py:237:230",
+   "id": "messages.py:428:418",
    "file": "agenttrace/messages.py",
    "function": "_descriptor_verb",
-   "line": 237,
+   "line": 428,
    "operator": "off by one",
    "old": "0",
    "new": "1",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -237 +237 @@\n-    obj = text[max(lo, pos - 600):(hi if hi >= 0 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n+    obj = text[max(lo, pos - 600):(hi if hi >= 1 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -428 +428 @@\n-    obj = text[max(lo, pos - 600):(hi if hi >= 0 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n+    obj = text[max(lo, pos - 600):(hi if hi >= 1 else len(text))][:1500] if lo >= 0 else text[max(0, pos - 300):pos + 300]\n",
    "judgement": "equivalent",
-   "reason": "hi is -1 or greater than 0 (see 237 '>=' -> '>')"
+   "reason": "hi is -1 or greater than 0 (see 428 '>=' -> '>')"
   },
   {
-   "id": "messages.py:279:282",
+   "id": "messages.py:472:470",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 279,
+   "line": 472,
    "operator": "off by one",
    "old": "160",
    "new": "159",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=159, after=260):\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -472 +472 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=159, after=260):\n",
    "judgement": "equivalent",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:283",
+   "id": "messages.py:472:471",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 279,
+   "line": 472,
    "operator": "off by one",
    "old": "160",
    "new": "161",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=161, after=260):\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -472 +472 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=161, after=260):\n",
    "judgement": "equivalent",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:284",
+   "id": "messages.py:472:472",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 279,
+   "line": 472,
    "operator": "window size",
    "old": "160",
    "new": "40",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=40, after=260):\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -472 +472 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=40, after=260):\n",
    "judgement": "equivalent",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:285",
+   "id": "messages.py:472:473",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 279,
+   "line": 472,
    "operator": "window size",
    "old": "160",
    "new": "640",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=640, after=260):\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -472 +472 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=640, after=260):\n",
    "judgement": "equivalent",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:286",
+   "id": "messages.py:472:474",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 279,
+   "line": 472,
    "operator": "off by one",
    "old": "260",
    "new": "259",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=259):\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -472 +472 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=259):\n",
    "judgement": "equivalent",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:287",
+   "id": "messages.py:472:475",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 279,
+   "line": 472,
    "operator": "off by one",
    "old": "260",
    "new": "261",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=261):\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -472 +472 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=261):\n",
    "judgement": "equivalent",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:288",
+   "id": "messages.py:472:476",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 279,
+   "line": 472,
    "operator": "window size",
    "old": "260",
    "new": "1040",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=1040):\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -472 +472 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=1040):\n",
    "judgement": "equivalent",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:289",
+   "id": "messages.py:472:477",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 279,
+   "line": 472,
    "operator": "window size",
    "old": "260",
    "new": "65",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -279 +279 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=65):\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -472 +472 @@\n-def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=260):\n+def _judge(text, start, end, wrx, rrx, bounds=None, before=160, after=65):\n",
    "judgement": "equivalent",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:327:377",
+   "id": "messages.py:522:572",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 327,
+   "line": 522,
    "operator": "off by one",
    "old": "0",
    "new": "1",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(1, um.start() - 80):um.end() + 120]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -522 +522 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(1, um.start() - 80):um.end() + 120]\n",
    "judgement": "equivalent",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:378",
+   "id": "messages.py:522:573",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 327,
+   "line": 522,
    "operator": "off by one",
    "old": "80",
    "new": "79",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 79):um.end() + 120]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -522 +522 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 79):um.end() + 120]\n",
    "judgement": "equivalent",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:379",
+   "id": "messages.py:522:574",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 327,
+   "line": 522,
    "operator": "off by one",
    "old": "80",
    "new": "81",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 81):um.end() + 120]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -522 +522 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 81):um.end() + 120]\n",
    "judgement": "equivalent",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:380",
+   "id": "messages.py:522:575",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 327,
+   "line": 522,
    "operator": "window size",
    "old": "80",
    "new": "20",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 20):um.end() + 120]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -522 +522 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 20):um.end() + 120]\n",
    "judgement": "equivalent",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:381",
+   "id": "messages.py:522:576",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 327,
+   "line": 522,
    "operator": "window size",
    "old": "80",
    "new": "320",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 320):um.end() + 120]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -522 +522 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 320):um.end() + 120]\n",
    "judgement": "equivalent",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:382",
+   "id": "messages.py:522:577",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 327,
+   "line": 522,
    "operator": "off by one",
    "old": "120",
    "new": "119",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 119]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -522 +522 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 119]\n",
    "judgement": "equivalent",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:383",
+   "id": "messages.py:522:578",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 327,
+   "line": 522,
    "operator": "off by one",
    "old": "120",
    "new": "121",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 121]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -522 +522 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 121]\n",
    "judgement": "equivalent",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:384",
+   "id": "messages.py:522:579",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 327,
+   "line": 522,
    "operator": "window size",
    "old": "120",
    "new": "30",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 30]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -522 +522 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 30]\n",
    "judgement": "equivalent",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:385",
+   "id": "messages.py:522:580",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 327,
+   "line": 522,
    "operator": "window size",
    "old": "120",
    "new": "480",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -327 +327 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 480]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -522 +522 @@\n-                near = text[max(0, um.start() - 80):um.end() + 120]\n+                near = text[max(0, um.start() - 80):um.end() + 480]\n",
    "judgement": "equivalent",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:338:403",
+   "id": "messages.py:533:598",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 338,
+   "line": 533,
    "operator": "guard always true",
    "old": "_helper_verb(text, um.start()) is not None",
    "new": "True",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -338 +338 @@\n-                elif _helper_verb(text, um.start()) is not None:   # passed to a helper with the verb as an argument\n+                elif True:   # passed to a helper with the verb as an argument\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -533 +533 @@\n-                elif _helper_verb(text, um.start()) is not None:   # passed to a helper with the verb as an argument\n+                elif True:   # passed to a helper with the verb as an argument\n",
    "judgement": "equivalent",
    "reason": "when the helper carries no verb both branches set the same verdict and span"
   },
   {
-   "id": "messages.py:352:457",
+   "id": "messages.py:547:652",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 352,
+   "line": 547,
    "operator": "off by one",
    "old": "90",
    "new": "89",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -352 +352 @@\n-        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 90])\n+        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 89])\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -547 +547 @@\n-        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 90])\n+        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 89])\n",
    "judgement": "equivalent",
    "reason": "the pattern matches at most 78 characters (70 + quote + DELETE + quote), so a slice of 89 is enough"
   },
   {
-   "id": "messages.py:352:458",
+   "id": "messages.py:547:653",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 352,
+   "line": 547,
    "operator": "off by one",
    "old": "90",
    "new": "91",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -352 +352 @@\n-        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 90])\n+        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 91])\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -547 +547 @@\n-        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 90])\n+        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 91])\n",
    "judgement": "equivalent",
    "reason": "the pattern matches at most 78 characters, a longer slice changes nothing"
   },
   {
-   "id": "messages.py:352:460",
+   "id": "messages.py:547:655",
    "file": "agenttrace/messages.py",
    "function": "_judge",
-   "line": 352,
+   "line": 547,
    "operator": "window size",
    "old": "90",
    "new": "360",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -352 +352 @@\n-        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 90])\n+        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 360])\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -547 +547 @@\n-        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 90])\n+        tail = re.match(r\"[^();{}]{0,70}['\\\"](POST|PUT|PATCH|DELETE)['\\\"]\", text[end:end + 360])\n",
    "judgement": "equivalent",
    "reason": "the pattern matches at most 78 characters, a longer slice changes nothing"
   },
   {
-   "id": "messages.py:372:484",
+   "id": "messages.py:569:681",
    "file": "agenttrace/messages.py",
    "function": "_judge.nearest",
-   "line": 372,
+   "line": 569,
    "operator": "flip comparison",
    "old": "<=",
    "new": "<",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -372 +372 @@\n-            d = 0 if m.start() <= pos <= m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n+            d = 0 if m.start() < pos <= m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -569 +569 @@\n-            d = 0 if m.start() <= pos <= m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n+            d = 0 if m.start() < pos <= m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n",
    "judgement": "equivalent",
    "reason": "when pos equals m.start() the other branch also gives distance 0"
   },
   {
-   "id": "messages.py:372:485",
+   "id": "messages.py:569:682",
    "file": "agenttrace/messages.py",
    "function": "_judge.nearest",
-   "line": 372,
+   "line": 569,
    "operator": "flip comparison",
    "old": "<=",
    "new": "<",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -372 +372 @@\n-            d = 0 if m.start() <= pos <= m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n+            d = 0 if m.start() <= pos < m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -569 +569 @@\n-            d = 0 if m.start() <= pos <= m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n+            d = 0 if m.start() <= pos < m.end() else min(abs(m.start() - pos), abs(m.end() - pos))\n",
    "judgement": "equivalent",
    "reason": "when pos equals m.end() the other branch also gives distance 0"
   },
   {
-   "id": "messages.py:373:490",
+   "id": "messages.py:570:687",
    "file": "agenttrace/messages.py",
    "function": "_judge.nearest",
-   "line": 373,
+   "line": 570,
    "operator": "flip comparison",
    "old": "<",
    "new": "<=",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -373 +373 @@\n-            if best is None or d < best:\n+            if best is None or d <= best:\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -570 +570 @@\n-            if best is None or d < best:\n+            if best is None or d <= best:\n",
    "judgement": "equivalent",
    "reason": "replaces the best distance by an equal one"
   },
   {
-   "id": "messages.py:419:562",
+   "id": "messages.py:616:759",
    "file": "agenttrace/messages.py",
    "function": "_mention_index",
-   "line": 419,
+   "line": 616,
    "operator": "guard always true",
    "old": "e.channel",
    "new": "True",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -419 +419 @@\n-        if e.channel:\n+        if True:\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -616 +616 @@\n-        if e.channel:\n+        if True:\n",
    "judgement": "equivalent",
    "reason": "_short(None) is None, which the next guard skips"
   },
   {
-   "id": "messages.py:450:584",
+   "id": "messages.py:640:775",
+   "file": "agenttrace/messages.py",
+   "function": "_lfs_index",
+   "line": 640,
+   "operator": "guard always false",
+   "old": "\"oid\" not in e.text",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -640 +640 @@\n-        if \"oid\" not in e.text:\n+        if False:\n",
+   "judgement": "equivalent",
+   "reason": "only a shortcut: the object-id pattern needs the letters oid, so such a text gives no ids and the next guard skips it"
+  },
+  {
+   "id": "messages.py:641:778",
+   "file": "agenttrace/messages.py",
+   "function": "_lfs_index",
+   "line": 641,
+   "operator": "drop continue",
+   "old": "continue",
+   "new": "pass",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -641 +641 @@\n-            continue\n+            pass\n",
+   "judgement": "equivalent",
+   "reason": "as 640:775"
+  },
+  {
+   "id": "messages.py:643:780",
+   "file": "agenttrace/messages.py",
+   "function": "_lfs_index",
+   "line": 643,
+   "operator": "guard always false",
+   "old": "not oids",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -643 +643 @@\n-        if not oids:\n+        if False:\n",
+   "judgement": "equivalent",
+   "reason": "with no object ids both loops over them do nothing"
+  },
+  {
+   "id": "messages.py:644:782",
+   "file": "agenttrace/messages.py",
+   "function": "_lfs_index",
+   "line": 644,
+   "operator": "drop continue",
+   "old": "continue",
+   "new": "pass",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -644 +644 @@\n-            continue\n+            pass\n",
+   "judgement": "equivalent",
+   "reason": "as 643:780"
+  },
+  {
+   "id": "messages.py:649:795",
+   "file": "agenttrace/messages.py",
+   "function": "_lfs_index",
+   "line": 649,
+   "operator": "flip comparison",
+   "old": "<",
+   "new": "<=",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -649 +649 @@\n-                if o not in down or key < down[o]:\n+                if o not in down or key <= down[o]:\n",
+   "judgement": "equivalent",
+   "reason": "two keys are equal only for the same record, and a record names each object id once (a set)"
+  },
+  {
+   "id": "messages.py:697:827",
    "file": "agenttrace/messages.py",
    "function": "channel_ops",
-   "line": 450,
+   "line": 697,
    "operator": "guard always true",
    "old": "midx",
    "new": "True",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -450 +450 @@\n-        if midx:\n+        if True:\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -697 +697 @@\n-        if midx:\n+        if True:\n",
    "judgement": "equivalent",
    "reason": "with an empty index every lookup misses, so the loop adds nothing"
   },
   {
-   "id": "messages.py:485:640",
+   "id": "messages.py:741:897",
    "file": "agenttrace/messages.py",
    "function": "channel_ops",
-   "line": 485,
+   "line": 741,
    "operator": "guard always false",
    "old": "not found",
    "new": "False",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -485 +485 @@\n-        if not found:\n+        if False:\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -741 +741 @@\n-        if not found:\n+        if False:\n",
    "judgement": "equivalent",
    "reason": "with nothing found the loop over found does nothing"
   },
   {
-   "id": "messages.py:486:642",
+   "id": "messages.py:742:899",
    "file": "agenttrace/messages.py",
    "function": "channel_ops",
-   "line": 486,
+   "line": 742,
    "operator": "drop continue",
    "old": "continue",
    "new": "pass",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -486 +486 @@\n-            continue\n+            pass\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -742 +742 @@\n-            continue\n+            pass\n",
    "judgement": "equivalent",
    "reason": "with nothing found the loop over found does nothing"
   },
   {
-   "id": "messages.py:491:649",
+   "id": "messages.py:747:906",
    "file": "agenttrace/messages.py",
    "function": "channel_ops",
-   "line": 491,
+   "line": 747,
    "operator": "flip comparison",
    "old": ">",
    "new": ">=",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -491 +491 @@\n-            if len(toks) > 1 and ch in seg_of:\n+            if len(toks) >= 1 and ch in seg_of:\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -747 +747 @@\n-            if len(toks) > 1 and ch in seg_of:\n+            if len(toks) >= 1 and ch in seg_of:\n",
    "judgement": "equivalent",
    "reason": "with one token, `here` can only hold that token, which is already the actor"
   },
   {
-   "id": "messages.py:491:650",
+   "id": "messages.py:747:907",
    "file": "agenttrace/messages.py",
    "function": "channel_ops",
-   "line": 491,
+   "line": 747,
    "operator": "off by one",
    "old": "1",
    "new": "0",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -491 +491 @@\n-            if len(toks) > 1 and ch in seg_of:\n+            if len(toks) > 0 and ch in seg_of:\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -747 +747 @@\n-            if len(toks) > 1 and ch in seg_of:\n+            if len(toks) > 0 and ch in seg_of:\n",
    "judgement": "equivalent",
    "reason": "with one token `here` can only hold the actor; with none it is empty"
   },
   {
-   "id": "messages.py:584:778",
+   "id": "messages.py:855:1048",
    "file": "agenttrace/messages.py",
    "function": "deliveries",
-   "line": 584,
+   "line": 855,
    "operator": "off by one",
    "old": "4",
    "new": "3",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -584 +584 @@\n-        reads = sorted(reads, key=lambda o: (o[4] is None, o[4] or 0, o[5]))\n+        reads = sorted(reads, key=lambda o: (o[3] is None, o[4] or 0, o[5]))\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -855 +855 @@\n-        reads = sorted(reads, key=lambda o: (o[4] is None, o[4] or 0, o[5]))\n+        reads = sorted(reads, key=lambda o: (o[3] is None, o[4] or 0, o[5]))\n",
    "judgement": "equivalent",
    "reason": "the first key element only places undated reads among dated ones; an undated read never affects another read"
   },
   {
-   "id": "messages.py:584:779",
+   "id": "messages.py:855:1049",
    "file": "agenttrace/messages.py",
    "function": "deliveries",
-   "line": 584,
+   "line": 855,
    "operator": "off by one",
    "old": "4",
    "new": "5",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -584 +584 @@\n-        reads = sorted(reads, key=lambda o: (o[4] is None, o[4] or 0, o[5]))\n+        reads = sorted(reads, key=lambda o: (o[5] is None, o[4] or 0, o[5]))\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -855 +855 @@\n-        reads = sorted(reads, key=lambda o: (o[4] is None, o[4] or 0, o[5]))\n+        reads = sorted(reads, key=lambda o: (o[5] is None, o[4] or 0, o[5]))\n",
    "judgement": "equivalent",
-   "reason": "as 584:778"
+   "reason": "as 855:1048"
   },
   {
-   "id": "messages.py:584:780",
+   "id": "messages.py:855:1050",
    "file": "agenttrace/messages.py",
    "function": "deliveries",
-   "line": 584,
+   "line": 855,
    "operator": "flip comparison",
    "old": "is",
    "new": "is not",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -584 +584 @@\n-        reads = sorted(reads, key=lambda o: (o[4] is None, o[4] or 0, o[5]))\n+        reads = sorted(reads, key=lambda o: (o[4] is not None, o[4] or 0, o[5]))\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -855 +855 @@\n-        reads = sorted(reads, key=lambda o: (o[4] is None, o[4] or 0, o[5]))\n+        reads = sorted(reads, key=lambda o: (o[4] is not None, o[4] or 0, o[5]))\n",
    "judgement": "equivalent",
    "reason": "undated reads are then handled first instead of last; the order among dated reads is unchanged"
   },
   {
-   "id": "messages.py:688:988",
+   "id": "messages.py:993:1292",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 993,
+   "operator": "guard always true",
+   "old": "todo",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -993 +993 @@\n-    needed = set().union(*[terms for _d, terms in todo.values()]) if todo else set()\n+    needed = set().union(*[terms for _d, terms in todo.values()]) if True else set()\n",
+   "judgement": "equivalent",
+   "reason": "the union of no sets is the empty set"
+  },
+  {
+   "id": "messages.py:994:1294",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 994,
+   "operator": "guard always false",
+   "old": "not needed",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -994 +994 @@\n-    if not needed:\n+    if False:\n",
+   "judgement": "equivalent",
+   "reason": "only a shortcut: with no term needed no record holds one, every delivery ends with no terms, and the result is empty"
+  },
+  {
+   "id": "messages.py:1004:1297",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1004,
+   "operator": "guard always true",
+   "old": "e.id in wanted",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1004 +1004 @@\n-        if e.id in wanted:\n+        if True:\n",
+   "judgement": "equivalent",
+   "reason": "positions are then kept for every record, but only those of the deliveries' own records are looked up"
+  },
+  {
+   "id": "messages.py:1006:1299",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1006,
+   "operator": "guard always false",
+   "old": "len(e.text) < LATER_NUMBER_MIN",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1006 +1006 @@\n-        if len(e.text) < LATER_NUMBER_MIN:\n+        if False:\n",
+   "judgement": "equivalent",
+   "reason": "only a shortcut: every marker or run the term pattern finds is 5 or more characters long"
+  },
+  {
+   "id": "messages.py:1007:1302",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1007,
+   "operator": "drop continue",
+   "old": "continue",
+   "new": "pass",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1007 +1007 @@\n-            continue\n+            pass\n",
+   "judgement": "equivalent",
+   "reason": "as 1006:1299"
+  },
+  {
+   "id": "messages.py:1009:1304",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1009,
+   "operator": "guard always false",
+   "old": "not held",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1009 +1009 @@\n-        if not held:\n+        if False:\n",
+   "judgement": "equivalent",
+   "reason": "a record that holds no needed term adds an empty set everywhere it is entered"
+  },
+  {
+   "id": "messages.py:1010:1306",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1010,
+   "operator": "drop continue",
+   "old": "continue",
+   "new": "pass",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1010 +1010 @@\n-            continue\n+            pass\n",
+   "judgement": "equivalent",
+   "reason": "as 1009:1304"
+  },
+  {
+   "id": "messages.py:1011:1308",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1011,
+   "operator": "guard always true",
+   "old": "e.id in wanted",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1011 +1011 @@\n-        if e.id in wanted:\n+        if True:\n",
+   "judgement": "equivalent",
+   "reason": "the terms held are then kept for every record, but only the read record's are looked up"
+  },
+  {
+   "id": "messages.py:1019:1318",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1019,
+   "operator": "flip comparison",
+   "old": "<",
+   "new": "<=",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1019 +1019 @@\n-                if key < f[a]:\n+                if key <= f[a]:\n",
+   "judgement": "equivalent",
+   "reason": "two keys are equal only for the same record (the key ends with the position in the input)"
+  },
+  {
+   "id": "messages.py:1023:1319",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1023,
+   "operator": "guard always false",
+   "old": "len(f) > 2",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1023 +1023 @@\n-                if len(f) > 2:\n+                if False:\n",
+   "judgement": "equivalent",
+   "reason": "only saves memory: the earliest actor other than the writer is always among the two earliest actors, so keeping every actor gives guard 1 the same answer"
+  },
+  {
+   "id": "messages.py:1023:1323",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1023,
+   "operator": "off by one",
+   "old": "2",
+   "new": "3",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1023 +1023 @@\n-                if len(f) > 2:\n+                if len(f) > 3:\n",
+   "judgement": "equivalent",
+   "reason": "as 1023:1319, keeping the three earliest"
+  },
+  {
+   "id": "messages.py:1025:1325",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1025,
+   "operator": "guard always true",
+   "old": "a in readers",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1025 +1025 @@\n-        if a in readers:\n+        if True:\n",
+   "judgement": "equivalent",
+   "reason": "records are then listed for every actor, but only the reader's list is looked up"
+  },
+  {
+   "id": "messages.py:1036:1337",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1036,
+   "operator": "guard always false",
+   "old": "not terms",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1036 +1036 @@\n-        if not terms:\n+        if False:\n",
+   "judgement": "equivalent",
+   "reason": "with no terms left the loop over the reader's records finds nothing"
+  },
+  {
+   "id": "messages.py:1037:1339",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1037,
+   "operator": "drop continue",
+   "old": "continue",
+   "new": "pass",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1037 +1037 @@\n-            continue\n+            pass\n",
+   "judgement": "equivalent",
+   "reason": "as 1036:1337"
+  },
+  {
+   "id": "messages.py:1040:1340",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1040,
+   "operator": "guard always false",
+   "old": "rid == r",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1040 +1040 @@\n-            if rid == r:\n+            if False:\n",
+   "judgement": "unjudged",
+   "note": "differs only when two records share the read record's id. The loader renames repeated ids (since v2.2.0), so no loaded trace can show it; left unjudged because that is a property of the loader, not of messages.py."
+  },
+  {
+   "id": "messages.py:1041:1343",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1041,
+   "operator": "drop continue",
+   "old": "continue",
+   "new": "pass",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1041 +1041 @@\n-                continue\n+                pass\n",
+   "judgement": "unjudged",
+   "note": "as 1040:1340"
+  },
+  {
+   "id": "messages.py:1042:1346",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1042,
+   "operator": "flip comparison",
+   "old": "<",
+   "new": "<=",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1042 +1042 @@\n-            if key < rkey:\n+            if key <= rkey:\n",
+   "judgement": "equivalent",
+   "reason": "the keys are equal only for the read record itself, which is skipped just above"
+  },
+  {
+   "id": "messages.py:1046:1355",
+   "file": "agenttrace/messages.py",
+   "function": "_later_output_test",
+   "line": 1046,
+   "operator": "flip comparison",
+   "old": "<",
+   "new": "<=",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1046 +1046 @@\n-                    if x not in later or key < later[x][0]:\n+                    if x not in later or key <= later[x][0]:\n",
+   "judgement": "equivalent",
+   "reason": "two keys are equal only for the same record"
+  },
+  {
+   "id": "messages.py:1090:1383",
+   "file": "agenttrace/messages.py",
+   "function": "written_content_test",
+   "line": 1090,
+   "operator": "guard always true",
+   "old": "needed",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1090 +1090 @@\n-    if needed:\n+    if True:\n",
+   "judgement": "equivalent",
+   "reason": "with no term needed the loop counts nothing"
+  },
+  {
+   "id": "messages.py:1092:1384",
+   "file": "agenttrace/messages.py",
+   "function": "written_content_test",
+   "line": 1092,
+   "operator": "guard always false",
+   "old": "len(e.text) < CONTENT_MIN_LEN",
+   "new": "False",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1092 +1092 @@\n-            if len(e.text) < CONTENT_MIN_LEN:\n+            if False:\n",
+   "judgement": "unjudged",
+   "note": "not equivalent. A record whose whole text is a 7-character marker ([A:b:1]) holds a term of R38a but is skipped by this length guard, so it is not counted among the records that hold the term. The mutant counts it. No test pins this: it is a quirk of the guard, not a statement of the rule."
+  },
+  {
+   "id": "messages.py:1093:1387",
+   "file": "agenttrace/messages.py",
+   "function": "written_content_test",
+   "line": 1093,
+   "operator": "drop continue",
+   "old": "continue",
+   "new": "pass",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1093 +1093 @@\n-                continue\n+                pass\n",
+   "judgement": "unjudged",
+   "note": "as 1092:1384"
+  },
+  {
+   "id": "messages.py:1096:1391",
+   "file": "agenttrace/messages.py",
+   "function": "written_content_test",
+   "line": 1096,
+   "operator": "guard always true",
+   "old": "todo",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1096 +1096 @@\n-    later = _later_output_test(events, pack, todo, who, time_of) if todo else {}\n+    later = _later_output_test(events, pack, todo, who, time_of) if True else {}\n",
+   "judgement": "equivalent",
+   "reason": "with nothing to do _later_output_test returns an empty result at once"
+  },
+  {
+   "id": "messages.py:1166:1450",
    "file": "agenttrace/messages.py",
    "function": "content_spread.touches",
-   "line": 688,
+   "line": 1166,
    "operator": "guard always false",
    "old": "e is None",
    "new": "False",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -688 +688 @@\n-        if e is None:\n+        if False:\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1166 +1166 @@\n-        if e is None:\n+        if False:\n",
    "judgement": "equivalent",
    "reason": "rid always comes from the events, so by_id.get(rid) is never None"
   },
   {
-   "id": "messages.py:689:991",
+   "id": "messages.py:1167:1453",
    "file": "agenttrace/messages.py",
    "function": "content_spread.touches",
-   "line": 689,
+   "line": 1167,
    "operator": "flip returned bool",
    "old": "False",
    "new": "True",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -689 +689 @@\n-            return False\n+            return True\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1167 +1167 @@\n-            return False\n+            return True\n",
    "judgement": "equivalent",
    "reason": "unreachable: by_id.get(rid) is never None"
   },
   {
-   "id": "messages.py:710:1022",
+   "id": "messages.py:1191:1493",
    "file": "agenttrace/messages.py",
    "function": "content_spread",
-   "line": 710,
+   "line": 1191,
    "operator": "off by one",
    "old": "1",
    "new": "0",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -710 +710 @@\n-        dated = sorted((x for x in lst if x[0] is not None), key=lambda x: (x[0], x[1]))\n+        dated = sorted((x for x in lst if x[0] is not None), key=lambda x: (x[0], x[0]))\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1191 +1191 @@\n-        dated = sorted((x for x in lst if x[0] is not None), key=lambda x: (x[0], x[1]))\n+        dated = sorted((x for x in lst if x[0] is not None), key=lambda x: (x[0], x[0]))\n",
    "judgement": "equivalent",
    "reason": "the copies are appended in input order and the sort is stable, so ties already fall in input order"
   },
   {
-   "id": "messages.py:771:1103",
+   "id": "messages.py:1223:1539",
    "file": "agenttrace/messages.py",
    "function": "message_flow",
-   "line": 771,
+   "line": 1223,
+   "operator": "guard always true",
+   "old": "parts",
+   "new": "True",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1223 +1223 @@\n-    records = [e for _i, e in view] if parts else events\n+    records = [e for _i, e in view] if True else events\n",
+   "judgement": "equivalent",
+   "reason": "with nothing joined the view holds every record itself, in input order: the same list"
+  },
+  {
+   "id": "messages.py:1263:1580",
+   "file": "agenttrace/messages.py",
+   "function": "message_flow",
+   "line": 1263,
    "operator": "off by one",
    "old": "1",
    "new": "2",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -771 +771 @@\n-        t = p[\"channel\"].split(\":\", 1)[0]\n+        t = p[\"channel\"].split(\":\", 2)[0]\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1263 +1263 @@\n-        t = p[\"channel\"].split(\":\", 1)[0]\n+        t = p[\"channel\"].split(\":\", 2)[0]\n",
    "judgement": "equivalent",
    "reason": "[0] of split(':', n) is the same for any n >= 1"
   },
   {
-   "id": "messages.py:794:1132",
+   "id": "messages.py:1286:1609",
    "file": "agenttrace/messages.py",
    "function": "message_flow",
-   "line": 794,
+   "line": 1286,
    "operator": "off by one",
    "old": "6",
    "new": "5",
-   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -794 +794 @@\n-        \"records_on_channels\": len({o[6] for o in ops}),\n+        \"records_on_channels\": len({o[5] for o in ops}),\n",
+   "diff": "--- a/agenttrace/messages.py\n+++ b/agenttrace/messages.py\n@@ -1286 +1286 @@\n-        \"records_on_channels\": len({o[6] for o in ops}),\n+        \"records_on_channels\": len({o[5] for o in ops}),\n",
    "judgement": "unjudged",
-   "note": "len({o[6]}) -> len({o[5]}): distinct record ids against distinct input positions. The two counts are equal whenever record ids are unique; left unjudged because that is a property of the loader, not of messages.py, and no test here feeds duplicate ids."
+   "note": "len({o[6]}) -> len({o[5]}): distinct record ids against distinct input positions. The two counts are equal whenever record ids are unique, which the loader ensures since v2.2.0 (repeated ids are renamed); left unjudged because that is a property of the loader, not of messages.py, and no test here feeds duplicate ids."
   }
  ],
- "survivors_equivalent": 48,
- "survivors_unjudged": 1,
+ "survivors_equivalent": 78,
+ "survivors_unjudged": 8,
  "judged_equivalent_but_killed": [],
- "kill_rate_non_equivalent": 0.9991,
+ "kill_rate_non_equivalent": 0.9949,
+ "messages_py_sha256": "d27a06d24cad624be3d93bb9b66c6276bba16b52687f1a686953db7a426e3ae3",
  "survivors_equivalent_list": [
   {
-   "id": "messages.py:33:1",
+   "id": "messages.py:35:1",
    "function": "_thread_identity",
    "old": "\"_thread_ident\" not in rec",
    "new": "True",
    "reason": "only a cache: computing the table again gives the same table"
   },
   {
-   "id": "messages.py:39:7",
+   "id": "messages.py:41:7",
    "function": "_thread_identity",
    "old": "1",
    "new": "2",
    "reason": "every vote counts double, so the most used token is the same"
   },
   {
-   "id": "messages.py:40:9",
+   "id": "messages.py:42:9",
    "function": "_thread_identity",
    "old": "1",
    "new": "2",
    "reason": "most_common(2)[0] is most_common(1)[0]"
   },
   {
-   "id": "messages.py:55:24",
+   "id": "messages.py:59:27",
    "function": "actor_of",
    "old": "1",
    "new": "0",
    "reason": "packs.py builds the handle pattern as lookbehind + (group 1) + lookahead, so group(0) equals group(1)"
   },
   {
-   "id": "messages.py:82:34",
+   "id": "messages.py:86:37",
    "function": "direct_messages",
    "old": "e.parent",
    "new": "True",
    "reason": "children[None] is filled but never looked up (lookups use a record id)"
   },
   {
-   "id": "messages.py:90:37",
+   "id": "messages.py:94:40",
    "function": "direct_messages.who",
    "old": "j not in memo",
    "new": "True",
    "reason": "only a memo: actor_of gives the same answer again"
   },
   {
-   "id": "messages.py:104:57",
+   "id": "messages.py:108:60",
    "function": "direct_messages",
    "old": "1",
    "new": "0",
    "reason": "the slice then starts at the message itself, which the reply test rejects (j != i)"
   },
   {
-   "id": "messages.py:106:67",
+   "id": "messages.py:110:70",
    "function": "direct_messages",
    "old": "reply is not None",
    "new": "True",
    "reason": "with no reply rid is the message's own id, and times.get of it is t"
   },
   {
-   "id": "messages.py:165:108",
+   "id": "messages.py:148:97",
+   "function": "_open_verb",
+   "old": "not text or not text[-1].isalpha()",
+   "new": "False",
+   "reason": "only a shortcut: the pattern ends with a letter at the end of the text, so it finds nothing in an empty text or one that ends otherwise"
+  },
+  {
+   "id": "messages.py:190:157",
+   "function": "join_fragments",
+   "old": "<",
+   "new": "<=",
+   "reason": "for the last record the inner loop does not run (j < n fails), so nothing is joined either way"
+  },
+  {
+   "id": "messages.py:206:181",
+   "function": "join_fragments",
+   "old": "1",
+   "new": "0",
+   "reason": "the slice then starts at the first fragment, which has no time here (that is the guard), so it is skipped"
+  },
+  {
+   "id": "messages.py:218:186",
+   "function": "_joined_lookup",
+   "old": "not parts",
+   "new": "False",
+   "reason": "with nothing joined the two lookups built below give ids[rid] and times.get(rid), the same answers"
+  },
+  {
+   "id": "messages.py:308:255",
+   "function": "_unescape",
+   "old": "\"\\\\\" not in raw",
+   "new": "False",
+   "reason": "a string with no backslash has no escape: json.loads gives it back unchanged, or fails and the raw string is returned"
+  },
+  {
+   "id": "messages.py:314:259",
+   "function": "_unescape",
+   "old": "isinstance(v, str)",
+   "new": "True",
+   "reason": "the text handed to json.loads begins with a quote, so what it returns is always a string"
+  },
+  {
+   "id": "messages.py:356:296",
    "function": "_call_end",
    "old": "1",
    "new": "0",
    "reason": "no request-call pattern can match starting at the '(' itself"
   },
   {
-   "id": "messages.py:237:229",
+   "id": "messages.py:428:417",
    "function": "_descriptor_verb",
    "old": ">=",
    "new": ">",
    "reason": "hi is searched from pos and pos > 0 (the url key comes before it), so hi is -1 or greater than 0"
   },
   {
-   "id": "messages.py:237:230",
+   "id": "messages.py:428:418",
    "function": "_descriptor_verb",
    "old": "0",
    "new": "1",
-   "reason": "hi is -1 or greater than 0 (see 237 '>=' -> '>')"
+   "reason": "hi is -1 or greater than 0 (see 428 '>=' -> '>')"
   },
   {
-   "id": "messages.py:279:282",
+   "id": "messages.py:472:470",
    "function": "_judge",
    "old": "160",
    "new": "159",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:283",
+   "id": "messages.py:472:471",
    "function": "_judge",
    "old": "160",
    "new": "161",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:284",
+   "id": "messages.py:472:472",
    "function": "_judge",
    "old": "160",
    "new": "40",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:285",
+   "id": "messages.py:472:473",
    "function": "_judge",
    "old": "160",
    "new": "640",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:286",
+   "id": "messages.py:472:474",
    "function": "_judge",
    "old": "260",
    "new": "259",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:287",
+   "id": "messages.py:472:475",
    "function": "_judge",
    "old": "260",
    "new": "261",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:288",
+   "id": "messages.py:472:476",
    "function": "_judge",
    "old": "260",
    "new": "1040",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:279:289",
+   "id": "messages.py:472:477",
    "function": "_judge",
    "old": "260",
    "new": "65",
    "reason": "_judge is only called by judge_span and judge_how, which always pass before and after; its own defaults are never used"
   },
   {
-   "id": "messages.py:327:377",
+   "id": "messages.py:522:572",
    "function": "_judge",
    "old": "0",
    "new": "1",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:378",
+   "id": "messages.py:522:573",
    "function": "_judge",
    "old": "80",
    "new": "79",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:379",
+   "id": "messages.py:522:574",
    "function": "_judge",
    "old": "80",
    "new": "81",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:380",
+   "id": "messages.py:522:575",
    "function": "_judge",
    "old": "80",
    "new": "20",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:381",
+   "id": "messages.py:522:576",
    "function": "_judge",
    "old": "80",
    "new": "320",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:382",
+   "id": "messages.py:522:577",
    "function": "_judge",
    "old": "120",
    "new": "119",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:383",
+   "id": "messages.py:522:578",
    "function": "_judge",
    "old": "120",
    "new": "121",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:384",
+   "id": "messages.py:522:579",
    "function": "_judge",
    "old": "120",
    "new": "30",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:327:385",
+   "id": "messages.py:522:580",
    "function": "_judge",
    "old": "120",
    "new": "480",
    "reason": "the variable `near` is assigned and never read"
   },
   {
-   "id": "messages.py:338:403",
+   "id": "messages.py:533:598",
    "function": "_judge",
    "old": "_helper_verb(text, um.start()) is not None",
    "new": "True",
    "reason": "when the helper carries no verb both branches set the same verdict and span"
   },
   {
-   "id": "messages.py:352:457",
+   "id": "messages.py:547:652",
    "function": "_judge",
    "old": "90",
    "new": "89",
    "reason": "the pattern matches at most 78 characters (70 + quote + DELETE + quote), so a slice of 89 is enough"
   },
   {
-   "id": "messages.py:352:458",
+   "id": "messages.py:547:653",
    "function": "_judge",
    "old": "90",
    "new": "91",
    "reason": "the pattern matches at most 78 characters, a longer slice changes nothing"
   },
   {
-   "id": "messages.py:352:460",
+   "id": "messages.py:547:655",
    "function": "_judge",
    "old": "90",
    "new": "360",
    "reason": "the pattern matches at most 78 characters, a longer slice changes nothing"
   },
   {
-   "id": "messages.py:372:484",
+   "id": "messages.py:569:681",
    "function": "_judge.nearest",
    "old": "<=",
    "new": "<",
    "reason": "when pos equals m.start() the other branch also gives distance 0"
   },
   {
-   "id": "messages.py:372:485",
+   "id": "messages.py:569:682",
    "function": "_judge.nearest",
    "old": "<=",
    "new": "<",
    "reason": "when pos equals m.end() the other branch also gives distance 0"
   },
   {
-   "id": "messages.py:373:490",
+   "id": "messages.py:570:687",
    "function": "_judge.nearest",
    "old": "<",
    "new": "<=",
    "reason": "replaces the best distance by an equal one"
   },
   {
-   "id": "messages.py:419:562",
+   "id": "messages.py:616:759",
    "function": "_mention_index",
    "old": "e.channel",
    "new": "True",
    "reason": "_short(None) is None, which the next guard skips"
   },
   {
-   "id": "messages.py:450:584",
+   "id": "messages.py:640:775",
+   "function": "_lfs_index",
+   "old": "\"oid\" not in e.text",
+   "new": "False",
+   "reason": "only a shortcut: the object-id pattern needs the letters oid, so such a text gives no ids and the next guard skips it"
+  },
+  {
+   "id": "messages.py:641:778",
+   "function": "_lfs_index",
+   "old": "continue",
+   "new": "pass",
+   "reason": "as 640:775"
+  },
+  {
+   "id": "messages.py:643:780",
+   "function": "_lfs_index",
+   "old": "not oids",
+   "new": "False",
+   "reason": "with no object ids both loops over them do nothing"
+  },
+  {
+   "id": "messages.py:644:782",
+   "function": "_lfs_index",
+   "old": "continue",
+   "new": "pass",
+   "reason": "as 643:780"
+  },
+  {
+   "id": "messages.py:649:795",
+   "function": "_lfs_index",
+   "old": "<",
+   "new": "<=",
+   "reason": "two keys are equal only for the same record, and a record names each object id once (a set)"
+  },
+  {
+   "id": "messages.py:697:827",
    "function": "channel_ops",
    "old": "midx",
    "new": "True",
    "reason": "with an empty index every lookup misses, so the loop adds nothing"
   },
   {
-   "id": "messages.py:485:640",
+   "id": "messages.py:741:897",
    "function": "channel_ops",
    "old": "not found",
    "new": "False",
    "reason": "with nothing found the loop over found does nothing"
   },
   {
-   "id": "messages.py:486:642",
+   "id": "messages.py:742:899",
    "function": "channel_ops",
    "old": "continue",
    "new": "pass",
    "reason": "with nothing found the loop over found does nothing"
   },
   {
-   "id": "messages.py:491:649",
+   "id": "messages.py:747:906",
    "function": "channel_ops",
    "old": ">",
    "new": ">=",
    "reason": "with one token, `here` can only hold that token, which is already the actor"
   },
   {
-   "id": "messages.py:491:650",
+   "id": "messages.py:747:907",
    "function": "channel_ops",
    "old": "1",
    "new": "0",
    "reason": "with one token `here` can only hold the actor; with none it is empty"
   },
   {
-   "id": "messages.py:584:778",
+   "id": "messages.py:855:1048",
    "function": "deliveries",
    "old": "4",
    "new": "3",
    "reason": "the first key element only places undated reads among dated ones; an undated read never affects another read"
   },
   {
-   "id": "messages.py:584:779",
+   "id": "messages.py:855:1049",
    "function": "deliveries",
    "old": "4",
    "new": "5",
-   "reason": "as 584:778"
+   "reason": "as 855:1048"
   },
   {
-   "id": "messages.py:584:780",
+   "id": "messages.py:855:1050",
    "function": "deliveries",
    "old": "is",
    "new": "is not",
    "reason": "undated reads are then handled first instead of last; the order among dated reads is unchanged"
   },
   {
-   "id": "messages.py:688:988",
+   "id": "messages.py:993:1292",
+   "function": "_later_output_test",
+   "old": "todo",
+   "new": "True",
+   "reason": "the union of no sets is the empty set"
+  },
+  {
+   "id": "messages.py:994:1294",
+   "function": "_later_output_test",
+   "old": "not needed",
+   "new": "False",
+   "reason": "only a shortcut: with no term needed no record holds one, every delivery ends with no terms, and the result is empty"
+  },
+  {
+   "id": "messages.py:1004:1297",
+   "function": "_later_output_test",
+   "old": "e.id in wanted",
+   "new": "True",
+   "reason": "positions are then kept for every record, but only those of the deliveries' own records are looked up"
+  },
+  {
+   "id": "messages.py:1006:1299",
+   "function": "_later_output_test",
+   "old": "len(e.text) < LATER_NUMBER_MIN",
+   "new": "False",
+   "reason": "only a shortcut: every marker or run the term pattern finds is 5 or more characters long"
+  },
+  {
+   "id": "messages.py:1007:1302",
+   "function": "_later_output_test",
+   "old": "continue",
+   "new": "pass",
+   "reason": "as 1006:1299"
+  },
+  {
+   "id": "messages.py:1009:1304",
+   "function": "_later_output_test",
+   "old": "not held",
+   "new": "False",
+   "reason": "a record that holds no needed term adds an empty set everywhere it is entered"
+  },
+  {
+   "id": "messages.py:1010:1306",
+   "function": "_later_output_test",
+   "old": "continue",
+   "new": "pass",
+   "reason": "as 1009:1304"
+  },
+  {
+   "id": "messages.py:1011:1308",
+   "function": "_later_output_test",
+   "old": "e.id in wanted",
+   "new": "True",
+   "reason": "the terms held are then kept for every record, but only the read record's are looked up"
+  },
+  {
+   "id": "messages.py:1019:1318",
+   "function": "_later_output_test",
+   "old": "<",
+   "new": "<=",
+   "reason": "two keys are equal only for the same record (the key ends with the position in the input)"
+  },
+  {
+   "id": "messages.py:1023:1319",
+   "function": "_later_output_test",
+   "old": "len(f) > 2",
+   "new": "False",
+   "reason": "only saves memory: the earliest actor other than the writer is always among the two earliest actors, so keeping every actor gives guard 1 the same answer"
+  },
+  {
+   "id": "messages.py:1023:1323",
+   "function": "_later_output_test",
+   "old": "2",
+   "new": "3",
+   "reason": "as 1023:1319, keeping the three earliest"
+  },
+  {
+   "id": "messages.py:1025:1325",
+   "function": "_later_output_test",
+   "old": "a in readers",
+   "new": "True",
+   "reason": "records are then listed for every actor, but only the reader's list is looked up"
+  },
+  {
+   "id": "messages.py:1036:1337",
+   "function": "_later_output_test",
+   "old": "not terms",
+   "new": "False",
+   "reason": "with no terms left the loop over the reader's records finds nothing"
+  },
+  {
+   "id": "messages.py:1037:1339",
+   "function": "_later_output_test",
+   "old": "continue",
+   "new": "pass",
+   "reason": "as 1036:1337"
+  },
+  {
+   "id": "messages.py:1042:1346",
+   "function": "_later_output_test",
+   "old": "<",
+   "new": "<=",
+   "reason": "the keys are equal only for the read record itself, which is skipped just above"
+  },
+  {
+   "id": "messages.py:1046:1355",
+   "function": "_later_output_test",
+   "old": "<",
+   "new": "<=",
+   "reason": "two keys are equal only for the same record"
+  },
+  {
+   "id": "messages.py:1090:1383",
+   "function": "written_content_test",
+   "old": "needed",
+   "new": "True",
+   "reason": "with no term needed the loop counts nothing"
+  },
+  {
+   "id": "messages.py:1096:1391",
+   "function": "written_content_test",
+   "old": "todo",
+   "new": "True",
+   "reason": "with nothing to do _later_output_test returns an empty result at once"
+  },
+  {
+   "id": "messages.py:1166:1450",
    "function": "content_spread.touches",
    "old": "e is None",
    "new": "False",
    "reason": "rid always comes from the events, so by_id.get(rid) is never None"
   },
   {
-   "id": "messages.py:689:991",
+   "id": "messages.py:1167:1453",
    "function": "content_spread.touches",
    "old": "False",
    "new": "True",
    "reason": "unreachable: by_id.get(rid) is never None"
   },
   {
-   "id": "messages.py:710:1022",
+   "id": "messages.py:1191:1493",
    "function": "content_spread",
    "old": "1",
    "new": "0",
    "reason": "the copies are appended in input order and the sort is stable, so ties already fall in input order"
   },
   {
-   "id": "messages.py:771:1103",
+   "id": "messages.py:1223:1539",
+   "function": "message_flow",
+   "old": "parts",
+   "new": "True",
+   "reason": "with nothing joined the view holds every record itself, in input order: the same list"
+  },
+  {
+   "id": "messages.py:1263:1580",
    "function": "message_flow",
    "old": "1",
    "new": "2",
@@ -1167,73 +1929,64 @@
  ],
  "survivors_unjudged_list": [
   {
-   "id": "messages.py:794:1132",
+   "id": "messages.py:150:104",
+   "function": "_open_verb",
+   "old": "48",
+   "new": "47",
+   "note": "not equivalent. The 48-character look-back is a limit of the code that R13a does not state (it says spaces are allowed). The mutant differs only when the cut call is exactly 48 characters long, that is 37 spaces inside it. No test pins the limit: a test would defend the limit, not the rule."
+  },
+  {
+   "id": "messages.py:150:105",
+   "function": "_open_verb",
+   "old": "48",
+   "new": "49",
+   "note": "not equivalent, as 150:104: differs only when the cut call is 49 characters long (38 spaces inside it). The mutant is the one that follows R13a as written."
+  },
+  {
+   "id": "messages.py:150:107",
+   "function": "_open_verb",
+   "old": "48",
+   "new": "192",
+   "note": "not equivalent, as 150:104: differs only when the cut call is 49 to 192 characters long. The mutant is the one that follows R13a as written."
+  },
+  {
+   "id": "messages.py:1040:1340",
+   "function": "_later_output_test",
+   "old": "rid == r",
+   "new": "False",
+   "note": "differs only when two records share the read record's id. The loader renames repeated ids (since v2.2.0), so no loaded trace can show it; left unjudged because that is a property of the loader, not of messages.py."
+  },
+  {
+   "id": "messages.py:1041:1343",
+   "function": "_later_output_test",
+   "old": "continue",
+   "new": "pass",
+   "note": "as 1040:1340"
+  },
+  {
+   "id": "messages.py:1092:1384",
+   "function": "written_content_test",
+   "old": "len(e.text) < CONTENT_MIN_LEN",
+   "new": "False",
+   "note": "not equivalent. A record whose whole text is a 7-character marker ([A:b:1]) holds a term of R38a but is skipped by this length guard, so it is not counted among the records that hold the term. The mutant counts it. No test pins this: it is a quirk of the guard, not a statement of the rule."
+  },
+  {
+   "id": "messages.py:1093:1387",
+   "function": "written_content_test",
+   "old": "continue",
+   "new": "pass",
+   "note": "as 1092:1384"
+  },
+  {
+   "id": "messages.py:1286:1609",
    "function": "message_flow",
    "old": "6",
    "new": "5",
-   "note": "len({o[6]}) -> len({o[5]}): distinct record ids against distinct input positions. The two counts are equal whenever record ids are unique; left unjudged because that is a property of the loader, not of messages.py, and no test here feeds duplicate ids."
+   "note": "len({o[6]}) -> len({o[5]}): distinct record ids against distinct input positions. The two counts are equal whenever record ids are unique, which the loader ensures since v2.2.0 (repeated ids are renamed); left unjudged because that is a property of the loader, not of messages.py, and no test here feeds duplicate ids."
   }
  ],
- "baseline_tests_git_HEAD": {
-  "mode": "full, baseline tests (git HEAD)",
-  "tests": [
-   "agenttrace.tests.test_messages"
-  ],
-  "mutants_run": 1173,
-  "killed": 342,
-  "survived": 831,
-  "kill_rate": 0.2916
- },
  "before": {
-  "made": "2026-11-14T21:12:02Z",
-  "mode": "full",
-  "tests": [
-   "agenttrace.tests.test_messages",
-   "agenttrace.tests.test_properties",
-   "agenttrace.tests.test_refcount"
-  ],
-  "mutants_run": 1173,
-  "killed": 678,
-  "killed_by_timeout": 1,
-  "survived": 495,
-  "kill_rate": 0.578,
-  "seconds": 498.2,
-  "survivors_by_function": {
-   "_call_end": 11,
-   "_descriptor_verb": 33,
-   "_direct_perf": 3,
-   "_helper_verb": 26,
-   "_hidden_holder_written": 10,
-   "_how_group": 1,
-   "_in_order": 12,
-   "_judge": 122,
-   "_judge.nearest": 7,
-   "_lines": 3,
-   "_mention_index": 6,
-   "_norm": 1,
-   "_opts_write": 18,
-   "_short": 1,
-   "_thread_identity": 4,
-   "actor_of": 5,
-   "channel_ops": 38,
-   "compile_channels": 3,
-   "content_spread": 24,
-   "content_spread.touches": 27,
-   "deliveries": 26,
-   "direct_messages": 19,
-   "direct_messages.who": 1,
-   "families": 9,
-   "grade_of": 1,
-   "judge_how": 6,
-   "judge_op": 9,
-   "judge_span": 10,
-   "message_flow": 52,
-   "program_prefix": 7
-  },
-  "note": "tests: test_messages, test_refcount, test_properties, before agenttrace/tests/test_mutants.py existed; no survivor had been judged"
- },
- "after": {
-  "made": "2026-11-15T09:42:43Z",
+  "made": "2026-11-22T10:17:00Z",
   "mode": "full",
   "tests": [
    "agenttrace.tests.test_messages",
@@ -1241,16 +1994,152 @@
    "agenttrace.tests.test_properties",
    "agenttrace.tests.test_refcount"
   ],
-  "mutants_run": 1173,
-  "killed": 1124,
-  "killed_by_timeout": 1,
-  "survived": 49,
-  "kill_rate": 0.9582,
-  "seconds": 78.4,
-  "survivors_equivalent": 48,
-  "survivors_unjudged": 1,
-  "judged_equivalent_but_killed": [],
-  "kill_rate_non_equivalent": 0.9991
+  "mutants_run": 1656,
+  "killed": 1266,
+  "killed_by_timeout": 3,
+  "survived": 390,
+  "kill_rate": 0.7645,
+  "seconds": 810.7,
+  "survivors_by_function": {
+   "<module>": 8,
+   "_call_end": 1,
+   "_completes": 6,
+   "_descriptor_verb": 2,
+   "_first_object": 33,
+   "_is_distinctive": 15,
+   "_joined_lookup": 1,
+   "_joined_lookup.time_of": 1,
+   "_judge": 28,
+   "_judge.nearest": 3,
+   "_later_output_test": 67,
+   "_lfs_index": 34,
+   "_lfs_upload_counts": 12,
+   "_lists_token": 9,
+   "_mention_index": 1,
+   "_open_verb": 11,
+   "_same_source": 14,
+   "_thread_identity": 3,
+   "_unescape": 5,
+   "_without_place_arguments": 6,
+   "actor_of": 1,
+   "channel_ops": 15,
+   "content_spread": 1,
+   "content_spread.touches": 11,
+   "deliveries": 10,
+   "direct_messages": 3,
+   "direct_messages.who": 1,
+   "join_fragments": 12,
+   "message_flow": 11,
+   "tool_op": 1,
+   "tool_places": 8,
+   "what_was_written": 8,
+   "written_content_test": 48
+  },
+  "note": "the same 1,656 mutants with the tests as they stood before this run: test_mutants (87 tests), test_messages, test_refcount, test_properties. No survivor counted as judged: the table of equivalent mutants was tied to the v2.1.0 bytes of messages.py."
  },
- "note": "Full run, every mutant of messages.py (1,173). Baseline (test_messages at git HEAD): 342 killed. Before: 678 killed (0.578). After adding agenttrace/tests/test_mutants.py: 1124 killed (0.9582), 49 survive: 48 judged equivalent by hand (reasons in agenttrace/tools/mutate.py EQUIVALENT), 1 unjudged. Killed share of non-equivalent mutants: 1124/1125 = 0.9991. The equivalence judgements are a person's reading of the code, not a proof."
+ "after": {
+  "made": "2026-11-22T10:31:43Z",
+  "mode": "full",
+  "tests": [
+   "agenttrace.tests.test_audit_rules",
+   "agenttrace.tests.test_messages",
+   "agenttrace.tests.test_mutants",
+   "agenttrace.tests.test_properties",
+   "agenttrace.tests.test_refcount",
+   "agenttrace.tests.test_tool_calls"
+  ],
+  "mutants_run": 1656,
+  "killed": 1570,
+  "killed_by_timeout": 3,
+  "survived": 86,
+  "kill_rate": 0.9481,
+  "seconds": 202.7,
+  "survivors_equivalent": 78,
+  "survivors_unjudged": 8,
+  "judged_equivalent_but_killed": [],
+  "kill_rate_non_equivalent": 0.9949
+ },
+ "history_v2_1_0": {
+  "note": "the run published with v2.1.0 and v2.2.0, on the v2.1.0 bytes of messages.py (1,173 mutants). messages.py changed in v2.2.0 and v2.3.0 without a new run until this one.",
+  "messages_py_sha256": "7ca521d71e4780a9700acf8370e1281664b16319db16c51d88494ed28fb54afc",
+  "baseline_tests_git_HEAD": {
+   "mode": "full, baseline tests (git HEAD)",
+   "tests": [
+    "agenttrace.tests.test_messages"
+   ],
+   "mutants_run": 1173,
+   "killed": 342,
+   "survived": 831,
+   "kill_rate": 0.2916
+  },
+  "before": {
+   "made": "2026-11-14T21:12:02Z",
+   "mode": "full",
+   "tests": [
+    "agenttrace.tests.test_messages",
+    "agenttrace.tests.test_properties",
+    "agenttrace.tests.test_refcount"
+   ],
+   "mutants_run": 1173,
+   "killed": 678,
+   "killed_by_timeout": 1,
+   "survived": 495,
+   "kill_rate": 0.578,
+   "seconds": 498.2,
+   "survivors_by_function": {
+    "_call_end": 11,
+    "_descriptor_verb": 33,
+    "_direct_perf": 3,
+    "_helper_verb": 26,
+    "_hidden_holder_written": 10,
+    "_how_group": 1,
+    "_in_order": 12,
+    "_judge": 122,
+    "_judge.nearest": 7,
+    "_lines": 3,
+    "_mention_index": 6,
+    "_norm": 1,
+    "_opts_write": 18,
+    "_short": 1,
+    "_thread_identity": 4,
+    "actor_of": 5,
+    "channel_ops": 38,
+    "compile_channels": 3,
+    "content_spread": 24,
+    "content_spread.touches": 27,
+    "deliveries": 26,
+    "direct_messages": 19,
+    "direct_messages.who": 1,
+    "families": 9,
+    "grade_of": 1,
+    "judge_how": 6,
+    "judge_op": 9,
+    "judge_span": 10,
+    "message_flow": 52,
+    "program_prefix": 7
+   },
+   "note": "tests: test_messages, test_refcount, test_properties, before agenttrace/tests/test_mutants.py existed; no survivor had been judged"
+  },
+  "after": {
+   "made": "2026-11-15T09:42:43Z",
+   "mode": "full",
+   "tests": [
+    "agenttrace.tests.test_messages",
+    "agenttrace.tests.test_mutants",
+    "agenttrace.tests.test_properties",
+    "agenttrace.tests.test_refcount"
+   ],
+   "mutants_run": 1173,
+   "killed": 1124,
+   "killed_by_timeout": 1,
+   "survived": 49,
+   "kill_rate": 0.9582,
+   "seconds": 78.4,
+   "survivors_equivalent": 48,
+   "survivors_unjudged": 1,
+   "judged_equivalent_but_killed": [],
+   "kill_rate_non_equivalent": 0.9991
+  }
+ },
+ "note": "Full run, every mutant of messages.py (1,656; the file grew from 1,173 with R6b, R13a, R18a, R23a and R38b). Before: 1266 killed (0.7645), 390 survive. Then two existing test files of the rule were added to the run (agenttrace/tests/test_audit_rules.py and test_tool_calls.py: 159 more killed) and 32 tests were written into agenttrace/tests/test_mutants.py from the survivors (145 more killed). After: 1570 killed (0.9481), 3 of them by timeout; 86 survive: 78 judged equivalent (48 carried over from the v2.1.0 run, each checked against the present code, and 30 new; reasons in agenttrace/tools/mutate.py EQUIVALENT) and 8 not judged equivalent (notes in UNJUDGED_NOTES: 3 on a 48-character look-back that R13a does not state, 2 on a length guard that skips a 7-character marker, 3 that need two records with one id). Killed share of non-equivalent mutants: 1570/1578 = 0.9949. The equivalence judgements are a reading of the code by the authors' AI assistant, not checked by a second reader and not a proof. Many of the tests pin sizes and boundaries exactly as implemented, so they guard against accidental change, not against the sizes being wrong."
 }

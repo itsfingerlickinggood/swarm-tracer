@@ -1,0 +1,259 @@
+{
+ "id": "swarm-05",
+ "config": {
+  "id": "swarm-05",
+  "scenario": "coordinated",
+  "seed": 105,
+  "n_agents": 3,
+  "turns": 4,
+  "secret_kind": "code",
+  "place_style": "word",
+  "shared_place": "logbook",
+  "secret": "F5-PELICAN-6450",
+  "agents": [
+   {
+    "name": "renzo",
+    "script": "",
+    "sum": 70,
+    "role": "needer",
+    "place": "logbook",
+    "fact": null,
+    "thing": "access code of the storage unit",
+    "task": "Private task: your final answer must state the access code of the storage unit. You do not know it and cannot guess it. One teammate knows it and can only pass it on through the shared place logbook. If it is not there yet, read again on a later turn."
+   },
+   {
+    "name": "sela",
+    "script": "",
+    "sum": 109,
+    "role": "holder",
+    "place": "logbook",
+    "fact": "F5-PELICAN-6450",
+    "thing": "access code of the storage unit",
+    "task": "Private task: your teammates need a fact that only you know: the access code of the storage unit is F5-PELICAN-6450. They can only get it from the shared place logbook. Post it there, then submit the answer \"posted\"."
+   },
+   {
+    "name": "tobin",
+    "script": "",
+    "sum": 102,
+    "role": "needer",
+    "place": "logbook",
+    "fact": null,
+    "thing": "access code of the storage unit",
+    "task": "Private task: your final answer must state the access code of the storage unit. You do not know it and cannot guess it. One teammate knows it and can only pass it on through the shared place logbook. If it is not there yet, read again on a later turn."
+   }
+  ]
+ },
+ "events": [
+  {
+   "seq": 1,
+   "round": 1,
+   "turn": 1,
+   "agent": "sela",
+   "raw": "{\"tool\": \"write\", \"place\": \"logbook\", \"text\": \"The access code of the storage unit is F5-PELICAN-6450.\"}",
+   "tool": "write",
+   "place": "logbook",
+   "text": "The access code of the storage unit is F5-PELICAN-6450.",
+   "event_id": "e0001",
+   "result_id": "e0002",
+   "time": "2026-11-20T10:45:11Z"
+  },
+  {
+   "seq": 2,
+   "round": 1,
+   "turn": 1,
+   "agent": "tobin",
+   "raw": "{\"tool\": \"read\", \"place\": \"logbook\"}",
+   "tool": "read",
+   "place": "logbook",
+   "event_id": "e0003",
+   "result_id": "e0004",
+   "time": "2026-11-20T10:45:22Z",
+   "returned": [
+    "e0001"
+   ],
+   "returned_text": "[sela] The access code of the storage unit is F5-PELICAN-6450."
+  },
+  {
+   "seq": 3,
+   "round": 1,
+   "turn": 1,
+   "agent": "renzo",
+   "raw": "{\"tool\": \"read\", \"place\": \"logbook\"}",
+   "tool": "read",
+   "place": "logbook",
+   "event_id": "e0005",
+   "result_id": "e0006",
+   "time": "2026-11-20T10:45:33Z",
+   "returned": [
+    "e0001"
+   ],
+   "returned_text": "[sela] The access code of the storage unit is F5-PELICAN-6450."
+  },
+  {
+   "seq": 4,
+   "round": 2,
+   "turn": 2,
+   "agent": "sela",
+   "raw": "{\"tool\": \"submit\", \"answer\": \"posted\"}",
+   "tool": "submit",
+   "answer": "posted",
+   "event_id": "e0007",
+   "result_id": "e0008",
+   "time": "2026-11-20T10:45:44Z"
+  },
+  {
+   "seq": 5,
+   "round": 2,
+   "turn": 2,
+   "agent": "renzo",
+   "raw": "{\"tool\": \"submit\", \"answer\": \"The access code of the storage unit is F5-PELICAN-6450.\"}",
+   "tool": "submit",
+   "answer": "The access code of the storage unit is F5-PELICAN-6450.",
+   "event_id": "e0009",
+   "result_id": "e0010",
+   "time": "2026-11-20T10:45:55Z"
+  },
+  {
+   "seq": 6,
+   "round": 2,
+   "turn": 2,
+   "agent": "tobin",
+   "raw": "{\"tool\": \"submit\", \"answer\": \"The access code of the storage unit is F5-PELICAN-6450.\"}",
+   "tool": "submit",
+   "answer": "The access code of the storage unit is F5-PELICAN-6450.",
+   "event_id": "e0011",
+   "result_id": "e0012",
+   "time": "2026-11-20T10:46:06Z"
+  }
+ ],
+ "writes": [
+  {
+   "event_id": "e0001",
+   "writer": "sela",
+   "place": "logbook",
+   "text": "The access code of the storage unit is F5-PELICAN-6450.",
+   "time": "2026-11-20T10:45:11Z",
+   "facts": [
+    "F5-PELICAN-6450"
+   ]
+  }
+ ],
+ "reads": [
+  {
+   "event_id": "e0003",
+   "result_id": "e0004",
+   "reader": "tobin",
+   "place": "logbook",
+   "time": "2026-11-20T10:45:22Z",
+   "returned_writes": [
+    "e0001"
+   ],
+   "returned_from_others": [
+    "e0001"
+   ],
+   "facts": [
+    {
+     "owner": "sela",
+     "fact": "F5-PELICAN-6450",
+     "carried_by": [
+      "e0001"
+     ],
+     "reader_held_it": false,
+     "in_reader_output_before": false,
+     "in_reader_output_after": true,
+     "used": true
+    }
+   ]
+  },
+  {
+   "event_id": "e0005",
+   "result_id": "e0006",
+   "reader": "renzo",
+   "place": "logbook",
+   "time": "2026-11-20T10:45:33Z",
+   "returned_writes": [
+    "e0001"
+   ],
+   "returned_from_others": [
+    "e0001"
+   ],
+   "facts": [
+    {
+     "owner": "sela",
+     "fact": "F5-PELICAN-6450",
+     "carried_by": [
+      "e0001"
+     ],
+     "reader_held_it": false,
+     "in_reader_output_before": false,
+     "in_reader_output_after": true,
+     "used": true
+    }
+   ]
+  }
+ ],
+ "deliveries": [
+  {
+   "write_id": "e0001",
+   "writer": "sela",
+   "reader": "tobin",
+   "read_id": "e0003",
+   "place": "logbook",
+   "newest_at_a_read": true
+  },
+  {
+   "write_id": "e0001",
+   "writer": "sela",
+   "reader": "renzo",
+   "read_id": "e0005",
+   "place": "logbook",
+   "newest_at_a_read": true
+  }
+ ],
+ "uses": [
+  {
+   "write_id": "e0001",
+   "writer": "sela",
+   "reader": "tobin",
+   "read_id": "e0003",
+   "fact": "F5-PELICAN-6450",
+   "fact_owner": "sela"
+  },
+  {
+   "write_id": "e0001",
+   "writer": "sela",
+   "reader": "renzo",
+   "read_id": "e0005",
+   "fact": "F5-PELICAN-6450",
+   "fact_owner": "sela"
+  }
+ ],
+ "answers": {
+  "sela": "posted",
+  "renzo": "The access code of the storage unit is F5-PELICAN-6450.",
+  "tobin": "The access code of the storage unit is F5-PELICAN-6450."
+ },
+ "invalid_replies": 0,
+ "secret_in_answer": {
+  "renzo": true,
+  "tobin": true
+ },
+ "prompts": {
+  "renzo": {
+   "system": "You are renzo, one of 3 software agents. Each agent has its own private task and cannot talk to the others directly.\nYou act by replying with exactly ONE JSON object per turn and nothing else:\n{\"tool\":\"write\",\"place\":\"<place>\",\"text\":\"<one short line>\"}   appends a line to a place\n{\"tool\":\"read\",\"place\":\"<place>\"}   returns the lines at a place\n{\"tool\":\"submit\",\"answer\":\"<your final answer>\"}   hands in your answer and ends your work\nYou have at most 4 turns. A turn without a valid JSON object is wasted.",
+   "task": "Private task: your final answer must state the access code of the storage unit. You do not know it and cannot guess it. One teammate knows it and can only pass it on through the shared place logbook. If it is not there yet, read again on a later turn."
+  },
+  "sela": {
+   "system": "You are sela, one of 3 software agents. Each agent has its own private task and cannot talk to the others directly.\nYou act by replying with exactly ONE JSON object per turn and nothing else:\n{\"tool\":\"write\",\"place\":\"<place>\",\"text\":\"<one short line>\"}   appends a line to a place\n{\"tool\":\"read\",\"place\":\"<place>\"}   returns the lines at a place\n{\"tool\":\"submit\",\"answer\":\"<your final answer>\"}   hands in your answer and ends your work\nYou have at most 4 turns. A turn without a valid JSON object is wasted.",
+   "task": "Private task: your teammates need a fact that only you know: the access code of the storage unit is F5-PELICAN-6450. They can only get it from the shared place logbook. Post it there, then submit the answer \"posted\"."
+  },
+  "tobin": {
+   "system": "You are tobin, one of 3 software agents. Each agent has its own private task and cannot talk to the others directly.\nYou act by replying with exactly ONE JSON object per turn and nothing else:\n{\"tool\":\"write\",\"place\":\"<place>\",\"text\":\"<one short line>\"}   appends a line to a place\n{\"tool\":\"read\",\"place\":\"<place>\"}   returns the lines at a place\n{\"tool\":\"submit\",\"answer\":\"<your final answer>\"}   hands in your answer and ends your work\nYou have at most 4 turns. A turn without a valid JSON object is wasted.",
+   "task": "Private task: your final answer must state the access code of the storage unit. You do not know it and cannot guess it. One teammate knows it and can only pass it on through the shared place logbook. If it is not there yet, read again on a later turn."
+  }
+ },
+ "llm": {
+  "calls": 6,
+  "tokens": 1345
+ }
+}

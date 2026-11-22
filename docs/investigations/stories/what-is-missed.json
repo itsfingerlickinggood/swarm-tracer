@@ -3,6 +3,8 @@
  "order": 3,
  "title": "What an investigator would still miss",
  "dek": "The people who ran the incident published what they found. We checked each finding against the public release. {invisible} of {total} cannot be seen in it at all.",
+ "dataset": "swarm_traces",
+ "kicker": "Swarm Traces incident, July 2026",
  "figures": {
   "total": {
    "from": "/api/x/insiders",

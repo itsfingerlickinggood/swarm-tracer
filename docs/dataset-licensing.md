@@ -80,11 +80,11 @@ The same letter, with the names changed, suits the collusion.wiki authors (`sydn
 ## Candidates
 
 - **AI Village.** Gated on Hugging Face under custom research terms. The public card lists four conditions: use it for research and not for training without written permission; do not re-identify people; cite AI Digest / AI Village; tell them about publications. Nothing is said about republishing records. Forel's investigations cite it as *AI Digest, "AI Village dataset", 2026* and label their data an excerpt; their pages state no permission, and we could not see how much text their viewer shows. Treat raw records as not allowed and ask (`hello@theaidigest.org`) before showing message text. The whole set is 298 GB, mostly screenshots.
-- **Who&When, MAST-Data.** Openly licensed. Both include runs on GAIA tasks, and GAIA's own card asks people not to repost its validation or test set where crawlers can read it. Publish agent messages and labels, not the benchmark's questions and answers.
-- **Moltbook Observatory Archive.** The MIT licence is the collectors'. We did not read Moltbook's own terms, and posts may include text from the people who run the agents.
+- **Who&When, MAST-Data.** Openly licensed. Both include runs on GAIA tasks, and GAIA's own card asks people not to repost its validation or test set where crawlers can read it. Publish agent messages and labels, not the benchmark's questions and answers. Both were downloaded on 2026-11-22 with the project owner's approval, loaded (`agenttrace/readers_failure.py`) and measured against their own labels; the numbers are in `reports/external/who_and_when/` and `reports/external/mast_data/`. Two things read on the source pages that day: the Who&When `LICENSE` file is the MIT text, Copyright (c) 2025 Ming Yin; and the MAST-Data card says its 14 labels per run come from an LLM judge, not from people (only its 19-run file has human annotators).
+- **Moltbook Observatory Archive.** The MIT licence is the collectors'. We did not read Moltbook's own terms, and posts may include text from the people who run the agents. One week of it (13 to 19 February 2026, the posts and comments tables, 74.7 MB of 5.38 GB) was downloaded on 2026-11-22 with the project owner's approval, loaded (`agenttrace/readers_public.py`) and measured against its logged replies; the numbers are in `reports/external/moltbook/`. The agents table holds the X handles of the agents' owners; it was not downloaded, and we publish no agent name and no post text.
 - **Agents of Chaos.** Logs are browsable on the project site with no licence and no export. Loading them would mean saving the pages, which is a download for the project owner to approve, and the logs name real researchers.
 - **Transluce.** One 4.57 MB zip, no licence stated, built from a third party's scan reports.
-- **SALT agent-collusion.** MIT, simulated two-agent episodes.
+- **SALT agent-collusion.** MIT, simulated two-agent episodes. The tables under `data/` (81.3 MB of 8.12 GB; the full model contexts are left out) were downloaded on 2026-11-22 with the project owner's approval, loaded (`agenttrace/readers_public.py`) and measured against the dataset's own collusion label; the numbers are in `reports/external/salt/`. Read on the source that day: the `LICENSE` file is the MIT text, Copyright (c) 2026 Xinrui Shi, Yanzhe Zhang, and Diyi Yang.
 - **TRAIL.** The access conditions forbid resharing outside gated or private Hugging Face repositories. Numbers only.
 - **MALT.** MIT tag, gated. The conditions are shown only after login; read them first. The runs appear to be single-agent.
 
@@ -107,6 +107,8 @@ Plans only. Nothing was downloaded.
 
 No time field: order only. The chat-transcript reader should take a converted file as it is. To confirm first: the keys of a history message (the card preview shows only `content`). Use the JSON files in the GitHub repository; Parquet cannot be read with the standard library.
 
+Done on 2026-11-22, from the GitHub JSON files. What the plan did not know: the group chats carry `name`, `role` and `content`; the hand-crafted runs carry only `role` and `content`, and the role names the speaker and sometimes the recipient ("Orchestrator (-> WebSurfer)"), which gives 689 logged messages with a known recipient.
+
 ### AI Village (not open: only after AI Digest grants access)
 
 | Table | id | time | actor | text | other |
@@ -123,11 +125,13 @@ These names come from the public card and from a converter in another tool on th
 
 Posts map directly: `id`, `created_at` → time, `agent_name` → actor, `title` + `content` → text, `submolt` → place. Comments add a parent, which gives logged replies. Needs a Parquet-to-JSONL step outside the tool and slicing by date; 7 million rows will not fit in memory.
 
+Done on 2026-11-22 for one week (`python3 -m agenttrace.tools.external fetch moltbook`, then `convert moltbook`, which needs DuckDB). What the plan did not know: the place that works is the thread (a post and its comments), not the community; only 2,158 of the week's 46,236 comments name a parent comment, the rest answer the post; and a comment's recipient is in another row, so the reader looks it up inside the file.
+
 ## What we could not check
 
 - Whether either archive we analyse carries a licence file inside it. Our local copies have none; we did not download them again.
 - The full text of the gated access forms (AI Village, TRAIL, MALT) and AI Village's `SCHEMA.md`.
 - How much record text Forel's viewer shows for AI Village.
 - Moltbook's and urlquery.net's own terms of service.
-- The text of the MIT `LICENSE` file in the Who&When repository, and the layout of the trace text in MAST-Data.
+- (Checked since, on 2026-11-22: the text of the MIT `LICENSE` file in the Who&When repository, and the layout of the trace text in MAST-Data. See the Who&When and MAST-Data line under Candidates.)
 - Whether Agents of Chaos states a licence on pages we did not open.

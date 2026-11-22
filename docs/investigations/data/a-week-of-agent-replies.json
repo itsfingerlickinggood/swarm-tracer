@@ -1,0 +1,248 @@
+{
+ "schema": 1,
+ "story": "a-week-of-agent-replies",
+ "dataset": "moltbook_observatory",
+ "snippets": "off",
+ "citation": {
+  "dataset": "moltbook_observatory",
+  "name": "Moltbook Observatory Archive",
+  "title": "Moltbook Observatory Archive: an agent-only social network",
+  "kind": "real, open platform",
+  "text": "Gautam and Riegler, \"Moltbook Observatory Archive\", Hugging Face Datasets, 2026; paper arXiv:2605.13860",
+  "url": "https://github.com/kelkalot/moltbook-observatory",
+  "licence": "MIT (as declared by the archive's authors)",
+  "attribution": "Numbers are computed from the Moltbook Observatory Archive: Gautam and Riegler, Hugging Face Datasets, 2026 (SimulaMet/moltbook-observatory-archive), MIT License as declared by its authors; collector at github.com/kelkalot/moltbook-observatory. No post, comment or agent name is reproduced.",
+  "records": "none",
+  "viewer": null,
+  "report": "reports/external/moltbook/results.json",
+  "input": "datasets-ext/moltbook-observatory/",
+  "pack": "generic.json"
+ },
+ "produced_by": {
+  "tool": "Swarm Tracer",
+  "version": "2.3.0",
+  "report": "reports/external/moltbook/results.json",
+  "report_tool_version": "2.3.0",
+  "report_date": "2026-11-22"
+ },
+ "figures": {
+  "week_start": {
+   "value": "2026-02-13",
+   "text": "2026-02-13",
+   "as": "text",
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.week.0",
+   "label": "first day of the week (UTC)"
+  },
+  "week_end": {
+   "value": "2026-02-19",
+   "text": "2026-02-19",
+   "as": "text",
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.week.1",
+   "label": "last day"
+  },
+  "communities": {
+   "value": 40,
+   "text": "40",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.communities",
+   "label": "communities, each loaded as one trace"
+  },
+  "records": {
+   "value": 187738,
+   "text": "187,738",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.records",
+   "label": "posts and comments in them"
+  },
+  "posts": {
+   "value": 144171,
+   "text": "144,171",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.posts",
+   "label": "posts"
+  },
+  "comments": {
+   "value": 43567,
+   "text": "43,567",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.comments",
+   "label": "comments"
+  },
+  "agents": {
+   "value": 19879,
+   "text": "19,879",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "slice.agents",
+   "label": "agent accounts that wrote them"
+  },
+  "replies": {
+   "value": 41737,
+   "text": "41,737",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "reader.logged_replies",
+   "label": "comments that answer a record by another agent"
+  },
+  "self_replies": {
+   "value": 1830,
+   "text": "1,830",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "reader.self_replies",
+   "label": "comments that answer their own author, not counted"
+  },
+  "direct": {
+   "value": 41737,
+   "text": "41,737",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "reader.direct_messages_reported",
+   "label": "logged direct messages the tool reports"
+  },
+  "match_k": {
+   "value": 40,
+   "text": "40",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "reader.communities_where_they_match",
+   "label": "communities where the two lists are the same"
+  },
+  "rec_precision": {
+   "value": 0.2648,
+   "text": "26%",
+   "as": "pct",
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record.precision.share",
+   "label": "of the tool's inferred links are logged replies"
+  },
+  "rec_recall": {
+   "value": 0.2568,
+   "text": "26%",
+   "as": "pct",
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record.recall.share",
+   "label": "of the logged replies are found"
+  },
+  "rec_found": {
+   "value": 40486,
+   "text": "40,486",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record.found",
+   "label": "links the tool inferred from a comment to an earlier record"
+  },
+  "rec_both": {
+   "value": 10720,
+   "text": "10,720",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record.both",
+   "label": "of them, logged replies"
+  },
+  "pair_precision": {
+   "value": 0.3035,
+   "text": "30%",
+   "as": "pct",
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_pair.precision.share",
+   "label": "of the inferred pairs of agents have a logged reply"
+  },
+  "pair_recall": {
+   "value": 0.3134,
+   "text": "31%",
+   "as": "pct",
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_pair.recall.share",
+   "label": "of the pairs with a logged reply are found"
+  },
+  "first_precision": {
+   "value": 0.9689,
+   "text": "97%",
+   "as": "pct",
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record_first_comment.precision.share",
+   "label": "right, when only one other agent has written in the thread so far"
+  },
+  "first_found": {
+   "value": 10768,
+   "text": "10,768",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record_first_comment.found",
+   "label": "such links"
+  },
+  "later_precision": {
+   "value": 0.0097,
+   "text": "1%",
+   "as": "pct",
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record_later_comment.precision.share",
+   "label": "right, for later comments"
+  },
+  "later_found": {
+   "value": 29718,
+   "text": "29,718",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "inference.by_record_later_comment.found",
+   "label": "such links"
+  },
+  "alert_k": {
+   "value": 40,
+   "text": "40",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.flags[flag=rule:alert-coord2].fired.k",
+   "label": "communities where the Alert rule fired"
+  },
+  "alert_h": {
+   "value": 2.2,
+   "text": "2.2",
+   "as": "h1",
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.flags[flag=rule:alert-coord2].median_hours_to_fire",
+   "label": "hours into the week, median"
+  },
+  "watch_k": {
+   "value": 37,
+   "text": "37",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.flags[flag=rule:watch-harm].fired.k",
+   "label": "communities where the Watch rule fired"
+  },
+  "volume_k": {
+   "value": 39,
+   "text": "39",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.flags[flag=rule:baseline-volume].fired.k",
+   "label": "communities where the volume baseline fired"
+  },
+  "word": {
+   "value": "secret",
+   "text": "secret",
+   "as": "text",
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.watch_words.0.match",
+   "label": "the word that set off the Watch rule most often"
+  },
+  "word_records": {
+   "value": 1376,
+   "text": "1,376",
+   "as": "int",
+   "from": "reports/external/moltbook/results.json",
+   "path": "false_alarms.watch_words.0.records",
+   "label": "records that matched it"
+  }
+ },
+ "records": {},
+ "findings": {}
+}

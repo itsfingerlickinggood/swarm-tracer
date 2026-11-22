@@ -74,6 +74,71 @@ class B3CutInsideTheVerb(unittest.TestCase):
         self.assertEqual(judge(full), "write")
 
 
+class B3JoinedFragments(unittest.TestCase):
+    """R13a: a record cut inside a verb that the next record completes is read as one record."""
+    CUT = "ps://huggingface.co/api/datasets/[HF REPO 5]/commit/main',{method:'POS"
+    REST = "T',headers:{Authorization:'Bearer [CREDENTIAL 170]','Cont"
+
+    def test_the_release_pair_is_one_write_by_the_token_in_the_continuation(self):
+        f = flow({"a": self.CUT, "b": self.REST, "r": READ}, {"b": "[CREDENTIAL 170]", "r": "[CREDENTIAL 169]"}, {"a": 100, "b": 100, "r": 300})
+        self.assertEqual(f["joined_fragments"], [{"record": "a", "continued_in": ["b"]}])
+        self.assertEqual([(d["write_id"], d["read_id"], d["from"], d["to"]) for d in f["_deliveries"]],
+                         [("a", "r", "[CREDENTIAL 170]", "[CREDENTIAL 169]")])
+        self.assertEqual((f["operations"], f["records_on_channels"]), (2, 2))      # the continuation has no operation of its own
+
+    def test_not_completed_by_the_next_record_stays_cut(self):
+        for nxt in ("x=1;T',headers:{}", "T\",headers:{}", "ST',headers:{}", "", "t = 5"):
+            f = flow({"a": self.CUT, "b": nxt, "r": READ}, {"b": "[CREDENTIAL 170]", "r": "[CREDENTIAL 169]"}, {"a": 100, "b": 100, "r": 300})
+            self.assertEqual((f["joined_fragments"], f["deliveries"]), ([], 0), nxt)
+
+    def test_only_a_cut_inside_a_verb_is_joined(self):
+        # cut inside the address, after a complete verb, or after six letters: no evidence that the next record continues it
+        for a, b in (("fetch('https://huggingface.co/api/datasets/[HF REPO", " 5]/commit/main',{method:'POST'})"),
+                     (self.CUT + "T", "',headers:{}"), (self.CUT[:-3] + "POSTER", "T',headers:{}"),
+                     (self.CUT[:-10] + "{mode:'POS", "T',headers:{}")):
+            view, parts = M.join_fragments([E("a", a), E("b", b)], world([E("x")], raw=dict(RAW, action_kinds=["action"]))[2])
+            self.assertEqual((parts, [i for i, _e in view]), ({}, [0, 1]), a[-12:])
+
+    def test_fields_that_keep_two_records_apart(self):
+        pack = world([E("x")], raw=dict(RAW, action_kinds=["action"]))[2]
+        ok = lambda a, b: bool(M.join_fragments([a, b], pack)[1])
+        self.assertTrue(ok(E("a", self.CUT), E("b", self.REST)))
+        self.assertTrue(ok(E("a", self.CUT), E("b", self.REST, parent="a")))
+        self.assertTrue(ok(E("a", self.CUT, parent="p"), E("b", self.REST, parent="p")))
+        self.assertFalse(ok(E("a", self.CUT), E("b", self.REST, parent="other")))
+        self.assertFalse(ok(E("a", self.CUT), E("b", self.REST, kind="reply")))
+        self.assertFalse(ok(E("a", self.CUT, kind="reply"), E("b", self.REST, kind="reply")))      # not action records (R2)
+        self.assertFalse(ok(E("a", self.CUT, actor="A"), E("b", self.REST, actor="B")))
+        self.assertFalse(ok(E("a", self.CUT, channel="c1"), E("b", self.REST, channel="c2")))
+        self.assertFalse(ok(E("a", self.CUT, to="B"), E("b", self.REST, to="B")))                  # a direct message is never joined
+
+    def test_open_call_three_fragments_and_what_the_view_keeps(self):
+        evs = [E("a", "x=new XMLHttpRequest;x.open('PU"), E("b", "T','https://huggingface.co/api/datasets/[HF REPO 5]',false);fetch(u,{method : \"ge"),
+               E("c", "t\"});y=1"), E("d", READ)]
+        pack = world([E("x")], raw=dict(RAW, action_kinds=["action"]))[2]
+        view, parts = M.join_fragments(evs, pack)
+        self.assertEqual(parts, {"a": ["b", "c"]})
+        self.assertEqual([(i, e.id) for i, e in view], [(0, "a"), (3, "d")])
+        self.assertEqual(view[0][1].text, evs[0].text + evs[1].text + evs[2].text)
+        self.assertEqual(evs[0].text, "x=new XMLHttpRequest;x.open('PU")                            # the input is not changed
+        ops = M.channel_ops(evs, *[world(evs, raw=dict(RAW, action_kinds=["action"]), ids={"a": [], "b": ["[CREDENTIAL 7]"], "c": [], "d": []},
+                                         times={"b": 50, "d": 90})[k] for k in (2, 0, 1)])
+        # one write under the first id, by the token of a later fragment, at the first time any fragment has
+        self.assertEqual([(o[1], o[2], o[4], o[5], o[6]) for o in ops if o[6] == "a"], [("write", "[CREDENTIAL 7]", 50, 0, "a")])
+        self.assertEqual([o[6] for o in ops if o[6] in ("b", "c")], [])
+
+    def test_the_joined_text_is_what_the_other_statements_read(self):
+        # R23a: the reader lists the token that only the continuation holds, so it may be the writer itself
+        reader = "for(t of ['[CREDENTIAL 170]','[CREDENTIAL 169]'])" + READ
+        f = flow({"a": self.CUT, "b": self.REST, "r": reader}, {"b": "[CREDENTIAL 170]", "r": "[CREDENTIAL 169]"}, {"a": 100, "b": 100, "r": 300})
+        self.assertEqual(f["deliveries"], 0)
+        # R38: a rare term that only the continuation holds, quoted by the reader
+        rest = "T',body:'report_final_v2.json'})"
+        f = flow({"a": self.CUT, "b": rest, "r": READ + ";n='report_final_v2.json'"}, {"a": "[CREDENTIAL 170]", "r": "[CREDENTIAL 169]"},
+                 {"a": 100, "b": 100, "r": 300})
+        self.assertEqual((f["deliveries"], f["deliveries_reader_uses_content"], f["_deliveries"][0]["shared_terms"]), (1, 1, ["report_final_v2.json"]))
+
+
 class B4Places(unittest.TestCase):
     def test_unnumbered_places_are_coarse(self):
         import re
@@ -140,16 +205,30 @@ class ReleaseCounts(unittest.TestCase):
 
     def test_counts(self):
         f = self.f
-        self.assertEqual((f["deliveries_write_then_read"], f["deliveries_between_named_actors"]), (9, 4))
-        self.assertEqual((f["deliveries_exact_place"], f["deliveries_reader_uses_content"], f["deliveries_content_checked"]), (6, 0, 9))
+        # 9 before fragments were joined (R13a); R0022674 + R0022675 is a commit that two anonymous runs read later
+        self.assertEqual((f["deliveries_write_then_read"], f["deliveries_between_named_actors"]), (11, 4))
+        self.assertEqual((f["deliveries_exact_place"], f["deliveries_reader_uses_content"], f["deliveries_content_checked"]), (8, 0, 11))
+        self.assertEqual(f["joined_fragments"], [{"record": "R0022674", "continued_in": ["R0022675"]}])
 
     def test_audit_false_links_are_gone(self):
         got = {(d["write_id"], d["read_id"]) for d in self.f["_deliveries"]}
         for pair in [("R0005366", "R0005421"), ("R0005417", "R0005665"), ("R0006727", "R0006743"), ("R0005366", "R0006792"),
-                     ("R0045942", "R0046036"), ("R0022674", "R0032250")]:
+                     ("R0045942", "R0046036")]:
             self.assertNotIn(pair, got)
         for pair in [("R0006584", "R0006786"), ("R0044824", "R0045143"), ("R0044999", "R0045751")]:
             self.assertIn(pair, got)
+
+    def test_the_joined_commit_is_counted_again(self):
+        # dropped in v2.2.0 as a call cut inside its verb; with the continuation joined (R13a) it is a POST to
+        # .../commit/main under the continuation's token. The audit label for both links is still "unclear".
+        got = {(d["write_id"], d["read_id"]): d for d in self.f["_deliveries"]}
+        for pair in [("R0022674", "R0032250"), ("R0022674", "R0032842")]:
+            self.assertIn(pair, got)
+            self.assertEqual((got[pair]["from"], got[pair]["channel"]), ("[CREDENTIAL 169]", "hf_dataset:[HF REPO 280]"))
+        self.assertFalse(any("R0022675" in k for k in got))
+        with open(os.path.join(REPO, "agenttrace", "claims", "audited_links.json"), encoding="utf-8") as fh:
+            labels = {(r["write_id"], r["read_id"]): r["label"] for r in json.load(fh)["links"]}
+        self.assertEqual({labels[p] for p in [("R0022674", "R0032250"), ("R0022674", "R0032842")]}, {"unclear"})
 
     def test_1721_1722_are_one_agent(self):
         from agenttrace import units

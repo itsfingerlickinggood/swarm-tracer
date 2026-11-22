@@ -1,0 +1,305 @@
+{
+ "slug": "seven-frameworks-no-attack",
+ "order": 7,
+ "title": "Seven frameworks, no attack: how often the alarms fire",
+ "dek": "MAST-Data holds {runs_in_file} runs of seven agent frameworks doing ordinary tasks. None is an attack. The Alert rule fired in {alert} of the {runs} we could read.",
+ "dataset": "mast_data",
+ "kicker": "MAST-Data, a public dataset of agent-team runs",
+ "source": {
+  "authors": "Cemri, Pan, Yang et al.",
+  "title": "Why Do Multi-Agent LLM Systems Fail?",
+  "site": "NeurIPS 2025, arXiv:2503.13657",
+  "url": "https://huggingface.co/datasets/mcemri/MAST-Data",
+  "date": "2025",
+  "licence": "CC BY 4.0",
+  "attribution": "Excerpts are from MAST-Data (MAD): Cemri, Pan, Yang et al., \"Why Do Multi-Agent LLM Systems Fail?\", NeurIPS 2025, arXiv:2503.13657; data at huggingface.co/datasets/mcemri/MAST-Data, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Changes: each run's log text was split into turns by our reader, and each excerpt is cut short.",
+  "snippets": "on",
+  "input": "the AppWorld and HyperAgent runs, as logged (python3 -I agenttrace/failure_eval.py story seven-frameworks-no-attack)"
+ },
+ "figures": {
+  "runs_in_file": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "parsing.runs_in_file",
+   "as": "int",
+   "label": "runs in the dataset"
+  },
+  "runs": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "totals.runs",
+   "as": "int",
+   "label": "runs our reader could split into turns"
+  },
+  "records": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "totals.records",
+   "as": "int",
+   "label": "records (one per agent turn)"
+  },
+  "left_out": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "parsing.log_blocks_left_out",
+   "as": "int",
+   "label": "log blocks that are not agent turns, left out"
+  },
+  "timed": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "totals.records_with_time",
+   "as": "int",
+   "label": "records with a time the framework printed"
+  },
+  "failed": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.runs_with_a_failure_mode",
+   "as": "int",
+   "label": "runs the judge marked with at least one failure mode"
+  },
+  "clean": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.runs_with_none",
+   "as": "int",
+   "label": "runs the judge marked with none"
+  },
+  "alert": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "false_alarms_all.by_rule_auto_pack.alert-coord2.k",
+   "as": "int",
+   "label": "runs where the Alert rule fired"
+  },
+  "watch": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "false_alarms_all.by_rule_auto_pack.watch-harm.k",
+   "as": "int",
+   "label": "runs where the Watch rule fired"
+  },
+  "volume": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "false_alarms_all.by_rule_auto_pack.baseline-volume.k",
+   "as": "int",
+   "label": "runs where the hourly volume baseline fired"
+  },
+  "cd_alert": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "groups.ChatDev.false_alarms.auto_pack.rows[id=alert-coord2].runs_fired",
+   "as": "int",
+   "label": "ChatDev runs (real clock) where the Alert rule fired"
+  },
+  "cd_runs": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "groups.ChatDev.runs",
+   "as": "int",
+   "label": "ChatDev runs"
+  },
+  "logged": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "totals.logged_messages_with_recipient",
+   "as": "int",
+   "label": "messages whose recipient the log names"
+  },
+  "pair_found": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "who_talked_to_whom_all.recipients_withheld.pair_recall.k",
+   "as": "int",
+   "label": "logged sender-recipient pairs the tool finds, recipients withheld"
+  },
+  "pair_logged": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "who_talked_to_whom_all.recipients_withheld.pair_recall.n",
+   "as": "int",
+   "label": "logged sender-recipient pairs (one per pair per run)"
+  },
+  "cd_msg": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "groups.ChatDev.who_talked_to_whom.recipients_withheld.message_recall.k",
+   "as": "int",
+   "label": "single addressed ChatDev messages the tool finds, recipients withheld"
+  },
+  "cd_logged": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "groups.ChatDev.who_talked_to_whom.recipients_withheld.message_recall.n",
+   "as": "int",
+   "label": "addressed ChatDev messages"
+  },
+  "watch_failed": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.rules.watch-harm.fired_on_failed.share",
+   "as": "pct",
+   "label": "of failed runs: the Watch rule fired"
+  },
+  "watch_clean": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.rules.watch-harm.fired_on_clean.share",
+   "as": "pct",
+   "label": "of clean runs: the Watch rule fired"
+  },
+  "ag_clean": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.watch_by_layout.AG2.fired_on_clean.n",
+   "as": "int",
+   "label": "clean runs that are AG2 runs"
+  },
+  "ag_clean_watch": {
+   "from": "reports/external/mast_data/results.json",
+   "path": "labels_vs_alarms.watch_by_layout.AG2.fired_on_clean.k",
+   "as": "int",
+   "label": "of those: the Watch rule fired"
+  }
+ },
+ "body": [
+  {
+   "h": "Real teams, nothing to hide"
+  },
+  {
+   "p": "The audit of this project asked for real benign traffic from teams of agents. MAST-Data has it: [[c1|{runs_in_file} runs of seven agent frameworks]] on ordinary tasks such as writing a small program or answering a question. Each run comes with a mark for each of fourteen kinds of task failure. [[c2|The marks were made by a language-model judge, not by people]], so we use them only as a rough split between runs that failed and runs that did not."
+  },
+  {
+   "p": "Each framework logs in its own layout, as one block of text. Our reader keeps the agent turns and leaves the other log lines out. [[c3|{timed} of the {records} records carry a time the framework printed]]. The rest have only their order."
+  },
+  {
+   "h": "The alarms"
+  },
+  {
+   "p": "None of these runs is an attack. [[c4|The Alert rule fired in {alert} of {runs}]]. It asks for two kinds of coordination sign, and a team that takes turns in one conversation shows two within its first few messages. [[c5|The Watch rule fired in {watch}]]: words such as token, secret and delete are ordinary in programming work. [[c6|The hourly volume baseline fired in {volume}]], and that says nothing, because it needs half a day of history and a run lasts minutes."
+  },
+  {
+   "p": "A real clock does not change this. [[c7|In ChatDev, which prints its times, the Alert rule fired in {cd_alert} of {cd_runs} runs]]."
+  },
+  {
+   "h": "Who talked to whom"
+  },
+  {
+   "p": "Three of the frameworks name the recipient of a message in the log. [[c8|{logged} messages are addressed]]. With the recipients removed, [[c9|the tool found {pair_found} of the {pair_logged} sender-recipient pairs]] from speaking order alone. [[c10|In one run a supervisor asks a music agent a question]], and the tool links the two because the agent speaks next. It cannot tell which of several instructions an answer belongs to: [[c11|in ChatDev it found {cd_msg} of {cd_logged} single messages]]."
+  },
+  {
+   "h": "Failure is not harm"
+  },
+  {
+   "p": "[[c12|The Watch rule fired on {watch_failed} of the runs marked as failed and {watch_clean} of the clean ones]]. Most of that gap is the mix of frameworks. [[c13|{ag_clean} of the {clean} clean runs come from one framework]], and there the rule almost never fires on any run. The rules were written for attacks. Nothing here shows that they see task failure."
+  },
+  {
+   "note": "Credit for the data and the marks is in the source line below and beside each excerpt."
+  }
+ ],
+ "claims": {
+  "c1": {
+   "evidence": "The dataset, as loaded.",
+   "figures": [
+    "runs_in_file",
+    "runs",
+    "records",
+    "left_out"
+   ],
+   "docs": [
+    {
+     "href": "../../datasets.html#mast_data",
+     "label": "MAST-Data in the dataset registry: source, licence, what the tool can and cannot do with it"
+    }
+   ],
+   "caveat": "Data: Cemri, Pan, Yang et al., \"Why Do Multi-Agent LLM Systems Fail?\", NeurIPS 2025, arXiv:2503.13657, huggingface.co/datasets/mcemri/MAST-Data, CC BY 4.0. We changed the form, not the words: each run's log was split into turns."
+  },
+  "c2": {
+   "evidence": "Who made the marks.",
+   "figures": [
+    "failed",
+    "clean"
+   ],
+   "docs": [
+    {
+     "href": "https://huggingface.co/datasets/mcemri/MAST-Data",
+     "label": "The dataset card, which says the annotations come from an LLM judge"
+    }
+   ]
+  },
+  "c3": {
+   "evidence": "Records with a printed time.",
+   "figures": [
+    "timed",
+    "records"
+   ],
+   "caveat": "ChatDev, MetaGPT and OpenManus print times. The other four frameworks do not; their runs are placed on a step clock, sixty seconds a record, which keeps the order and invents nothing else."
+  },
+  "c4": {
+   "evidence": "The Alert rule on benign runs.",
+   "figures": [
+    "alert",
+    "runs"
+   ],
+   "caveat": "Counted once per run. The intervals and the table for each framework are in reports/external/mast_data/summary.md."
+  },
+  "c5": {
+   "evidence": "The Watch rule on benign runs.",
+   "figures": [
+    "watch",
+    "runs"
+   ]
+  },
+  "c6": {
+   "evidence": "The volume baseline.",
+   "figures": [
+    "volume",
+    "runs"
+   ],
+   "caveat": "A zero here is not a result. The baseline compares an hour with the hours before it, and no run is long enough."
+  },
+  "c7": {
+   "evidence": "The same rule on a framework with logged times.",
+   "figures": [
+    "cd_alert",
+    "cd_runs"
+   ]
+  },
+  "c8": {
+   "evidence": "Messages whose recipient the log names (ChatDev, AppWorld, HyperAgent).",
+   "figures": [
+    "logged"
+   ]
+  },
+  "c9": {
+   "evidence": "Pairs found with the recipients removed.",
+   "figures": [
+    "pair_found",
+    "pair_logged"
+   ],
+   "caveat": "A pair is a sender and a recipient inside one run. Pairs in one run are not independent, so an interval over pairs would be too narrow."
+  },
+  "c10": {
+   "evidence": "One addressed message and the turn after it.",
+   "records": [
+    {
+     "id": "AppWorld_Test_C_GPT_4o_0:2",
+     "note": "The log's header for this turn is \"Message to spotify Agent\", inside the supervisor's call: sender and recipient are both written down."
+    },
+    {
+     "id": "AppWorld_Test_C_GPT_4o_0:3",
+     "note": "The agent's next turn. With recipients withheld, this is what the tool links to the supervisor."
+    }
+   ],
+   "caveat": "Excerpts from MAST-Data (Cemri, Pan, Yang et al., NeurIPS 2025; CC BY 4.0), split into turns by our reader and cut short."
+  },
+  "c11": {
+   "evidence": "Single messages found with the recipients removed.",
+   "figures": [
+    "cd_msg",
+    "cd_logged"
+   ],
+   "caveat": "The tool counts each write once per reader. In a long two-way chat it has the pair after the first exchange and adds little after that."
+  },
+  "c12": {
+   "evidence": "The Watch rule against the judge's marks.",
+   "figures": [
+    "watch_failed",
+    "watch_clean",
+    "failed",
+    "clean"
+   ]
+  },
+  "c13": {
+   "evidence": "Where the clean runs come from.",
+   "figures": [
+    "ag_clean",
+    "clean",
+    "ag_clean_watch"
+   ],
+   "caveat": "Inside one framework the gap is small or absent, and most frameworks have too few clean runs to say. The table is in reports/external/mast_data/summary.md."
+  }
+ }
+}

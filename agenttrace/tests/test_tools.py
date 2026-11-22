@@ -142,5 +142,70 @@ class SmokeSetupTests(unittest.TestCase):
         self.assertFalse(smoke.ERRORISH.search("Correlation, not causation."))
 
 
+class CoverageLinesTests(unittest.TestCase):
+    """tools/coverage_lines.py: a module called like a standard-library one, run in a thread, is still counted
+    (agenttrace/server.py read 0% before: http/server.py was ignored by name, and its handlers run in threads)."""
+
+    def test_thread_and_same_named_module_are_counted(self):
+        import importlib.util
+        import sys
+        import threading
+        import http.server  # noqa: F401  the standard-library module whose bare name is also "server"
+        from agenttrace.tools import coverage_lines as C
+        d = os.path.realpath(tempfile.mkdtemp(prefix="st-cov-test-"))
+        src = ("def in_main(x):\n    y = x + 1\n    return y\n\n\n"
+               "def in_thread(out):\n    out.append(1)\n    out.append(2)\n\n\n"
+               "def never():\n    return 'not run'\n")
+        path = os.path.join(d, "server.py")
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(src)
+        saved = (C.PKG, C.run_tests, sys.gettrace())
+
+        def fake_tests(_dir):
+            spec = importlib.util.spec_from_file_location("st_cov_probe_server", path)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            mod.in_main(1)
+            got = []
+            t = threading.Thread(target=mod.in_thread, args=(got,))
+            t.start()
+            t.join()
+            return got
+        try:
+            C.PKG, C.run_tests = d, fake_tests
+            res, out = C.with_trace("unused")
+        finally:
+            C.PKG, C.run_tests = saved[0], saved[1]
+            shutil.rmtree(d, ignore_errors=True)
+        self.assertEqual(res, [1, 2])
+        self.assertIs(sys.gettrace(), saved[2])          # the tracer that was there before is back
+        lines, covered = out[path]
+        # 3 def lines + 2 in in_main + 2 in in_thread are run; the body of never() is not
+        self.assertEqual((lines, covered), (8, 7))
+
+
+class RoutesPendingTests(unittest.TestCase):
+    """tools/routes.py: a route that is still computing answers a placeholder; the tool must hash the answer, not
+    the placeholder (the unexplained fx_evolution_cluster difference on the wiki logs was this, not hash order)."""
+
+    def test_a_pending_reply_is_asked_again(self):
+        from agenttrace.tools import routes
+        replies = [(200, {"pending": True, "message": "wait"}, 0.1), (200, {"pending": True}, 0.1), (200, {"clusters": [1, 2]}, 0.1)]
+        asked = []
+
+        def get(base, path, timeout=0):
+            asked.append(path)
+            return replies[min(len(asked), len(replies)) - 1]
+        self.assertEqual(routes.settled("http://x", "/api/x/fx_evolution_cluster?id=0", wait=5, pause=0, get=get), (200, {"clusters": [1, 2]}))
+        self.assertEqual(len(asked), 3)
+
+    def test_it_gives_up_after_the_wait_and_other_replies_pass_through(self):
+        from agenttrace.tools import routes
+        always = lambda base, path, timeout=0: (200, {"pending": True}, 0.0)
+        self.assertEqual(routes.settled("http://x", "/p", wait=0, pause=0, get=always), (200, {"pending": True}))
+        for data in ({"pending": False, "rows": []}, {"pending": "yes"}, [1], "text", {"pending_records": 3}):
+            self.assertEqual(routes.settled("http://x", "/p", wait=5, pause=0, get=lambda b, p, timeout=0, d=data: (200, d, 0.0)), (200, data))
+
+
 if __name__ == "__main__":
     unittest.main()

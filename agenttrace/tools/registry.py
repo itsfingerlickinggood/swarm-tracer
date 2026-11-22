@@ -26,6 +26,7 @@ FIELD_KEYS = ("actor_ids", "timestamps", "message_bodies", "tool_calls", "recipi
 FIELD_VALUES = ("yes", "no", "partial", "unclear")
 REQUIRED = ("id", "title", "status", "kind", "publisher", "source_url", "contains", "size", "format", "fields",
             "reader", "terms", "publish", "publish_note", "citation", "contact", "confidence", "can", "cannot", "links")
+GALLERY_RECORDS = ("viewer", "excerpts", "none")     # what an investigation page may show of a record
 NO_LICENCE = "no stated licence — ask the authors"
 QUOTE_WORDS = 14          # quotes stay under 15 words
 WIDTHS = (390, 768, 1024, 1280, 1680)
@@ -127,6 +128,28 @@ def validate(reg):
         for ln in e.get("links") or []:
             if not ln.get("label") or not _is_url(ln.get("url"), local_ok=True):
                 bad(f"bad link: {ln}")
+        # the gallery block: what docs/investigations/ prints as this dataset's credit, and what it may show of a record
+        g = e.get("gallery")
+        if g is not None:
+            if e.get("status") != "analysed":
+                bad("gallery: only an analysed dataset can have investigations")
+            for k in ("name", "attribution"):
+                if not g.get(k):
+                    bad(f"gallery.{k} is missing")
+            if not _is_url(g.get("url")):
+                bad("gallery.url must be an https URL")
+            if g.get("records") not in GALLERY_RECORDS:
+                bad(f"gallery.records must be one of {GALLERY_RECORDS}")
+            # an investigation must stay inside the terms, as the rest of the site does
+            if g.get("records") == "excerpts" and (e.get("publish") not in ("raw", "excerpts") or t.get("excerpts") != "yes"):
+                bad("gallery.records is 'excerpts' but publish or terms.excerpts does not allow excerpts")
+            if g.get("records") == "viewer" and "{id}" not in str(g.get("record_url") or ""):
+                bad("gallery.records is 'viewer' but gallery.record_url has no {id}")
+            if g.get("record_url") and not _is_url(g["record_url"]):
+                bad("gallery.record_url must be an https URL")
+            rp = str(g.get("report") or "")
+            if rp and not (rp.startswith("reports/external/") and rp.endswith("/results.json") and ".." not in rp):
+                bad("gallery.report must be reports/external/<name>/results.json")
     return errs
 
 

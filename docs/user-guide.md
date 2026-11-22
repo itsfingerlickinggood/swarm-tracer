@@ -37,7 +37,7 @@ Programs (identical code once ids and numbers are masked) that more than one nam
 
 ## Early flag
 
-A replay of the incident, hour by hour. The line is the share of harmful actions still to come. Numbered dots are warning signs (single actor, actors together, volume baseline), filled once they have fired. The counters, the network as it stood, and a feed of what the tracer would have said update as you play. The alert rule (watch at the first harmful sign, alert once N kinds of coordination have shown) is computed in the page. Edit and save more rules under **Live → Rules**.
+A replay of the incident, hour by hour. The line is the share of harmful actions still to come. Numbered dots are the four main alarms (new host, secrets search, distinct actors, volume) and the other signs (single actor, and actors together, which are context and not an early warning), filled once they have fired. The counters, the network as it stood, and a feed of what the tracer would have said update as you play. The alert rule (watch at the first harmful sign, alert once N kinds of coordination have shown) is computed in the page. Edit and save more rules under **Live → Rules**.
 
 ## Agents
 

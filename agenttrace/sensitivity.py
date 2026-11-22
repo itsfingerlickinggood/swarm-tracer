@@ -181,8 +181,23 @@ def _named_deliveries(view, amap, coarse_mode):
             self_talk += 1
             continue
         out.append((d["read_time"], d, a, b, coarse and coarse_mode == "asis"))
-    out.sort(key=lambda x: x[0])
+    # a total order: by read time, and for messages read in the same second by their records and place, never by
+    # the order they happened to arrive in. The first message, and which messages a random draw drops in the
+    # failed-reads scenario, then depend on the set of messages only (before this the mean of pairs moved in its
+    # last digit between runs, 6145.0 against 6145.1 on the collusion.wiki logs).
+    out.sort(key=_delivery_order)
     return out, self_talk
+
+
+def _delivery_order(x):
+    d = x[1]
+    return (x[0], str(d.get("read_id")), str(d.get("write_id")), str(d.get("channel")), str(x[2]), str(x[3]))
+
+
+def _mean(xs, digits=1):
+    """The mean, rounded. math.fsum adds exactly, so the result does not depend on the order of xs."""
+    xs = list(xs)
+    return round(math.fsum(xs) / len(xs), digits) if xs else None
 
 
 def _signs_from(s, view, p, times, ag, exact, harm_t, base_signals, harm_first=True):
@@ -408,11 +423,12 @@ def _gap_success(s, base):
             kept = [x for x in named if rng.random() >= pf]
             exact = [(t, d, a, b) for t, d, a, b, c in kept if not c]
             draws.append((len(kept), len({(a, b) for _, _, a, b, _ in kept}), exact))
-        mid = sorted(draws, key=lambda x: (x[2][0][0] if x[2] else float("inf")))[len(draws) // 2]
+        # draws that share a first-message time are ordered by what they kept, not by their place in the list
+        mid = sorted(draws, key=lambda x: (x[2][0][0] if x[2] else float("inf"), x[0], x[1]))[len(draws) // 2]
         # median draw by first message time; counts as the mean over draws
         vals = {k: v for k, v in base.items() if not k.startswith("_")}
-        vals["messages"] = round(sum(d[0] for d in draws) / len(draws), 1)
-        vals["pairs"] = round(sum(d[1] for d in draws) / len(draws), 1)
+        vals["messages"] = _mean(d[0] for d in draws)
+        vals["pairs"] = _mean(d[1] for d in draws)
         firsts = sorted(d[2][0][0] for d in draws if d[2])
         vals["first_message"] = firsts[len(firsts) // 2] if firsts else None
         vals["first_message_share"] = _share(harm_t, vals["first_message"])

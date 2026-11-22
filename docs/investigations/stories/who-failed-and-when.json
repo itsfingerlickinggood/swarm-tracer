@@ -1,0 +1,270 @@
+{
+ "slug": "who-failed-and-when",
+ "order": 6,
+ "title": "Who failed, and when? The tool against someone else's labels",
+ "dek": "Who&When holds {runs} failed runs of real agent teams, each with a human label of the agent and the step that caused the failure. The tool finds who talks to whom. It does not find who failed.",
+ "dataset": "who_and_when",
+ "kicker": "Who&When, a public dataset of failed agent runs",
+ "source": {
+  "authors": "Zhang et al.",
+  "title": "Which Agent Causes Task Failures and When? On Automated Failure Attribution of LLM Multi-Agent Systems",
+  "site": "ICML 2025, arXiv:2505.00212",
+  "url": "https://github.com/ag2ai/Agents_Failure_Attribution",
+  "date": "2025",
+  "licence": "MIT",
+  "attribution": "Excerpts are from Who&When: Zhang et al., \"Which Agent Causes Task Failures and When? On Automated Failure Attribution of LLM Multi-Agent Systems\", ICML 2025, arXiv:2505.00212; data at github.com/ag2ai/Agents_Failure_Attribution, MIT License, Copyright (c) 2025 Ming Yin. Each excerpt is cut short; nothing else is changed.",
+  "snippets": "on",
+  "input": "the Hand-Crafted runs, as logged (python3 -I agenttrace/failure_eval.py story who-failed-and-when)"
+ },
+ "figures": {
+  "runs": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "totals.runs",
+   "as": "int",
+   "label": "failed runs, each loaded as its own trace"
+  },
+  "records": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "totals.records",
+   "as": "int",
+   "label": "records (one per message)"
+  },
+  "timed": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "totals.records_with_time",
+   "as": "int",
+   "label": "records that carry a time"
+  },
+  "undated": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "groups.Hand-Crafted.as_logged.direct_messages_undated",
+   "as": "int",
+   "label": "logged messages the tool holds as undated, and leaves out of its graph"
+  },
+  "logged": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "totals.logged_messages_with_recipient",
+   "as": "int",
+   "label": "messages whose recipient the log names"
+  },
+  "kept": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "groups.Hand-Crafted.who_talked_to_whom.recipients_kept.message_recall.k",
+   "as": "int",
+   "label": "of them listed as a direct message, recipients kept"
+  },
+  "pair_found": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "groups.Hand-Crafted.who_talked_to_whom.recipients_withheld.pair_recall.k",
+   "as": "int",
+   "label": "logged sender-recipient pairs the tool finds, recipients withheld"
+  },
+  "pair_logged": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "groups.Hand-Crafted.who_talked_to_whom.recipients_withheld.pair_recall.n",
+   "as": "int",
+   "label": "logged sender-recipient pairs (one per pair per run)"
+  },
+  "msg_found": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "groups.Hand-Crafted.who_talked_to_whom.recipients_withheld.message_recall.k",
+   "as": "int",
+   "label": "single addressed messages the tool finds, recipients withheld"
+  },
+  "sign_agent": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.methods.tool_first_sign.agent.k",
+   "as": "int",
+   "label": "runs where the record of the tool's first sign is by the labelled agent"
+  },
+  "sign_step": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.methods.tool_first_sign.step.k",
+   "as": "int",
+   "label": "runs where it is the labelled step"
+  },
+  "chance_agent": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.chance.agent",
+   "as": "pct",
+   "label": "chance for the agent (mean of one over the agents in a run)"
+  },
+  "busy_agent": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.methods.baseline_busiest_agent.agent.k",
+   "as": "int",
+   "label": "runs where the agent with most records is the labelled agent"
+  },
+  "last_agent": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.methods.baseline_last_step.agent.k",
+   "as": "int",
+   "label": "runs where the last speaker is the labelled agent"
+  },
+  "published_agent": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "attribution_all.published_for_scale.agent",
+   "as": "pct",
+   "label": "the dataset paper's best method, agent level (not re-measured)"
+  },
+  "alert": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "false_alarms_all.by_rule_auto_pack.alert-coord2.k",
+   "as": "int",
+   "label": "runs where the Alert rule fired (step clock)"
+  },
+  "watch": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "false_alarms_all.by_rule_auto_pack.watch-harm.k",
+   "as": "int",
+   "label": "runs where the Watch rule fired (step clock)"
+  },
+  "label_ok": {
+   "from": "reports/external/who_and_when/results.json",
+   "path": "label_check.label_step_is_by_label_agent",
+   "as": "int",
+   "label": "runs where the labelled step was spoken by the labelled agent"
+  }
+ },
+ "body": [
+  {
+   "h": "A dataset with the answer written down"
+  },
+  {
+   "p": "Every accuracy number for this tool used to come from our own simulator. Who&When is someone else's data: [[c1|{runs} failed runs of real agent teams]], and for each one a person wrote down which agent made the decisive mistake and at which step. Nobody on this project made those labels."
+  },
+  {
+   "p": "The runs are not attacks and they are not swarms. Each is one small team working on one task. [[c2|No message carries a time]], only its place in the order. Loaded as logged, the tool cannot run its replay, and it leaves every logged message out of its graph."
+  },
+  {
+   "h": "Who talked to whom"
+  },
+  {
+   "p": "In the hand-crafted runs the log names the recipient of each instruction. [[c3|{logged} messages are addressed this way]]. With the recipients kept, the tool lists all of them as direct messages once the records have a clock. That checks our reader. It is not an accuracy."
+  },
+  {
+   "p": "Then we took the recipients away. The tool saw who spoke, in what order, and the text. [[c4|It still found {pair_found} of the {pair_logged} sender-recipient pairs]]. It found far fewer of the single messages: [[c5|{msg_found} of {logged}]]. It counts each write once per reader, so it learns that the orchestrator talks to the web surfer, and not which instruction was which."
+  },
+  {
+   "h": "Who failed"
+  },
+  {
+   "p": "The tool has no feature that names a culprit. We read its flags as blame by rules fixed before any score was computed. [[c6|The record of its first warning sign is by the labelled agent in {sign_agent} of {runs} runs]], and chance is {chance_agent}. [[c7|Naming the agent with the most records does better: {busy_agent}]]. The dataset's authors report {published_agent} for their best method, a language model that reads the whole log."
+  },
+  {
+   "p": "One run shows why. [[c8|The annotators marked a click by the web surfer that landed on an unrelated page]]. The tool's first sign in that run is the orchestrator's opening plan, because that is where a second speaker first appears. A tool that looks for shared places, carried tokens and harmful actions has no reason to look at a wrong click."
+  },
+  {
+   "h": "False alarms"
+  },
+  {
+   "p": "Every run here is benign in the tool's sense: nothing is hidden and nobody is attacked. [[c9|On an order-only clock the Alert rule fired in {alert} of {runs} runs]]. It fires when a team talks. That is what it measures: information flow, not malice."
+  },
+  {
+   "note": "The steps of the hand-crafted runs come from Magentic-One, and the others from group chats built by an algorithm. Credit for the data and the labels is in the source line below and beside each excerpt."
+  }
+ ],
+ "claims": {
+  "c1": {
+   "evidence": "The dataset, as loaded.",
+   "figures": [
+    "runs",
+    "records",
+    "label_ok"
+   ],
+   "docs": [
+    {
+     "href": "../../datasets.html#who_and_when",
+     "label": "Who&When in the dataset registry: source, licence, what the tool can and cannot do with it"
+    }
+   ],
+   "caveat": "Data and labels: Zhang et al., \"Which Agent Causes Task Failures and When?\", ICML 2025, arXiv:2505.00212, github.com/ag2ai/Agents_Failure_Attribution, MIT License, Copyright (c) 2025 Ming Yin. In a few runs the labelled step was not spoken by the labelled agent; both labels are scored as given."
+  },
+  "c2": {
+   "evidence": "No record has a time, so nothing can be replayed as logged.",
+   "figures": [
+    "timed",
+    "undated"
+   ],
+   "caveat": "Everything below that needs an order in time uses a step clock: each record is placed sixty seconds after the one before. It keeps the order and invents nothing else."
+  },
+  "c3": {
+   "evidence": "An instruction whose recipient the log names.",
+   "figures": [
+    "logged",
+    "kept"
+   ],
+   "records": [
+    {
+     "id": "hc1:3",
+     "note": "The log's role for this record is \"Orchestrator (-> WebSurfer)\": sender and recipient are both written down."
+    }
+   ]
+  },
+  "c4": {
+   "evidence": "Pairs found with the recipients removed.",
+   "figures": [
+    "pair_found",
+    "pair_logged"
+   ],
+   "caveat": "A pair is a sender and a recipient inside one run. The tool also reports pairs the log does not address, such as an answer going back to the orchestrator; those are not shown to be wrong."
+  },
+  "c5": {
+   "evidence": "Single messages found with the recipients removed.",
+   "figures": [
+    "msg_found",
+    "logged"
+   ],
+   "records": [
+    {
+     "id": "hc1:4",
+     "note": "The web surfer answers. With recipients withheld, the tool links it to the orchestrator because it posts next in the same conversation."
+    }
+   ]
+  },
+  "c6": {
+   "evidence": "The tool's first sign, read as blame.",
+   "figures": [
+    "sign_agent",
+    "sign_step",
+    "runs",
+    "chance_agent"
+   ],
+   "caveat": "A run where the tool raises no sign counts as a miss. The interval and the per-subset figures are in reports/external/who_and_when/summary.md."
+  },
+  "c7": {
+   "evidence": "Two baselines that use no tool, and the published result.",
+   "figures": [
+    "busy_agent",
+    "last_agent",
+    "published_agent"
+   ],
+   "caveat": "The published figure is quoted from the paper's abstract for scale. We did not re-run it."
+  },
+  "c8": {
+   "evidence": "The step the annotators marked in one run.",
+   "records": [
+    {
+     "id": "hc1:12",
+     "note": "The labelled mistake. The label's reason: \"WebSurfer clicks on an irrelevant website and disrupts the task-solving process.\""
+    }
+   ],
+   "caveat": "Excerpt and label from Who&When (Zhang et al., ICML 2025; MIT License, Copyright (c) 2025 Ming Yin)."
+  },
+  "c9": {
+   "evidence": "The default rules on benign runs.",
+   "figures": [
+    "alert",
+    "watch",
+    "runs"
+   ],
+   "docs": [
+    {
+     "href": "../../validation.html",
+     "label": "How accurate is the tool?"
+    }
+   ],
+   "caveat": "Counted once per run, on the step clock. A rate per day would mean nothing here and none is given."
+  }
+ }
+}

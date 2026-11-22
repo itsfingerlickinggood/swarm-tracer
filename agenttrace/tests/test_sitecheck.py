@@ -4,9 +4,11 @@ The fake secrets are put together at run time, so this file holds nothing a secr
 """
 import contextlib
 import copy
+import html
 import io
 import json
 import os
+import re
 import shutil
 import tempfile
 import unittest
@@ -100,6 +102,7 @@ class SecretScannerTests(unittest.TestCase):
 def fake_site(d, snippets=False):
     """A docs folder with one investigation, built by the real builder from a hand-made bundle."""
     story = {"slug": "one", "title": "One", "dek": "A story with {n} messages.", "order": 1,
+             "figures": {"n": {"from": "/api/state", "path": "summary.flow.deliveries", "as": "int", "label": "messages"}},
              "body": [{"h": "Start"}, {"p": "First [[c1|there are {n} messages, the first on {rec:R0000002.time}]] then."},
                       {"p": "Also [[c2|{rec:R0000002.actor} read what {rec:R0000001.actor} wrote]] " + "word " * 300}],
              "claims": {"c1": {"evidence": "Count {n}.", "figures": ["n"], "records": ["R0000002"]},
@@ -196,7 +199,7 @@ class SiteTests(unittest.TestCase):
         b["records"]["R0000002"]["kind"] = "response"
         s = copy.deepcopy(self.story)
         s["claims"]["c2"]["records"].append("R0000009")
-        b["records"]["R0000009"] = dict(b["records"]["R0000001"], id="R0000009")
+        b["records"]["R0000009"] = dict(b["records"]["R0000001"], id="R0000009", viewer=B.CITATION["viewer"].format(id="R0000009"))
         self.save(story=s, bundle=b)
         rules, res = self.rules(dataset=self.data)
         self.assertIn("record-not-in-dataset", rules)
@@ -209,7 +212,8 @@ class SiteTests(unittest.TestCase):
         s = copy.deepcopy(self.story)
         s["claims"]["c2"]["records"].append("R0000003")
         b["records"]["R0000003"] = dict(b["records"]["R0000001"], id="R0000003", kind="response", actor_kind="run", actor="run:R0000003",
-                                        time="2026-07-10 13:00", time_estimated=False, time_source="field")
+                                        time="2026-07-10 13:00", time_estimated=False, time_source="field",
+                                        viewer=B.CITATION["viewer"].format(id="R0000003"))
         self.save(story=s, bundle=b)
         _, res = self.rules(dataset=self.data)
         self.assertTrue(any(f.rule == "record-differs" and f.text == "R0000003" and "time" in f.detail for f in res["findings"]))
@@ -314,20 +318,334 @@ class SiteTests(unittest.TestCase):
         self.assertIn("redaction: 1 findings", out.getvalue())
 
 
+REPORT = {"tool_version": "9.9.8", "measured_on": "2026-11-22", "totals": {"runs": 184, "share": 0.25}, "words": [{"match": "secret"}]}
+
+
+def external_story(slug, dataset, order, records=True):
+    """A story of a measured dataset: its numbers are read from reports/external/<name>/results.json."""
+    cit = B.citation_of(dataset)
+    claims = {"c1": {"evidence": "The runs.", "figures": ["runs", "share"]}}
+    body = [{"h": "Start"}, {"p": "There are [[c1|{runs} runs, {share} of them flagged]]. " + "word " * 300}]
+    if records:
+        claims["c2"] = {"evidence": "One message.", "records": [{"id": "hc1:3", "note": "an instruction"}]}
+        body.append({"p": "And [[c2|one agent wrote to another]]."})
+    return {"slug": slug, "title": slug.title(), "dek": "A story with {runs} runs.", "order": order, "dataset": dataset,
+            "kicker": cit["name"], "source": {"attribution": cit["attribution"]},
+            "figures": {"runs": {"from": cit["report"], "path": "totals.runs", "as": "int", "label": "runs"},
+                        "share": {"from": cit["report"], "path": "totals.share", "as": "pct", "label": "flagged"}},
+            "body": body, "claims": claims}
+
+
+def external_bundle(story, snippet="Please search for the schools near the exchange and list their names."):
+    cit = B.citation_of(story["dataset"])
+    api = B.Api(None, ROOT_OF[0])
+    b = {"schema": 1, "story": story["slug"], "dataset": cit["dataset"], "snippets": "off", "citation": cit,
+         "produced_by": dict({"tool": "Swarm Tracer", "version": "9.9.9", "pack": "generic agent traces"}, **B.report_stamp(cit, api)),
+         "figures": B.resolve_figures(story, api), "records": {}, "findings": {}}
+    if B.cited_records(story):
+        b["snippets"] = "on"
+        b["records"]["hc1:3"] = {"id": "hc1:3", "kind": "instruction", "time": None, "time_estimated": False, "time_source": None,
+                                 "actor": "Orchestrator", "actor_kind": "named", "agent": None, "intent": "other", "text_length": 131,
+                                 "judged": [{"op": "write", "place": "inbox:WebSurfer", "place_label": "inbox WebSurfer", "in_text": False}],
+                                 "messages": [], "snippet": snippet}
+    return b
+
+
+ROOT_OF = [None]        # the temporary folder that holds docs/ and reports/ for the test that is running
+
+
+class OtherDatasetTests(unittest.TestCase):
+    """Stories of datasets other than Swarm Traces: an openly licensed one (excerpts with the credit line), and one
+    that is published as numbers only. The citation and the rule come from the real registry."""
+
+    def setUp(self):
+        self.d = tempfile.mkdtemp(prefix="st-sitecheck-")
+        ROOT_OF[0] = self.d
+        self.docs = os.path.join(self.d, "docs")
+        self.inv, self.swarm, _ = fake_site(self.docs)
+        for name in ("who_and_when", "moltbook"):
+            write(os.path.join(self.d, "reports", "external", name, "results.json"), json.dumps(REPORT))
+        self.open = external_story("two", "who_and_when", 2)
+        self.numbers = external_story("three", "moltbook_observatory", 3, records=False)
+        for st in (self.open, self.numbers):
+            self.save(st, external_bundle(st), rebuild=False)
+        self.build()
+
+    def tearDown(self):
+        shutil.rmtree(self.d)
+
+    def save(self, story, bundle=None, rebuild=True):
+        write(os.path.join(self.inv, "stories", story["slug"] + ".json"), json.dumps(story))
+        if bundle is not None:
+            write(os.path.join(self.inv, "data", story["slug"] + ".json"), json.dumps(bundle, indent=1) + "\n")
+        if rebuild:
+            self.build()
+
+    def build(self, **kw):
+        kw.setdefault("from_bundles", True)
+        return B.build(None, None, self.inv, log=lambda *a: None, root=self.d, **kw)
+
+    def bundle(self, slug):
+        with open(os.path.join(self.inv, "data", slug + ".json"), encoding="utf-8") as f:
+            return json.load(f)
+
+    def page(self, slug=None):
+        with open(os.path.join(self.inv, slug, "index.html") if slug else os.path.join(self.inv, "index.html"), encoding="utf-8") as f:
+            return f.read()
+
+    def rules(self):
+        res = S.run(self.docs, allow_path=None)
+        return sorted({f.rule for f in res["findings"]}), res
+
+    def test_three_datasets_build_and_pass(self):
+        rules, res = self.rules()
+        self.assertEqual(rules, [], [str(f) for f in res["findings"]])
+
+    def test_gallery_is_grouped_by_dataset_with_the_registry_citation_licence_and_credit(self):
+        index = self.page()
+        self.assertEqual(re.findall(r'<section class="group" id="ds-[a-z_]+" data-dataset="([a-z_]+)"', index),
+                         ["swarm_traces", "who_and_when", "moltbook_observatory"])
+        seen = html.unescape(index)
+        for did in ("swarm_traces", "who_and_when", "moltbook_observatory"):
+            cit = B.citation_of(did)
+            for k in ("title", "attribution", "licence"):
+                self.assertIn(cit[k], seen, f"{did}: {k}")
+            self.assertIn(cit["text"].rstrip("."), seen, did)
+            self.assertIn(f'href="../datasets.html#{did}"', index)
+        for slug in ("one", "two", "three"):
+            self.assertEqual(index.count(f'<a href="{slug}/">'), 1)
+            page = html.unescape(self.page(slug))
+            cit = B.citation_of(B.dataset_of(next(s for s in B.load_stories(self.inv) if s["slug"] == slug)))
+            self.assertIn(cit["attribution"], page)
+            self.assertIn("Licence: " + cit["licence"], page)
+
+    def test_record_links_and_text_follow_each_dataset(self):
+        swarm, open_, numbers = self.page("one"), self.page("two"), self.page("three")
+        self.assertIn('href="https://swarmtraces.org/viewer/#/row/R0000001"', swarm)        # the publisher's viewer, no text
+        self.assertNotIn("<blockquote", swarm)
+        self.assertIn("Please search for the schools", open_)                                # an excerpt, with its credit
+        quote = re.search(r"<blockquote.*?</blockquote>", open_, flags=re.S).group(0)
+        self.assertIn(B.citation_of("who_and_when")["attribution"], html.unescape(quote))
+        self.assertNotIn("swarmtraces.org/viewer", open_)
+        self.assertNotIn("<blockquote", numbers)                                             # numbers only
+        self.assertNotIn("data-rid", numbers)
+        self.assertIn("Numbers only", numbers)
+
+    def test_number_that_the_saved_result_no_longer_holds(self):
+        write(os.path.join(self.d, "reports", "external", "who_and_when", "results.json"),
+              json.dumps(dict(REPORT, totals={"runs": 190, "share": 0.25})))
+        rules, res = self.rules()
+        self.assertEqual(rules, ["figure-differs-from-report"], [str(f) for f in res["findings"]])
+        f = res["findings"][0]
+        self.assertEqual((f.path, f.text), ("investigations/data/two.json", "runs"))
+        self.assertIn("184", f.detail)
+        self.assertIn("190", f.detail)
+        with self.assertRaises(SystemExit) as e:                       # a pages-only build will not print the stale number
+            self.build()
+        self.assertIn("runs is '184' in the bundle, '190' in the saved result", str(e.exception))
+        self.build(from_bundles=False, keep=("swarm_traces", "who_and_when"))     # the build reads the saved result again
+        self.assertEqual(self.bundle("two")["figures"]["runs"]["value"], 190)
+        self.assertIn('data-v="runs">190<', self.page("two"))
+        self.assertEqual(self.bundle("two")["records"]["hc1:3"]["snippet"][:13], "Please search", "kept: the dataset was not read")
+        rules, res = self.rules()
+        self.assertEqual(rules, [], [str(f) for f in res["findings"]])
+
+    def test_saved_result_that_is_missing_or_lacks_the_figure(self):
+        os.remove(os.path.join(self.d, "reports", "external", "moltbook", "results.json"))
+        _, res = self.rules()
+        got = {(f.rule, f.path, f.text) for f in res["findings"]}
+        self.assertEqual(got, {("figure-differs-from-report", "investigations/data/three.json", k) for k in ("runs", "share")})
+        with self.assertRaises(SystemExit):
+            self.build(from_bundles=False, keep=("swarm_traces", "who_and_when"))
+        write(os.path.join(self.d, "reports", "external", "moltbook", "results.json"), json.dumps({"totals": {"runs": 184}}))
+        with self.assertRaises(SystemExit) as e:
+            self.build(from_bundles=False, keep=("swarm_traces", "who_and_when"))
+        self.assertIn("figure share", str(e.exception))
+
+    def test_story_may_read_only_its_own_datasets_saved_result(self):
+        s = copy.deepcopy(self.numbers)
+        s["figures"]["runs"]["from"] = "reports/external/who_and_when/results.json"
+        self.save(s, rebuild=False)
+        rules, res = self.rules()
+        self.assertIn("story-breaks-dataset-rule", rules)
+        self.assertTrue(any("reads reports/external/moltbook/results.json and nothing else" in f.text for f in res["findings"]))
+        with self.assertRaises(SystemExit):
+            self.build(from_bundles=False, keep=("swarm_traces", "who_and_when"))
+
+    def test_numbers_only_dataset_takes_no_record_and_no_text(self):
+        s = copy.deepcopy(self.numbers)
+        s["claims"]["c1"]["records"] = ["hc1:3"]
+        b = self.bundle("three")
+        b["records"] = external_bundle(self.open)["records"]
+        b["snippets"] = "on"
+        self.save(s, b)
+        rules, res = self.rules()
+        for rule in ("record-in-numbers-only", "snippets-on", "story-breaks-dataset-rule", "record-text-on-page", "record-text-field"):
+            self.assertIn(rule, rules, [str(f) for f in res["findings"]])
+        with self.assertRaises(SystemExit) as e:                       # and the builder refuses to make such a bundle
+            B.build_bundle(s, B.Api(None, self.d))
+        self.assertIn("numbers only", str(e.exception))
+        # a figure that is text is one word: a sentence of a post cannot come in as a "figure"
+        s = copy.deepcopy(self.numbers)
+        s["figures"]["word"] = {"from": "reports/external/moltbook/results.json", "path": "words.0.match", "as": "text", "label": "a word"}
+        s["claims"]["c1"]["figures"].append("word")
+        self.assertEqual(B.build_bundle(s, B.Api(None, self.d))["figures"]["word"]["text"], "secret")
+        write(os.path.join(self.d, "reports", "external", "moltbook", "results.json"),
+              json.dumps(dict(REPORT, words=[{"match": "a whole sentence that an agent posted"}])))
+        with self.assertRaises(SystemExit) as e:
+            B.build_bundle(s, B.Api(None, self.d))
+        self.assertIn("would print text", str(e.exception))
+        b = self.bundle("three")
+        b["figures"]["word"] = B.figure_entry(s["figures"]["word"], "a whole sentence that an agent posted")
+        self.save(s, b)
+        self.assertIn("text-in-numbers-only", self.rules()[0])
+
+    def test_excerpt_needs_the_credit_line_and_the_registry_citation(self):
+        cit = B.citation_of("who_and_when")
+        p = os.path.join(self.inv, "two", "index.html")
+        page = self.page("two")
+        quote = re.search(r"<blockquote.*?</blockquote>", page, flags=re.S).group(0)
+        write(p, page.replace(quote, quote.replace(html.escape(cit["attribution"]), "from a dataset")))
+        rules, _ = self.rules()
+        self.assertIn("excerpt-without-credit", rules)
+        self.assertIn("page-stale", rules)
+        self.build()
+        b = self.bundle("two")
+        b["citation"]["attribution"] = "Ours."
+        self.save(self.open, b, rebuild=False)
+        self.assertIn("citation-differs", self.rules()[0])
+        s = copy.deepcopy(self.open)                                  # a story cannot carry a credit line of its own
+        s["source"]["attribution"] = "Ours."
+        self.save(s, self.bundle("two"), rebuild=False)
+        rules, res = self.rules()
+        self.assertIn("story-breaks-dataset-rule", rules)
+        with self.assertRaises(SystemExit) as e:
+            self.build(from_bundles=False, keep=("swarm_traces", "who_and_when"))
+        self.assertIn("credit line differs from the registry's", str(e.exception))
+
+    def test_excerpt_is_bounded_and_scanned_like_any_page(self):
+        b = external_bundle(self.open, snippet="x" * (B.SNIPPET_MAX + 1))
+        self.save(self.open, b)
+        self.assertIn("snippet-too-long", self.rules()[0])
+        b = external_bundle(self.open, snippet="export KEY=" + FAKES["hf-token"])
+        self.save(self.open, b)
+        self.assertIn("hf-token", self.rules()[0])
+
+    def test_record_of_a_viewer_dataset_links_to_the_viewer(self):
+        with open(os.path.join(self.inv, "data", "one.json"), encoding="utf-8") as f:
+            b = json.load(f)
+        b["records"]["R0000001"]["viewer"] = "https://example.org/viewer/R0000001"
+        self.save(self.swarm, b)
+        rules, res = self.rules()
+        self.assertEqual(rules, ["viewer-link"], [str(f) for f in res["findings"]])
+        b = self.bundle("two")                                        # and a dataset with no viewer has no such link
+        b["records"]["hc1:3"]["viewer"] = "https://swarmtraces.org/viewer/#/row/hc1:3"
+        self.save(self.open, b)
+        self.assertIn("viewer-link", self.rules()[0])
+
+    def test_dataset_must_be_in_the_registry_and_match_the_story(self):
+        s = dict(self.open, dataset="no_such_dataset")
+        self.save(s, rebuild=False)
+        self.assertIn("dataset-differs", self.rules()[0])
+        with self.assertRaises(SystemExit) as e:
+            self.build()
+        self.assertIn("no \"gallery\" block", str(e.exception))
+
+
 @unittest.skipUnless(os.path.isdir(os.path.join(S.DOCS, "investigations")), "needs the source checkout (docs/ is not in an installed copy)")
 class CommittedSiteTests(unittest.TestCase):
-    """The site in this repository, checked offline (no dataset, no server)."""
+    """The site in this repository, checked offline (no dataset, no server): every story, whatever their number."""
 
-    def test_committed_bundles_publish_no_record_text(self):
-        self.assertEqual([str(f) for f in S.check_no_snippets(S.DOCS)], [])
+    @classmethod
+    def setUpClass(cls):
+        _, cls.inv, cls.stories, cls.bundles = S.load_investigations(S.DOCS)
+
+    def page(self, slug=None):
+        with open(os.path.join(self.inv, slug, "index.html") if slug else os.path.join(self.inv, "index.html"), encoding="utf-8") as f:
+            return f.read()
+
+    def test_every_story_has_a_bundle_a_page_and_a_place_in_the_gallery(self):
+        self.assertGreaterEqual(len(self.stories), 7)
+        index = self.page()
+        for s in self.stories:
+            with self.subTest(story=s["slug"]):
+                self.assertIn(s["slug"], self.bundles, "no bundle")
+                self.assertTrue(os.path.isfile(os.path.join(self.inv, s["slug"], "index.html")), "no page")
+                self.assertEqual(index.count(f'<a href="{s["slug"]}/">'), 1)
+                self.assertLessEqual(len(self.bundles[s["slug"]]["records"]), B.MAX_RECORDS)
+        slugs = {s["slug"] for s in self.stories}
+        extra = {f[:-5] for f in os.listdir(os.path.join(self.inv, "data")) if f.endswith(".json")} - slugs
+        self.assertEqual(extra, set(), "a bundle with no story")
 
     def test_committed_investigations_resolve_and_match(self):
-        fs = S.check_evidence(S.DOCS) + S.check_numbers(S.DOCS)
+        fs = S.check_evidence(S.DOCS) + S.check_links(S.DOCS) + S.check_numbers(S.DOCS)
         self.assertEqual([str(f) for f in fs], [])
-        _, _, stories, bundles = S.load_investigations(S.DOCS)
-        self.assertEqual(len(stories), 3)
-        for s in stories:
-            self.assertLessEqual(len(bundles[s["slug"]]["records"]), B.MAX_RECORDS)
+
+    def test_committed_bundles_keep_to_their_dataset_rules(self):
+        self.assertEqual([str(f) for f in S.check_record_rules(S.DOCS)], [])
+        seen = set()
+        for s in self.stories:
+            b = self.bundles[s["slug"]]
+            cit = B.citation_of(B.dataset_of(s, b))
+            seen.add(cit["dataset"])
+            page = self.page(s["slug"])
+            with self.subTest(story=s["slug"], rule=cit["records"]):
+                self.assertEqual(b["citation"], cit, "the citation is the registry's")
+                self.assertIn(cit["attribution"], html.unescape(page))
+                if cit["records"] == "viewer":            # no stated licence: no record text, a link to the publisher's viewer
+                    self.assertEqual(b["snippets"], "off")
+                    self.assertNotIn("<blockquote", page)
+                    for rid, r in b["records"].items():
+                        self.assertNotIn("snippet", r)
+                        self.assertIn(f'href="{html.escape(cit["viewer"].format(id=rid))}"', page)
+                elif cit["records"] == "excerpts":        # an open licence: short excerpts, each with the credit line
+                    quotes = re.findall(r"<blockquote.*?</blockquote>", page, flags=re.S)
+                    self.assertEqual(len(quotes), sum(1 for r in b["records"].values() if "snippet" in r))
+                    for q in quotes:
+                        self.assertIn(cit["attribution"], html.unescape(q))
+                    self.assertTrue(all(len(r.get("snippet", "")) <= B.SNIPPET_MAX and "viewer" not in r for r in b["records"].values()))
+                else:                                     # numbers only: no record, so no text and no agent name
+                    self.assertEqual((b["records"], b["snippets"]), ({}, "off"))
+                    self.assertNotIn("<blockquote", page)
+                    self.assertNotIn("data-rid", page)
+                    self.assertEqual(B.cited_records(s), [])
+        self.assertLessEqual({"swarm_traces", "who_and_when", "mast_data", "salt_agent_collusion", "moltbook_observatory"}, seen)
+        self.assertEqual(B.citation_of("swarm_traces")["records"], "viewer")
+        self.assertEqual(B.citation_of("moltbook_observatory")["records"], "none")
+
+    def test_committed_numbers_are_the_saved_results(self):
+        """A story of a measured dataset reads reports/external/<name>/results.json and prints what it holds now."""
+        checked = 0
+        for s in self.stories:
+            cit = B.citation_of(B.dataset_of(s))
+            if not cit.get("report"):
+                continue
+            if not os.path.isfile(os.path.join(B.ROOT, *cit["report"].split("/"))):
+                self.skipTest(cit["report"] + " is not in this copy")
+            res = B.read_report(cit["report"])
+            b = self.bundles[s["slug"]]
+            for key, spec in s["figures"].items():
+                with self.subTest(story=s["slug"], figure=key):
+                    self.assertEqual(spec["from"], cit["report"])
+                    self.assertEqual(b["figures"][key]["value"], B.figure_value(spec, res))
+                    self.assertIn(f'data-v="{key}">{html.escape(B.fmt_value(B.figure_value(spec, res), spec["as"]))}<', self.page(s["slug"]))
+                    checked += 1
+            self.assertEqual(B.report_mismatches(s, b), [])
+        self.assertGreater(checked, 50)
+
+    def test_gallery_groups_the_stories_by_dataset(self):
+        index = self.page()
+        groups = re.findall(r'<section class="group" id="ds-[a-z_]+" data-dataset="([a-z_]+)"', index)
+        want = []
+        for s in self.stories:
+            d = B.dataset_of(s, self.bundles[s["slug"]])
+            if d not in want:
+                want.append(d)
+        self.assertEqual(groups, want)
+        for did in groups:
+            cit = B.citation_of(did)
+            for k in ("title", "licence", "attribution"):
+                self.assertIn(cit[k], html.unescape(index), f"{did}: {k}")
 
     def test_allowlist_entries_all_have_reasons(self):
         self.assertTrue(all(a.get("reason") and a.get("rule") for a in S.load_allow(S.ALLOW)))

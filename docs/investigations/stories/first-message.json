@@ -3,6 +3,8 @@
  "order": 1,
  "title": "The first delivery between agents",
  "dek": "The tool finds {deliveries} write-then-read deliveries in the release. Only {named} are between named tokens, and {inside} of those stay inside one estimated agent. None shows the reader using what was written. Counting agents moves the first delivery between agents by more than a day.",
+ "dataset": "swarm_traces",
+ "kicker": "Swarm Traces incident, July 2026",
  "figures": {
   "deliveries": {
    "from": "/api/state",
