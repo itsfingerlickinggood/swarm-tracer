@@ -181,7 +181,9 @@ class CoverageLinesTests(unittest.TestCase):
         self.assertIs(sys.gettrace(), saved[2])          # the tracer that was there before is back
         lines, covered = out[path]
         # 3 def lines + 2 in in_main + 2 in in_thread are run; the body of never() is not
-        self.assertEqual((lines, covered), (8, 7))
+        # Python 3.12 counts one more executable line in the file than 3.9 does, so the total is 8 or 9
+        self.assertEqual(covered, 7)
+        self.assertIn(lines, (8, 9))
 
 
 class RoutesPendingTests(unittest.TestCase):
